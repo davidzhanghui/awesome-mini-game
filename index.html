@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh" data-theme="dark">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -248,7 +248,12 @@ try{
           <button data-theme-set="dark" title="夜间">🌙</button>
           <button data-theme-set="light" title="白天">☀️</button>
         </div>
-        <button class="lang-btn" id="langBtn" title="Switch to English">EN</button>
+        <select class="lang-btn" id="langBtn" title="Switch language">
+          <option value="zh">中文</option>
+          <option value="en" selected>EN</option>
+          <option value="ja">日本語</option>
+          <option value="ko">한국어</option>
+        </select>
         <a class="gh-btn" href="https://github.com/davidzhanghui/awesome-mini-game" target="_blank" rel="noopener" id="ghLink" title="GitHub 仓库"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg></a>
       </div>
     </div>
@@ -319,80 +324,80 @@ var CATS = {
 
 /* ---------- 游戏数据（zh + en） ---------- */
 var GAMES = [
-  {dir:"raiden", name:"雷电 RAIDEN", enName:"RAIDEN", sub:"双人街机重制版", subEn:"2P Arcade Remake",
+  {dir:"raiden", name:"雷电 RAIDEN", enName:"RAIDEN", sub:"双人街机重制版", subEn:"2P Arcade Remake", subJa:"2Pアーケードリメイク", subKo:"2P 아케이드 리메이크",
    cat:"shooter", icon:"🚀", bg:"linear-gradient(135deg,#7f1d1d,#ef4444 55%,#f59e0b)",
-   flag:"双人同屏", flagEn:"2P Co-op",
+   flag:"双人同屏", flagEn:"2P Co-op", flagJa:"2人協力", flagKo:"2인 협동",
    desc:"多关卡弹幕空战，支持双人协作，BOSS 战拉满。",
-   descEn:"Multi-stage bullet-hell shooter with 2-player co-op and epic boss fights.",
-   tags:["双人","BOSS战","弹幕"], tagsEn:["2P","Boss","Bullet-hell"]},
-  {dir:"super-mario-bros", name:"超级马里奥", enName:"Super Mario Bros", sub:"像素大冒险", subEn:"Pixel Adventure",
+   descEn:"Multi-stage bullet-hell shooter with 2-player co-op and epic boss fights.", descJa:"多ステージの弾幕シューティング。2人協力プレイと迫力のボス戦。", descKo:"다단계 탄막 슈팅, 2인 협력 플레이와 박진감 넘치는 보스전.",
+   tags:["双人","BOSS战","弹幕"], tagsEn:["2P","Boss","Bullet-hell"], tagsJa:["2人","ボス戦","弾幕"], tagsKo:["2인","보스전","탄막"]},
+  {dir:"super-mario-bros", name:"超级马里奥", enName:"Super Mario Bros", sub:"像素大冒险", subEn:"Pixel Adventure", subJa:"ピクセルアドベンチャー", subKo:"픽셀 어드벤처",
    cat:"pixel", icon:"🍄", bg:"linear-gradient(135deg,#1d4ed8,#38bdf8 60%,#a5f3fc)",
-   flag:"必玩", flagEn:"Must Play",
+   flag:"必玩", flagEn:"Must Play", flagJa:"必見", flagKo:"필수작",
    desc:"横版跳跃鼻祖，吃蘑菇、踩乌龟、钻水管。",
-   descEn:"The classic side-scroller: mushrooms, turtles and pipes.",
-   tags:["横版","跳跃","关卡"], tagsEn:["Platform","Jump","Stages"]},
-  {dir:"tank-battle", name:"坦克大战", enName:"Tank Battle", sub:"经典街机", subEn:"Classic Arcade",
+   descEn:"The classic side-scroller: mushrooms, turtles and pipes.", descJa:"横スクロールの原点。キノコを取って、カメを踏んで、土管へ。", descKo:"고전 횡스크롤 액션: 버섯을 먹고, 거북이를 밟고, 파이프로.",
+   tags:["横版","跳跃","关卡"], tagsEn:["Platform","Jump","Stages"], tagsJa:["横スクロール","ジャンプ","ステージ"], tagsKo:["횡스크롤","점프","스테이지"]},
+  {dir:"tank-battle", name:"坦克大战", enName:"Tank Battle", sub:"经典街机", subEn:"Classic Arcade", subJa:"クラシックアーケード", subKo:"클래식 아케이드",
    cat:"shooter", icon:"🪖", bg:"linear-gradient(135deg,#14532d,#22c55e 60%,#a3e635)",
    desc:"保卫基地，砖墙钢墙层层推进，童年回忆杀。",
-   descEn:"Defend your base through brick and steel. Pure childhood nostalgia.",
-   tags:["关卡","策略","街机"], tagsEn:["Stages","Strategy","Arcade"]},
-  {dir:"galaga", name:"小蜜蜂 Galaga", enName:"Galaga", sub:"经典空战", subEn:"Classic Space Shooter",
+   descEn:"Defend your base through brick and steel. Pure childhood nostalgia.", descJa:"基地を守り抜け。レンガと鋼鉄の壁を越える懐かしの名作。", descKo:"기지를 사수하라. 벽돌과 강철 벽을 뚫는 추억의 명작.",
+   tags:["关卡","策略","街机"], tagsEn:["Stages","Strategy","Arcade"], tagsJa:["ステージ","戦略","アーケード"], tagsKo:["스테이지","전략","아케이드"]},
+  {dir:"galaga", name:"小蜜蜂 Galaga", enName:"Galaga", sub:"经典空战", subEn:"Classic Space Shooter", subJa:"クラシックシューティング", subKo:"클래식 스페이스 슈팅",
    cat:"shooter", icon:"🐝", bg:"linear-gradient(135deg,#1e1b4b,#6366f1 60%,#22d3ee)",
    desc:"俯冲、回旋、双机合体，街机厅的空战之王。",
-   descEn:"Dive, spin and dual-fighter combo — king of arcade space shooters.",
-   tags:["空战","合体","街机"], tagsEn:["Space","Combo","Arcade"]},
-  {dir:"chinese-chess", name:"中国象棋", enName:"Chinese Chess", sub:"经典桌游", subEn:"Classic Board Game",
+   descEn:"Dive, spin and dual-fighter combo — king of arcade space shooters.", descJa:"急降下に回転、合体攻撃。アーケード空戦の王者。", descKo:"급강하와 회전, 듀얼 파이터 합체 — 아케이드 우주 슈팅의 왕.",
+   tags:["空战","合体","街机"], tagsEn:["Space","Combo","Arcade"], tagsJa:["空戦","合体","アーケード"], tagsKo:["우주 전투","합체","아케이드"]},
+  {dir:"chinese-chess", name:"中国象棋", enName:"Chinese Chess", sub:"经典桌游", subEn:"Classic Board Game", subJa:"クラシックボードゲーム", subKo:"클래식 보드게임",
    cat:"board", icon:"♞", bg:"linear-gradient(135deg,#7c2d12,#dc2626 60%,#f59e0b)",
-   flag:"AI 对战", flagEn:"vs AI",
+   flag:"AI 对战", flagEn:"vs AI", flagJa:"AI対戦", flagKo:"AI 대전",
    desc:"完整规则 + AI 引擎（Worker 不卡顿），楚河汉界见真章。",
-   descEn:"Full rules plus a Web-Worker AI engine with zero lag.",
-   tags:["AI引擎","双人","国粹"], tagsEn:["AI","2P","Classic"]},
-  {dir:"dou-dizhu", name:"斗地主", enName:"Dou Dizhu", sub:"经典桌游", subEn:"Classic Card Game",
+   descEn:"Full rules plus a Web-Worker AI engine with zero lag.", descJa:"完全ルール搭載。Web Worker駆動のAIでサクサク対局。", descKo:"완전한 규칙과 Web Worker 기반 AI 엔진으로 끊김 없이 대국.",
+   tags:["AI引擎","双人","国粹"], tagsEn:["AI","2P","Classic"], tagsJa:["AI搭載","2人","定番"], tagsKo:["AI","2인","클래식"]},
+  {dir:"dou-dizhu", name:"斗地主", enName:"Dou Dizhu", sub:"经典桌游", subEn:"Classic Card Game", subJa:"クラシックカードゲーム", subKo:"클래식 카드 게임",
    cat:"board", icon:"🃏", bg:"linear-gradient(135deg,#78350f,#f59e0b 60%,#fde68a)",
    desc:"叫地主、抢地主、飞机炸弹，规则完整还原。",
-   descEn:"Bid for the landlord, planes and bombs — fully recreated rules.",
-   tags:["三人","策略","卡牌"], tagsEn:["3P","Strategy","Cards"]},
-  {dir:"gomoku", name:"五子棋", enName:"Gomoku", sub:"经典桌游", subEn:"Classic Board Game",
+   descEn:"Bid for the landlord, planes and bombs — fully recreated rules.", descJa:"地主入札に連番・爆弾。ルールを完全再現した定番カードゲーム。", descKo:"지주 입찰과 연속·폭탄 콤보, 규칙을 완전 재현한 카드 게임.",
+   tags:["三人","策略","卡牌"], tagsEn:["3P","Strategy","Cards"], tagsJa:["3人","戦略","カード"], tagsKo:["3인","전략","카드"]},
+  {dir:"gomoku", name:"五子棋", enName:"Gomoku", sub:"经典桌游", subEn:"Classic Board Game", subJa:"クラシックボードゲーム", subKo:"클래식 보드게임",
    cat:"board", icon:"⚫", bg:"linear-gradient(135deg,#292524,#78716c 60%,#e7e5e4)",
    desc:"人机对战 + 双人对弈，五连珠一锤定音。",
-   descEn:"Play vs AI or a friend — five in a row wins.",
-   tags:["人机","双人","轻量"], tagsEn:["vs AI","2P","Casual"]},
-  {dir:"tetris", name:"俄罗斯方块", enName:"Tetris", sub:"经典益智", subEn:"Classic Puzzle",
+   descEn:"Play vs AI or a friend — five in a row wins.", descJa:"AI戦も2人対局もOK。五つ並べれば勝ちの名作。", descKo:"AI전도 2인 대국도 가능, 다섯 개를 이으면 이기는 명작.",
+   tags:["人机","双人","轻量"], tagsEn:["vs AI","2P","Casual"], tagsJa:["AI戦","2人","お手軽"], tagsKo:["AI전","2인","캐주얼"]},
+  {dir:"tetris", name:"俄罗斯方块", enName:"Tetris", sub:"经典益智", subEn:"Classic Puzzle", subJa:"定番パズル", subKo:"클래식 퍼즐",
    cat:"puzzle", icon:"🧱", bg:"linear-gradient(135deg,#0e7490,#22d3ee 60%,#a5f3fc)",
-   flag:"经典", flagEn:"Classic",
+   flag:"经典", flagEn:"Classic", flagJa:"定番", flagKo:"클래식",
    desc:"七种方块无限下落，消行得分，手速与大局观的考验。",
-   descEn:"Seven tetrominoes falling forever — speed meets strategy.",
-   tags:["消行","计分","上头"], tagsEn:["Lines","Score","Addictive"]},
-  {dir:"game-2048", name:"2048", enName:"2048", sub:"数字益智", subEn:"Number Puzzle",
+   descEn:"Seven tetrominoes falling forever — speed meets strategy.", descJa:"7種のテトリミノが無限に落下——スピードと戦略の勝負。", descKo:"일곱 테트리미노가 끝없이 낙하 — 스피드와 전략의 승부。",
+   tags:["消行","计分","上头"], tagsEn:["Lines","Score","Addictive"], tagsJa:["ライン消し","スコア","ハマる"], tagsKo:["라인 지우기","스코어","중독성"]},
+  {dir:"game-2048", name:"2048", enName:"2048", sub:"数字益智", subEn:"Number Puzzle", subJa:"ナンバーパズル", subKo:"숫자 퍼즐",
    cat:"puzzle", icon:"🔢", bg:"linear-gradient(135deg,#92400e,#f59e0b 60%,#fde68a)",
    desc:"上下左右滑动合并，看看你能不能拼出 2048。",
-   descEn:"Slide and merge the tiles — can you reach 2048?",
-   tags:["数字","滑动","益智"], tagsEn:["Numbers","Slide","Brainy"]},
-  {dir:"minesweeper", name:"扫雷", enName:"Minesweeper", sub:"经典益智", subEn:"Classic Puzzle",
+   descEn:"Slide and merge the tiles — can you reach 2048?", descJa:"スライドで合体、2048に届くか挑戦。", descKo:"밀어서 합치기 — 2048에 도달할 수 있을까?",
+   tags:["数字","滑动","益智"], tagsEn:["Numbers","Slide","Brainy"], tagsJa:["数字","スライド","頭脳派"], tagsKo:["숫자","슬라이드","두뇌"]},
+  {dir:"minesweeper", name:"扫雷", enName:"Minesweeper", sub:"经典益智", subEn:"Classic Puzzle", subJa:"定番パズル", subKo:"클래식 퍼즐",
    cat:"puzzle", icon:"💣", bg:"linear-gradient(135deg,#064e3b,#10b981 60%,#6ee7b7)",
    desc:"数字推理 + 极限点旗，老玩家的扫雷强迫症福音。",
-   descEn:"Number logic plus precision flagging for veteran hunters.",
-   tags:["推理","计时","扫雷"], tagsEn:["Logic","Timed","Mines"]},
-  {dir:"breakout", name:"打砖块", enName:"Breakout", sub:"经典益智", subEn:"Classic Puzzle",
+   descEn:"Number logic plus precision flagging for veteran hunters.", descJa:"数字推理と正確な旗立て、ベテラン向け。", descKo:"숫자 추리와 정밀한 깃발 꽂기, 베테랑을 위한.",
+   tags:["推理","计时","扫雷"], tagsEn:["Logic","Timed","Mines"], tagsJa:["推理","タイム","地雷"], tagsKo:["추리","타임어택","지뢰"]},
+  {dir:"breakout", name:"打砖块", enName:"Breakout", sub:"经典益智", subEn:"Classic Puzzle", subJa:"定番パズル", subKo:"클래식 퍼즐",
    cat:"puzzle", icon:"🎯", bg:"linear-gradient(135deg,#4c1d95,#a78bfa 60%,#f0abfc)",
    desc:"弹射小球击碎砖块，道具掉落，越打越上头。",
-   descEn:"Bounce the ball, smash the bricks, catch falling power-ups.",
-   tags:["弹射","道具","街机"], tagsEn:["Bounce","Items","Arcade"]},
-  {dir:"bubble-dragon", name:"泡泡龙", enName:"Bubble Dragon", sub:"经典益智", subEn:"Classic Puzzle",
+   descEn:"Bounce the ball, smash the bricks, catch falling power-ups.", descJa:"ボールを弾ませ、レンガを壊し、アイテムを取れ。", descKo:"공을 튕겨 벽돌을 깨고 떨어지는 아이템을 잡자.",
+   tags:["弹射","道具","街机"], tagsEn:["Bounce","Items","Arcade"], tagsJa:["跳ね返し","アイテム","アーケード"], tagsKo:["튕기기","아이템","아케이드"]},
+  {dir:"bubble-dragon", name:"泡泡龙", enName:"Bubble Dragon", sub:"经典益智", subEn:"Classic Puzzle", subJa:"定番パズル", subKo:"클래식 퍼즐",
    cat:"puzzle", icon:"🫧", bg:"linear-gradient(135deg,#0c4a6e,#38bdf8 55%,#f9a8d4)",
    desc:"瞄准发射彩色泡泡，三连即消，休闲解压神器。",
-   descEn:"Aim and shoot colored bubbles — match three to pop. Pure stress relief.",
-   tags:["消除","休闲","解压"], tagsEn:["Match","Casual","Relaxing"]},
-  {dir:"match3", name:"宝石消除", enName:"Jewel Match 3", sub:"经典益智", subEn:"Classic Puzzle",
+   descEn:"Aim and shoot colored bubbles — match three to pop. Pure stress relief.", descJa:"狙ってカラー泡を発射、3つ揃えて消す爽快癒し。", descKo:"조준해 컬러 버블 발사 — 세 개 맞추면 펑! 스트레스 해소。",
+   tags:["消除","休闲","解压"], tagsEn:["Match","Casual","Relaxing"], tagsJa:["マッチ","カジュアル","癒し"], tagsKo:["매치","캐주얼","힐링"]},
+  {dir:"match3", name:"宝石消除", enName:"Jewel Match 3", sub:"经典益智", subEn:"Classic Puzzle", subJa:"定番パズル", subKo:"클래식 퍼즐",
    cat:"puzzle", icon:"💎", bg:"linear-gradient(135deg,#701a75,#d946ef 55%,#67e8f9)",
    desc:"交换宝石三连消，连击combo爽感拉满。",
-   descEn:"Swap jewels to match three and rack up combo satisfaction.",
-   tags:["三消","连击","休闲"], tagsEn:["Match-3","Combo","Casual"]},
-  {dir:"flappy-bird", name:"Flappy Bird", enName:"Flappy Bird", sub:"像素天空", subEn:"Pixel Sky",
+   descEn:"Swap jewels to match three and rack up combo satisfaction.", descJa:"宝石を入れ替え3つ揃え、連鎖コンボが爽快。", descKo:"보석을 바꿔 세 개 맞추고 콤보 쾌감을 쌓자。",
+   tags:["三消","连击","休闲"], tagsEn:["Match-3","Combo","Casual"], tagsJa:["マッチ3","コンボ","カジュアル"], tagsKo:["매치3","콤보","캐주얼"]},
+  {dir:"flappy-bird", name:"Flappy Bird", enName:"Flappy Bird", sub:"像素天空", subEn:"Pixel Sky", subJa:"ピクセルスカイ", subKo:"픽셀 스카이",
    cat:"pixel", icon:"🐤", bg:"linear-gradient(135deg,#15803d,#4ade80 55%,#fef08a)",
    desc:"一指操作穿越水管，简单到离谱，难到摔手机。",
-   descEn:"One-tap flying through pipes. Ridiculously simple, brutally hard.",
-   tags:["一指操作","计分","魔性"], tagsEn:["One-tap","Score","Tricky"]}
+   descEn:"One-tap flying through pipes. Ridiculously simple, brutally hard.", descJa:"ワンタップで土管を抜ける。単純なのに激ムズ。", descKo:"원탭으로 파이프 통과. 어이없을 만큼 단순, 잔인할 만큼 어렵다。",
+   tags:["一指操作","计分","魔性"], tagsEn:["One-tap","Score","Tricky"], tagsJa:["ワンタップ","スコア","魔性"], tagsKo:["원탭","스코어","마성의"]}
 ];
 
 /* ---------- 双语字典 ---------- */
@@ -503,27 +508,19 @@ var I18N = {
   }
 };
 
-/* ---------- 语言状态 ---------- */
+/* ---------- 语言状态（默认英文） ---------- */
 var LANGS = ["zh", "en", "ja", "ko"];
-function navLang(){
-  var nav = "";
-  try{ nav = (navigator.language || "zh").toLowerCase(); }catch(_){}
-  if (nav.indexOf("zh") === 0) return "zh";
-  if (nav.indexOf("ja") === 0) return "ja";
-  if (nav.indexOf("ko") === 0) return "ko";
-  return "en";
-}
-var lang = "zh";
+var lang = "en";
 try{
   var qLang = new URLSearchParams(location.search).get("lang");
   if (LANGS.indexOf(qLang) >= 0){
     lang = qLang;
     try{ localStorage.setItem("amg-lang", lang); }catch(_){}
   } else {
-    lang = localStorage.getItem("amg-lang") || navLang();
-    if (LANGS.indexOf(lang) < 0) lang = "zh";
+    lang = localStorage.getItem("amg-lang") || "en";
+    if (LANGS.indexOf(lang) < 0) lang = "en";
   }
-}catch(_){ lang = "zh"; }
+}catch(_){ lang = "en"; }
 function t(key){
   return (I18N[lang] && I18N[lang][key])
     || (I18N.en && I18N.en[key])
@@ -569,7 +566,7 @@ function applyLang(){
   var phs = document.querySelectorAll("[data-i18n-ph]");
   for (var k = 0; k < phs.length; k++){ phs[k].setAttribute("placeholder", t(phs[k].dataset.i18nPh)); }
   var lb = document.getElementById("langBtn");
-  lb.textContent = t("lang.btn");
+  lb.value = lang;
   lb.title = t("lang.title");
   document.getElementById("toTop").title = t("toTop");
   document.getElementById("ghLink").title =
@@ -579,8 +576,8 @@ function applyLang(){
   paintTheme();
   render();
 }
-document.getElementById("langBtn").addEventListener("click", function(){
-  lang = LANGS[(LANGS.indexOf(lang) + 1) % LANGS.length];
+document.getElementById("langBtn").addEventListener("change", function(){
+  lang = this.value;
   try{ localStorage.setItem("amg-lang", lang); }catch(_){}
   applyLang();
 });
@@ -601,7 +598,10 @@ function coverPixels(){
 }
 
 function gameText(g){
-  return (g.name + g.sub + g.desc + g.tags.join("") + g.enName + g.subEn + g.descEn + g.tagsEn.join("")).toLowerCase();
+  return (g.name + g.sub + g.desc + g.tags.join("")
+    + g.enName + g.subEn + g.descEn + g.tagsEn.join("")
+    + (g.subJa || "") + (g.descJa || "") + (g.tagsJa || []).join("")
+    + (g.subKo || "") + (g.descKo || "") + (g.tagsKo || []).join("")).toLowerCase();
 }
 
 function render(){
@@ -624,12 +624,13 @@ function render(){
     return;
   }
   grid.innerHTML = list.map(function(g){
+    var suf = (lang === "ja") ? "Ja" : (lang === "ko") ? "Ko" : "En";
     var title = (lang === "zh") ? g.name : g.enName;
-    var small = (lang === "zh") ? g.sub : g.name;
-    var tag = CATS[g.cat][lang] + " · " + ((lang === "zh") ? g.sub : g.subEn);
-    var flag = g.flag ? ((lang === "zh") ? g.flag : g.flagEn) : "";
-    var desc = (lang === "zh") ? g.desc : g.descEn;
-    var tags = (lang === "zh") ? g.tags : g.tagsEn;
+    var small = (lang === "zh") ? g.sub : (lang === "en" ? g.name : (g["sub" + suf] || g.subEn));
+    var tag = (CATS[g.cat][lang] || CATS[g.cat].en) + " · " + ((lang === "zh") ? g.sub : (g["sub" + suf] || g.subEn));
+    var flag = g.flag ? ((lang === "zh") ? g.flag : (g["flag" + suf] || g.flagEn)) : "";
+    var desc = (lang === "zh") ? g.desc : (g["desc" + suf] || g.descEn);
+    var tags = (lang === "zh") ? g.tags : (g["tags" + suf] || g.tagsEn);
     return '<article class="card">'
       + '<div class="cover" style="background:' + g.bg + '">' + coverPixels()
       + '<span class="tag">' + tag + "</span>"

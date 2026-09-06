@@ -22,31 +22,22 @@
   'use strict';
 
   var LANGS = ['zh', 'en', 'ja', 'ko'];
-  // Button shows the NEXT language in the cycle.
-  var NEXT_LABEL = { zh: 'EN', en: '日本語', ja: '한국어', ko: '中文' };
-  var NEXT_TITLE = {
-    zh: 'Switch to English', en: '日本語に切り替え',
-    ja: '한국어로 전환', ko: '切换到中文'
+  var LANG_LABEL = { zh: '中文', en: 'EN', ja: '日本語', ko: '한국어' };
+  var LANG_TITLE = {
+    zh: '切换语言', en: 'Switch language',
+    ja: '言語を切り替え', ko: '언어 변경'
   };
 
-  function navLang() {
-    var nav = '';
-    try { nav = (navigator.language || 'zh').toLowerCase(); } catch (e) {}
-    if (nav.indexOf('zh') === 0) return 'zh';
-    if (nav.indexOf('ja') === 0) return 'ja';
-    if (nav.indexOf('ko') === 0) return 'ko';
-    return 'en';
-  }
-
+  // Default language is English. ?lang= > localStorage > en.
   function getLang() {
     try {
       var m = /[?&]lang=(zh|en|ja|ko)\b/.exec(location.search || '');
       if (m) return m[1];
       var saved = localStorage.getItem('amg-lang');
       if (LANGS.indexOf(saved) >= 0) return saved;
-      return navLang();
+      return 'en';
     } catch (e) {
-      return 'zh';
+      return 'en';
     }
   }
 
@@ -88,23 +79,28 @@
     }
   }
 
-  // Language cycle button (zh -> en -> ja -> ko). Prefers .brand-btns,
-  // else fixed top-right.
+  // Language dropdown. Prefers .brand-btns, else fixed top-right.
   function mountBtn() {
-    var btn = document.createElement('button');
-    btn.id = 'amg-lang-btn';
-    btn.className = 'icon-btn';
-    btn.textContent = NEXT_LABEL[lang] || 'EN';
-    btn.title = NEXT_TITLE[lang] || 'Switch language';
-    btn.style.minWidth = '52px';
-    btn.onclick = function () {
-      setLang(LANGS[(LANGS.indexOf(lang) + 1) % LANGS.length]);
-    };
+    var old = document.getElementById('amg-lang-btn');
+    if (old && old.parentNode) old.parentNode.removeChild(old);
+    var sel = document.createElement('select');
+    sel.id = 'amg-lang-btn';
+    sel.className = 'icon-btn';
+    sel.title = LANG_TITLE[lang] || 'Switch language';
+    sel.style.minWidth = '0';
+    for (var i = 0; i < LANGS.length; i++) {
+      var op = document.createElement('option');
+      op.value = LANGS[i];
+      op.textContent = LANG_LABEL[LANGS[i]];
+      sel.appendChild(op);
+    }
+    sel.value = lang;
+    sel.onchange = function () { setLang(sel.value); };
     var host = document.querySelector('.brand-btns');
     if (host) {
-      host.insertBefore(btn, host.firstChild);
+      host.insertBefore(sel, host.firstChild);
     } else {
-      btn.style.cssText = 'position:fixed;top:12px;right:12px;z-index:99;'
+      sel.style.cssText = 'position:fixed;top:12px;right:12px;z-index:99;'
         + 'background:rgba(20,28,48,.9);color:#fff;border:1px solid rgba(148,163,184,.4);'
         + 'border-radius:10px;padding:8px 12px;font-size:13px;font-weight:700;cursor:pointer;';
       document.body.appendChild(btn);
@@ -130,7 +126,8 @@
     var a = document.createElement('a');
     a.href = '../?lang=' + lang;
     a.textContent = '🏠';
-    var label = lang === 'zh' ? '返回游戏库' : 'Back to game library';
+    var label = lang === 'zh' ? '返回游戏库' : lang === 'ja' ? 'ゲーム一覧へ戻る' :
+      lang === 'ko' ? '게임 목록으로' : 'Back to game library';
     a.title = label;
     a.setAttribute('aria-label', label);
     var host = document.querySelector('.brand-btns') || document.querySelector('.top-links');
