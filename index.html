@@ -440,8 +440,14 @@ var I18N = {
 /* ---------- 语言状态 ---------- */
 var lang = "zh";
 try{
-  lang = localStorage.getItem("amg-lang")
-    || (((navigator.language || "zh").toLowerCase().indexOf("zh") === 0) ? "zh" : "en");
+  var qLang = new URLSearchParams(location.search).get("lang");
+  if (qLang === "zh" || qLang === "en"){
+    lang = qLang;
+    try{ localStorage.setItem("amg-lang", lang); }catch(_){}
+  } else {
+    lang = localStorage.getItem("amg-lang")
+      || (((navigator.language || "zh").toLowerCase().indexOf("zh") === 0) ? "zh" : "en");
+  }
 }catch(_){ lang = "zh"; }
 function t(key){ return (I18N[lang] && I18N[lang][key]) || I18N.zh[key] || key; }
 

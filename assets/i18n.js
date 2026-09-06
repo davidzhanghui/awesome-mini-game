@@ -13,6 +13,10 @@
  * Static DOM: add data-i18n="key" attributes, then call AMG.apply(GAME_STR).
  * Toggle button: AMG.mountBtn() appends an EN/中文 button into .brand-btns
  *   (falls back to a fixed corner button). Switching reloads with ?lang=.
+ * Home button: AMG.mountHome() inserts a 🏠 link to the landing page
+ *   ("../") into .brand-btns (or raiden's .top-links), carrying ?lang=
+ *   so the landing page keeps the same language. It is ALSO auto-mounted
+ *   on DOMContentLoaded, so individual games need zero edits.
  */
 (function () {
   'use strict';
@@ -87,5 +91,49 @@
     }
   }
 
-  window.AMG = { lang: lang, getLang: getLang, setLang: setLang, t: t, tf: tf, apply: apply, mountBtn: mountBtn };
+  window.AMG = { lang: lang, getLang: getLang, setLang: setLang, t: t, tf: tf, apply: apply, mountBtn: mountBtn, mountHome: mountHome };
+
+  // ---- Home button (back to landing page) ----
+  // Anchor normalizer: <button> centers its glyph natively, <a> does not.
+  function injectHomeCss() {
+    if (document.getElementById('amg-home-css')) return;
+    var st = document.createElement('style');
+    st.id = 'amg-home-css';
+    st.textContent = '.amg-home{text-decoration:none!important;display:inline-flex!important;'
+      + 'align-items:center;justify-content:center;min-width:44px;}';
+    document.head.appendChild(st);
+  }
+
+  function mountHome() {
+    if (document.querySelector('.amg-home')) return null;
+    injectHomeCss();
+    var a = document.createElement('a');
+    a.href = '../?lang=' + lang;
+    a.textContent = '🏠';
+    var label = lang === 'zh' ? '返回游戏库' : 'Back to game library';
+    a.title = label;
+    a.setAttribute('aria-label', label);
+    var host = document.querySelector('.brand-btns') || document.querySelector('.top-links');
+    if (host) {
+      // .brand-btns pages style it as icon-btn; raiden's .top-links as ghost-btn.
+      a.className = (host.classList.contains('brand-btns') ? 'icon-btn' : 'ghost-btn') + ' amg-home';
+      host.insertBefore(a, host.firstChild);
+    } else {
+      a.className = 'amg-home';
+      a.style.cssText = 'position:fixed;top:12px;left:12px;z-index:99;font-size:20px;'
+        + 'background:rgba(20,28,48,.9);color:#fff;border:1px solid rgba(148,163,184,.4);'
+        + 'border-radius:12px;width:46px;height:46px;cursor:pointer;';
+      document.body.appendChild(a);
+    }
+    return a;
+  }
+
+  // Auto-mount so games need zero edits. Runs after parse so .brand-btns exists.
+  // game.js files call mountBtn() synchronously during parse, therefore the
+  // home link (inserted later, before firstChild) ends up leftmost: 🏠 EN 🔊.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', mountHome);
+  } else {
+    mountHome();
+  }
 })();
