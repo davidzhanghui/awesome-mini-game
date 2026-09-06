@@ -22,7 +22,7 @@ Press `/` on the home page to search games.
 |---|---|---|
 | 🚀 Raiden | `raiden/` | Co-op 2P shmup, 8 stages + 8 bosses, power-up system |
 | 🍄 Super Mario Bros | `super-mario-bros/` | Side-scrolling platformer, pixel physics |
-| 🛡️ Tank Battle | `tank-battle/` | Base defense, destructible terrain |
+| 🪖 Tank Battle | `tank-battle/` | Base defense, destructible terrain |
 | 🐝 Galaga | `galaga/` | Dive patterns, dual-fighter merge |
 | ♞ Chinese Chess | `chinese-chess/` | Full rules + AI engine (Web Worker, non-blocking UI) |
 | 🃏 Dou Dizhu | `dou-dizhu/` | 3-player, complete hand-type detection |

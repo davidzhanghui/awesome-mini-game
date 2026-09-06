@@ -22,7 +22,7 @@ python3 -m http.server 8000
 |---|---|---|
 | 🚀 雷电 RAIDEN | `raiden/` | 双人同屏协作，8 关卡 + 8 个 Boss，武器强化系统 |
 | 🍄 超级马里奥 | `super-mario-bros/` | 横版跳跃，像素物理，吃蘑菇、踩乌龟 |
-| 🛡️ 坦克大战 | `tank-battle/` | 保卫基地，可破坏地形 |
+| 🪖 坦克大战 | `tank-battle/` | 保卫基地，可破坏地形 |
 | 🐝 小蜜蜂 Galaga | `galaga/` | 俯冲回旋弹幕，双机合体 |
 | ♞ 中国象棋 | `chinese-chess/` | 完整规则 + AI 引擎（Worker 运行，不卡界面） |
 | 🃏 斗地主 | `dou-dizhu/` | 3 人对局，完整牌型判定 |
