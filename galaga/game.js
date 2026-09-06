@@ -960,15 +960,15 @@ $('btn-music').onclick = e => {
   e.stopPropagation();
   musicOn = !musicOn; store.music = musicOn;
 $('btn-music').textContent = musicOn ? '🎵' : '🚫';
+  if (!musicOn) Music.stop();
+  else if (G.state === 'play') Music.start();
+};
 // i18n boot: static DOM + dynamic boot texts
 AMG.apply(STR);
 AMG.mountBtn();
 $('btn-mute').title = T('muteTitle');
 $('btn-music').title = T('musicTitle');
 $('btn-pause').title = T('pauseBtnTitle');
-  if (!musicOn) Music.stop();
-  else if (G.state === 'play') Music.start();
-};
 $('btn-music').textContent = musicOn ? '🎵' : '🚫';
 document.querySelectorAll('[data-mode]').forEach(b => b.onclick = () => { ac(); sfx.click(); G.mode = b.dataset.mode; G.score = 0; G.lives = 3; G.stage = 1; G.kills = 0; startStage(1); });
 $('btn-next').onclick = () => { startStage(G.stage + 1); };
