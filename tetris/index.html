@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<link rel="icon" href="/favicon.svg" />
+<title>俄罗斯方块 · 经典益智</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="bg-orbs"><span></span><span></span><span></span></div>
+<main class="page">
+  <header class="brand">
+    <div class="logo">🧱</div>
+    <div>
+      <h1>俄罗斯方块 <em>经典益智</em></h1>
+      <p>7-Bag 发牌 · SRS 旋转 · T-Spin 判定 · Hold 暂存</p>
+    </div>
+    <div class="brand-btns">
+      <button id="btn-mute" class="icon-btn" title="声音开 / 关 (M)">🔊</button>
+    </div>
+  </header>
+  <section class="cabinet">
+    <div class="game-frame">
+      <canvas id="game" width="460" height="640"></canvas>
+      <div id="screen-menu" class="screen">
+        <div class="title-badge">TETRIS</div>
+        <h2 class="game-title">俄罗斯方块</h2>
+        <div class="hero-row"><span class="hero">🟨</span><span class="hero f">🟪</span><span class="hero">🟦</span><span class="hero f">🟧</span></div>
+        <button id="btn-start" class="btn primary">🚀 开始游戏</button>
+        <p class="hint"><kbd>←</kbd><kbd>→</kbd> 移动 · <kbd>↑</kbd>/<kbd>X</kbd> 顺时针 · <kbd>Z</kbd> 逆时针 · <kbd>↓</kbd> 软降 · <kbd>空格</kbd> 硬降 · <kbd>C</kbd> 暂存</p>
+        <div id="menu-best" class="mini-board">🏆 历史最高：0</div>
+      </div>
+      <div id="screen-pause" class="screen dim hidden">
+        <div class="panel"><h3>⏸ 已暂停</h3><p>按 P 继续</p>
+          <div class="row"><button id="btn-resume" class="btn primary">继续</button><button id="btn-quit" class="btn ghost">回菜单</button></div>
+        </div>
+      </div>
+      <div id="screen-over" class="screen dim hidden">
+        <div class="panel pop">
+          <h3 class="over-title">GAME OVER</h3>
+          <div class="score-row">
+            <div><label>得分</label><b id="final-score">0</b></div>
+            <div class="divider"></div>
+            <div><label>等级/行数</label><b id="final-lines">1 / 0</b></div>
+          </div>
+          <div class="row"><button id="btn-retry" class="btn primary">🔄 再来一局 (R)</button><button id="btn-menu" class="btn ghost">菜单</button></div>
+        </div>
+      </div>
+      <div class="touch hidden" id="touch">
+        <div class="t-left"><button id="t-left" class="t-btn">◀</button><button id="t-right" class="t-btn">▶</button><button id="t-down" class="t-btn">▼</button></div>
+        <div class="t-right"><button id="t-hold" class="t-btn sm">H</button><button id="t-rot" class="t-btn">⟳</button><button id="t-drop" class="t-btn">⤓</button></div>
+      </div>
+    </div>
+    <aside class="side">
+      <div class="card"><h4>🎮 操作</h4><ul>
+        <li><kbd>←</kbd><kbd>→</kbd> 移动 · <kbd>↓</kbd> 软降 · <kbd>空格</kbd> 硬降</li>
+        <li><kbd>↑</kbd>/<kbd>X</kbd> 顺时针 · <kbd>Z</kbd> 逆时针</li>
+        <li><kbd>C</kbd>/<kbd>Shift</kbd> Hold · <kbd>P</kbd> 暂停</li></ul></div>
+      <div class="card"><h4>✨ 计分</h4><ul>
+        <li>T-Spin Single 800 · Double 1200 · Triple 1600</li><li>Tetris 800 · Back-to-Back ×1.5</li><li>连击每连 +50×连击数</li></ul></div>
+    </aside>
+  </section>
+  <footer>Canvas + WebAudio 原生实现 · 零依赖 · Guideline 规则（7-Bag / SRS / T-Spin 3角规则）</footer>
+</main>
+<script src="game.js?v=20260906"></script>
+</body>
+</html>

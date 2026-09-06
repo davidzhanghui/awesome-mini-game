@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<link rel="icon" href="/favicon.svg" />
+<title>Flappy Bird · 像素天空</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="bg-orbs"><span></span><span></span><span></span></div>
+
+  <main class="page">
+    <header class="brand">
+      <div class="logo">🐤</div>
+      <div>
+        <h1>Flappy Bird <em>像素天空</em></h1>
+        <p>单人闯关 / 双人对战 — 让小鸟飞起来，穿越水管！</p>
+      </div>
+      <div class="brand-btns">
+        <button id="btn-theme" class="icon-btn" title="切换白天 / 黑夜">🌙</button>
+        <button id="btn-mute" class="icon-btn" title="声音开 / 关 (M)">🔊</button>
+      </div>
+    </header>
+
+    <section class="cabinet">
+      <div class="game-frame">
+        <canvas id="game" width="420" height="640"></canvas>
+
+        <div id="hud" class="hud hidden">
+          <div id="hud-score">0</div>
+          <div id="hud-best">BEST 0</div>
+          <div id="hud-duo" class="hud-duo hidden">
+            <span class="p1">🐤 <b id="hud-p1">0</b></span>
+            <span class="vs">VS</span>
+            <span class="p2"><b id="hud-p2">0</b> 🐦</span>
+          </div>
+        </div>
+
+        <button id="btn-pause" class="icon-btn pause-btn hidden" title="暂停 (P)">⏸</button>
+
+        <!-- 主菜单 -->
+        <div id="screen-menu" class="screen">
+          <div class="title-badge">FLAPPY</div>
+          <h2 class="game-title">像素天空</h2>
+          <div class="bird-preview"><span>🐤</span><span class="preview-p2">🐦</span></div>
+          <div class="row mode-row">
+            <button id="btn-start" class="btn primary">🚀 单人闯关</button>
+            <button id="btn-duo" class="btn duel">⚔️ 双人对战</button>
+          </div>
+          <p class="hint">单人：<kbd>空格</kbd> / 点击起飞 · 双人：<kbd>空格</kbd> P1 / <kbd>↑</kbd> P2</p>
+          <div id="menu-best" class="mini-board">🏆 历史最佳：0</div>
+        </div>
+
+        <!-- 准备 -->
+        <div id="screen-ready" class="screen hidden">
+          <div class="ready-card">
+            <div class="ready-tap">👆</div>
+            <h3>准备好了吗？</h3>
+            <p id="ready-tip">点击 / 空格 振翅，第一根水管在前方等你</p>
+          </div>
+        </div>
+
+        <!-- 暂停 -->
+        <div id="screen-pause" class="screen dim hidden">
+          <div class="panel">
+            <h3>⏸ 已暂停</h3>
+            <p>按 P 或点击继续</p>
+            <div class="row">
+              <button id="btn-resume" class="btn primary">继续</button>
+              <button id="btn-quit" class="btn ghost">回菜单</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 结束 -->
+        <div id="screen-over" class="screen dim hidden">
+          <div class="panel pop">
+            <h3 id="over-title" class="over-title">GAME OVER</h3>
+            <div id="medal" class="medal">🥉</div>
+            <div id="over-solo">
+              <div class="score-row">
+                <div><label>本次得分</label><b id="final-score">0</b></div>
+                <div class="divider"></div>
+                <div><label>历史最佳</label><b id="final-best">0</b><span id="new-record" class="new-record hidden">NEW!</span></div>
+              </div>
+            </div>
+            <div id="over-duo" class="hidden">
+              <div class="score-row duo-row">
+                <div class="duel-score p1"><label>🐤 P1</label><b id="final-p1">0</b></div>
+                <div id="duel-result" class="duel-result">🏆 P1 获胜！</div>
+                <div class="duel-score p2"><label>P2 🐦</label><b id="final-p2">0</b></div>
+              </div>
+            </div>
+            <div class="row">
+              <button id="btn-retry" class="btn primary">🔄 再来一局 (R)</button>
+              <button id="btn-menu" class="btn ghost">菜单</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="side">
+        <div class="card">
+          <h4>🎮 玩法</h4>
+          <ul>
+            <li>单人：<kbd>空格</kbd> / <kbd>↑</kbd> / <kbd>W</kbd> 振翅</li>
+            <li>双人：P1 <kbd>空格</kbd>/点左半屏 · P2 <kbd>↑</kbd>/点右半屏</li>
+            <li><kbd>P</kbd> 暂停 · <kbd>M</kbd> 静音 · <kbd>R</kbd> 重开</li>
+            <li>穿过水管 +1 分，撞到即结束</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>🏅 奖牌</h4>
+          <ul class="medals">
+            <li>🥉 10+ 铜牌</li>
+            <li>🥈 20+ 银牌</li>
+            <li>🥇 30+ 金牌</li>
+            <li>💎 40+ 钻石</li>
+          </ul>
+        </div>
+        <div class="card diff">
+          <h4>⚡ 难度会递增</h4>
+          <p>飞得越远，水管越快、缝隙越窄。坚持住！</p>
+        </div>
+      </aside>
+    </section>
+
+    <footer>用 Canvas + WebAudio 原生实现 · 零依赖 · 双击 <kbd>R</kbd> 秒开下一局</footer>
+  </main>
+
+<script src="game.js?v=20260906"></script>
+</body>
+</html>

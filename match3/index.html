@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<link rel="icon" href="/favicon.svg" />
+<title>宝石消除 · 经典益智</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="bg-orbs"><span></span><span></span><span></span></div>
+<main class="page">
+  <header class="brand">
+    <div class="logo">💎</div>
+    <div>
+      <h1>宝石消除 <em>经典益智</em></h1>
+      <p>交换消除 · 连锁倍率 · 目标闯关 · 无步自动洗牌</p>
+    </div>
+    <div class="brand-btns">
+      <button id="btn-mute" class="icon-btn" title="声音开 / 关 (M)">🔊</button>
+    </div>
+  </header>
+  <section class="cabinet">
+    <div class="game-frame">
+      <canvas id="game" width="480" height="640"></canvas>
+      <div id="screen-menu" class="screen">
+        <div class="title-badge">MATCH 3</div>
+        <h2 class="game-title">宝石消除</h2>
+        <div class="hero-row"><span class="hero">🔴</span><span class="hero f">💎</span><span class="hero">🟢</span><span class="hero f">🟡</span></div>
+        <button id="btn-start" class="btn primary">🚀 开始闯关</button>
+        <p class="hint">点击两颗相邻宝石交换 · 3 连即消除</p>
+        <div id="menu-best" class="mini-board">🏆 历史最高：0</div>
+      </div>
+      <div id="screen-over" class="screen dim hidden">
+        <div class="panel pop">
+          <h3 id="over-title" class="over-title">闯关失败</h3>
+          <div id="over-sub" class="over-sub"></div>
+          <div class="row"><button id="btn-retry" class="btn primary">🔄 重玩本关 (R)</button><button id="btn-menu" class="btn ghost">菜单</button></div>
+        </div>
+      </div>
+      <div id="screen-clear" class="screen dim hidden">
+        <div class="panel pop">
+          <h3 class="clear-title">🎉 第 <span id="clear-lv">1</span> 关通过！</h3>
+          <div id="clear-stats" class="stat-list"></div>
+          <div class="row"><button id="btn-next" class="btn primary">下一关 →</button><button id="btn-menu2" class="btn ghost">菜单</button></div>
+        </div>
+      </div>
+    </div>
+    <aside class="side">
+      <div class="card"><h4>🎮 操作</h4><ul>
+        <li>点击一颗再点相邻一颗交换</li><li>或按住拖动交换</li><li>无效交换会自动换回来</li></ul></div>
+      <div class="card"><h4>✨ 规则</h4><ul>
+        <li>3 连消除，4 连 5 连高分</li><li>连锁反应倍率递增</li><li>前 5 关限步，后 3 关限时 · 停手约 6 秒会提示</li><li><kbd>P</kbd>/<kbd>Esc</kbd> 暂停</li></ul></div>
+    </aside>
+  </section>
+  <footer>Canvas + WebAudio 原生实现 · 零依赖 · 8×8 棋盘 + 连锁 + 洗牌保底</footer>
+</main>
+<script src="game.js?v=20260906"></script>
+</body>
+</html>

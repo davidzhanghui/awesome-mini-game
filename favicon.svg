@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- 深色背景 -->
+  <rect width="64" height="64" rx="12" fill="#0F172A"/>
+  
+  <!-- 游戏手柄主体 -->
+  <path d="M32 18 C20 18 14 24 12 32 C10 40 14 46 20 46 C24 46 26 44 28 40 L28 38 C28 36 30 34 32 34 C34 34 36 36 36 38 L36 40 C38 44 40 46 44 46 C50 46 54 40 52 32 C50 24 44 18 32 18 Z" fill="#334155" stroke="#475569" stroke-width="1.5"/>
+  
+  <!-- 左侧十字方向键 -->
+  <rect x="18" y="26" width="2" height="8" rx="0.5" fill="#22D3EE"/>
+  <rect x="15" y="29" width="8" height="2" rx="0.5" fill="#22D3EE"/>
+  
+  <!-- 右侧四个按钮（ABXY布局） -->
+  <circle cx="44" cy="26" r="2.5" fill="#F59E0B"/>
+  <circle cx="49" cy="30" r="2.5" fill="#10B981"/>
+  <circle cx="44" cy="34" r="2.5" fill="#EF4444"/>
+  <circle cx="39" cy="30" r="2.5" fill="#A78BFA"/>
+  
+  <!-- 中间装饰线 -->
+  <line x1="29" y1="28" x2="35" y2="28" stroke="#475569" stroke-width="1.5" stroke-linecap="round"/>
+  
+  <!-- 像素风格装饰 - 左上角小方块 -->
+  <rect x="8" y="8" width="3" height="3" fill="#22D3EE" opacity="0.6"/>
+  <rect x="12" y="8" width="3" height="3" fill="#38BDF8" opacity="0.6"/>
+  
+  <!-- 像素风格装饰 - 右上角小方块 -->
+  <rect x="53" y="8" width="3" height="3" fill="#F59E0B" opacity="0.6"/>
+  <rect x="49" y="8" width="3" height="3" fill="#F97316" opacity="0.6"/>
+</svg>

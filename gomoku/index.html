@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<link rel="icon" href="/favicon.svg" />
+<title>五子棋 · 经典桌游</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="bg-orbs"><span></span><span></span><span></span></div>
+<main class="page">
+  <header class="brand">
+    <div class="logo">⚫</div>
+    <div>
+      <h1>五子棋 <em>经典桌游</em></h1>
+      <p>本地双人 / 三档 AI · 悔棋认输 · 可选黑棋禁手</p>
+    </div>
+    <div class="brand-btns">
+      <button id="btn-mute" class="icon-btn" title="声音开 / 关 (M)">🔊</button>
+    </div>
+  </header>
+  <section class="cabinet">
+    <div class="game-frame">
+      <canvas id="game" width="600" height="600"></canvas>
+      <div id="hud" class="hud hidden">
+        <span id="hud-turn" class="turn black">⚫ 黑方行棋</span>
+        <span id="hud-moves">第 0 手</span>
+      </div>
+      <div id="screen-menu" class="screen">
+        <div class="title-badge">GOMOKU</div>
+        <h2 class="game-title">五子棋</h2>
+        <div class="mode-grid">
+          <button class="btn primary" data-mode="pvp">👥 双人对战</button>
+          <button class="btn duel" data-mode="ai0">🤖 AI 简单</button>
+          <button class="btn duel" data-mode="ai1">🧠 AI 普通</button>
+          <button class="btn duel" data-mode="ai2">👹 AI 困难</button>
+        </div>
+        <div class="opt-row">
+          <label>我方 <select id="sel-color"><option value="1">⚫ 执黑先行</option><option value="2">⚪ 执白后行</option></select></label>
+          <label><input type="checkbox" id="ck-forbid" /> 黑棋禁手（三三/四四/长连）</label>
+        </div>
+        <div class="mini-board">🏆 黑胜 <b id="st-b">0</b> · 白胜 <b id="st-w">0</b> · 和 <b id="st-d">0</b></div>
+      </div>
+      <div id="screen-over" class="screen dim hidden">
+        <div class="panel pop">
+          <h3 id="over-title" class="over-title">⚫ 黑方获胜！</h3>
+          <div id="over-sub" class="over-sub">共 37 手</div>
+          <div class="row">
+            <button id="btn-retry" class="btn primary">🔄 再来一局 (R)</button>
+            <button id="btn-menu" class="btn ghost">菜单</button>
+          </div>
+        </div>
+      </div>
+      <div class="toolbar hidden" id="toolbar">
+        <button id="btn-undo" class="t-btn" title="悔棋 (U)">↩ 悔棋</button>
+        <button id="btn-resign" class="t-btn" title="认输">🏳 认输</button>
+        <button id="btn-tomenu" class="t-btn" title="回菜单">📋 菜单</button>
+      </div>
+    </div>
+    <aside class="side">
+      <div class="card"><h4>🎮 操作</h4><ul>
+        <li>点击棋盘交叉点落子</li><li><kbd>U</kbd> 悔棋 · <kbd>R</kbd> 重开 · <kbd>M</kbd> 静音</li>
+        <li>AI 对局中轮到你时再落子</li></ul></div>
+      <div class="card"><h4>📏 规则</h4><ul>
+        <li>黑先白后，横竖斜连成五即胜</li>
+        <li>禁手仅判黑方，白方无禁手</li>
+        <li>棋盘下满且无人连五则和棋</li></ul></div>
+    </aside>
+  </section>
+  <footer>Canvas + WebAudio 原生实现 · 零依赖 · AI 搜索：启发式 + Negamax α-β</footer>
+</main>
+<script src="game.js?v=20260906"></script>
+</body>
+</html>

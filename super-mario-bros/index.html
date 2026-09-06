@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<link rel="icon" href="/favicon.svg" />
+<title>超级马里奥 · 像素大冒险</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="bg-orbs"><span></span><span></span><span></span></div>
+
+  <main class="page">
+    <header class="brand">
+      <div class="logo">🍄</div>
+      <div>
+        <h1>超级马里奥 <em>像素大冒险</em></h1>
+        <p>← → 移动 · Z/空格 跳跃 · X 跑/射击 · 顶砖块吃蘑菇，踩乌龟，冲向旗杆！</p>
+      </div>
+      <div class="brand-btns">
+        <button id="btn-theme" class="icon-btn" title="切换白天 / 黑夜">🌙</button>
+        <button id="btn-music" class="icon-btn" title="音乐开 / 关">🎵</button>
+        <button id="btn-mute" class="icon-btn" title="音效开 / 关 (M)">🔊</button>
+      </div>
+    </header>
+
+    <section class="cabinet">
+      <div class="game-frame">
+        <canvas id="game" width="640" height="480"></canvas>
+
+        <button id="btn-pause" class="icon-btn pause-btn hidden" title="暂停 (P)">⏸</button>
+
+        <!-- 主菜单 -->
+        <div id="screen-menu" class="screen">
+          <div class="menu-stack">
+            <div class="title-badge">SUPER</div>
+            <h2 class="game-title">超级马里奥</h2>
+            <p class="pick-hint">选择世界</p>
+            <div id="world-select" class="world-select"></div>
+            <div id="stage-panel" class="stage-panel hidden">
+              <p id="stage-label" class="stage-label"></p>
+              <div id="level-select" class="level-select"></div>
+            </div>
+            <button id="btn-start" class="btn primary">🚀 开始冒险</button>
+            <div class="menu-foot">
+              <p class="hint">按 <kbd>Z</kbd> / <kbd>空格</kbd> 跳跃 · 按住 <kbd>X</kbd> 加速跑</p>
+              <div id="menu-best" class="mini-board">🏆 历史最高：0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 暂停 -->
+        <div id="screen-pause" class="screen dim hidden">
+          <div class="panel">
+            <h3>⏸ 已暂停</h3>
+            <p>喝口水，蘑菇不会跑掉</p>
+            <div class="row">
+              <button id="btn-resume" class="btn primary">继续</button>
+              <button id="btn-quit" class="btn ghost">回菜单</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 过关 -->
+        <div id="screen-clear" class="screen dim hidden">
+          <div class="panel pop">
+            <h3 class="clear-title">🏁 过关啦！</h3>
+            <div id="clear-stats" class="stat-list"></div>
+            <div class="row">
+              <button id="btn-next" class="btn primary">下一关 →</button>
+              <button id="btn-replay" class="btn ghost">重玩本关</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 结束 -->
+        <div id="screen-over" class="screen dim hidden">
+          <div class="panel pop">
+            <h3 class="over-title">GAME OVER</h3>
+            <div class="medal">💀</div>
+            <div class="score-row">
+              <div><label>本局得分</label><b id="final-score">0</b></div>
+              <div class="divider"></div>
+              <div><label>历史最高</label><b id="final-best">0</b><span id="new-record" class="new-record hidden">NEW!</span></div>
+            </div>
+            <div class="row">
+              <button id="btn-retry" class="btn primary">🔄 再来一局 (R)</button>
+              <button id="btn-menu" class="btn ghost">菜单</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 通关 -->
+        <div id="screen-win" class="screen dim hidden">
+          <div class="panel pop win-panel">
+            <h3 class="win-title">👑 通关！公主得救啦！</h3>
+            <div class="medal">👸💖🧑‍🔧</div>
+            <div class="score-row">
+              <div><label>总分</label><b id="win-score">0</b></div>
+              <div class="divider"></div>
+              <div><label>剩余生命</label><b id="win-lives">×3</b></div>
+            </div>
+            <div class="row">
+              <button id="btn-again" class="btn primary">🎮 再玩一次</button>
+              <button id="btn-menu2" class="btn ghost">菜单</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 触屏按键 -->
+        <div id="touch" class="touch hidden">
+          <div class="t-left">
+            <button id="t-left" class="t-btn">◀</button>
+            <button id="t-right" class="t-btn">▶</button>
+          </div>
+          <div class="t-right">
+            <button id="t-b" class="t-btn sm">B</button>
+            <button id="t-a" class="t-btn">A</button>
+          </div>
+        </div>
+      </div>
+
+      <aside class="side">
+        <div class="card">
+          <h4>🎮 操作</h4>
+          <ul>
+            <li><kbd>←</kbd><kbd>→</kbd> / <kbd>A</kbd><kbd>D</kbd> 移动</li>
+            <li><kbd>Z</kbd> / <kbd>空格</kbd> / <kbd>↑</kbd> 跳跃（按住更高）</li>
+            <li><kbd>X</kbd> / <kbd>Shift</kbd> 跑步＋火焰射击</li>
+            <li><kbd>P</kbd> 暂停 · <kbd>M</kbd> 音效 · <kbd>R</kbd> 重开</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>🍄 道具图鉴</h4>
+          <ul class="medals">
+            <li>🍄 蘑菇 — 长大，可顶碎砖块</li>
+            <li>🌸 火焰花 — 按 X 发射火球</li>
+            <li>⭐ 无敌星 — 10 秒横冲直撞</li>
+            <li>💚 绿蘑菇 — 生命 +1</li>
+            <li>🪙 金币 — 100 枚=1 条命？不，纯爽</li>
+          </ul>
+        </div>
+        <div class="card diff">
+          <h4>🐢 敌人手册</h4>
+          <p>踩头是王道！乌龟踩一下变壳，再碰踢飞，壳能连撞一片。食人花只能烧，千万别脸接。</p>
+        </div>
+      </aside>
+    </section>
+
+    <footer>Canvas + WebAudio 原生实现 · 零依赖 · 32 关完整冒险（8 世界 × 4 关）· 含背景音乐与火焰花</footer>
+  </main>
+
+<script src="game.js?v=20260906"></script>
+</body>
+</html>

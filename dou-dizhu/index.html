@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<link rel="icon" href="/favicon.svg" />
+<title>斗地主 · 经典桌游</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="bg-orbs"><span></span><span></span><span></span></div>
+<main class="page">
+  <header class="brand">
+    <div class="logo">🃏</div>
+    <div>
+      <h1>斗地主 <em>经典桌游</em></h1>
+      <p>单机三人局 · 你 + 两个 AI · 叫抢地主 · 春天炸弹结算</p>
+    </div>
+    <div class="brand-btns">
+      <button id="btn-mute" class="icon-btn" title="声音开 / 关 (M)">🔊</button>
+    </div>
+  </header>
+  <section class="cabinet">
+    <div class="game-frame">
+      <canvas id="game" width="760" height="620"></canvas>
+      <div id="screen-menu" class="screen">
+        <div class="title-badge">DOU DIZHU</div>
+        <h2 class="game-title">斗地主</h2>
+        <div class="board-emoji">🃏🂡🂱🃁🃎</div>
+        <button id="btn-start" class="btn primary">🚀 开始对局</button>
+        <p class="hint">点选手牌再点 <kbd>出牌</kbd> · 双击单张可快捷选中</p>
+        <div class="mini-board">🏆 胜 <b id="st-w">0</b> · 负 <b id="st-l">0</b> · 积分 <b id="st-s">0</b></div>
+      </div>
+      <div id="screen-over" class="screen dim hidden">
+        <div class="panel pop">
+          <h3 id="over-title" class="over-title">🎉 农民胜利！</h3>
+          <div id="over-sub" class="over-sub"></div>
+          <div class="row">
+            <button id="btn-retry" class="btn primary">🔄 再来一局 (R)</button>
+            <button id="btn-menu" class="btn ghost">菜单</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <aside class="side">
+      <div class="card"><h4>🧾 记牌器</h4><div id="card-counter" class="counter">开局后显示剩余牌</div></div>
+      <div class="card"><h4>🎮 操作</h4><ul>
+        <li>点击手牌选中 / 取消，再点出牌按钮</li><li>轮到你时可 <kbd>不出</kbd>（有大过上家的牌除外首手）</li><li>叫分：叫 1/2/3 分或不叫</li></ul></div>
+      <div class="card"><h4>🃏 牌型</h4><ul>
+        <li>单张 / 对子 / 三张 / 三带一 / 三带二</li><li>顺子(5+)/连对(3+)/飞机(可带)</li><li>四带二 / 四带两对 / 炸弹 / 王炸</li></ul></div>
+    </aside>
+  </section>
+  <footer>Canvas + WebAudio 原生实现 · 零依赖 · 规则式 AI（农民配合 / 地主压制）</footer>
+</main>
+<script src="game.js?v=20260906"></script>
+</body>
+</html>

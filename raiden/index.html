@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="icon" href="/favicon.svg" />
+<title>RAIDEN 雷电 · 双人街机重制版</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="bg-stars"></div>
+<div id="app">
+  <header id="topbar">
+    <div class="logo">⚡ <span>RAIDEN</span> <em>雷电 · 1990 TRIBUTE</em></div>
+    <div class="top-links">
+      <span id="hi-score-top">HI-SCORE 0</span>
+      <button id="btn-help" class="ghost-btn">操作说明</button>
+      <button id="btn-sound" class="ghost-btn">🔊 声音开</button>
+    </div>
+  </header>
+
+  <main id="stage-wrap">
+    <section id="menu-screen" class="screen active">
+      <div class="title-block">
+        <div class="kicker">SEIBU KAIHATSU TRIBUTE · FAN REMAKE</div>
+        <h1 class="game-title"><span class="thunder">RAIDEN</span><span class="cn">雷電</span></h1>
+        <p class="subtitle">2090 · 外星舰队入侵 — 雷电超音速攻击机，出击！</p>
+        <div class="title-jets">
+          <div class="jet p1-jet">✈</div>
+          <div class="jet p2-jet">✈</div>
+        </div>
+      </div>
+
+      <div class="menu-grid">
+        <div class="menu-card">
+          <h2>出击模式</h2>
+          <button class="big-btn primary" id="btn-1p">▶ 单人出击 · 1P</button>
+          <button class="big-btn secondary" id="btn-2p">▶▶ 双人协作出击 · 2P</button>
+          <div class="row">
+            <label>起始关卡
+              <select id="sel-stage">
+                <option value="0">STAGE 1 · 田园黎明</option>
+                <option value="1">STAGE 2 · 废墟都市</option>
+                <option value="2">STAGE 3 · 海上舰队</option>
+                <option value="3">STAGE 4 · 沙漠基地</option>
+                <option value="4">STAGE 5 · 火山工厂</option>
+                <option value="5">STAGE 6 · 云端要塞</option>
+                <option value="6">STAGE 7 · 轨道船坞</option>
+                <option value="7">STAGE 8 · 异星母舰</option>
+              </select>
+            </label>
+            <label>难度
+              <select id="sel-diff">
+                <option value="0.8">RECRUIT 新兵</option>
+                <option value="1" selected>NORMAL 标准</option>
+                <option value="1.3">HARD 硬核</option>
+                <option value="1.65">INFERNO 地狱</option>
+              </select>
+            </label>
+          </div>
+          <div class="row">
+            <label class="check"><input type="checkbox" id="opt-autofire" checked> 自动开火</label>
+            <label class="check"><input type="checkbox" id="opt-shake" checked> 屏幕震动</label>
+            <label class="check"><input type="checkbox" id="opt-assist"> 新手护盾(开局护罩)</label>
+          </div>
+        </div>
+
+        <div class="menu-card weapons">
+          <h2>强化武器系统 <span class="tag">MAX LV.8 + OVERDRIVE</span></h2>
+          <ul>
+            <li><b class="c-v">V-VULCAN 火神炮</b> 扇形弹幕 · 满级8向 + 贯穿 <span>拾取 <i class="pill red">V</i> / <i class="pill">P</i>升级</span></li>
+            <li><b class="c-l">L-LASER 激光</b> 可弯曲粗光束 · 贴脸爆发最高 <span>拾取 <i class="pill blue">L</i></span></li>
+            <li><b class="c-p">E-PLASMA 等离子</b> 追踪电浆 · 穿透+弹跳 <span>拾取 <i class="pill purple">E</i></span></li>
+            <li><b class="c-m">导弹</b> 追踪 / 核弹直击 <i class="pill yellow">M</i>切换 · <b>僚机</b> <i class="pill green">O</i> · <b>雷电炸弹</b> <i class="pill cyan">B</i>清屏</li>
+          </ul>
+          <p class="hint">死亡不再清零武器 — 保留一半等级。蓄力(按住开火1.2s松开)释放 Overdrive 爆发。</p>
+        </div>
+      </div>
+
+      <div class="stages-strip" id="stages-strip"></div>
+      <p class="foot">致敬 1990 Seibu Kaihatsu 街机《Raiden》· 本作含官方 8 大关卡 + 8 位 Boss · 双键盘同屏协作 · 最高分保存在本地</p>
+    </section>
+
+    <section id="game-screen" class="screen">
+      <div id="canvas-holder">
+        <canvas id="game" width="960" height="720"></canvas>
+        <div id="overlay">
+          <div id="stage-card"><h3 id="stage-card-kicker">STAGE 1</h3><h2 id="stage-card-title">田园黎明</h2><p id="stage-card-desc"></p></div>
+          <div id="warn">⚠ WARNING ⚠</div>
+          <div id="pause-tip">已暂停 — 按 P 继续 / M 返回菜单</div>
+        </div>
+      </div>
+      <aside id="side-panel">
+        <div class="panel-block">
+          <h3>战况</h3>
+          <div class="p-row"><span>得分 P1</span><b id="hud-s1">0</b></div>
+          <div class="p-row"><span>得分 P2</span><b id="hud-s2">0</b></div>
+          <div class="p-row total"><span>总分</span><b id="hud-total">0</b></div>
+          <div class="p-row"><span>连击</span><b id="hud-combo">x0</b></div>
+          <div class="p-row"><span>勋章</span><b id="hud-medal">0</b></div>
+        </div>
+        <div class="panel-block">
+          <h3>P1 · WASD + J射击 K炸弹</h3>
+          <div class="wpn" id="hud-p1">—</div>
+          <div class="bars"><div class="lives" id="hud-l1"></div></div>
+        </div>
+        <div class="panel-block">
+          <h3>P2 · 方向键 + ,射击 .炸弹</h3>
+          <div class="wpn" id="hud-p2">—</div>
+          <div class="bars"><div class="lives" id="hud-l2"></div></div>
+        </div>
+        <div class="panel-block boss-block">
+          <h3>BOSS</h3>
+          <div id="boss-bar"><div id="boss-fill"></div></div>
+          <div id="boss-name">—</div>
+        </div>
+        <div class="panel-btns">
+          <button id="btn-pause" class="ghost-btn">⏸ 暂停(P)</button>
+          <button id="btn-quit" class="ghost-btn">✕ 退出(M)</button>
+          <button id="btn-bomb1" class="ghost-btn">💥 P1炸弹</button>
+          <button id="btn-bomb2" class="ghost-btn">💥 P2炸弹</button>
+        </div>
+        <p class="touch-hint">手机/触屏：单指拖动控制P1并自动开火，双指点击放炸弹</p>
+      </aside>
+    </section>
+
+    <section id="help-modal" class="modal hidden">
+      <div class="modal-card">
+        <h2>操作说明</h2>
+        <div class="help-cols">
+          <div><h4>P1 · 红色战机</h4><p>移动 WASD · 射击 J / Space(按住蓄力) · 炸弹 K / L · 手柄左摇杆+RT/LT</p></div>
+          <div><h4>P2 · 蓝色战机</h4><p>移动 ←↑↓→ · 射击 , (逗号) · 炸弹 . (句号) · 手柄右摇杆亦可</p></div>
+        </div>
+        <ul class="help-list">
+          <li><i class="pill red">V</i><i class="pill blue">L</i><i class="pill purple">E</i> 主武器：火神 / 激光 / 等离子 · <i class="pill">P</i>升级(最高Lv.8) · 满级再吃P = +10000分</li>
+          <li><i class="pill yellow">M</i>切换导弹(追踪↔核弹)并升级 · <i class="pill cyan">B</i>炸弹+1 · <i class="pill green">O</i>僚机 · <i class="pill">S</i>加速/护盾 · ★勋章加分 · 🧚仙女救下+5000 · 🐄米克鲁斯隐藏加分</li>
+          <li>炸弹“雷电风暴”：全屏清弹+重创Boss+2秒无敌。双人互相接应：一方阵亡后3秒复活(消耗共同备用机)。</li>
+          <li>P暂停 · M回菜单 · 回车=投币续关(无限续关，分数保留一半)。</li>
+        </ul>
+        <button id="btn-close-help" class="big-btn primary">知道了</button>
+      </div>
+    </section>
+
+    <section id="end-modal" class="modal hidden">
+      <div class="modal-card center">
+        <h2 id="end-title">MISSION COMPLETE</h2>
+        <p id="end-sub"></p>
+        <div id="end-stats"></div>
+        <div class="row center-row">
+          <button id="btn-again" class="big-btn primary">再来一局</button>
+          <button id="btn-tomenu" class="big-btn secondary">返回菜单</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+<script src="js/config.js?v=20260906"></script>
+<script src="js/waves.js?v=20260906"></script>
+<script src="js/audio.js?v=20260906"></script>
+<script src="js/input.js?v=20260906"></script>
+<script src="js/engine.js?v=20260906"></script>
+<script src="js/entities.js?v=20260906"></script>
+<script src="js/game.js?v=20260906"></script>
+<script src="js/main.js?v=20260906"></script>
+</body>
+</html>

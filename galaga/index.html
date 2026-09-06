@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<link rel="icon" href="/favicon.svg" />
+<title>小蜜蜂 Galaga · 经典空战</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="bg-orbs"><span></span><span></span><span></span></div>
+<main class="page">
+  <header class="brand">
+    <div class="logo">🐝</div>
+    <div>
+      <h1>小蜜蜂 <em>GALAGA 空战</em></h1>
+      <p>← → / AD 移动 · Z/空格 开火 · Boss 牵引抓机可救回双机合体</p>
+    </div>
+    <div class="brand-btns">
+      <button id="btn-music" class="icon-btn" title="音乐开 / 关">🎵</button>
+      <button id="btn-mute" class="icon-btn" title="音效开 / 关 (M)">🔊</button>
+    </div>
+  </header>
+  <section class="cabinet">
+    <div class="game-frame">
+      <canvas id="game" width="480" height="640"></canvas>
+      <button id="btn-pause" class="icon-btn pause-btn hidden" title="暂停 (P)">⏸</button>
+
+      <div id="screen-menu" class="screen">
+        <div class="title-badge">GALAGA</div>
+        <h2 class="game-title">小蜜蜂</h2>
+        <div class="hero-row"><span class="hero">🚀</span><span class="hero f">🐝</span><span class="hero">👾</span><span class="hero f">⭐</span></div>
+        <div class="mode-grid">
+          <button class="btn primary" data-mode="solo">🚀 单人出击</button>
+          <button class="btn duel" data-mode="coop">👥 双人协作 (P2: JK)</button>
+        </div>
+        <p class="hint">按 <kbd>Z</kbd> / <kbd>空格</kbd> 开火 · 被抓住的战机可以救回来变双机！</p>
+        <div id="menu-best" class="mini-board">🏆 历史最高：0</div>
+      </div>
+
+      <div id="screen-pause" class="screen dim hidden">
+        <div class="panel">
+          <h3>⏸ 已暂停</h3>
+          <p>敌机群正在待命…</p>
+          <div class="row">
+            <button id="btn-resume" class="btn primary">继续</button>
+            <button id="btn-quit" class="btn ghost">回菜单</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="screen-clear" class="screen dim hidden">
+        <div class="panel pop">
+          <h3 class="clear-title">🏁 第 <b id="clear-stage">1</b> 关通过！</h3>
+          <div id="clear-stats" class="stat-list"></div>
+          <div class="row">
+            <button id="btn-next" class="btn primary">下一关 →</button>
+            <button id="btn-replay" class="btn ghost">重玩本关</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="screen-over" class="screen dim hidden">
+        <div class="panel pop">
+          <h3 class="over-title">GAME OVER</h3>
+          <div class="medal">💥</div>
+          <div class="score-row">
+            <div><label>本局得分</label><b id="final-score">0</b></div>
+            <div class="divider"></div>
+            <div><label>历史最高</label><b id="final-best">0</b><span id="new-record" class="new-record hidden">NEW!</span></div>
+          </div>
+          <div class="row">
+            <button id="btn-retry" class="btn primary">🔄 再来一局 (R)</button>
+            <button id="btn-menu" class="btn ghost">菜单</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="touch" class="touch hidden">
+        <div class="t-left">
+          <button id="t-left" class="t-btn">◀</button>
+          <button id="t-right" class="t-btn">▶</button>
+        </div>
+        <div class="t-right">
+          <button id="t-a" class="t-btn">🔥</button>
+        </div>
+      </div>
+    </div>
+
+    <aside class="side">
+      <div class="card">
+        <h4>🎮 操作</h4>
+        <ul>
+          <li><kbd>←</kbd><kbd>→</kbd> / <kbd>A</kbd><kbd>D</kbd> 移动</li>
+          <li><kbd>Z</kbd> / <kbd>空格</kbd> 开火</li>
+          <li>双人：P2 用 <kbd>J</kbd><kbd>K</kbd> 移动 + <kbd>L</kbd> 开火</li>
+          <li><kbd>P</kbd> 暂停 · <kbd>M</kbd> 音效 · <kbd>R</kbd> 重开</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>🐝 敌机图鉴</h4>
+        <ul class="medals">
+          <li>🔵 杂兵蜂 Zako — 50 分，俯冲 100 分</li>
+          <li>🔴 红蝶 Goei — 80 分，俯冲 160 分</li>
+          <li>🟢 Boss Galaga — 150 分，需 2 发，俯冲 300~400 分</li>
+          <li>⚡ 奖励关：全歼 40 只 +10000 分</li>
+        </ul>
+      </div>
+      <div class="card diff">
+        <h4>🚀 双机合体</h4>
+        <p>Boss 会放出牵引光束抓走你的战机！击落抓机的 Boss（俯冲时）即可救回，火力翻倍。双机时被击中只损失一架。</p>
+      </div>
+    </aside>
+  </section>
+  <footer>Canvas + WebAudio 原生实现 · 零依赖 · 阵型入场 / 俯冲 / 抓机双机 / 奖励关</footer>
+</main>
+<script src="game.js?v=20260906"></script>
+</body>
+</html>

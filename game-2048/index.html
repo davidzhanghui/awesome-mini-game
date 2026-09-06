@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<link rel="icon" href="/favicon.svg" />
+<title>2048 · 经典益智</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="bg-orbs"><span></span><span></span><span></span></div>
+<main class="page">
+  <header class="brand">
+    <div class="logo">🔢</div>
+    <div>
+      <h1>2048 <em>经典益智</em></h1>
+      <p>方向键 / WASD / 触屏滑动 · 合成 2048，之后可继续挑战！</p>
+    </div>
+    <div class="brand-btns">
+      <button id="btn-mute" class="icon-btn" title="声音开 / 关 (M)">🔊</button>
+    </div>
+  </header>
+  <section class="cabinet">
+    <div class="game-frame">
+      <canvas id="game" width="480" height="620"></canvas>
+      <div id="screen-menu" class="screen">
+        <div class="title-badge">2048</div>
+        <h2 class="game-title">2048</h2>
+        <div class="hero-row"><span class="hero">2️⃣</span><span class="hero f">0️⃣</span><span class="hero">4️⃣</span><span class="hero f">8️⃣</span></div>
+        <button id="btn-start" class="btn primary">🚀 开始游戏</button>
+        <p class="hint"><kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> / <kbd>WASD</kbd> 滑动合并</p>
+        <div id="menu-best" class="mini-board">🏆 历史最高：0</div>
+      </div>
+      <div id="screen-over" class="screen dim hidden">
+        <div class="panel pop">
+          <h3 id="over-title" class="over-title">游戏结束</h3>
+          <div id="over-sub" class="over-sub"></div>
+          <div class="row"><button id="btn-retry" class="btn primary">🔄 再来一局 (R)</button><button id="btn-menu" class="btn ghost">菜单</button></div>
+        </div>
+      </div>
+    </div>
+    <aside class="side">
+      <div class="card"><h4>🎮 操作</h4><ul>
+        <li>方向键 / WASD 滑动</li><li>触屏滑动合并</li><li>相同数字相撞合并翻倍</li></ul></div>
+      <div class="card"><h4>🏆 目标</h4><ul>
+        <li>合成 2048 即胜利，可继续冲击更高</li><li>棋盘填满且无法合并则结束</li></ul></div>
+    </aside>
+  </section>
+  <footer>Canvas + WebAudio 原生实现 · 零依赖 · 滑动合并动画 + 最高分存档</footer>
+</main>
+<script src="game.js?v=20260906"></script>
+</body>
+</html>

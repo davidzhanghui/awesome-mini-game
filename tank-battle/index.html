@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<link rel="icon" href="/favicon.svg" />
+<title>坦克大战 · 经典街机</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="bg-orbs"><span></span><span></span><span></span></div>
+<main class="page">
+  <header class="brand">
+    <div class="logo">🛡️</div>
+    <div>
+      <h1>坦克大战 <em>经典街机</em></h1>
+      <p>单人闯关 / 双人守家 · 地图编辑器 · 6 种道具</p>
+    </div>
+    <div class="brand-btns">
+      <button id="btn-mute" class="icon-btn" title="声音开 / 关 (M)">🔊</button>
+    </div>
+  </header>
+  <section class="cabinet">
+    <div class="game-frame">
+      <canvas id="game" width="624" height="624"></canvas>
+      <div id="hud" class="hud hidden">
+        <span id="hud-stage">第 1 关</span>
+        <span id="hud-foes">敌军 12</span>
+        <span id="hud-score">0</span>
+        <span id="hud-lives">P1 ❤3</span>
+      </div>
+      <div id="screen-menu" class="screen">
+        <div class="title-badge">BATTLE CITY</div>
+        <h2 class="game-title">坦克大战</h2>
+        <div class="tank-row"><span>🟡</span><span>🟢</span><span>🔴</span><span>⚪</span></div>
+        <div class="row">
+          <button id="btn-1p" class="btn primary">🚀 单人出击</button>
+          <button id="btn-2p" class="btn duel">👥 双人守家</button>
+        </div>
+        <div class="opt-row">
+          <label>关卡 <select id="sel-stage"></select></label>
+          <button id="btn-editor" class="btn ghost sm">🗺 地图编辑器</button>
+        </div>
+        <div id="custom-note" class="custom-note hidden">已保存自创地图，可在编辑器中试玩</div>
+        <div class="mini-board">🏆 历史最高：<b id="menu-best">0</b></div>
+      </div>
+      <div id="screen-pause" class="screen dim hidden">
+        <div class="panel">
+          <h3>⏸ 已暂停</h3>
+          <p>按 P 或点击继续</p>
+          <div class="row">
+            <button id="btn-resume" class="btn primary">继续</button>
+            <button id="btn-quit" class="btn ghost">回菜单</button>
+          </div>
+        </div>
+      </div>
+      <div id="screen-clear" class="screen dim hidden">
+        <div class="panel pop">
+          <h3 class="clear-title">🏁 阵地守住了！</h3>
+          <div id="clear-stats" class="stat-list"></div>
+          <div class="row">
+            <button id="btn-next" class="btn primary">下一关 →</button>
+            <button id="btn-menu2" class="btn ghost">菜单</button>
+          </div>
+        </div>
+      </div>
+      <div id="screen-over" class="screen dim hidden">
+        <div class="panel pop">
+          <h3 class="over-title">GAME OVER</h3>
+          <div id="over-sub" class="over-sub"></div>
+          <div class="row">
+            <button id="btn-retry" class="btn primary">🔄 重新出击 (R)</button>
+            <button id="btn-menu3" class="btn ghost">菜单</button>
+          </div>
+        </div>
+      </div>
+      <div id="screen-win" class="screen dim hidden">
+        <div class="panel pop win-panel">
+          <h3 class="win-title">👑 全部通关！老鹰安然无恙！</h3>
+          <div class="medal">🦅🎖️</div>
+          <div class="score-row">
+            <div><label>总分</label><b id="win-score">0</b></div>
+            <div class="divider"></div>
+            <div><label>历史最高</label><b id="win-best">0</b></div>
+          </div>
+          <div class="row">
+            <button id="btn-again" class="btn primary">🎮 再玩一次</button>
+            <button id="btn-menu4" class="btn ghost">菜单</button>
+          </div>
+        </div>
+      </div>
+      <div id="editor-bar" class="editor-bar hidden">
+        <div class="palette" id="palette">
+          <button data-t="1" class="pal active" title="砖块">🧱</button>
+          <button data-t="2" class="pal" title="钢铁">⬜</button>
+          <button data-t="3" class="pal" title="河流">🌊</button>
+          <button data-t="4" class="pal" title="草丛">🌿</button>
+          <button data-t="5" class="pal" title="冰面">🧊</button>
+          <button data-t="0" class="pal" title="橡皮擦">🧽</button>
+        </div>
+        <div class="palette">
+          <button id="ed-clear" class="pal text" title="清空">清空</button>
+          <button id="ed-test" class="pal text" title="试玩">▶试玩</button>
+          <button id="ed-save" class="pal text" title="保存">💾保存</button>
+          <button id="ed-back" class="pal text" title="返回">✖</button>
+        </div>
+      </div>
+      <div id="touch" class="touch hidden">
+        <div class="t-left">
+          <button id="t-up" class="t-btn">▲</button>
+          <div><button id="t-left" class="t-btn">◀</button><button id="t-down" class="t-btn">▼</button><button id="t-right" class="t-btn">▶</button></div>
+        </div>
+        <div class="t-right"><button id="t-fire" class="t-btn fire">💥</button></div>
+      </div>
+    </div>
+    <aside class="side">
+      <div class="card"><h4>🎮 操作</h4><ul>
+        <li>P1：<kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 移动 · <kbd>空格</kbd> 开火</li>
+        <li>P2：<kbd>↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd> 移动 · <kbd>回车</kbd> 开火</li>
+        <li><kbd>P</kbd> 暂停 · <kbd>M</kbd> 静音 · <kbd>R</kbd> 重开</li></ul></div>
+      <div class="card"><h4>🎁 道具</h4><ul class="medals">
+        <li>⭐ 星星 — 火力升级（可打穿钢板）</li>
+        <li>⛑ 头盔 — 8 秒无敌</li>
+        <li>⏰ 时钟 — 敌军定身 7 秒</li>
+        <li>🛡 工兵铲 — 家变钢墙 20 秒</li>
+        <li>💣 手雷 — 炸掉所有敌军</li>
+        <li>🎖 坦克 — 生命 +1</li></ul></div>
+      <div class="card diff"><h4>🦅 守家要点</h4>
+        <p>老鹰被击毁直接战败！注意流弹也会打坏老家砖墙。闪烁红光的敌军必掉道具。</p></div>
+    </aside>
+  </section>
+  <footer>Canvas + WebAudio 原生实现 · 零依赖 · 致敬 Battle City</footer>
+</main>
+<script src="game.js?v=20260906"></script>
+</body>
+</html>

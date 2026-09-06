@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<link rel="icon" href="/favicon.svg" />
+<title>打砖块 · 经典益智</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="bg-orbs"><span></span><span></span><span></span></div>
+<main class="page">
+  <header class="brand">
+    <div class="logo">🧱</div>
+    <div>
+      <h1>打砖块 <em>经典益智</em></h1>
+      <p>鼠标/键盘挡板 · 落点决定反弹角 · 7 种道具 · 多关卡</p>
+    </div>
+    <div class="brand-btns">
+      <button id="btn-mute" class="icon-btn" title="声音开 / 关 (M)">🔊</button>
+    </div>
+  </header>
+  <section class="cabinet">
+    <div class="game-frame">
+      <canvas id="game" width="480" height="640"></canvas>
+      <div id="screen-menu" class="screen">
+        <div class="title-badge">BREAKOUT</div>
+        <h2 class="game-title">打砖块</h2>
+        <div class="hero-row"><span class="hero">🧱</span><span class="hero f">⚾</span><span class="hero">🎾</span></div>
+        <button id="btn-start" class="btn primary">🚀 开始游戏</button>
+        <p class="hint">鼠标 / <kbd>←</kbd><kbd>→</kbd> 移动挡板 · 点击 / <kbd>空格</kbd> 发球 · <kbd>P</kbd> 暂停</p>
+        <div id="menu-best" class="mini-board">🏆 历史最高：0</div>
+      </div>
+      <div id="screen-pause" class="screen dim hidden">
+        <div class="panel"><h3>⏸ 已暂停</h3><p>按 P 继续</p>
+          <div class="row"><button id="btn-resume" class="btn primary">继续</button><button id="btn-quit" class="btn ghost">回菜单</button></div>
+        </div>
+      </div>
+      <div id="screen-over" class="screen dim hidden">
+        <div class="panel pop">
+          <h3 class="over-title">GAME OVER</h3>
+          <div class="score-row">
+            <div><label>得分</label><b id="final-score">0</b></div>
+            <div class="divider"></div>
+            <div><label>到达关卡</label><b id="final-stage">1</b></div>
+          </div>
+          <div class="row"><button id="btn-retry" class="btn primary">🔄 再来一局 (R)</button><button id="btn-menu" class="btn ghost">菜单</button></div>
+        </div>
+      </div>
+      <div id="screen-clear" class="screen dim hidden">
+        <div class="panel pop">
+          <h3 class="clear-title">🎉 全部通关！</h3>
+          <div id="clear-stats" class="stat-list"></div>
+          <div class="row"><button id="btn-again" class="btn primary">再玩一次</button><button id="btn-menu2" class="btn ghost">菜单</button></div>
+        </div>
+      </div>
+    </div>
+    <aside class="side">
+      <div class="card"><h4>🎮 操作</h4><ul>
+        <li>鼠标 / <kbd>←</kbd><kbd>→</kbd> 移动挡板</li><li>点击 / <kbd>空格</kbd> 发射粘住的球</li><li>挡板不同落点反弹角不同</li></ul></div>
+      <div class="card"><h4>🎁 道具</h4><ul>
+        <li>↔️ 加长 · 🔫 激光 · 🌀 多球</li><li>💥 穿透 · 🧲 粘球 · ❤️ +命 · 🐢 减速</li></ul></div>
+    </aside>
+  </section>
+  <footer>Canvas + WebAudio 原生实现 · 零依赖 · 街机风 33 关（32 布局 + DOH Boss）+ 道具系统</footer>
+</main>
+<script src="game.js?v=20260906"></script>
+</body>
+</html>
