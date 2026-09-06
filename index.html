@@ -253,7 +253,7 @@ try{
     </div>
     <div class="hero-cta">
       <a class="btn btn-primary" href="#games" data-i18n="cta.browse">🎮 进入游戏库</a>
-      <a class="btn btn-ghost" href="raiden/index.html" data-i18n="cta.hot">🔥 双人雷电 · 最受欢迎</a>
+      <a class="btn btn-ghost" id="hotLink" href="raiden/index.html?lang=zh" data-i18n="cta.hot">🔥 双人雷电 · 最受欢迎</a>
     </div>
     <p class="keys-hint" data-i18n-html="hero.hint">按 <kbd>/</kbd> 快速搜索 · 点击「开始游戏」直接开玩</p>
   </section>
@@ -487,6 +487,7 @@ function applyLang(){
   lb.textContent = t("lang.btn");
   lb.title = t("lang.title");
   document.getElementById("toTop").title = t("toTop");
+  document.getElementById("hotLink").href = "raiden/index.html?lang=" + lang;
   paintTheme();
   render();
 }
@@ -545,7 +546,7 @@ function render(){
       + '<div class="body"><h3>' + title + "<small>" + small + "</small></h3>"
       + '<p class="desc">' + desc + "</p>"
       + '<div class="meta">' + tags.map(function(x){ return "<span>" + x + "</span>"; }).join("") + "</div>"
-      + '<div class="play"><a href="' + g.dir + '/index.html">' + t("card.play") + "</a></div>"
+      + '<div class="play"><a href="' + g.dir + '/index.html?lang=' + lang + '">' + t("card.play") + "</a></div>"
       + "</div></article>";
   }).join("");
 }

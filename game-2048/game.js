@@ -1,5 +1,7 @@
 (() => {
 // 2048：标准规则 + 滑动合并动画 + 胜利可继续
+const STR = window.GAME_STR || { zh: {}, en: {} };
+const T = (k, ...a) => AMG.tf(STR, k, ...a);
 const W = 480, H = 620, N = 4, BX = 40, BY = 170, BS = 400, GAP = 10;
 const CS = (BS - GAP * 5) / 4;
 const canvas = document.getElementById('game');
@@ -114,7 +116,7 @@ function doMove(dir) {
   if (merges.some(v => v >= 2048) && !G.won) {
     G.won = true;
     sfx.win();
-    G.msg = '🎉 2048！可继续挑战'; G.msgT = 2.5;
+    G.msg = T('winMsg'); G.msgT = 2.5;
   }
   G.anims = anims; G.animT = 0; G._pendingSpawn = true;
   if (G.score > store.best) store.best = G.score;
@@ -128,8 +130,8 @@ function finishMove() {
     G.state = 'over';
     sfx.over();
     const max = Math.max(...G.grid.flat());
-    $('over-title').textContent = '游戏结束';
-    $('over-sub').textContent = '得分 ' + G.score + ' · 最大 ' + max + ' · 共 ' + G.moves + ' 步';
+    $('over-title').textContent = T('overTitle');
+    $('over-sub').textContent = T('overSub', G.score, max, G.moves);
     setTimeout(() => showScreen('over'), 400);
   }
 }
@@ -151,7 +153,7 @@ function startGame() {
   reset();
   G.state = 'play';
   showScreen(null);
-  $('menu-best').textContent = '🏆 历史最高：' + Math.max(store.best, G.score);
+  $('menu-best').textContent = T('best', Math.max(store.best, G.score));
 }
 
 const DIRS = { ArrowLeft: 0, KeyA: 0, ArrowUp: 1, KeyW: 1, ArrowRight: 2, KeyD: 2, ArrowDown: 3, KeyS: 3 };
@@ -186,14 +188,18 @@ canvas.addEventListener('pointerup', e => {
 });
 $('btn-start').onclick = () => startGame();
 $('btn-retry').onclick = () => startGame();
-$('btn-menu').onclick = () => { G.state = 'menu'; showScreen('menu'); $('menu-best').textContent = '🏆 历史最高：' + store.best; };
+$('btn-menu').onclick = () => { G.state = 'menu'; showScreen('menu'); $('menu-best').textContent = T('best', store.best); };
 function toggleMute() {
   muted = !muted; store.muted = muted;
   $('btn-mute').textContent = muted ? '🔇' : '🔊';
 }
 $('btn-mute').onclick = toggleMute;
 $('btn-mute').textContent = muted ? '🔇' : '🔊';
-$('menu-best').textContent = '🏆 历史最高：' + store.best;
+// i18n boot: static DOM + dynamic boot texts
+AMG.apply(STR);
+AMG.mountBtn();
+$('btn-mute').title = T('muteTitle');
+$('menu-best').textContent = T('best', store.best);
 
 function cellXY(x, y) {
   return [BX + GAP + x * (CS + GAP), BY + GAP + y * (CS + GAP)];
@@ -211,7 +217,7 @@ function render(dt) {
   ctx.fillText(Math.max(store.best, G.score), W - 40, 84);
   ctx.textAlign = 'center';
   ctx.fillStyle = '#f9f6f2'; ctx.font = '900 15px system-ui';
-  ctx.fillText('合成 2048！', W / 2, 50);
+  ctx.fillText(T('goal'), W / 2, 50);
   if (G.state === 'menu') return;
   ctx.fillStyle = '#6b6a64';
   ctx.beginPath();
@@ -261,7 +267,7 @@ function render(dt) {
     ctx.fillStyle = 'rgba(20,18,14,.55)';
     ctx.fillRect(BX, BY, BS, BS);
     ctx.fillStyle = '#fff'; ctx.font = '900 32px system-ui'; ctx.textAlign = 'center';
-    ctx.fillText('⏸ 暂停', W / 2, BY + BS / 2);
+    ctx.fillText(T('paused'), W / 2, BY + BS / 2);
   }
   if (G.msgT > 0) {
     ctx.font = '900 26px system-ui'; ctx.textAlign = 'center';

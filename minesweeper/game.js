@@ -1,5 +1,8 @@
 (() => {
 // 扫雷：经典三档 + 首击安全 + 双击展开 + 计时
+const STR = window.GAME_STR || { zh: {}, en: {} };
+const T = (k, ...a) => AMG.tf(STR, k, ...a);
+const diffName = d => (T('diffs') || [])[d] || DIFFS[d].name;
 const W = 520, H = 620;
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
@@ -157,8 +160,8 @@ function checkWin() {
     const best = store.best;
     if (!best[G.diff] || secs < best[G.diff]) { best[G.diff] = secs; store.best = best; }
     sfx.win();
-    $('over-title').textContent = '🎉 扫雷成功！';
-    $('over-sub').textContent = DIFFS[G.diff].name + ' · 用时 ' + secs + 's · 最佳 ' + best[G.diff] + 's';
+    $('over-title').textContent = T('winTitle');
+    $('over-sub').textContent = T('winSub', diffName(G.diff), secs, best[G.diff]);
     setTimeout(() => showScreen('over'), 400);
   }
 }
@@ -167,8 +170,8 @@ function gameOver(win) {
   sfx.boom();
   // 展开所有雷
   G.board.forEach(row => row.forEach(c => { if (c.mine) c.open = true; }));
-  $('over-title').textContent = '💥 踩到地雷！';
-  $('over-sub').textContent = DIFFS[G.diff].name + ' · 已揭开 ' + G.opened + ' 格';
+  $('over-title').textContent = T('loseTitle');
+  $('over-sub').textContent = T('loseSub', diffName(G.diff), G.opened);
   setTimeout(() => showScreen('over'), 600);
 }
 function showScreen(name) {
@@ -182,8 +185,9 @@ function startGame(d) {
   showScreen(null);
 }
 function refreshBest() {
-  const b = store.best;
-  $('menu-best').textContent = '🏆 最佳：初 ' + (b[0] ? b[0] + 's' : '--') + ' · 中 ' + (b[1] ? b[1] + 's' : '--') + ' · 高 ' + (b[2] ? b[2] + 's' : '--');
+  const b = store.best, na = T('na');
+  const fmt = v => v ? v + 's' : na;
+  $('menu-best').textContent = T('bestLine', fmt(b[0]), fmt(b[1]), fmt(b[2]));
 }
 function pos(e) {
   const r = canvas.getBoundingClientRect();
@@ -245,6 +249,10 @@ function toggleMute() {
 }
 $('btn-mute').onclick = toggleMute;
 $('btn-mute').textContent = muted ? '🔇' : '🔊';
+// i18n boot: static DOM + dynamic boot texts
+AMG.apply(STR);
+AMG.mountBtn();
+$('btn-mute').title = T('muteTitle');
 
 function render() {
   ctx.fillStyle = '#1c2536'; ctx.fillRect(0, 0, W, H);
@@ -254,7 +262,7 @@ function render() {
   ctx.fillRect(0, 0, W, 64);
   ctx.fillStyle = '#fff'; ctx.font = '900 18px system-ui'; ctx.textAlign = 'left';
   ctx.fillText('💣 ' + String(G.mines - G.flags).padStart(3, '0'), 16, 30);
-  ctx.fillText(DIFFS[G.diff].name, 16, 54);
+  ctx.fillText(diffName(G.diff), 16, 54);
   ctx.textAlign = 'center';
   const face = G.over ? '😵' : G.win ? '😎' : '🙂';
   ctx.font = '30px serif';
@@ -303,7 +311,7 @@ function render() {
     ctx.fillStyle = 'rgba(5,10,25,.5)';
     ctx.fillRect(0, 64, W, H);
     ctx.fillStyle = '#fff'; ctx.font = '900 32px system-ui'; ctx.textAlign = 'center';
-    ctx.fillText('⏸ 暂停', W / 2, H / 2);
+    ctx.fillText(T('paused'), W / 2, H / 2);
   }
 }
 let last = performance.now();

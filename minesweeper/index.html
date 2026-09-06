@@ -13,8 +13,8 @@
   <header class="brand">
     <div class="logo">💣</div>
     <div>
-      <h1>扫雷 <em>经典益智</em></h1>
-      <p>初级 / 中级 / 高级 · 首击安全 · 双击展开</p>
+      <h1><span data-i18n="name">扫雷</span> <em data-i18n="subtitle">经典益智</em></h1>
+      <p data-i18n="intro">初级 / 中级 / 高级 · 首击安全 · 双击展开</p>
     </div>
     <div class="brand-btns">
       <button id="btn-mute" class="icon-btn" title="声音开 / 关 (M)">🔊</button>
@@ -25,12 +25,12 @@
       <canvas id="game" width="520" height="620"></canvas>
       <div id="screen-menu" class="screen">
         <div class="title-badge">MINESWEEPER</div>
-        <h2 class="game-title">扫雷</h2>
+        <h2 class="game-title" data-i18n="name">扫雷</h2>
         <div class="hero-row"><span class="hero">💣</span><span class="hero f">🚩</span><span class="hero">🔢</span></div>
         <div class="mode-grid">
-          <button class="btn primary" data-mode="0">🌱 初级 9×9·10</button>
-          <button class="btn duel" data-mode="1">🌿 中级 16×16·40</button>
-          <button class="btn duel" data-mode="2">🌳 高级 30×16·99</button>
+          <button class="btn primary" data-mode="0" data-i18n="mode0">🌱 初级 9×9·10</button>
+          <button class="btn duel" data-mode="1" data-i18n="mode1">🌿 中级 16×16·40</button>
+          <button class="btn duel" data-mode="2" data-i18n="mode2">🌳 高级 30×16·99</button>
         </div>
         <div id="menu-best" class="mini-board">🏆 最佳：初 -- · 中 -- · 高 --</div>
       </div>
@@ -38,19 +38,56 @@
         <div class="panel pop">
           <h3 id="over-title" class="over-title">💥 踩到地雷！</h3>
           <div id="over-sub" class="over-sub"></div>
-          <div class="row"><button id="btn-retry" class="btn primary">🔄 再来一局 (R)</button><button id="btn-menu" class="btn ghost">菜单</button></div>
+          <div class="row"><button id="btn-retry" class="btn primary" data-i18n="retry">🔄 再来一局 (R)</button><button id="btn-menu" class="btn ghost" data-i18n="menu">菜单</button></div>
         </div>
       </div>
     </div>
     <aside class="side">
-      <div class="card"><h4>🎮 操作</h4><ul>
-        <li>左键揭开 · 右键标旗（触屏长按标旗）</li><li>双击数字：旗数够则展开周围</li><li><kbd>R</kbd> 重开 · <kbd>P</kbd>/<kbd>Esc</kbd> 暂停 · <kbd>M</kbd> 静音</li></ul></div>
-      <div class="card"><h4>📏 规则</h4><ul>
-        <li>首次点击必定安全</li><li>数字 = 周围 8 格地雷数</li><li>全部安全格揭开即胜利</li></ul></div>
+      <div class="card"><h4 data-i18n="opTitle">🎮 操作</h4><ul>
+        <li data-i18n="op1">左键揭开 · 右键标旗（触屏长按标旗）</li><li data-i18n="op2">双击数字：旗数够则展开周围</li>        <li><kbd>R</kbd> <span data-i18n="op3a">重开</span> · <kbd>P</kbd>/<kbd>Esc</kbd> <span data-i18n="op3b">暂停</span> · <kbd>M</kbd> <span data-i18n="op3c">静音</span></li></ul></div>
+      <div class="card"><h4 data-i18n="ruleTitle">📏 规则</h4><ul>
+        <li data-i18n="rule1">首次点击必定安全</li><li data-i18n="rule2">数字 = 周围 8 格地雷数</li><li data-i18n="rule3">全部安全格揭开即胜利</li></ul></div>
     </aside>
   </section>
-  <footer>Canvas + WebAudio 原生实现 · 零依赖 · 经典三档 + 首击保护</footer>
+  <footer data-i18n="footer">Canvas + WebAudio 原生实现 · 零依赖 · 经典三档 + 首击保护</footer>
 </main>
+<script src="../assets/i18n.js?v=20260906"></script>
+<script>
+window.GAME_STR = {
+  zh: {
+    title: '扫雷 · 经典益智', name: '扫雷', subtitle: '经典益智',
+    intro: '初级 / 中级 / 高级 · 首击安全 · 双击展开',
+    mode0: '🌱 初级 9×9·10', mode1: '🌿 中级 16×16·40', mode2: '🌳 高级 30×16·99',
+    retry: '🔄 再来一局 (R)', menu: '菜单',
+    opTitle: '🎮 操作', op1: '左键揭开 · 右键标旗（触屏长按标旗）', op2: '双击数字：旗数够则展开周围',
+    ruleTitle: '📏 规则', rule1: '首次点击必定安全', rule2: '数字 = 周围 8 格地雷数', rule3: '全部安全格揭开即胜利',
+    footer: 'Canvas + WebAudio 原生实现 · 零依赖 · 经典三档 + 首击保护',
+    muteTitle: '声音开 / 关 (M)', paused: '⏸ 暂停', op3a: '重开', op3b: '暂停', op3c: '静音',
+    diffs: ['初级', '中级', '高级'], diffShort: ['初', '中', '高'],
+    winTitle: '🎉 扫雷成功！', loseTitle: '💥 踩到地雷！',
+    winSub: (n, s, b) => n + ' · 用时 ' + s + 's · 最佳 ' + b + 's',
+    loseSub: (n, o) => n + ' · 已揭开 ' + o + ' 格',
+    bestLine: (a, b, c) => '🏆 最佳：初 ' + a + ' · 中 ' + b + ' · 高 ' + c,
+    na: '--'
+  },
+  en: {
+    title: 'Minesweeper · Classic Puzzle', name: 'Minesweeper', subtitle: 'Classic Puzzle',
+    intro: 'Beginner / Intermediate / Expert · Safe first click · Double-click to chord',
+    mode0: '🌱 Beginner 9×9·10', mode1: '🌿 Intermediate 16×16·40', mode2: '🌳 Expert 30×16·99',
+    retry: '🔄 Play Again (R)', menu: 'Menu',
+    opTitle: '🎮 Controls', op1: 'Left-click to open · right-click to flag (long-press on touch)', op2: 'Double-click a number: chord when flags match',
+    ruleTitle: '📏 Rules', rule1: 'First click is always safe', rule2: 'Number = mines in the 8 neighbors', rule3: 'Open all safe cells to win',
+    footer: 'Native Canvas + WebAudio · zero dependencies · 3 classic levels + first-click safety',
+    muteTitle: 'Sound on/off (M)', paused: '⏸ Paused', op3a: 'restart', op3b: 'pause', op3c: 'mute',
+    diffs: ['Beginner', 'Intermediate', 'Expert'], diffShort: ['B', 'I', 'E'],
+    winTitle: '🎉 Cleared!', loseTitle: '💥 Boom! Mine hit!',
+    winSub: (n, s, b) => n + ' · ' + s + 's · best ' + b + 's',
+    loseSub: (n, o) => n + ' · ' + o + ' cells opened',
+    bestLine: (a, b, c) => '🏆 Best: B ' + a + ' · I ' + b + ' · E ' + c,
+    na: '--'
+  }
+};
+</script>
 <script src="game.js?v=20260906"></script>
 </body>
 </html>
