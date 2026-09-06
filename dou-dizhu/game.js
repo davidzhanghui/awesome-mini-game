@@ -1,6 +1,8 @@
 (() => {
 // 牌：0-51 普通牌（0-12: 方块3..2, 13-25 梅花, 26-38 红桃, 39-51 黑桃），52 小王，53 大王
 // 点数 rank：0=3 ... 12=2, 13=小王, 14=大王
+const STR = window.GAME_STR || { zh: {}, en: {} };
+const T = (k, ...a) => AMG.tf(STR, k, ...a);
 const W = 760, H = 620;
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
@@ -40,7 +42,7 @@ const sfx = {
 
 const rank = c => c >= 52 ? (c === 52 ? 13 : 14) : (c % 13);
 const suit = c => c >= 52 ? -1 : Math.floor(c / 13);
-const RSYM = ['3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A', '2', '小王', '大王'];
+const RSYM = ['3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A', '2', T('jokerS'), T('jokerB')];
 const cardName = c => RSYM[rank(c)];
 const isRedSuit = c => c < 52 && (suit(c) === 0 || suit(c) === 2);
 
@@ -337,7 +339,7 @@ function reset() {
   G.bidTurn = Math.random() * 3 | 0;
   G.turn = G.bidTurn;
 }
-function seatName(i) { return i === 0 ? '你' : 'AI·' + (i === 1 ? '右' : '左'); }
+function seatName(i) { return i === 0 ? T('you') : T(i === 1 ? 'aiR' : 'aiL'); }
 function doBid(seat, bid) {
   G.bids[seat] = bid;
   if (bid > 0) { G.maxBid = bid; G.landlord = seat; }
@@ -345,7 +347,7 @@ function doBid(seat, bid) {
   const done = G.bids.filter(b => b !== undefined).length >= 3;
   if (done) {
     if (G.maxBid === 0) { // 无人叫：重发
-      flash('无人叫地主，重新发牌');
+      flash(T('noBidRedeal'));
       setTimeout(() => { if (G.state === 'play') { reset(); } }, 1200);
       return;
     }
@@ -372,9 +374,9 @@ function removeCards(seat, cards) {
 }
 function playCards(seat, cards) {
   const an = analyze(cards);
-  if (!an) { flash('牌型不合法'); sfx.bad(); return false; }
+  if (!an) { flash(T('badCombo')); sfx.bad(); return false; }
   const last = G.lastPlay && G.lastPlay.seat !== seat ? G.lastPlay : null;
-  if (!beats(an, last)) { flash(last ? '管不上上家' : '牌型不对'); sfx.bad(); return false; }
+  if (!beats(an, last)) { flash(last ? T('cantBeat') : T('badType')); sfx.bad(); return false; }
   removeCards(seat, cards);
   an.seat = seat;
   G.lastPlay = an;
@@ -407,8 +409,8 @@ function endGame(winner) {
   const lp = G.playCount[G.landlord] || 0;
   const fp = [1, 2].map(i => (G.landlord + i) % 3).reduce((s, i) => s + (G.playCount[i] || 0), 0);
   let spring = false, springName = '';
-  if (winLandlord && fp === 0) { spring = true; springName = '春天'; }
-  if (!winLandlord && lp <= 1) { spring = true; springName = '反春天'; }
+  if (winLandlord && fp === 0) { spring = true; springName = T('spring'); }
+  if (!winLandlord && lp <= 1) { spring = true; springName = T('antiSpring'); }
   G.spring = spring;
   const mult = Math.pow(2, G.bombs) * (spring ? 2 : 1);
   const base = winLandlord ? 200 : 100;
@@ -419,9 +421,8 @@ function endGame(winner) {
   store.stats = st;
   refreshStats();
   if (iWin) sfx.win(); else sfx.lose();
-  $('over-title').textContent = winner === 0 ? '🎉 你赢了！' : (winLandlord ? '😈 地主获胜' : '🎉 农民胜利！');
-  $('over-sub').innerHTML = '地主：' + seatName(G.landlord) + ' · 炸弹×' + G.bombs + (spring ? ' · ' + springName : '') +
-    '<br>积分 ' + (delta > 0 ? '+' : '') + delta + '（总 ' + st.s + '）';
+  $('over-title').textContent = winner === 0 ? T('winYou') : (winLandlord ? T('winLord') : T('winFarmers'));
+  $('over-sub').innerHTML = T('overSub', seatName(G.landlord), G.bombs, spring ? springName : '', delta, st.s);
   setTimeout(() => $('screen-over').classList.remove('hidden'), 600);
 }
 function flash(m) { G.msg = m; G.msgT = 2.2; }
@@ -433,7 +434,7 @@ function refreshStats() {
 function refreshCounter() {
   const el = $('card-counter');
   if (!el) return;
-  if (G.state !== 'play' || G.phase === 'bid') { el.textContent = '开局后显示剩余牌'; return; }
+  if (G.state !== 'play' || G.phase === 'bid') { el.textContent = T('counterEmpty'); return; }
   const left = {};
   for (const h of G.hands) for (const c of h) { const r = rank(c); left[r] = (left[r] || 0) + 1; }
   const order = [14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0];
@@ -493,7 +494,7 @@ function drawCard(c, x, y, opts) {
     const label = c >= 52 ? (c === 52 ? 'JOK' : 'JOK') : RSYM[r];
     ctx.fillText(label, x + 5, y + 20);
     ctx.font = '900 15px system-ui';
-    ctx.fillText(c === 52 ? '小' : c === 53 ? '大' : ['♦', '♣', '♥', '♠'][suit(c)], x + 5, y + 38);
+    ctx.fillText(c === 52 ? T('jokerMin') : c === 53 ? T('jokerMax') : ['♦', '♣', '♥', '♠'][suit(c)], x + 5, y + 38);
     if (c >= 52) {
       ctx.font = '28px serif'; ctx.textAlign = 'center';
       ctx.fillText(c === 52 ? '🃏' : '🎴', x + w / 2, y + 62);
@@ -533,11 +534,11 @@ function render(dt) {
   ctx.textAlign = 'center';
   // 顶栏：底牌 + 倍数
   ctx.fillStyle = '#fff'; ctx.font = '900 14px system-ui';
-  ctx.fillText('底牌', 60, 26);
+  ctx.fillText(T('dipai'), 60, 26);
   G.dipai.forEach((c, i) => drawCard(c, 92 + i * 38, 6, { small: true }));
   ctx.textAlign = 'left';
   ctx.fillStyle = '#ffd93d';
-  ctx.fillText('💣×' + G.bombs + '  ' + (G.phase === 'play' ? ('地主:' + seatName(G.landlord)) : '叫分中…'), W - 220, 26);
+  ctx.fillText(T('topBar', G.bombs, G.phase === 'play' ? T('lordIs', seatName(G.landlord)) : T('bidding')), W - 220, 26);
   if (G.state === 'menu') return;
   // 左右 AI 手牌数 + 出牌区
   const aiPos = [{ x: 88, y: 200 }, { x: W - 88, y: 200 }];
@@ -545,7 +546,7 @@ function render(dt) {
     const p = aiPos[k];
     ctx.fillStyle = G.roles[seat] === 'landlord' ? '#ffd93d' : '#fff';
     ctx.font = '900 15px system-ui'; ctx.textAlign = 'center';
-    ctx.fillText((G.roles[seat] === 'landlord' ? '😈' : '🧑‍🌾') + seatName(seat) + ' 🂠×' + G.hands[seat].length, p.x, 120);
+    ctx.fillText((G.roles[seat] === 'landlord' ? '😈' : '🧑‍🌾') + seatName(seat) + T('handCount', G.hands[seat].length), p.x, 120);
     // 出的牌
     const pcs = G.plays[seat];
     if (pcs && pcs.length) {
@@ -556,13 +557,13 @@ function render(dt) {
       // 不出提示
       if (G.lastPlay && G.lastPlay.seat !== seat && (G.plays[seat] || []).length === 0 && G.hands[seat].length) {
         ctx.fillStyle = '#9fd8ff'; ctx.font = '900 22px system-ui';
-        ctx.fillText('不出', k === 0 ? 150 : W - 150, 190);
+        ctx.fillText(T('pass'), k === 0 ? 150 : W - 150, 190);
       }
     }
     // 叫分显示
     if (G.phase === 'bid' && G.bids[seat] !== undefined) {
       ctx.fillStyle = '#ffd93d'; ctx.font = '900 20px system-ui';
-      ctx.fillText(G.bids[seat] === 0 ? '不叫' : G.bids[seat] + '分', k === 0 ? 150 : W - 150, 190);
+      ctx.fillText(G.bids[seat] === 0 ? T('noBid') : T('bidPts', G.bids[seat]), k === 0 ? 150 : W - 150, 190);
     }
   });
   // 中间出牌区（上家出的牌）
@@ -595,9 +596,9 @@ function render(dt) {
   if (G.phase === 'bid' && G.state === 'play') {
     if (G.bidTurn === 0) {
       const myMax = Math.max(0, ...G.bids.filter(b => b !== undefined));
-      button('不叫', W / 2 - 190, by - 44, 86, 38, { cb: () => { doBid(0, 0); if (G.bidTurn !== 0) G.aiTimer = .8; } });
+      button(T('noBid'), W / 2 - 190, by - 44, 86, 38, { cb: () => { doBid(0, 0); if (G.bidTurn !== 0) G.aiTimer = .8; } });
       [1, 2, 3].forEach((v, i) => {
-        button(v + '分', W / 2 - 94 + i * 96, by - 44, 86, 38, {
+        button(T('bidPts', v), W / 2 - 94 + i * 96, by - 44, 86, 38, {
           dis: v <= myMax,
           primary: v > myMax,
           cb: () => { if (v > myMax) { doBid(0, v); if (G.bidTurn !== 0) G.aiTimer = .8; } }
@@ -605,27 +606,27 @@ function render(dt) {
       });
     } else {
       ctx.fillStyle = '#fff'; ctx.font = '15px system-ui'; ctx.textAlign = 'center';
-      ctx.fillText('等待 ' + seatName(G.bidTurn) + ' 叫分…', W / 2, by - 18);
+      ctx.fillText(T('waitBid', seatName(G.bidTurn)), W / 2, by - 18);
     }
   } else if (G.phase === 'play' && G.state === 'play') {
     if (G.turn === 0) {
       const canPass = G.lastPlay && G.lastPlay.seat !== 0;
-      button('不出', W / 2 - 150, by - 44, 90, 38, {
+      button(T('pass'), W / 2 - 150, by - 44, 90, 38, {
         dis: !canPass,
         cb: () => { if (canPass) passTurn(0); }
       });
-      button('出牌', W / 2 - 48, by - 44, 110, 38, {
+      button(T('play'), W / 2 - 48, by - 44, 110, 38, {
         primary: true,
         cb: () => {
           const cards = hand.filter(c => G.sel.has(c));
-          if (!cards.length) { flash('先选牌'); return; }
+          if (!cards.length) { flash(T('pickFirst')); return; }
           if (playCards(0, cards)) G.sel = new Set();
         }
       });
-      button('全选', W / 2 + 72, by - 44, 80, 38, { cb: () => { G.sel = new Set(hand); } });
+      button(T('selectAll'), W / 2 + 72, by - 44, 80, 38, { cb: () => { G.sel = new Set(hand); } });
     } else {
       ctx.fillStyle = '#fff'; ctx.font = '15px system-ui'; ctx.textAlign = 'center';
-      ctx.fillText('等待 ' + seatName(G.turn) + ' 出牌…', W / 2, by - 18);
+      ctx.fillText(T('waitPlay', seatName(G.turn)), W / 2, by - 18);
     }
   }
   // 选中牌型提示
@@ -633,8 +634,8 @@ function render(dt) {
     const cards = hand.filter(c => G.sel.has(c));
     const an = analyze(cards);
     ctx.fillStyle = an ? '#5ee66e' : '#ff8c8c'; ctx.font = '13px system-ui'; ctx.textAlign = 'center';
-    const names = { single: '单张', pair: '对子', trio: '三张', trio1: '三带一', trio2: '三带二', straight: '顺子', pairseq: '连对', plane: '飞机', plane1: '飞机带单', plane2: '飞机带对', four2: '四带二', four22: '四带两对', bomb: '炸弹！', rocket: '王炸！' };
-    ctx.fillText(an ? (names[an.type] || an.type) + ' ' + RSYM[an.main] : '牌型不对', W / 2, by - 52);
+    const names = { single: T('tSingle'), pair: T('tPair'), trio: T('tTrio'), trio1: T('tTrio1'), trio2: T('tTrio2'), straight: T('tStraight'), pairseq: T('tPairseq'), plane: T('tPlane'), plane1: T('tPlane1'), plane2: T('tPlane2'), four2: T('tFour2'), four22: T('tFour22'), bomb: T('tBomb'), rocket: T('tRocket') };
+    ctx.fillText(an ? names[an.type] + ' ' + RSYM[an.main] : T('badType'), W / 2, by - 52);
   }
   if (G.msgT > 0) {
     G.msgT -= dt;
@@ -700,6 +701,10 @@ function toggleMute() {
 }
 $('btn-mute').onclick = toggleMute;
 $('btn-mute').textContent = muted ? '🔇' : '🔊';
+// i18n boot: static DOM + dynamic boot texts
+AMG.apply(STR);
+AMG.mountBtn();
+$('btn-mute').title = T('muteTitle');
 
 refreshStats();
 reset();

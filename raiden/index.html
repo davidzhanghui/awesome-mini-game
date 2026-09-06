@@ -4,18 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <link rel="icon" href="/favicon.svg" />
-<title>RAIDEN 雷电 · 双人街机重制版</title>
+<title>RAIDEN Thunder · 2P Arcade Remake</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <div id="bg-stars"></div>
 <div id="app">
   <header id="topbar">
-    <div class="logo">⚡ <span>RAIDEN</span> <em>雷电 · 1990 TRIBUTE</em></div>
+    <div class="logo">⚡ <span>RAIDEN</span> <em data-i18n="logoEm">Thunder · 1990 TRIBUTE</em></div>
     <div class="top-links">
       <span id="hi-score-top">HI-SCORE 0</span>
-      <button id="btn-help" class="ghost-btn">操作说明</button>
-      <button id="btn-sound" class="ghost-btn">🔊 声音开</button>
+      <button id="btn-help" class="ghost-btn" data-i18n="btnHelp">How to play</button>
+      <button id="btn-sound" class="ghost-btn">🔊 Sound On</button>
     </div>
   </header>
 
@@ -23,8 +23,8 @@
     <section id="menu-screen" class="screen active">
       <div class="title-block">
         <div class="kicker">SEIBU KAIHATSU TRIBUTE · FAN REMAKE</div>
-        <h1 class="game-title"><span class="thunder">RAIDEN</span><span class="cn">雷電</span></h1>
-        <p class="subtitle">2090 · 外星舰队入侵 — 雷电超音速攻击机，出击！</p>
+        <h1 class="game-title"><span class="thunder">RAIDEN</span><span class="cn" data-i18n="titleCn">RAIDEN</span></h1>
+        <p class="subtitle" data-i18n="subtitle">2090 · Alien fleet invades — Thunder supersonic fighters, launch!</p>
         <div class="title-jets">
           <div class="jet p1-jet">✈</div>
           <div class="jet p2-jet">✈</div>
@@ -33,111 +33,111 @@
 
       <div class="menu-grid">
         <div class="menu-card">
-          <h2>出击模式</h2>
-          <button class="big-btn primary" id="btn-1p">▶ 单人出击 · 1P</button>
-          <button class="big-btn secondary" id="btn-2p">▶▶ 双人协作出击 · 2P</button>
+          <h2 data-i18n="modeTitle">Launch Mode</h2>
+          <button class="big-btn primary" id="btn-1p" data-i18n="btn1p">▶ Solo Launch · 1P</button>
+          <button class="big-btn secondary" id="btn-2p" data-i18n="btn2p">▶▶ Co-op Launch · 2P</button>
           <div class="row">
-            <label>起始关卡
+            <label><span data-i18n="stageLabel">Start Stage</span>
               <select id="sel-stage">
-                <option value="0">STAGE 1 · 田园黎明</option>
-                <option value="1">STAGE 2 · 废墟都市</option>
-                <option value="2">STAGE 3 · 海上舰队</option>
-                <option value="3">STAGE 4 · 沙漠基地</option>
-                <option value="4">STAGE 5 · 火山工厂</option>
-                <option value="5">STAGE 6 · 云端要塞</option>
-                <option value="6">STAGE 7 · 轨道船坞</option>
-                <option value="7">STAGE 8 · 异星母舰</option>
+                <option value="0" data-i18n="optStage0">STAGE 1 · Dawn Fields</option>
+                <option value="1" data-i18n="optStage1">STAGE 2 · Ruined City</option>
+                <option value="2" data-i18n="optStage2">STAGE 3 · Fleet at Sea</option>
+                <option value="3" data-i18n="optStage3">STAGE 4 · Desert Base</option>
+                <option value="4" data-i18n="optStage4">STAGE 5 · Volcano Factory</option>
+                <option value="5" data-i18n="optStage5">STAGE 6 · Cloud Fortress</option>
+                <option value="6" data-i18n="optStage6">STAGE 7 · Orbital Dock</option>
+                <option value="7" data-i18n="optStage7">STAGE 8 · Alien Mothership</option>
               </select>
             </label>
-            <label>难度
+            <label><span data-i18n="diffLabel">Difficulty</span>
               <select id="sel-diff">
-                <option value="0.8">RECRUIT 新兵</option>
-                <option value="1" selected>NORMAL 标准</option>
-                <option value="1.3">HARD 硬核</option>
-                <option value="1.65">INFERNO 地狱</option>
+                <option value="0.8" data-i18n="optDiff0">RECRUIT</option>
+                <option value="1" selected data-i18n="optDiff1">NORMAL</option>
+                <option value="1.3" data-i18n="optDiff2">HARD</option>
+                <option value="1.65" data-i18n="optDiff3">INFERNO</option>
               </select>
             </label>
           </div>
           <div class="row">
-            <label class="check"><input type="checkbox" id="opt-autofire" checked> 自动开火</label>
-            <label class="check"><input type="checkbox" id="opt-shake" checked> 屏幕震动</label>
-            <label class="check"><input type="checkbox" id="opt-assist"> 新手护盾(开局护罩)</label>
+            <label class="check"><input type="checkbox" id="opt-autofire" checked> <span data-i18n="optAutofire">Autofire</span></label>
+            <label class="check"><input type="checkbox" id="opt-shake" checked> <span data-i18n="optShake">Screen shake</span></label>
+            <label class="check"><input type="checkbox" id="opt-assist"> <span data-i18n="optAssist">Rookie shield (start shielded)</span></label>
           </div>
         </div>
 
         <div class="menu-card weapons">
-          <h2>强化武器系统 <span class="tag">MAX LV.8 + OVERDRIVE</span></h2>
+          <h2><span data-i18n="weaponTitle">Weapon System</span> <span class="tag">MAX LV.8 + OVERDRIVE</span></h2>
           <ul>
-            <li><b class="c-v">V-VULCAN 火神炮</b> 扇形弹幕 · 满级8向 + 贯穿 <span>拾取 <i class="pill red">V</i> / <i class="pill">P</i>升级</span></li>
-            <li><b class="c-l">L-LASER 激光</b> 可弯曲粗光束 · 贴脸爆发最高 <span>拾取 <i class="pill blue">L</i></span></li>
-            <li><b class="c-p">E-PLASMA 等离子</b> 追踪电浆 · 穿透+弹跳 <span>拾取 <i class="pill purple">E</i></span></li>
-            <li><b class="c-m">导弹</b> 追踪 / 核弹直击 <i class="pill yellow">M</i>切换 · <b>僚机</b> <i class="pill green">O</i> · <b>雷电炸弹</b> <i class="pill cyan">B</i>清屏</li>
+            <li><b class="c-v" data-i18n="wpnVName">V-VULCAN</b> <span data-i18n="wpnVDesc">Spread barrage · 8-way + pierce at max</span> <span><span data-i18n="wpnPickup">Pickup</span> <i class="pill red">V</i> / <i class="pill">P</i><span data-i18n="wpnUpgrade">to upgrade</span></span></li>
+            <li><b class="c-l" data-i18n="wpnLName">L-LASER</b> <span data-i18n="wpnLDesc">Bendable heavy beam · best point-blank burst</span> <span><span data-i18n="wpnPickup2">Pickup</span> <i class="pill blue">L</i></span></li>
+            <li><b class="c-p" data-i18n="wpnEName">E-PLASMA</b> <span data-i18n="wpnEDesc">Homing plasma · pierce + bounce</span> <span><span data-i18n="wpnPickup3">Pickup</span> <i class="pill purple">E</i></span></li>
+            <li><b class="c-m" data-i18n="wpnMName">Missiles</b> <span data-i18n="wpnMDesc">homing / nuke hits</span> <i class="pill yellow">M</i><span data-i18n="wpnMSwitch">to switch</span> · <b data-i18n="wpnOName">Option</b> <i class="pill green">O</i> · <b data-i18n="wpnBName">Raiden Bomb</b> <i class="pill cyan">B</i><span data-i18n="wpnBClear">clears screen</span></li>
           </ul>
-          <p class="hint">死亡不再清零武器 — 保留一半等级。蓄力(按住开火1.2s松开)释放 Overdrive 爆发。</p>
+          <p class="hint" data-i18n="weaponHint">Death no longer resets weapons — keep half levels. Hold fire 1.2s then release for Overdrive burst.</p>
         </div>
       </div>
 
       <div class="stages-strip" id="stages-strip"></div>
-      <p class="foot">致敬 1990 Seibu Kaihatsu 街机《Raiden》· 本作含官方 8 大关卡 + 8 位 Boss · 双键盘同屏协作 · 最高分保存在本地</p>
+      <p class="foot" data-i18n="foot">A tribute to Seibu Kaihatsu's 1990 arcade Raiden · 8 stages + 8 bosses · 2 keyboards co-op · hi-score saved locally</p>
     </section>
 
     <section id="game-screen" class="screen">
       <div id="canvas-holder">
         <canvas id="game" width="960" height="720"></canvas>
         <div id="overlay">
-          <div id="stage-card"><h3 id="stage-card-kicker">STAGE 1</h3><h2 id="stage-card-title">田园黎明</h2><p id="stage-card-desc"></p></div>
+          <div id="stage-card"><h3 id="stage-card-kicker">STAGE 1</h3><h2 id="stage-card-title">Dawn Fields</h2><p id="stage-card-desc"></p></div>
           <div id="warn">⚠ WARNING ⚠</div>
-          <div id="pause-tip">已暂停 — 按 P 继续 / M 返回菜单</div>
+          <div id="pause-tip" data-i18n="pauseTip">Paused — press P to resume / M for menu</div>
         </div>
       </div>
       <aside id="side-panel">
         <div class="panel-block">
-          <h3>战况</h3>
-          <div class="p-row"><span>得分 P1</span><b id="hud-s1">0</b></div>
-          <div class="p-row"><span>得分 P2</span><b id="hud-s2">0</b></div>
-          <div class="p-row total"><span>总分</span><b id="hud-total">0</b></div>
-          <div class="p-row"><span>连击</span><b id="hud-combo">x0</b></div>
-          <div class="p-row"><span>勋章</span><b id="hud-medal">0</b></div>
+          <h3 data-i18n="panelStatus">Battle</h3>
+          <div class="p-row"><span data-i18n="lblScoreP1">Score P1</span><b id="hud-s1">0</b></div>
+          <div class="p-row"><span data-i18n="lblScoreP2">Score P2</span><b id="hud-s2">0</b></div>
+          <div class="p-row total"><span data-i18n="lblTotal">Total</span><b id="hud-total">0</b></div>
+          <div class="p-row"><span data-i18n="lblCombo">Combo</span><b id="hud-combo">x0</b></div>
+          <div class="p-row"><span data-i18n="lblMedal">Medals</span><b id="hud-medal">0</b></div>
         </div>
         <div class="panel-block">
-          <h3>P1 · WASD + J射击 K炸弹</h3>
+          <h3 data-i18n="p1Title">P1 · WASD + J fire, K bomb</h3>
           <div class="wpn" id="hud-p1">—</div>
           <div class="bars"><div class="lives" id="hud-l1"></div></div>
         </div>
         <div class="panel-block">
-          <h3>P2 · 方向键 + ,射击 .炸弹</h3>
+          <h3 data-i18n="p2Title">P2 · Arrows + , fire, . bomb</h3>
           <div class="wpn" id="hud-p2">—</div>
           <div class="bars"><div class="lives" id="hud-l2"></div></div>
         </div>
         <div class="panel-block boss-block">
-          <h3>BOSS</h3>
+          <h3 data-i18n="bossTitle">BOSS</h3>
           <div id="boss-bar"><div id="boss-fill"></div></div>
           <div id="boss-name">—</div>
         </div>
         <div class="panel-btns">
-          <button id="btn-pause" class="ghost-btn">⏸ 暂停(P)</button>
-          <button id="btn-quit" class="ghost-btn">✕ 退出(M)</button>
-          <button id="btn-bomb1" class="ghost-btn">💥 P1炸弹</button>
-          <button id="btn-bomb2" class="ghost-btn">💥 P2炸弹</button>
+          <button id="btn-pause" class="ghost-btn" data-i18n="btnPause">⏸ Pause (P)</button>
+          <button id="btn-quit" class="ghost-btn" data-i18n="btnQuit">✕ Quit (M)</button>
+          <button id="btn-bomb1" class="ghost-btn" data-i18n="btnBomb1">💥 P1 Bomb</button>
+          <button id="btn-bomb2" class="ghost-btn" data-i18n="btnBomb2">💥 P2 Bomb</button>
         </div>
-        <p class="touch-hint">手机/触屏：单指拖动控制P1并自动开火，双指点击放炸弹</p>
+        <p class="touch-hint" data-i18n="touchHint">Touch: drag to move P1 with autofire, tap with a second finger to bomb</p>
       </aside>
     </section>
 
     <section id="help-modal" class="modal hidden">
       <div class="modal-card">
-        <h2>操作说明</h2>
+        <h2 data-i18n="helpTitle">How to play</h2>
         <div class="help-cols">
-          <div><h4>P1 · 红色战机</h4><p>移动 WASD · 射击 J / Space(按住蓄力) · 炸弹 K / L · 手柄左摇杆+RT/LT</p></div>
-          <div><h4>P2 · 蓝色战机</h4><p>移动 ←↑↓→ · 射击 , (逗号) · 炸弹 . (句号) · 手柄右摇杆亦可</p></div>
+          <div><h4 data-i18n="helpP1Title">P1 · Red fighter</h4><p data-i18n="helpP1Text">Move: WASD · Fire: J / Space (hold to charge) · Bomb: K / L · Gamepad left stick + RT/LT</p></div>
+          <div><h4 data-i18n="helpP2Title">P2 · Blue fighter</h4><p data-i18n="helpP2Text">Move: Arrows · Fire: , (comma) · Bomb: . (period) · Right stick works too</p></div>
         </div>
         <ul class="help-list">
-          <li><i class="pill red">V</i><i class="pill blue">L</i><i class="pill purple">E</i> 主武器：火神 / 激光 / 等离子 · <i class="pill">P</i>升级(最高Lv.8) · 满级再吃P = +10000分</li>
-          <li><i class="pill yellow">M</i>切换导弹(追踪↔核弹)并升级 · <i class="pill cyan">B</i>炸弹+1 · <i class="pill green">O</i>僚机 · <i class="pill">S</i>加速/护盾 · ★勋章加分 · 🧚仙女救下+5000 · 🐄米克鲁斯隐藏加分</li>
-          <li>炸弹“雷电风暴”：全屏清弹+重创Boss+2秒无敌。双人互相接应：一方阵亡后3秒复活(消耗共同备用机)。</li>
-          <li>P暂停 · M回菜单 · 回车=投币续关(无限续关，分数保留一半)。</li>
+          <li><i class="pill red">V</i><i class="pill blue">L</i><i class="pill purple">E</i> <span data-i18n="helpLi1a">Main guns:</span> <span data-i18n="helpLi1b">Vulcan / Laser / Plasma</span> · <i class="pill">P</i><span data-i18n="helpLi1c">to upgrade (max Lv.8)</span> · <span data-i18n="helpLi1d">eat P at max = +10000 pts</span></li>
+          <li><i class="pill yellow">M</i><span data-i18n="helpMissile">switch missiles (homing/nuke) + upgrade</span> · <i class="pill cyan">B</i><span data-i18n="helpBombPlus">+1 bomb</span> · <i class="pill green">O</i><span data-i18n="helpOption">option</span> · <i class="pill">S</i><span data-i18n="helpSpeedShield">speed/shield</span> · ★<span data-i18n="helpMedal">medals score</span> · 🧚<span data-i18n="helpFairy">fairy rescue +5000</span> · 🐄<span data-i18n="helpMiclus">hidden Miclus bonus</span></li>
+          <li data-i18n="helpLi3">Raiden Storm bomb: clears all bullets + wounds boss + 2s invincible. Co-op rescue: downed player revives in 3s (uses shared stock).</li>
+          <li data-i18n="helpLi4">P = pause · M = menu · Enter = insert coin to continue (unlimited, keep half score).</li>
         </ul>
-        <button id="btn-close-help" class="big-btn primary">知道了</button>
+        <button id="btn-close-help" class="big-btn primary" data-i18n="btnGotIt">Got it</button>
       </div>
     </section>
 
@@ -147,13 +147,190 @@
         <p id="end-sub"></p>
         <div id="end-stats"></div>
         <div class="row center-row">
-          <button id="btn-again" class="big-btn primary">再来一局</button>
-          <button id="btn-tomenu" class="big-btn secondary">返回菜单</button>
+          <button id="btn-again" class="big-btn primary" data-i18n="btnAgain">Play again</button>
+          <button id="btn-tomenu" class="big-btn secondary" data-i18n="btnTomenu">Back to menu</button>
         </div>
       </div>
     </section>
   </main>
 </div>
+<script src="../assets/i18n.js?v=20260906"></script>
+<script>
+window.GAME_STR = {
+  zh: {
+    title: 'RAIDEN 雷电 · 双人街机重制版',
+    logoEm: '雷电 · 1990 TRIBUTE',
+    btnHelp: '操作说明',
+    soundOn: '🔊 声音开', soundOff: '🔇 声音关',
+    titleCn: '雷電',
+    subtitle: '2090 · 外星舰队入侵 — 雷电超音速攻击机，出击！',
+    modeTitle: '出击模式',
+    btn1p: '▶ 单人出击 · 1P', btn2p: '▶▶ 双人协作出击 · 2P',
+    stageLabel: '起始关卡', diffLabel: '难度',
+    optStage0: 'STAGE 1 · 田园黎明', optStage1: 'STAGE 2 · 废墟都市', optStage2: 'STAGE 3 · 海上舰队', optStage3: 'STAGE 4 · 沙漠基地',
+    optStage4: 'STAGE 5 · 火山工厂', optStage5: 'STAGE 6 · 云端要塞', optStage6: 'STAGE 7 · 轨道船坞', optStage7: 'STAGE 8 · 异星母舰',
+    optDiff0: 'RECRUIT 新兵', optDiff1: 'NORMAL 标准', optDiff2: 'HARD 硬核', optDiff3: 'INFERNO 地狱',
+    optAutofire: '自动开火', optShake: '屏幕震动', optAssist: '新手护盾(开局护罩)',
+    weaponTitle: '强化武器系统',
+    wpnVName: 'V-VULCAN 火神炮', wpnVDesc: '扇形弹幕 · 满级8向 + 贯穿',
+    wpnLName: 'L-LASER 激光', wpnLDesc: '可弯曲粗光束 · 贴脸爆发最高',
+    wpnEName: 'E-PLASMA 等离子', wpnEDesc: '追踪电浆 · 穿透+弹跳',
+    wpnMName: '导弹', wpnMDesc: '追踪 / 核弹直击', wpnMSwitch: '切换',
+    wpnOName: '僚机', wpnBName: '雷电炸弹', wpnBClear: '清屏',
+    wpnPickup: '拾取', wpnUpgrade: '升级', wpnPickup2: '拾取', wpnPickup3: '拾取',
+    weaponHint: '死亡不再清零武器 — 保留一半等级。蓄力(按住开火1.2s松开)释放 Overdrive 爆发。',
+    foot: '致敬 1990 Seibu Kaihatsu 街机《Raiden》· 本作含官方 8 大关卡 + 8 位 Boss · 双键盘同屏协作 · 最高分保存在本地',
+    pauseTip: '已暂停 — 按 P 继续 / M 返回菜单',
+    panelStatus: '战况', lblScoreP1: '得分 P1', lblScoreP2: '得分 P2', lblTotal: '总分', lblCombo: '连击', lblMedal: '勋章',
+    p1Title: 'P1 · WASD + J射击 K炸弹', p2Title: 'P2 · 方向键 + ,射击 .炸弹', bossTitle: 'BOSS',
+    btnPause: '⏸ 暂停(P)', btnQuit: '✕ 退出(M)', btnBomb1: '💥 P1炸弹', btnBomb2: '💥 P2炸弹',
+    touchHint: '手机/触屏：单指拖动控制P1并自动开火，双指点击放炸弹',
+    helpTitle: '操作说明', helpP1Title: 'P1 · 红色战机', helpP1Text: '移动 WASD · 射击 J / Space(按住蓄力) · 炸弹 K / L · 手柄左摇杆+RT/LT',
+    helpP2Title: 'P2 · 蓝色战机', helpP2Text: '移动 ←↑↓→ · 射击 , (逗号) · 炸弹 . (句号) · 手柄右摇杆亦可',
+    helpLi1a: '主武器：', helpLi1b: '火神 / 激光 / 等离子', helpLi1c: '升级(最高Lv.8)', helpLi1d: '满级再吃P = +10000分',
+    helpMissile: '切换导弹(追踪↔核弹)并升级', helpBombPlus: '炸弹+1', helpOption: '僚机', helpSpeedShield: '加速/护盾',
+    helpMedal: '勋章加分', helpFairy: '仙女救下+5000', helpMiclus: '米克鲁斯隐藏加分',
+    helpLi3: '炸弹“雷电风暴”：全屏清弹+重创Boss+2秒无敌。双人互相接应：一方阵亡后3秒复活(消耗共同备用机)。',
+    helpLi4: 'P暂停 · M回菜单 · 回车=投币续关(无限续关，分数保留一半)。',
+    btnGotIt: '知道了', btnAgain: '再来一局', btnTomenu: '返回菜单',
+    stageNames: ['田园黎明', '废墟都市', '海上舰队', '沙漠基地', '火山工厂', '云端要塞', '轨道船坞', '异星母舰'],
+    stageDescs: ['入侵从绿色平原开始 —— 切开敌方侦察机群！', '燃烧的城市上空，直升机与坦克群围剿。', '低空掠海，击沉敌方航母战斗群。', '沙尘之下，装甲列车与炮塔林立。', '岩浆工厂全速运转，自杀机蜂拥而至。', '万米高空，浮空要塞与分裂体包围网。', '突破大气层，在轨道船坞迎战巨像。', '突入母舰核心 —— 为了地球，全弹发射！'],
+    bossNames: ['双联装要塞炮', '重型轰炸机', '深海航母', '沙漠利维坦', '熔炉魔像', '苍穹堡垒', '轨道巨像', '异星母舰核心'],
+    wVulcan: '火神', wLaser: '激光', wPlasma: '等离子',
+    mHoming: '追踪', mNuke: '核弹',
+    miclusChar: '牛',
+    scoutsApproach: '侦察机群接近', leftRaid: '左翼突袭', rightRaid: '右翼突袭', gunship: '武装直升机',
+    scoutsReturn: '侦察机回马枪', snakeRing: '蛇形包围', lowHunter: '低空猎手', scoutsAllOut: '侦察总攻',
+    finalScouts: '最终侦察波', ruinsRecon: '废墟侦察队', groundArmor: '地面装甲', wreckAmbush: '残骸伏击',
+    armorPush: '装甲推进', airSuppress: '空中压制', heavyArmor: '重装甲阵', rightHunter: '右翼猎手',
+    airBlock: '空中封锁', finalWave: '最终波', fleetOutpost: '舰队前哨', twinBoats: '双炮艇',
+    boatPatrol: '炮艇巡航', fogRaid: '海雾突袭', fleetMain: '舰队主力', torpedo: '鱼雷机群',
+    eliteFleet: '精锐舰队', fleetAllOut: '舰队总攻', armorTrain: '装甲列车', turretPos: '炮塔阵地',
+    dustRecon: '沙尘侦察', crossFire: '交叉火力', desertAmbush: '沙漠伏击', sandstorm: '沙暴来袭',
+    baseGuard: '基地守卫', armorEncircle: '装甲合围', spinRaid: '回旋突袭', sandAllOut: '沙暴总攻',
+    lavaSentry: '熔岩哨兵', kamiWave: '自杀机群!', furnaceTurret: '高炉炮塔', flameCharge: '烈焰冲锋',
+    furnaceGuns: '熔炉炮群', finalCharge: '玉碎波', lavaEncircle: '熔岩合围', suicideAllOut: '自杀总攻',
+    splitterVanguard: '分裂体先锋', floatBoat: '浮空炮艇', cellGrowth: '细胞增殖', cloudBattery: '云端炮台',
+    surround3d: '立体包围', stormEye: '风暴眼', growthPeak: '增殖高潮', fortressGuns: '要塞炮群',
+    splitFrenzy: '分裂狂潮', eliteFortressGun: '精锐要塞炮', orbitSentry: '轨道哨舰', dockGuns: '船坞炮群',
+    carrierIncoming: '航母来袭', carrierLaunch: '舰载机出击', dockAmbush: '船坞伏击', orbitPatrol: '轨道巡航',
+    defense3d: '立体防御', abyssPair: '深渊双舰', carrierAllOut: '舰载机总攻', carrierEscort: '航母护航',
+    alienVanguard: '异星先锋', abyssCarrier: '深渊航母', eliteBoats: '精锐炮艇', coreGuns: '核心炮群',
+    devourWave: '吞噬波', swarmEscort: '虫群护航', killBox3d: '立体杀阵', fullCharge: '总力冲锋',
+    twinMothers: '双母舰降临', swarmAllOut: '虫群总攻', lastLine: '最后防线', motherGuard: '母舰亲卫',
+    continueToast: 'CONTINUE! 续关!',
+    stageTitle: (n, name) => 'STAGE ' + n + ' · ' + name,
+    stageKicker: (n, en) => en,
+    bossBar: (en, name) => en + ' · ' + name,
+    bossApproach: n => '⚠ ' + n + ' 接近! ⚠',
+    stageClear: (n, bonus) => 'STAGE ' + n + ' CLEAR! +' + bonus.toLocaleString(),
+    endWinTitle: '🏆 MISSION COMPLETE!', endWinSub: '8 大关卡全部突破 —— 地球得救了!通关奖励 +1,000,000!',
+    endLoseTitle: 'GAME OVER', endLoseSub: '战机全部坠毁 —— 按回车投币续关，或返回菜单再战!',
+    endStats: (total, kills, time, stage) => '总分 <b>' + total.toLocaleString() + '</b> · 击坠 ' + kills + ' · 用时 ' + time + ' · 到达 STAGE ' + stage + '<br>',
+    endPlayerLine: (name, score, weapon, lv, bombs) => name + ': ' + score.toLocaleString() + ' · 武器' + weapon + ' Lv.' + lv + ' · 炸弹' + bombs,
+    respawn: (name, secs, stock) => name + ' ' + secs + '秒后复活… (剩余备用机 ' + stock + ')',
+    hudWpn: (w, lv, m, mlv, bombs, opt, alive) => w + ' Lv.' + lv + ' · ' + m + 'M' + mlv + ' · 炸弹' + bombs + (opt ? ' · 僚机' + opt : '') + (alive ? '' : ' · 阵亡'),
+    hudP2Absent: '未参战 (按2P模式开始)',
+    hudStock: s => ' 备用机 ' + s,
+    hiScore: v => 'HI-SCORE ' + v.toLocaleString(),
+    wpnSwitch: (name, w) => name + ' 切换 ' + w + '!',
+    wpnLv: (name, lv) => name + ' 武器 Lv.' + lv + '!',
+    plus10000: name => name + ' +10000',
+    missile: (name, t, lv) => name + ' 导弹 ' + t + ' Lv.' + lv,
+    bombPlus: name => name + ' 炸弹+1',
+    optionPlus: name => name + ' 僚机+1!',
+    shieldUp: name => name + ' 护盾!',
+    fairy: '仙女 +5000!',
+    miclus: '隐藏米克鲁斯 +100000!! 🐄'
+  },
+  en: {
+    title: 'RAIDEN Thunder · 2P Arcade Remake',
+    logoEm: 'Thunder · 1990 TRIBUTE',
+    btnHelp: 'How to play',
+    soundOn: '🔊 Sound On', soundOff: '🔇 Sound Off',
+    titleCn: 'RAIDEN',
+    subtitle: '2090 · Alien fleet invades — Thunder supersonic fighters, launch!',
+    modeTitle: 'Launch Mode',
+    btn1p: '▶ Solo Launch · 1P', btn2p: '▶▶ Co-op Launch · 2P',
+    stageLabel: 'Start Stage', diffLabel: 'Difficulty',
+    optStage0: 'STAGE 1 · Dawn Fields', optStage1: 'STAGE 2 · Ruined City', optStage2: 'STAGE 3 · Fleet at Sea', optStage3: 'STAGE 4 · Desert Base',
+    optStage4: 'STAGE 5 · Volcano Factory', optStage5: 'STAGE 6 · Cloud Fortress', optStage6: 'STAGE 7 · Orbital Dock', optStage7: 'STAGE 8 · Alien Mothership',
+    optDiff0: 'RECRUIT', optDiff1: 'NORMAL', optDiff2: 'HARD', optDiff3: 'INFERNO',
+    optAutofire: 'Autofire', optShake: 'Screen shake', optAssist: 'Rookie shield (start shielded)',
+    weaponTitle: 'Weapon System',
+    wpnVName: 'V-VULCAN', wpnVDesc: 'Spread barrage · 8-way + pierce at max',
+    wpnLName: 'L-LASER', wpnLDesc: 'Bendable heavy beam · best point-blank burst',
+    wpnEName: 'E-PLASMA', wpnEDesc: 'Homing plasma · pierce + bounce',
+    wpnMName: 'Missiles', wpnMDesc: 'homing / nuke hits', wpnMSwitch: 'to switch',
+    wpnOName: 'Option', wpnBName: 'Raiden Bomb', wpnBClear: 'clears screen',
+    wpnPickup: 'Pickup', wpnUpgrade: 'to upgrade', wpnPickup2: 'Pickup', wpnPickup3: 'Pickup',
+    weaponHint: 'Death no longer resets weapons — keep half levels. Hold fire 1.2s then release for Overdrive burst.',
+    foot: "A tribute to Seibu Kaihatsu's 1990 arcade Raiden · 8 stages + 8 bosses · 2 keyboards co-op · hi-score saved locally",
+    pauseTip: 'Paused — press P to resume / M for menu',
+    panelStatus: 'Battle', lblScoreP1: 'Score P1', lblScoreP2: 'Score P2', lblTotal: 'Total', lblCombo: 'Combo', lblMedal: 'Medals',
+    p1Title: 'P1 · WASD + J fire, K bomb', p2Title: 'P2 · Arrows + , fire, . bomb', bossTitle: 'BOSS',
+    btnPause: '⏸ Pause (P)', btnQuit: '✕ Quit (M)', btnBomb1: '💥 P1 Bomb', btnBomb2: '💥 P2 Bomb',
+    touchHint: 'Touch: drag to move P1 with autofire, tap with a second finger to bomb',
+    helpTitle: 'How to play', helpP1Title: 'P1 · Red fighter', helpP1Text: 'Move: WASD · Fire: J / Space (hold to charge) · Bomb: K / L · Gamepad left stick + RT/LT',
+    helpP2Title: 'P2 · Blue fighter', helpP2Text: 'Move: Arrows · Fire: , (comma) · Bomb: . (period) · Right stick works too',
+    helpLi1a: 'Main guns:', helpLi1b: 'Vulcan / Laser / Plasma', helpLi1c: 'to upgrade (max Lv.8)', helpLi1d: 'eat P at max = +10000 pts',
+    helpMissile: 'switch missiles (homing/nuke) + upgrade', helpBombPlus: '+1 bomb', helpOption: 'option', helpSpeedShield: 'speed/shield',
+    helpMedal: 'medals score', helpFairy: 'fairy rescue +5000', helpMiclus: 'hidden Miclus bonus',
+    helpLi3: 'Raiden Storm bomb: clears all bullets + wounds boss + 2s invincible. Co-op rescue: downed player revives in 3s (uses shared stock).',
+    helpLi4: 'P = pause · M = menu · Enter = insert coin to continue (unlimited, keep half score).',
+    btnGotIt: 'Got it', btnAgain: 'Play again', btnTomenu: 'Back to menu',
+    stageNames: ['Dawn Fields', 'Ruined City', 'Fleet at Sea', 'Desert Base', 'Volcano Factory', 'Cloud Fortress', 'Orbital Dock', 'Alien Mothership'],
+    stageDescs: ['Invasion begins over green plains — slice through the scout squadrons!', 'Over the burning city, choppers and tank columns close in.', 'Skim the sea and sink the enemy carrier group.', 'Under the dust, armored trains and turret forests await.', 'The magma factory runs at full speed, kamikazes swarm in.', 'At 10,000 meters, a floating fortress and splitter snare.', 'Break through the atmosphere, face the colossus at the orbital dock.', 'Push into the mothership core — for Earth, all guns blazing!'],
+    bossNames: ['Twin Cannon Fort', 'Heavy Bomber', 'Abyss Carrier', 'Desert Leviathan', 'Furnace Golem', 'Sky Bastion', 'Orbital Colossus', 'Mothership Core'],
+    wVulcan: 'Vulcan', wLaser: 'Laser', wPlasma: 'Plasma',
+    mHoming: 'Homing', mNuke: 'Nuke',
+    miclusChar: 'M',
+    scoutsApproach: 'Scouts approaching', leftRaid: 'Left flank raid', rightRaid: 'Right flank raid', gunship: 'Gun choppers',
+    scoutsReturn: 'Scouts circling back', snakeRing: 'Serpent encirclement', lowHunter: 'Low-altitude hunters', scoutsAllOut: 'Scout all-out',
+    finalScouts: 'Final scout wave', ruinsRecon: 'Ruins recon team', groundArmor: 'Ground armor', wreckAmbush: 'Wreck ambush',
+    armorPush: 'Armor push', airSuppress: 'Air suppression', heavyArmor: 'Heavy armor line', rightHunter: 'Right flank hunters',
+    airBlock: 'Air blockade', finalWave: 'Final wave', fleetOutpost: 'Fleet outpost', twinBoats: 'Twin gunboats',
+    boatPatrol: 'Gunboat patrol', fogRaid: 'Fog ambush', fleetMain: 'Fleet main force', torpedo: 'Torpedo squadron',
+    eliteFleet: 'Elite fleet', fleetAllOut: 'Fleet all-out', armorTrain: 'Armored train', turretPos: 'Turret position',
+    dustRecon: 'Dust recon', crossFire: 'Crossfire', desertAmbush: 'Desert ambush', sandstorm: 'Sandstorm incoming',
+    baseGuard: 'Base guards', armorEncircle: 'Armor encirclement', spinRaid: 'Spinning raid', sandAllOut: 'Sandstorm all-out',
+    lavaSentry: 'Lava sentries', kamiWave: 'Kamikaze wave!', furnaceTurret: 'Furnace turret', flameCharge: 'Flame charge',
+    furnaceGuns: 'Furnace batteries', finalCharge: 'Banzai wave', lavaEncircle: 'Lava encirclement', suicideAllOut: 'Suicide all-out',
+    splitterVanguard: 'Splitter vanguard', floatBoat: 'Floating gunboats', cellGrowth: 'Cell growth', cloudBattery: 'Cloud battery',
+    surround3d: '3D encirclement', stormEye: 'Eye of the storm', growthPeak: 'Growth peak', fortressGuns: 'Fortress batteries',
+    splitFrenzy: 'Splitter frenzy', eliteFortressGun: 'Elite fortress guns', orbitSentry: 'Orbital sentries', dockGuns: 'Dock batteries',
+    carrierIncoming: 'Carrier incoming', carrierLaunch: 'Fighters launching', dockAmbush: 'Dock ambush', orbitPatrol: 'Orbital patrol',
+    defense3d: 'Layered defense', abyssPair: 'Twin abyss ships', carrierAllOut: 'Carrier all-out', carrierEscort: 'Carrier escort',
+    alienVanguard: 'Alien vanguard', abyssCarrier: 'Abyss carrier', eliteBoats: 'Elite gunboats', coreGuns: 'Core batteries',
+    devourWave: 'Devouring wave', swarmEscort: 'Swarm escort', killBox3d: 'Kill box', fullCharge: 'Full charge',
+    twinMothers: 'Twin carriers descend', swarmAllOut: 'Swarm all-out', lastLine: 'Last line', motherGuard: 'Mothership guard',
+    continueToast: 'CONTINUE!',
+    stageTitle: (n, name) => 'STAGE ' + n + ' · ' + name,
+    stageKicker: (n, en) => en,
+    bossBar: (en, name) => en + ' · ' + name,
+    bossApproach: n => '⚠ ' + n + ' APPROACHING! ⚠',
+    stageClear: (n, bonus) => 'STAGE ' + n + ' CLEAR! +' + bonus.toLocaleString(),
+    endWinTitle: '🏆 MISSION COMPLETE!', endWinSub: 'All 8 stages cleared — Earth is saved! Clear bonus +1,000,000!',
+    endLoseTitle: 'GAME OVER', endLoseSub: 'All fighters down — press Enter to insert coin, or back to menu!',
+    endStats: (total, kills, time, stage) => 'Score <b>' + total.toLocaleString() + '</b> · Kills ' + kills + ' · Time ' + time + ' · Reached STAGE ' + stage + '<br>',
+    endPlayerLine: (name, score, weapon, lv, bombs) => name + ': ' + score.toLocaleString() + ' · ' + weapon + ' Lv.' + lv + ' · Bombs ' + bombs,
+    respawn: (name, secs, stock) => name + ' revives in ' + secs + 's… (stock left ' + stock + ')',
+    hudWpn: (w, lv, m, mlv, bombs, opt, alive) => w + ' Lv.' + lv + ' · ' + m + ' M' + mlv + ' · B' + bombs + (opt ? ' · OPT' + opt : '') + (alive ? '' : ' · DOWN'),
+    hudP2Absent: 'Absent (start in 2P mode)',
+    hudStock: s => ' Stock ' + s,
+    hiScore: v => 'HI-SCORE ' + v.toLocaleString(),
+    wpnSwitch: (name, w) => name + ' switched to ' + w + '!',
+    wpnLv: (name, lv) => name + ' weapon Lv.' + lv + '!',
+    plus10000: name => name + ' +10000',
+    missile: (name, t, lv) => name + ' missiles ' + t + ' Lv.' + lv,
+    bombPlus: name => name + ' bomb +1',
+    optionPlus: name => name + ' option +1!',
+    shieldUp: name => name + ' shield!',
+    fairy: 'Fairy +5000!',
+    miclus: 'Hidden Miclus +100000!! 🐄'
+  }
+};
+</script>
 <script src="js/config.js?v=20260906"></script>
 <script src="js/waves.js?v=20260906"></script>
 <script src="js/audio.js?v=20260906"></script>

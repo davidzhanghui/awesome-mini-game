@@ -1,5 +1,7 @@
 (() => {
 // 宝石消除：8x8 交换消除 + 连锁倍率 + 目标闯关 + 无步洗牌
+const STR = window.GAME_STR || { zh: {}, en: {} };
+const T = (k, ...a) => AMG.tf(STR, k, ...a);
 const W = 480, H = 640, N = 8, BX = 48, BY = 150, BS = 384;
 const CS = BS / N;
 const canvas = document.getElementById('game');
@@ -111,12 +113,12 @@ function shuffle() {
       [vals[i], vals[j]] = [vals[j], vals[i]];
     }
     G.grid = Array.from({ length: N }, (_, y) => vals.slice(y * N, (y + 1) * N));
-    if (!findMatches().length && hasMove()) { flash('🔀 无步可走，已洗牌'); return; }
+    if (!findMatches().length && hasMove()) { flash(T('shuffleMsg')); return; }
   }
   do {
     G.grid = Array.from({ length: N }, () => Array.from({ length: N }, () => rnd()));
   } while (findMatches().length || !hasMove());
-  flash('🔀 无步可走，已洗牌');
+  flash(T('shuffleMsg'));
 }
 function findHint() {
   for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
@@ -166,7 +168,7 @@ async function resolve(chain) {
       G.grid[y][x] = -1;
     }
     G.score += pts;
-    float(W / 2, BY - 20, '+' + pts + (chain > 1 ? ' ×' + chain + '连锁！' : ''));
+    float(W / 2, BY - 20, T('chainFloat', pts, chain));
     sfx.pop(ms.length + chain);
     await wait(220);
     collapse();
@@ -192,14 +194,14 @@ function stageClear() {
   if (G.score > store.best) store.best = G.score;
   sfx.win();
   $('clear-lv').textContent = G.stage;
-  $('clear-stats').innerHTML = '<div>⭐ 得分 <b>' + G.score + '</b> · 剩余步数奖励 <b>+' + bonus + '</b></div>';
+  $('clear-stats').innerHTML = T('clearStats', G.score, bonus);
   setTimeout(() => showScreen('clear'), 400);
 }
 function stageFail() {
   G.state = 'over';
   sfx.over();
-  $('over-title').textContent = G.timed ? '时间到…' : '步数用完…';
-  $('over-sub').innerHTML = '第 ' + G.stage + ' 关 · 目标 ' + goal() + ' · 得分 ' + G.score;
+  $('over-title').textContent = G.timed ? T('failTimed') : T('failMoves');
+  $('over-sub').innerHTML = T('failSub', G.stage, goal(), G.score);
   setTimeout(() => showScreen('over'), 400);
 }
 function flash(m) { G.msg = m; G.msgT = 2; }
@@ -212,7 +214,7 @@ function startGame(stage) {
   reset(stage || 1);
   G.state = 'play';
   showScreen(null);
-  $('menu-best').textContent = '🏆 历史最高：' + Math.max(store.best, G.score);
+  $('menu-best').textContent = T('best', Math.max(store.best, G.score));
 }
 function burst(x, y, kind) {
   for (let i = 0; i < 8; i++) {
@@ -284,7 +286,11 @@ function toggleMute() {
 }
 $('btn-mute').onclick = toggleMute;
 $('btn-mute').textContent = muted ? '🔇' : '🔊';
-$('menu-best').textContent = '🏆 历史最高：' + store.best;
+// i18n boot: static DOM + dynamic boot texts
+AMG.apply(STR);
+AMG.mountBtn();
+$('btn-mute').title = T('muteTitle');
+$('menu-best').textContent = T('best', store.best);
 
 function drawGem(x, y, kind) {
   const cx = BX + x * CS + CS / 2, cy = BY + y * CS + CS / 2, r = CS / 2 - 5;
@@ -313,7 +319,7 @@ function render(dt) {
   ctx.fillStyle = 'rgba(0,0,0,.4)';
   ctx.fillRect(0, 0, W, 110);
   ctx.fillStyle = '#fff'; ctx.font = '900 14px system-ui'; ctx.textAlign = 'left';
-  ctx.fillText('关卡 ' + G.stage + '  目标 ' + goal(), 16, 26);
+  ctx.fillText(T('hudStage', G.stage, goal()), 16, 26);
   ctx.font = '900 22px system-ui'; ctx.fillStyle = '#ffd93d';
   ctx.fillText(G.score, 16, 54);
   // 目标进度条
@@ -322,7 +328,7 @@ function render(dt) {
   ctx.fillStyle = '#5ee66e';
   ctx.fillRect(16, 64, (W - 32) * Math.min(1, G.score / goal()), 10);
   ctx.textAlign = 'right'; ctx.fillStyle = '#fff'; ctx.font = '900 16px system-ui';
-  ctx.fillText(G.timed ? ('时间 ' + Math.ceil(Math.max(0, G.timeLeft)) + 's') : ('步数 ' + G.movesLeft), W - 16, 30);
+  ctx.fillText(G.timed ? T('hudTime', Math.ceil(Math.max(0, G.timeLeft))) : T('hudMoves', G.movesLeft), W - 16, 30);
   ctx.fillText('BEST ' + Math.max(store.best, G.score), W - 16, 54);
   // 棋盘
   ctx.fillStyle = 'rgba(0,0,0,.35)';
@@ -368,7 +374,7 @@ function render(dt) {
     ctx.fillStyle = 'rgba(5,10,25,.55)';
     ctx.fillRect(0, 0, W, H);
     ctx.fillStyle = '#fff'; ctx.font = '900 32px system-ui'; ctx.textAlign = 'center';
-    ctx.fillText('⏸ 暂停', W / 2, H / 2);
+    ctx.fillText(T('paused'), W / 2, H / 2);
   }
 }
 let last = performance.now();

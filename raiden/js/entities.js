@@ -1,4 +1,6 @@
 'use strict';
+var STR = window.GAME_STR || { zh: {}, en: {} };
+var T = (k, ...a) => AMG.tf(STR, k, ...a);
 
 class Bullet {
   constructor(o) {
@@ -91,7 +93,7 @@ class Enemy {
     this.fireT -= dt;
     if (this.fireT <= 0 && this.y > 0 && this.y < CFG.H - 160) {
       const onScreen = game.enemies.length + game.foeBullets.length;
-      if (onScreen > 40) { this.fireT = 0.5; return; } // 全场太挤时哑火,防弹幕叠罗汉
+      if (onScreen > 40) { this.fireT = 0.5; return; } // too crowded: hold fire to avoid bullet stacking
       const base = { scout: 2.6, weaver: 2.2, chopper: 2.8, tank: 3.0, turret: 2.4, gunboat: 3.2, splitter: 3.0, kami: 99, carrier: 3.4 }[this.type] || 2.6;
       this.fireT = rand(base * 0.85, base * 1.3) / Math.sqrt(this.diff);
       this.shoot(game, P);
@@ -100,7 +102,7 @@ class Enemy {
   shoot(game, P) {
     const sp = (185 + this.stage * 14) / Math.sqrt(game.players.length);
     const mk = (vx, vy, r = 4) => {
-      if (game.foeBullets.length > 220) return; // 全局弹数硬上限
+      if (game.foeBullets.length > 220) return; // global foe-bullet hard cap
       game.foeBullets.push(new Bullet({ x: this.x, y: this.y + 8, vx, vy, r, dmg: 1, friendly: false, color: '#ff5d5d', life: 5 }));
     };
     if (!P) return;
@@ -119,20 +121,20 @@ class Enemy {
 }
 
 const BOSS_DEF = [
-  { hp: 900, r: 52, score: 50000, name: '双联装要塞炮', mover: 'slide', atk: ['spread', 'aimed'] },
-  { hp: 1400, r: 60, score: 80000, name: '重型轰炸机', mover: 'hover', atk: ['fan', 'spawn'] },
-  { hp: 1900, r: 64, score: 120000, name: '深海航母', mover: 'slide', atk: ['fan', 'ring'] },
-  { hp: 2400, r: 66, score: 160000, name: '沙漠利维坦', mover: 'dive', atk: ['spread', 'spawn'] },
-  { hp: 3000, r: 70, score: 200000, name: '熔炉魔像', mover: 'hover', atk: ['ring', 'aimed5'] },
-  { hp: 3700, r: 74, score: 260000, name: '苍穹堡垒', mover: 'slide', atk: ['fan', 'laser'] },
-  { hp: 4500, r: 78, score: 320000, name: '轨道巨像', mover: 'hover', atk: ['ring', 'spawn', 'aimed5'] },
-  { hp: 6000, r: 86, score: 500000, name: '异星母舰核心', mover: 'core', atk: ['ring', 'fan', 'spawn', 'laser'] },
+  { hp: 900, r: 52, score: 50000, mover: 'slide', atk: ['spread', 'aimed'] },
+  { hp: 1400, r: 60, score: 80000, mover: 'hover', atk: ['fan', 'spawn'] },
+  { hp: 1900, r: 64, score: 120000, mover: 'slide', atk: ['fan', 'ring'] },
+  { hp: 2400, r: 66, score: 160000, mover: 'dive', atk: ['spread', 'spawn'] },
+  { hp: 3000, r: 70, score: 200000, mover: 'hover', atk: ['ring', 'aimed5'] },
+  { hp: 3700, r: 74, score: 260000, mover: 'slide', atk: ['fan', 'laser'] },
+  { hp: 4500, r: 78, score: 320000, mover: 'hover', atk: ['ring', 'spawn', 'aimed5'] },
+  { hp: 6000, r: 86, score: 500000, mover: 'core', atk: ['ring', 'fan', 'spawn', 'laser'] },
 ];
 
 class Boss {
   constructor(stage, diff, nPlayers) {
     const d = BOSS_DEF[stage];
-    this.stage = stage; this.name = d.name; this.r = d.r;
+    this.stage = stage; this.name = (typeof bossName === 'function' ? bossName(stage) : ('BOSS ' + (stage + 1))); this.r = d.r;
     this.maxhp = Math.round(d.hp * diff * (nPlayers > 1 ? 1.6 : 1));
     this.hp = this.maxhp; this.t = 0; this.flash = 0;
     this.x = CFG.W / 2; this.y = -120; this.enterY = 130;
@@ -384,23 +386,24 @@ class Player {
   }
   applyPickup(kind, game) {
     const full = this.wlv >= CFG.MAX_WPN_LV;
+    const wName = k => k === 'V' ? T('wVulcan') : k === 'L' ? T('wLaser') : T('wPlasma');
     if (kind === 'V' || kind === 'L' || kind === 'E') {
-      if (this.weapon !== kind) { this.weapon = kind; this.wlv = Math.max(this.wlv, 2); game.toast(`${this.name} 切换 ${kind === 'V' ? '火神炮' : kind === 'L' ? '激光' : '等离子'}!`); }
-      else if (!full) { this.wlv++; game.toast(`${this.name} 武器 Lv.${this.wlv}!`); }
-      else { this.score += 10000; game.toast(`${this.name} +10000`); }
+      if (this.weapon !== kind) { this.weapon = kind; this.wlv = Math.max(this.wlv, 2); game.toast(T('wpnSwitch', this.name, wName(kind))); }
+      else if (!full) { this.wlv++; game.toast(T('wpnLv', this.name, this.wlv)); }
+      else { this.score += 10000; game.toast(T('plus10000', this.name)); }
     } else if (kind === 'P') {
-      if (!full) { this.wlv++; game.toast(`${this.name} 武器 Lv.${this.wlv}!`); }
-      else { this.score += 10000; game.toast(`${this.name} +10000`); }
+      if (!full) { this.wlv++; game.toast(T('wpnLv', this.name, this.wlv)); }
+      else { this.score += 10000; game.toast(T('plus10000', this.name)); }
     } else if (kind === 'M') {
       if (this.mlv < 4) { this.mlv++; }
       else { this.mtype = this.mtype === 'H' ? 'N' : 'H'; }
-      game.toast(`${this.name} 导弹 ${this.mtype === 'H' ? '追踪' : '核弹'} Lv.${this.mlv}`);
-    } else if (kind === 'B') { this.bombs = Math.min(6, this.bombs + 1); game.toast(`${this.name} 炸弹+1`); }
-    else if (kind === 'O') { this.options = Math.min(2, this.options + 1); game.toast(`${this.name} 僚机+1!`); }
-    else if (kind === 'S') { this.speed = Math.min(460, this.speed + 30); this.shieldT = 6; game.toast(`${this.name} 护盾!`); }
+      game.toast(T('missile', this.name, this.mtype === 'H' ? T('mHoming') : T('mNuke'), this.mlv));
+    } else if (kind === 'B') { this.bombs = Math.min(6, this.bombs + 1); game.toast(T('bombPlus', this.name)); }
+    else if (kind === 'O') { this.options = Math.min(2, this.options + 1); game.toast(T('optionPlus', this.name)); }
+    else if (kind === 'S') { this.speed = Math.min(460, this.speed + 30); this.shieldT = 6; game.toast(T('shieldUp', this.name)); }
     else if (kind === 'MEDAL') { game.medalChain++; const v = 1000 + game.medalChain * 500; this.score += v; game.combo += 1; }
-    else if (kind === 'FAIRY') { this.score += 5000; game.toast('仙女 +5000!'); }
-    else if (kind === 'MICLUS') { this.score += 100000; game.toast('隐藏米克鲁斯 +100000!! 🐄'); }
+    else if (kind === 'FAIRY') { this.score += 5000; game.toast(T('fairy')); }
+    else if (kind === 'MICLUS') { this.score += 100000; game.toast(T('miclus')); }
     AudioSys.pickup();
   }
   die(game) {

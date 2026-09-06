@@ -1,4 +1,6 @@
 (() => {
+const STR = window.GAME_STR || { zh: {}, en: {} };
+const T = (k, ...a) => AMG.tf(STR, k, ...a);
 const X = (typeof window !== 'undefined' && window.XQ) || self.XQ;
 const W = 560, H = 640, OX = 60, OY = 92, CELL = 54;
 const canvas = document.getElementById('game');
@@ -37,12 +39,12 @@ const sfx = {
   bad: () => tone(170, .14, 'square', .1)
 };
 
-const NAMES = { k: '将', a: '士', b: '象', n: '馬', r: '車', c: '炮', p: '卒' };
+const NAMES = { k: T('pk'), a: T('pa'), b: T('pb'), n: T('pn'), r: T('pr'), c: T('pc'), p: T('pp') };
 function pname(p) {
   const t = p.toLowerCase(), red = X.isRed(p);
-  if (t === 'k') return red ? '帥' : '将';
-  if (t === 'n') return red ? '傌' : '馬';
-  if (t === 'b') return red ? '相' : '象';
+  if (t === 'k') return red ? T('redK') : T('pk');
+  if (t === 'n') return red ? T('redN') : T('pn');
+  if (t === 'b') return red ? T('redB') : T('pb');
   return NAMES[t];
 }
 const G = {
@@ -96,13 +98,13 @@ function postMove() {
   const foeMoves = X.legal(G.board, G.turn);
   const check = X.inCheck(G.board, G.turn);
   if (!foeMoves.length) {
-    endGame(-G.turn, check ? (G.turn === 1 ? '黑方被将死' : '红方被将死') : (G.turn === 1 ? '黑方被困毙' : '红方被困毙'));
+    endGame(-G.turn, check ? (G.turn === 1 ? T('mateB') : T('mateR')) : (G.turn === 1 ? T('staleB') : T('staleR')));
     return;
   }
   if (check) sfx.check();
   const k = X.key(G.board, G.turn);
-  if (G.reps[k] >= 3) { endGame(0, '三次重复局面 · 和棋'); return; }
-  if (G.moves.length >= 240) { endGame(0, '对局过长 · 和棋'); return; }
+  if (G.reps[k] >= 3) { endGame(0, T('repDraw')); return; }
+  if (G.moves.length >= 240) { endGame(0, T('longDraw')); return; }
   maybeAI();
 }
 function maybeAI() {
@@ -117,7 +119,7 @@ function maybeAI() {
     if (G.state !== 'play') { updateHUD(); return; }
     if (!move) {
       // AI 无棋：认负
-      endGame(-turn, 'AI 无棋可走');
+      endGame(-turn, T('aiNone'));
       return;
     }
     const cap = applyMove({ fx: move.fx, fy: move.fy, tx: move.tx, ty: move.ty });
@@ -142,10 +144,8 @@ function endGame(winner, reason) {
   store.stats = st;
   refreshStats();
   sfx.win();
-  $('over-title').textContent = winner === 0 ? '🤝 和棋！' : winner === 1 ? '🔴 红方获胜！' : '⚫ 黑方获胜！';
-  let sub = reason + ' · 共 ' + G.moves.length + ' 手';
-  if (G.mode !== 'pvp') sub += winner === 0 ? '' : winner === G.human ? ' · 你赢了 🎉' : ' · AI 获胜，再接再厉！';
-  $('over-sub').textContent = sub;
+  $('over-title').textContent = winner === 0 ? T('drawT') : winner === 1 ? T('redWin') : T('blkWin');
+  $('over-sub').textContent = T('overSub', reason, G.moves.length) + (G.mode !== 'pvp' ? (winner === 0 ? '' : winner === G.human ? T('youWin') : T('aiWin')) : '');
   setTimeout(() => $('screen-over').classList.remove('hidden'), 500);
   updateHUD();
 }
@@ -189,8 +189,8 @@ function rebuildReps() {
   }
 }
 function updateHUD() {
-  $('hud-turn').textContent = (G.turn === 1 ? '🔴 红方' : '⚫ 黑方') + '行棋' + (G.aiBusy ? '（AI 思考中…）' : '');
-  $('hud-info').textContent = '第 ' + (G.moves.length + 1) + ' 手' + (G.aiMs ? ' · AI ' + G.aiMs + 'ms' : '');
+  $('hud-turn').textContent = T('hudTurn', G.turn === 1, G.aiBusy);
+  $('hud-info').textContent = T('hudInfo', G.moves.length + 1, G.aiMs);
 }
 function refreshStats() {
   const st = store.stats;
@@ -235,7 +235,7 @@ function render(dt) {
   // 楚河汉界
   ctx.fillStyle = 'rgba(90,58,18,.75)';
   ctx.font = '900 26px "PingFang SC",serif'; ctx.textAlign = 'center';
-  ctx.fillText('楚 河         漢 界', W / 2, OY + 4.6 * CELL + 9);
+  ctx.fillText(T('river'), W / 2, OY + 4.6 * CELL + 9);
   // 选中
   if (G.sel) {
     const p = toPx(G.sel.x, G.sel.y);
@@ -342,7 +342,7 @@ $('btn-retry').onclick = retry;
 $('btn-menu').onclick = toMenu;
 $('btn-undo').onclick = undo;
 $('btn-tomenu').onclick = toMenu;
-$('btn-resign').onclick = () => { if (G.state === 'play') endGame(-G.turn, '认输'); };
+$('btn-resign').onclick = () => { if (G.state === 'play') endGame(-G.turn, T('resign')); };
 $('btn-flip').onclick = () => { G.flip = !G.flip; };
 function toggleMute() {
   muted = !muted; store.muted = muted;
@@ -350,6 +350,11 @@ function toggleMute() {
 }
 $('btn-mute').onclick = toggleMute;
 $('btn-mute').textContent = muted ? '🔇' : '🔊';
+// i18n boot: static DOM + dynamic boot texts
+AMG.apply(STR);
+AMG.mountBtn();
+$('btn-mute').title = T('muteTitle');
+$('btn-flip').title = T('flipTitle');
 
 refreshStats();
 window.__game = G;

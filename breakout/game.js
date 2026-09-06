@@ -1,5 +1,7 @@
 (() => {
 // 打砖块：鼠标/键盘挡板 + 落点反弹角 + 7道具 + 8关卡 + 激光
+const STR = window.GAME_STR || { zh: {}, en: {} };
+const T = (k, ...a) => AMG.tf(STR, k, ...a);
 const W = 480, H = 640, PAD_Y = 590;
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
@@ -82,9 +84,9 @@ const ARK_LEVELS_EXTRA = [
 LEVELS.push(...ARK_LEVELS_EXTRA);
 const TOTAL_STAGES = 33; // 32 关 + DOH Boss
 const ITEMS = {
-  wide: { icon: '↔️', name: '加长' }, laser: { icon: '🔫', name: '激光' },
-  multi: { icon: '🌀', name: '多球' }, pierce: { icon: '💥', name: '穿透' },
-  sticky: { icon: '🧲', name: '粘球' }, life: { icon: '❤️', name: '+命' }, slow: { icon: '🐢', name: '减速' }
+  wide: { icon: '↔️', name: 'Extend' }, laser: { icon: '🔫', name: 'Laser' },
+  multi: { icon: '🌀', name: 'Multi' }, pierce: { icon: '💥', name: 'Pierce' },
+  sticky: { icon: '🧲', name: 'Sticky' }, life: { icon: '❤️', name: 'Life' }, slow: { icon: '🐢', name: 'Slow' }
 };
 const G = {
   state: 'menu', stage: 1, score: 0, lives: 3,
@@ -121,7 +123,7 @@ function loadStage(s) {
   if (s === TOTAL_STAGES) spawnDOH();
   const speed = 330 + (s - 1) * 22;
   G.balls = [{ x: W / 2, y: PAD_Y - 10, vx: 0, vy: 0, r: 7, stuck: true, pierce: 0, speed }];
-  G.msg = '第 ' + s + ' 关'; G.msgT = 1.6;
+  G.msg = T('stageMsg', s); G.msgT = 1.6;
 }
 function launch() {
   for (const b of G.balls) {
@@ -148,7 +150,7 @@ function dropItem(x, y, force) {
 }
 function applyItem(kind) {
   sfx.item();
-  const names = { wide: '加长！', laser: '激光！', multi: '多球！', pierce: '穿透！', sticky: '粘球！', life: '+1 命！', slow: '减速！' };
+  const names = { wide: T('itemWide'), laser: T('itemLaser'), multi: T('itemMulti'), pierce: T('itemPierce'), sticky: T('itemSticky'), life: T('itemLife'), slow: T('itemSlow') };
   float(G.pad.x, PAD_Y - 50, ITEMS[kind].icon + names[kind]);
   if (kind === 'wide') G.pad.w = Math.min(170, G.pad.w + 40);
   else if (kind === 'laser') G.pad.laser = 12;
@@ -317,7 +319,7 @@ function spawnDOH() {
   G.bricks = [];
   G.doh = { x: W / 2, y: 150, w: 150, h: 70, hp: 12, maxHp: 12, t: 0, dir: 1, fireT: 2 };
   G.ebullets = [];
-  G.msg = '最终决战 · DOH'; G.msgT = 2;
+  G.msg = T('finalMsg'); G.msgT = 2;
 }
 function updateDOH(dt) {
   const d = G.doh;
@@ -411,7 +413,7 @@ function winAll() {
   G.state = 'clear';
   if (G.score > store.best) store.best = G.score;
   sfx.win();
-  $('clear-stats').innerHTML = '<div>👹 DOH 已击败！33 关全部通关！</div><div>🏆 总分 <b>' + G.score + '</b></div><div>❤️ 剩余生命 <b>×' + G.lives + '</b></div>';
+  $('clear-stats').innerHTML = T('clearStats', G.score, G.lives);
   setTimeout(() => showScreen('clear'), 300);
 }
 function gameOver() {
@@ -432,7 +434,7 @@ function startGame() {
   reset();
   G.state = 'play';
   showScreen(null);
-  $('menu-best').textContent = '🏆 历史最高：' + Math.max(store.best, G.score);
+  $('menu-best').textContent = T('best', Math.max(store.best, G.score));
 }
 function togglePause() {
   if (G.state === 'play') { G.state = 'pause'; showScreen('pause'); }
@@ -484,7 +486,11 @@ function toggleMute() {
 }
 $('btn-mute').onclick = toggleMute;
 $('btn-mute').textContent = muted ? '🔇' : '🔊';
-$('menu-best').textContent = '🏆 历史最高：' + store.best;
+// i18n boot: static DOM + dynamic boot texts
+AMG.apply(STR);
+AMG.mountBtn();
+$('btn-mute').title = T('muteTitle');
+$('menu-best').textContent = T('best', store.best);
 
 function render() {
   const g = ctx.createLinearGradient(0, 0, 0, H);

@@ -13,8 +13,8 @@
   <header class="brand">
     <div class="logo">♞</div>
     <div>
-      <h1>中国象棋 <em>经典桌游</em></h1>
-      <p>完整规则 · 本地双人 / 三档 AI · Web Worker 极速思考</p>
+      <h1><span data-i18n="gameTitle">中国象棋</span> <em data-i18n="subtitle">经典桌游</em></h1>
+      <p data-i18n="intro">完整规则 · 本地双人 / 三档 AI · Web Worker 极速思考</p>
     </div>
     <div class="brand-btns">
       <button id="btn-flip" class="icon-btn" title="翻转棋盘">🔄</button>
@@ -30,46 +30,97 @@
       </div>
       <div id="screen-menu" class="screen">
         <div class="title-badge">XIANGQI</div>
-        <h2 class="game-title">中国象棋</h2>
+        <h2 class="game-title" data-i18n="gameTitle">中国象棋</h2>
         <div class="board-emoji">♜♞♝♛♚♝♞♜</div>
         <div class="mode-grid">
-          <button class="btn primary" data-mode="pvp">👥 双人对战</button>
-          <button class="btn duel" data-mode="ai0">🤖 AI 简单</button>
-          <button class="btn duel" data-mode="ai1">🧠 AI 普通</button>
-          <button class="btn duel" data-mode="ai2">👹 AI 困难</button>
+          <button class="btn primary" data-mode="pvp" data-i18n="modePvp">👥 双人对战</button>
+          <button class="btn duel" data-mode="ai0" data-i18n="modeAi0">🤖 AI 简单</button>
+          <button class="btn duel" data-mode="ai1" data-i18n="modeAi1">🧠 AI 普通</button>
+          <button class="btn duel" data-mode="ai2" data-i18n="modeAi2">👹 AI 困难</button>
         </div>
         <div class="opt-row">
-          <label>我方 <select id="sel-color"><option value="1">🔴 执红先行</option><option value="-1">⚫ 执黑后行</option></select></label>
-          <label><input type="checkbox" id="ck-hint" checked /> 显示可走位置</label>
+          <label><span data-i18n="mySide">我方</span> <select id="sel-color"><option value="1" data-i18n="redFirst">🔴 执红先行</option><option value="-1" data-i18n="blkFirst">⚫ 执黑后行</option></select></label>
+          <label><input type="checkbox" id="ck-hint" checked /> <span data-i18n="showHint">显示可走位置</span></label>
         </div>
-        <div class="mini-board">🏆 红胜 <b id="st-r">0</b> · 黑胜 <b id="st-b">0</b> · 和 <b id="st-d">0</b></div>
+        <div class="mini-board">🏆 <span data-i18n="stRed">红胜</span> <b id="st-r">0</b> · <span data-i18n="stBlk">黑胜</span> <b id="st-b">0</b> · <span data-i18n="stDraw">和</span> <b id="st-d">0</b></div>
       </div>
       <div id="screen-over" class="screen dim hidden">
         <div class="panel pop">
           <h3 id="over-title" class="over-title">🔴 红方获胜！</h3>
           <div id="over-sub" class="over-sub"></div>
           <div class="row">
-            <button id="btn-retry" class="btn primary">🔄 再来一局 (R)</button>
-            <button id="btn-menu" class="btn ghost">菜单</button>
+            <button id="btn-retry" class="btn primary" data-i18n="retry">🔄 再来一局 (R)</button>
+            <button id="btn-menu" class="btn ghost" data-i18n="menu">菜单</button>
           </div>
         </div>
       </div>
       <div class="toolbar hidden" id="toolbar">
-        <button id="btn-undo" class="t-btn">↩ 悔棋 (U)</button>
-        <button id="btn-resign" class="t-btn">🏳 认输</button>
-        <button id="btn-tomenu" class="t-btn">📋 菜单</button>
+        <button id="btn-undo" class="t-btn" data-i18n="undo">↩ 悔棋 (U)</button>
+        <button id="btn-resign" class="t-btn" data-i18n="resignBtn">🏳 认输</button>
+        <button id="btn-tomenu" class="t-btn" data-i18n="toMenu">📋 菜单</button>
       </div>
     </div>
     <aside class="side">
-      <div class="card"><h4>🎮 操作</h4><ul>
-        <li>点击己方棋子选中，再点目标走子</li><li><kbd>U</kbd> 悔棋 · <kbd>R</kbd> 重开 · <kbd>M</kbd> 静音</li></ul></div>
-      <div class="card"><h4>📏 规则要点</h4><ul>
-        <li>马腿象眼别住即不可走</li><li>将帅不见面，飞将可吃</li><li>困毙判负 · 三次重复局面判和</li></ul></div>
+      <div class="card"><h4 data-i18n="opTitle">🎮 操作</h4><ul>
+        <li data-i18n="op1">点击己方棋子选中，再点目标走子</li><li><kbd>U</kbd> <span data-i18n="opU">悔棋</span> · <kbd>R</kbd> <span data-i18n="opR">重开</span> · <kbd>M</kbd> <span data-i18n="opM">静音</span></li></ul></div>
+      <div class="card"><h4 data-i18n="ruleTitle">📏 规则要点</h4><ul>
+        <li data-i18n="rule1">马腿象眼别住即不可走</li><li data-i18n="rule2">将帅不见面，飞将可吃</li><li data-i18n="rule3">困毙判负 · 三次重复局面判和</li></ul></div>
     </aside>
   </section>
-  <footer>Canvas + WebAudio 原生实现 · 零依赖 · Negamax α-β + Web Worker</footer>
+  <footer data-i18n="footer">Canvas + WebAudio 原生实现 · 零依赖 · Negamax α-β + Web Worker</footer>
 </main>
 <script src="ai-worker.js?v=20260906"></script>
+<script src="../assets/i18n.js?v=20260906"></script>
+<script>
+window.GAME_STR = {
+  zh: {
+    title: '中国象棋 · 经典桌游', subtitle: '经典桌游', gameTitle: '中国象棋',
+    intro: '完整规则 · 本地双人 / 三档 AI · Web Worker 极速思考',
+    muteTitle: '声音开 / 关 (M)', flipTitle: '翻转棋盘',
+    modePvp: '👥 双人对战', modeAi0: '🤖 AI 简单', modeAi1: '🧠 AI 普通', modeAi2: '👹 AI 困难',
+    mySide: '我方', redFirst: '🔴 执红先行', blkFirst: '⚫ 执黑后行', showHint: '显示可走位置',
+    stRed: '红胜', stBlk: '黑胜', stDraw: '和',
+    retry: '🔄 再来一局 (R)', menu: '菜单',
+    undo: '↩ 悔棋 (U)', resignBtn: '🏳 认输', toMenu: '📋 菜单',
+    opTitle: '🎮 操作', op1: '点击己方棋子选中，再点目标走子', opU: '悔棋', opR: '重开', opM: '静音',
+    ruleTitle: '📏 规则要点', rule1: '马腿象眼别住即不可走', rule2: '将帅不见面，飞将可吃', rule3: '困毙判负 · 三次重复局面判和',
+    footer: 'Canvas + WebAudio 原生实现 · 零依赖 · Negamax α-β + Web Worker',
+    pk: '将', pa: '士', pb: '象', pn: '馬', pr: '車', pc: '炮', pp: '卒',
+    redK: '帥', redN: '傌', redB: '相',
+    river: '楚 河         漢 界',
+    mateB: '黑方被将死', mateR: '红方被将死', staleB: '黑方被困毙', staleR: '红方被困毙',
+    repDraw: '三次重复局面 · 和棋', longDraw: '对局过长 · 和棋', aiNone: 'AI 无棋可走', resign: '认输',
+    drawT: '🤝 和棋！', redWin: '🔴 红方获胜！', blkWin: '⚫ 黑方获胜！',
+    overSub: (reason, n) => reason + ' · 共 ' + n + ' 手',
+    youWin: ' · 你赢了 🎉', aiWin: ' · AI 获胜，再接再厉！',
+    hudTurn: (red, thinking) => (red ? '🔴 红方' : '⚫ 黑方') + '行棋' + (thinking ? '（AI 思考中…）' : ''),
+    hudInfo: (n, ms) => '第 ' + n + ' 手' + (ms ? ' · AI ' + ms + 'ms' : '')
+  },
+  en: {
+    title: 'Xiangqi · Classic Board Game', subtitle: 'Classic Board Game', gameTitle: 'Xiangqi',
+    intro: 'Full rules · local 2-player / 3 AI levels · fast thinking via Web Worker',
+    muteTitle: 'Sound on/off (M)', flipTitle: 'Flip board',
+    modePvp: '👥 2 Players', modeAi0: '🤖 AI Easy', modeAi1: '🧠 AI Normal', modeAi2: '👹 AI Hard',
+    mySide: 'Play as', redFirst: '🔴 Red first', blkFirst: '⚫ Black second', showHint: 'Show legal moves',
+    stRed: 'Red', stBlk: 'Black', stDraw: 'Draw',
+    retry: '🔄 Play Again (R)', menu: 'Menu',
+    undo: '↩ Undo (U)', resignBtn: '🏳 Resign', toMenu: '📋 Menu',
+    opTitle: '🎮 Controls', op1: 'Tap your piece, then tap the destination', opU: 'undo', opR: 'restart', opM: 'mute',
+    ruleTitle: '📏 Key Rules', rule1: 'Blocked horse legs & elephant eyes stop moves', rule2: 'Generals can\'t face off — flying general captures', rule3: 'Stalemate loses · threefold repetition draws',
+    footer: 'Native Canvas + WebAudio · zero dependencies · Negamax α-β + Web Worker',
+    pk: '将', pa: '士', pb: '象', pn: '馬', pr: '車', pc: '炮', pp: '卒',
+    redK: '帥', redN: '傌', redB: '相',
+    river: '楚 河         漢 界',
+    mateB: 'Black checkmated', mateR: 'Red checkmated', staleB: 'Black stalemated', staleR: 'Red stalemated',
+    repDraw: 'Threefold repetition · draw', longDraw: 'Game too long · draw', aiNone: 'AI has no moves', resign: 'Resignation',
+    drawT: '🤝 Draw!', redWin: '🔴 Red wins!', blkWin: '⚫ Black wins!',
+    overSub: (reason, n) => reason + ' · ' + n + ' moves',
+    youWin: ' · You win 🎉', aiWin: ' · AI wins — try again!',
+    hudTurn: (red, thinking) => (red ? '🔴 Red' : '⚫ Black') + ' to move' + (thinking ? ' (AI thinking…)' : ''),
+    hudInfo: (n, ms) => 'Move ' + n + (ms ? ' · AI ' + ms + 'ms' : '')
+  }
+};
+</script>
 <script src="game.js?v=20260906"></script>
 </body>
 </html>

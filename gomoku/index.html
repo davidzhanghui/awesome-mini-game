@@ -13,8 +13,8 @@
   <header class="brand">
     <div class="logo">⚫</div>
     <div>
-      <h1>五子棋 <em>经典桌游</em></h1>
-      <p>本地双人 / 三档 AI · 悔棋认输 · 可选黑棋禁手</p>
+      <h1><span data-i18n="name">五子棋</span> <em data-i18n="subtitle">经典桌游</em></h1>
+      <p data-i18n="intro">本地双人 / 三档 AI · 悔棋认输 · 可选黑棋禁手</p>
     </div>
     <div class="brand-btns">
       <button id="btn-mute" class="icon-btn" title="声音开 / 关 (M)">🔊</button>
@@ -29,47 +29,98 @@
       </div>
       <div id="screen-menu" class="screen">
         <div class="title-badge">GOMOKU</div>
-        <h2 class="game-title">五子棋</h2>
+        <h2 class="game-title" data-i18n="name">五子棋</h2>
         <div class="mode-grid">
-          <button class="btn primary" data-mode="pvp">👥 双人对战</button>
-          <button class="btn duel" data-mode="ai0">🤖 AI 简单</button>
-          <button class="btn duel" data-mode="ai1">🧠 AI 普通</button>
-          <button class="btn duel" data-mode="ai2">👹 AI 困难</button>
+          <button class="btn primary" data-mode="pvp" data-i18n="modePvp">👥 双人对战</button>
+          <button class="btn duel" data-mode="ai0" data-i18n="modeAi0">🤖 AI 简单</button>
+          <button class="btn duel" data-mode="ai1" data-i18n="modeAi1">🧠 AI 普通</button>
+          <button class="btn duel" data-mode="ai2" data-i18n="modeAi2">👹 AI 困难</button>
         </div>
         <div class="opt-row">
-          <label>我方 <select id="sel-color"><option value="1">⚫ 执黑先行</option><option value="2">⚪ 执白后行</option></select></label>
-          <label><input type="checkbox" id="ck-forbid" /> 黑棋禁手（三三/四四/长连）</label>
+          <label><span data-i18n="me">我方</span> <select id="sel-color"><option value="1" data-i18n="optBlack">⚫ 执黑先行</option><option value="2" data-i18n="optWhite">⚪ 执白后行</option></select></label>
+          <label><input type="checkbox" id="ck-forbid" /> <span data-i18n="forbidLabel">黑棋禁手（三三/四四/长连）</span></label>
         </div>
-        <div class="mini-board">🏆 黑胜 <b id="st-b">0</b> · 白胜 <b id="st-w">0</b> · 和 <b id="st-d">0</b></div>
+        <div class="mini-board"><span data-i18n="stB">🏆 黑胜</span> <b id="st-b">0</b> · <span data-i18n="stW">白胜</span> <b id="st-w">0</b> · <span data-i18n="stD">和</span> <b id="st-d">0</b></div>
       </div>
       <div id="screen-over" class="screen dim hidden">
         <div class="panel pop">
           <h3 id="over-title" class="over-title">⚫ 黑方获胜！</h3>
           <div id="over-sub" class="over-sub">共 37 手</div>
           <div class="row">
-            <button id="btn-retry" class="btn primary">🔄 再来一局 (R)</button>
-            <button id="btn-menu" class="btn ghost">菜单</button>
+            <button id="btn-retry" class="btn primary" data-i18n="retry">🔄 再来一局 (R)</button>
+            <button id="btn-menu" class="btn ghost" data-i18n="menu">菜单</button>
           </div>
         </div>
       </div>
       <div class="toolbar hidden" id="toolbar">
-        <button id="btn-undo" class="t-btn" title="悔棋 (U)">↩ 悔棋</button>
-        <button id="btn-resign" class="t-btn" title="认输">🏳 认输</button>
-        <button id="btn-tomenu" class="t-btn" title="回菜单">📋 菜单</button>
+        <button id="btn-undo" class="t-btn" title="悔棋 (U)" data-i18n="undo">↩ 悔棋</button>
+        <button id="btn-resign" class="t-btn" title="认输" data-i18n="resign">🏳 认输</button>
+        <button id="btn-tomenu" class="t-btn" title="回菜单" data-i18n="tomenu">📋 菜单</button>
       </div>
     </div>
     <aside class="side">
-      <div class="card"><h4>🎮 操作</h4><ul>
-        <li>点击棋盘交叉点落子</li><li><kbd>U</kbd> 悔棋 · <kbd>R</kbd> 重开 · <kbd>M</kbd> 静音</li>
-        <li>AI 对局中轮到你时再落子</li></ul></div>
-      <div class="card"><h4>📏 规则</h4><ul>
-        <li>黑先白后，横竖斜连成五即胜</li>
-        <li>禁手仅判黑方，白方无禁手</li>
-        <li>棋盘下满且无人连五则和棋</li></ul></div>
+      <div class="card"><h4 data-i18n="opTitle">🎮 操作</h4><ul>
+        <li data-i18n="op1">点击棋盘交叉点落子</li><li><kbd>U</kbd> <span data-i18n="undoKw">悔棋</span> · <kbd>R</kbd> <span data-i18n="rematchKw">重开</span> · <kbd>M</kbd> <span data-i18n="muteKw">静音</span></li>
+        <li data-i18n="op3">AI 对局中轮到你时再落子</li></ul></div>
+      <div class="card"><h4 data-i18n="ruleTitle">📏 规则</h4><ul>
+        <li data-i18n="rule1">黑先白后，横竖斜连成五即胜</li>
+        <li data-i18n="rule2">禁手仅判黑方，白方无禁手</li>
+        <li data-i18n="rule3">棋盘下满且无人连五则和棋</li></ul></div>
     </aside>
   </section>
-  <footer>Canvas + WebAudio 原生实现 · 零依赖 · AI 搜索：启发式 + Negamax α-β</footer>
+  <footer data-i18n="footer">Canvas + WebAudio 原生实现 · 零依赖 · AI 搜索：启发式 + Negamax α-β</footer>
 </main>
+<script src="../assets/i18n.js?v=20260906"></script>
+<script>
+window.GAME_STR = {
+  zh: {
+    title: '五子棋 · 经典桌游', name: '五子棋', subtitle: '经典桌游',
+    intro: '本地双人 / 三档 AI · 悔棋认输 · 可选黑棋禁手',
+    modePvp: '👥 双人对战', modeAi0: '🤖 AI 简单', modeAi1: '🧠 AI 普通', modeAi2: '👹 AI 困难',
+    me: '我方', optBlack: '⚫ 执黑先行', optWhite: '⚪ 执白后行',
+    forbidLabel: '黑棋禁手（三三/四四/长连）',
+    stB: '🏆 黑胜', stW: '白胜', stD: '和',
+    retry: '🔄 再来一局 (R)', menu: '菜单',
+    undo: '↩ 悔棋', resign: '🏳 认输', tomenu: '📋 菜单',
+    undoTitle: '悔棋 (U)', resignTitle: '认输', tomenuTitle: '回菜单',
+    opTitle: '🎮 操作', op1: '点击棋盘交叉点落子',
+    undoKw: '悔棋', rematchKw: '重开', muteKw: '静音', op3: 'AI 对局中轮到你时再落子',
+    ruleTitle: '📏 规则', rule1: '黑先白后，横竖斜连成五即胜', rule2: '禁手仅判黑方，白方无禁手', rule3: '棋盘下满且无人连五则和棋',
+    footer: 'Canvas + WebAudio 原生实现 · 零依赖 · AI 搜索：启发式 + Negamax α-β',
+    muteTitle: '声音开 / 关 (M)',
+    forbidLong: '长连禁手', forbid44: '四四禁手', forbid33: '三三禁手',
+    forbidHint: f => f + '，换个位置吧',
+    drawTitle: '🤝 和棋！', winBlack: '⚫ 黑方获胜！', winWhite: '⚪ 白方获胜！',
+    overSub: (n, extra) => '共 ' + n + ' 手' + extra,
+    extraYou: ' · 你赢了 🎉', extraAi: ' · AI 获胜，再接再厉！',
+    hudBlack: '⚫ 黑方', hudWhite: '⚪ 白方', hudMove: '行棋', hudThinking: '（AI 思考中…）',
+    hudMoves: n => '第 ' + n + ' 手'
+  },
+  en: {
+    title: 'Gomoku · Classic Board Game', name: 'Gomoku', subtitle: 'Classic Board Game',
+    intro: 'Local 2-player / 3 AI levels · Undo & resign · Optional Black forbidden moves',
+    modePvp: '👥 2 Players', modeAi0: '🤖 AI Easy', modeAi1: '🧠 AI Normal', modeAi2: '👹 AI Hard',
+    me: 'Play as', optBlack: '⚫ Black (first)', optWhite: '⚪ White (second)',
+    forbidLabel: 'Black forbidden moves (3×3 / 4×4 / overline)',
+    stB: '🏆 Black', stW: 'White', stD: 'Draw',
+    retry: '🔄 Play Again (R)', menu: 'Menu',
+    undo: '↩ Undo', resign: '🏳 Resign', tomenu: '📋 Menu',
+    undoTitle: 'Undo (U)', resignTitle: 'Resign', tomenuTitle: 'Back to menu',
+    opTitle: '🎮 Controls', op1: 'Click an intersection to place a stone',
+    undoKw: 'Undo', rematchKw: 'Restart', muteKw: 'Mute', op3: 'In AI games, move when it is your turn',
+    ruleTitle: '📏 Rules', rule1: 'Black first, five in a row (any direction) wins', rule2: 'Forbidden moves apply to Black only', rule3: 'Full board with no five is a draw',
+    footer: 'Native Canvas + WebAudio · zero dependencies · AI: heuristics + Negamax α-β',
+    muteTitle: 'Sound on/off (M)',
+    forbidLong: 'Overline forbidden', forbid44: 'Double-four forbidden', forbid33: 'Double-three forbidden',
+    forbidHint: f => f + ', try another spot',
+    drawTitle: '🤝 Draw!', winBlack: '⚫ Black wins!', winWhite: '⚪ White wins!',
+    overSub: (n, extra) => n + ' moves' + extra,
+    extraYou: ' · You win! 🎉', extraAi: ' · AI wins, try again!',
+    hudBlack: '⚫ Black', hudWhite: '⚪ White', hudMove: ' to move', hudThinking: ' (AI thinking…)',
+    hudMoves: n => 'Move ' + n
+  }
+};
+</script>
 <script src="game.js?v=20260906"></script>
 </body>
 </html>

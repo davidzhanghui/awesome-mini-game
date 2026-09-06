@@ -1,5 +1,7 @@
 (() => {
 // 泡泡龙：六角网格 + 瞄准发射 + 边墙反弹 + 3连消 + 孤块掉落 + 天花板下压 + 多关卡
+const STR = window.GAME_STR || { zh: {}, en: {} };
+const T = (k, ...a) => AMG.tf(STR, k, ...a);
 const W = 480, H = 640, R = 17, TOP = 64, BOT = 560, SHOOT_Y = 596;
 const COLS = 13;
 const canvas = document.getElementById('game');
@@ -299,7 +301,7 @@ function stageClear() {
   if (G.score > store.best) store.best = G.score;
   sfx.win();
   $('clear-lv').textContent = G.stage;
-  $('clear-stats').innerHTML = '<div>🎯 关卡奖励 <b>+' + bonus + '</b></div><div>⭐ 总分 <b>' + G.score + '</b></div>';
+  $('clear-stats').innerHTML = T('clearStats', bonus, G.score);
   setTimeout(() => showScreen('clear'), 400);
 }
 function gameOver() {
@@ -321,7 +323,7 @@ function startGame() {
   reset();
   G.state = 'play';
   showScreen(null);
-  $('menu-best').textContent = '🏆 历史最高：' + Math.max(store.best, G.score);
+  $('menu-best').textContent = T('best', Math.max(store.best, G.score));
 }
 function togglePause() {
   if (G.state === 'play') { G.state = 'pause'; showScreen('pause'); }
@@ -364,7 +366,11 @@ function toggleMute() {
 }
 $('btn-mute').onclick = toggleMute;
 $('btn-mute').textContent = muted ? '🔇' : '🔊';
-$('menu-best').textContent = '🏆 历史最高：' + store.best;
+// i18n boot: static DOM + dynamic boot texts
+AMG.apply(STR);
+AMG.mountBtn();
+$('btn-mute').title = T('muteTitle');
+$('menu-best').textContent = T('best', store.best);
 
 function drawBall(x, y, color, ghost) {
   const g = ctx.createRadialGradient(x - 5, y - 6, 2, x, y, R);
@@ -414,7 +420,7 @@ function render() {
   if (G.state === 'play') {
     drawBall(W / 2, SHOOT_Y, G.cur);
     ctx.fillStyle = '#fff'; ctx.font = '900 12px system-ui'; ctx.textAlign = 'left';
-    ctx.fillText('下个:', 20, SHOOT_Y + 5);
+    ctx.fillText(T('nextLabel'), 20, SHOOT_Y + 5);
     drawBall(80, SHOOT_Y, G.next);
   }
   // HUD

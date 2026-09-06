@@ -1,4 +1,6 @@
 (() => {
+const STR = window.GAME_STR || { zh: {}, en: {} };
+const T = (k, ...a) => AMG.tf(STR, k, ...a);
 const W = 420, H = 640, GROUND_H = 88;
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
@@ -95,24 +97,22 @@ function setScreen(name) {
 }
 
 function show(name) {
-  if (name === 'menu') { G.state = 'menu'; reset(); $('menu-best').textContent = `🏆 历史最佳：${G.best}`; setScreen('menu'); }
+  if (name === 'menu') { G.state = 'menu'; reset(); $('menu-best').textContent = T('bestLine', G.best); setScreen('menu'); }
   if (name === 'ready') {
     G.state = 'ready'; reset(); setScreen('ready'); sfx.swoosh();
-    $('ready-tip').textContent = G.mode === 'duo'
-      ? 'P1 按空格 / 点左半屏 · P2 按 ↑ / 点右半屏，一起起飞！'
-      : '点击 / 空格 振翅，第一根水管在前方等你';
+    $('ready-tip').textContent = G.mode === 'duo' ? T('readyDuo') : T('readySolo');
   }
   if (name === 'over') {
     G.state = 'over';
     if (G.mode === 'duo') {
       const [a, b] = [G.birds[0].score || 0, G.birds[1].score || 0];
-      $('over-title').textContent = '对战结束';
+      $('over-title').textContent = T('duelOver');
       $('medal').textContent = a === b ? '🤝' : '🏆';
       $('over-solo').classList.add('hidden');
       $('over-duo').classList.remove('hidden');
       $('final-p1').textContent = a;
       $('final-p2').textContent = b;
-      $('duel-result').textContent = a === b ? '🤝 平局！' : (a > b ? '🏆 P1 获胜！' : '🏆 P2 获胜！');
+      $('duel-result').textContent = a === b ? T('draw') : (a > b ? T('p1Win') : T('p2Win'));
       const top = Math.max(a, b);
       if (top > G.best) { G.best = top; store.best = top; G.newBest = true; }
     } else {
@@ -539,6 +539,12 @@ function applyNight() {
 $('btn-theme').onclick = e => { e.stopPropagation(); G.night = !G.night; store.night = G.night; applyNight(); sfx.click(); };
 
 // ---------- 启动 ----------
+// i18n boot: static DOM + dynamic boot texts
+AMG.apply(STR);
+AMG.mountBtn();
+$('btn-mute').title = T('muteTitle');
+$('btn-pause').title = T('pauseTitle');
+$('btn-theme').title = T('themeTitle');
 applyNight();
 show('menu');
 updateHUD();

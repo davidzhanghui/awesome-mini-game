@@ -14,8 +14,8 @@
     <header class="brand">
       <div class="logo">🍄</div>
       <div>
-        <h1>超级马里奥 <em>像素大冒险</em></h1>
-        <p>← → 移动 · Z/空格 跳跃 · X 跑/射击 · 顶砖块吃蘑菇，踩乌龟，冲向旗杆！</p>
+        <h1><span data-i18n="gameTitle">超级马里奥</span> <em data-i18n="subtitle">像素大冒险</em></h1>
+        <p data-i18n="intro">← → 移动 · Z/空格 跳跃 · X 跑/射击 · 顶砖块吃蘑菇，踩乌龟，冲向旗杆！</p>
       </div>
       <div class="brand-btns">
         <button id="btn-theme" class="icon-btn" title="切换白天 / 黑夜">🌙</button>
@@ -34,16 +34,16 @@
         <div id="screen-menu" class="screen">
           <div class="menu-stack">
             <div class="title-badge">SUPER</div>
-            <h2 class="game-title">超级马里奥</h2>
-            <p class="pick-hint">选择世界</p>
+            <h2 class="game-title" data-i18n="gameTitle">超级马里奥</h2>
+            <p class="pick-hint" data-i18n="pickWorld">选择世界</p>
             <div id="world-select" class="world-select"></div>
             <div id="stage-panel" class="stage-panel hidden">
               <p id="stage-label" class="stage-label"></p>
               <div id="level-select" class="level-select"></div>
             </div>
-            <button id="btn-start" class="btn primary">🚀 开始冒险</button>
+            <button id="btn-start" class="btn primary" data-i18n="start">🚀 开始冒险</button>
             <div class="menu-foot">
-              <p class="hint">按 <kbd>Z</kbd> / <kbd>空格</kbd> 跳跃 · 按住 <kbd>X</kbd> 加速跑</p>
+              <p class="hint"><span data-i18n="hintA">按</span> <kbd>Z</kbd> / <kbd data-i18n="spc">空格</kbd> <span data-i18n="hintB">跳跃 · 按住</span> <kbd>X</kbd> <span data-i18n="hintC">加速跑</span></p>
               <div id="menu-best" class="mini-board">🏆 历史最高：0</div>
             </div>
           </div>
@@ -52,11 +52,11 @@
         <!-- 暂停 -->
         <div id="screen-pause" class="screen dim hidden">
           <div class="panel">
-            <h3>⏸ 已暂停</h3>
-            <p>喝口水，蘑菇不会跑掉</p>
+            <h3 data-i18n="paused">⏸ 已暂停</h3>
+            <p data-i18n="pauseTip">喝口水，蘑菇不会跑掉</p>
             <div class="row">
-              <button id="btn-resume" class="btn primary">继续</button>
-              <button id="btn-quit" class="btn ghost">回菜单</button>
+              <button id="btn-resume" class="btn primary" data-i18n="resume">继续</button>
+              <button id="btn-quit" class="btn ghost" data-i18n="quitMenu">回菜单</button>
             </div>
           </div>
         </div>
@@ -64,11 +64,11 @@
         <!-- 过关 -->
         <div id="screen-clear" class="screen dim hidden">
           <div class="panel pop">
-            <h3 class="clear-title">🏁 过关啦！</h3>
+            <h3 class="clear-title" data-i18n="clearTitle">🏁 过关啦！</h3>
             <div id="clear-stats" class="stat-list"></div>
             <div class="row">
-              <button id="btn-next" class="btn primary">下一关 →</button>
-              <button id="btn-replay" class="btn ghost">重玩本关</button>
+              <button id="btn-next" class="btn primary" data-i18n="nextBtnD">下一关 →</button>
+              <button id="btn-replay" class="btn ghost" data-i18n="replay">重玩本关</button>
             </div>
           </div>
         </div>
@@ -79,13 +79,13 @@
             <h3 class="over-title">GAME OVER</h3>
             <div class="medal">💀</div>
             <div class="score-row">
-              <div><label>本局得分</label><b id="final-score">0</b></div>
+              <div><label data-i18n="scoreLbl">本局得分</label><b id="final-score">0</b></div>
               <div class="divider"></div>
-              <div><label>历史最高</label><b id="final-best">0</b><span id="new-record" class="new-record hidden">NEW!</span></div>
+              <div><label data-i18n="bestLbl">历史最高</label><b id="final-best">0</b><span id="new-record" class="new-record hidden">NEW!</span></div>
             </div>
             <div class="row">
-              <button id="btn-retry" class="btn primary">🔄 再来一局 (R)</button>
-              <button id="btn-menu" class="btn ghost">菜单</button>
+              <button id="btn-retry" class="btn primary" data-i18n="retry">🔄 再来一局 (R)</button>
+              <button id="btn-menu" class="btn ghost" data-i18n="menu">菜单</button>
             </div>
           </div>
         </div>
@@ -93,16 +93,16 @@
         <!-- 通关 -->
         <div id="screen-win" class="screen dim hidden">
           <div class="panel pop win-panel">
-            <h3 class="win-title">👑 通关！公主得救啦！</h3>
+            <h3 class="win-title" data-i18n="winTitle">👑 通关！公主得救啦！</h3>
             <div class="medal">👸💖🧑‍🔧</div>
             <div class="score-row">
-              <div><label>总分</label><b id="win-score">0</b></div>
+              <div><label data-i18n="totalLbl">总分</label><b id="win-score">0</b></div>
               <div class="divider"></div>
-              <div><label>剩余生命</label><b id="win-lives">×3</b></div>
+              <div><label data-i18n="livesLbl">剩余生命</label><b id="win-lives">×3</b></div>
             </div>
             <div class="row">
-              <button id="btn-again" class="btn primary">🎮 再玩一次</button>
-              <button id="btn-menu2" class="btn ghost">菜单</button>
+              <button id="btn-again" class="btn primary" data-i18n="again">🎮 再玩一次</button>
+              <button id="btn-menu2" class="btn ghost" data-i18n="menu">菜单</button>
             </div>
           </div>
         </div>
@@ -122,34 +122,117 @@
 
       <aside class="side">
         <div class="card">
-          <h4>🎮 操作</h4>
+          <h4 data-i18n="opTitle">🎮 操作</h4>
           <ul>
-            <li><kbd>←</kbd><kbd>→</kbd> / <kbd>A</kbd><kbd>D</kbd> 移动</li>
-            <li><kbd>Z</kbd> / <kbd>空格</kbd> / <kbd>↑</kbd> 跳跃（按住更高）</li>
-            <li><kbd>X</kbd> / <kbd>Shift</kbd> 跑步＋火焰射击</li>
-            <li><kbd>P</kbd> 暂停 · <kbd>M</kbd> 音效 · <kbd>R</kbd> 重开</li>
+            <li><kbd>←</kbd><kbd>→</kbd> / <kbd>A</kbd><kbd>D</kbd> <span data-i18n="opMove">移动</span></li>
+            <li><kbd>Z</kbd> / <kbd data-i18n="spc">空格</kbd> / <kbd>↑</kbd> <span data-i18n="opJump">跳跃（按住更高）</span></li>
+            <li><kbd>X</kbd> / <kbd>Shift</kbd> <span data-i18n="opRun">跑步＋火焰射击</span></li>
+            <li><kbd>P</kbd> <span data-i18n="opPause">暂停</span> · <kbd>M</kbd> <span data-i18n="opSound">音效</span> · <kbd>R</kbd> <span data-i18n="opRestart">重开</span></li>
           </ul>
         </div>
         <div class="card">
-          <h4>🍄 道具图鉴</h4>
+          <h4 data-i18n="itemTitle">🍄 道具图鉴</h4>
           <ul class="medals">
-            <li>🍄 蘑菇 — 长大，可顶碎砖块</li>
-            <li>🌸 火焰花 — 按 X 发射火球</li>
-            <li>⭐ 无敌星 — 10 秒横冲直撞</li>
-            <li>💚 绿蘑菇 — 生命 +1</li>
-            <li>🪙 金币 — 100 枚=1 条命？不，纯爽</li>
+            <li data-i18n="item1">🍄 蘑菇 — 长大，可顶碎砖块</li>
+            <li data-i18n="item2">🌸 火焰花 — 按 X 发射火球</li>
+            <li data-i18n="item3">⭐ 无敌星 — 10 秒横冲直撞</li>
+            <li data-i18n="item4">💚 绿蘑菇 — 生命 +1</li>
+            <li data-i18n="item5">🪙 金币 — 100 枚=1 条命？不，纯爽</li>
           </ul>
         </div>
         <div class="card diff">
-          <h4>🐢 敌人手册</h4>
-          <p>踩头是王道！乌龟踩一下变壳，再碰踢飞，壳能连撞一片。食人花只能烧，千万别脸接。</p>
+          <h4 data-i18n="enemyTitle">🐢 敌人手册</h4>
+          <p data-i18n="enemyBody">踩头是王道！乌龟踩一下变壳，再碰踢飞，壳能连撞一片。食人花只能烧，千万别脸接。</p>
         </div>
       </aside>
     </section>
 
-    <footer>Canvas + WebAudio 原生实现 · 零依赖 · 32 关完整冒险（8 世界 × 4 关）· 含背景音乐与火焰花</footer>
+    <footer data-i18n="footer">Canvas + WebAudio 原生实现 · 零依赖 · 32 关完整冒险（8 世界 × 4 关）· 含背景音乐与火焰花</footer>
   </main>
 
+<script src="../assets/i18n.js?v=20260906"></script>
+<script>
+window.GAME_STR = {
+  zh: {
+    title: '超级马里奥 · 像素大冒险', subtitle: '像素大冒险', gameTitle: '超级马里奥',
+    intro: '← → 移动 · Z/空格 跳跃 · X 跑/射击 · 顶砖块吃蘑菇，踩乌龟，冲向旗杆！',
+    themeTitle: '切换白天 / 黑夜', musicTitle: '音乐开 / 关', muteTitle: '音效开 / 关 (M)', pauseTitle: '暂停 (P)',
+    pickWorld: '选择世界', start: '🚀 开始冒险',
+    hintA: '按', hintB: '跳跃 · 按住', hintC: '加速跑', spc: '空格',
+    paused: '⏸ 已暂停', pauseTip: '喝口水，蘑菇不会跑掉', resume: '继续', quitMenu: '回菜单',
+    clearTitle: '🏁 过关啦！', nextBtnD: '下一关 →', replay: '重玩本关',
+    scoreLbl: '本局得分', bestLbl: '历史最高', retry: '🔄 再来一局 (R)', menu: '菜单',
+    winTitle: '👑 通关！公主得救啦！', totalLbl: '总分', livesLbl: '剩余生命', again: '🎮 再玩一次',
+    opTitle: '🎮 操作', opMove: '移动', opJump: '跳跃（按住更高）', opRun: '跑步＋火焰射击', opPause: '暂停', opSound: '音效', opRestart: '重开',
+    itemTitle: '🍄 道具图鉴',
+    item1: '🍄 蘑菇 — 长大，可顶碎砖块', item2: '🌸 火焰花 — 按 X 发射火球', item3: '⭐ 无敌星 — 10 秒横冲直撞',
+    item4: '💚 绿蘑菇 — 生命 +1', item5: '🪙 金币 — 100 枚=1 条命？不，纯爽',
+    enemyTitle: '🐢 敌人手册', enemyBody: '踩头是王道！乌龟踩一下变壳，再碰踢飞，壳能连撞一片。食人花只能烧，千万别脸接。',
+    footer: 'Canvas + WebAudio 原生实现 · 零依赖 · 32 关完整冒险（8 世界 × 4 关）· 含背景音乐与火焰花',
+    worldSubs: ['青青草原', '黄沙荒漠', '落日峡谷', '星空夜路', '冰雪极地', '熔岩火山', '云端天空', '库巴魔城'],
+    worldLevels: [
+      ['晨曦原野', '绿荫小径', '蘑菇丘陵', '城堡前哨'],
+      ['流沙之漠', '仙人掌谷', '烈日险道', '荒漠城堡'],
+      ['彩霞山道', '断崖峡谷', '暮色高桥', '峡谷城堡'],
+      ['萤火小径', '银河高原', '午夜迷道', '暗夜城堡'],
+      ['雪花平原', '冰棱滑道', '暴风雪山', '冰封城堡'],
+      ['火山口径', '熔岩洞窟', '灰烬荒原', '烈焰城堡'],
+      ['棉花云梯', '苍穹浮岛', '旋风气流', '天空城堡'],
+      ['魔城外围', '陷阱回廊', '熔岩大厅', '库巴决战']
+    ],
+    worldTag: n => '世界 ' + n,
+    worldTitle: (n, sub) => '世界 ' + n + ' · ' + sub,
+    stageLabel: (emo, n, sub) => emo + ' 世界 ' + n + ' · ' + sub,
+    levelTitle: (w, name, sub) => w + ' · ' + name + ' ' + sub,
+    best: v => '🏆 历史最高：' + v,
+    clearStats: (name, sub, gained, bonus, coins, lives) =>
+      '<div>🌍 关卡 <b>' + name + ' ' + sub + '</b></div>' +
+      '<div>✨ 本关得分 <b>+' + gained + '</b> · ⏱ 时间奖励 <b>+' + bonus + '</b></div>' +
+      '<div>🪙 金币 <b>+' + coins + '</b> · 💔 剩余生命 <b>×' + lives + '</b></div>',
+    nextBtn: n => '下一关 → ' + n,
+    introSub: (sub, lives) => sub + ' · ❤×' + lives
+  },
+  en: {
+    title: 'Super Mario · Pixel Adventure', subtitle: 'Pixel Adventure', gameTitle: 'Super Mario',
+    intro: '← → move · Z/Space jump · X run/shoot · bump blocks, grab mushrooms, stomp koopas, dash to the flag!',
+    themeTitle: 'Toggle day / night', musicTitle: 'Music on/off', muteTitle: 'Sound on/off (M)', pauseTitle: 'Pause (P)',
+    pickWorld: 'Pick a world', start: '🚀 Start Adventure',
+    hintA: 'Press', hintB: 'to jump · hold', hintC: 'to dash', spc: 'Space',
+    paused: '⏸ Paused', pauseTip: 'Take a sip — the mushrooms will wait', resume: 'Resume', quitMenu: 'Menu',
+    clearTitle: '🏁 Stage Clear!', nextBtnD: 'Next →', replay: 'Replay Stage',
+    scoreLbl: 'Score', bestLbl: 'Best', retry: '🔄 Play Again (R)', menu: 'Menu',
+    winTitle: '👑 You did it! The princess is saved!', totalLbl: 'Score', livesLbl: 'Lives', again: '🎮 Play Again',
+    opTitle: '🎮 Controls', opMove: 'move', opJump: 'jump (hold for higher)', opRun: 'run + fire shots', opPause: 'pause', opSound: 'sound', opRestart: 'restart',
+    itemTitle: '🍄 Item Guide',
+    item1: '🍄 Mushroom — grow big, smash bricks', item2: '🌸 Fire Flower — press X to shoot fireballs', item3: '⭐ Super Star — 10s of mayhem',
+    item4: '💚 1-Up Mushroom — +1 life', item5: '🪙 Coins — 100 for a life? Nah, just fun',
+    enemyTitle: '🐢 Enemy Guide', enemyBody: 'Stomp heads to win! A koopa becomes a shell, kick it to bowl through enemies. Piranha plants only die by fire — never face-tank them.',
+    footer: 'Native Canvas + WebAudio · zero dependencies · 32-stage adventure (8 worlds × 4) · with BGM and Fire Flower',
+    worldSubs: ['Green Meadow', 'Golden Desert', 'Sunset Canyon', 'Starry Night', 'Frosty Peaks', 'Lava Volcano', 'Cloud Realm', "Bowser's Castle"],
+    worldLevels: [
+      ['Dawn Field', 'Shady Trail', 'Mushroom Hills', 'Castle Outpost'],
+      ['Quicksand Dunes', 'Cactus Valley', 'Scorching Pass', 'Desert Castle'],
+      ['Rosy Ridge', 'Cliff Canyon', 'Twilight Bridge', 'Canyon Castle'],
+      ['Firefly Trail', 'Galaxy Plateau', 'Midnight Maze', 'Night Castle'],
+      ['Snowflake Plains', 'Icicle Slide', 'Blizzard Mount', 'Frozen Castle'],
+      ['Crater Rim', 'Magma Cavern', 'Ash Wastes', 'Inferno Castle'],
+      ['Cotton Cloud Stairs', 'Sky Isles', 'Cyclone Currents', 'Sky Castle'],
+      ['Castle Grounds', 'Trap Corridor', 'Magma Hall', 'Bowser Showdown']
+    ],
+    worldTag: n => 'World ' + n,
+    worldTitle: (n, sub) => 'World ' + n + ' · ' + sub,
+    stageLabel: (emo, n, sub) => emo + ' World ' + n + ' · ' + sub,
+    levelTitle: (w, name, sub) => w + ' · ' + name + ' ' + sub,
+    best: v => '🏆 Best: ' + v,
+    clearStats: (name, sub, gained, bonus, coins, lives) =>
+      '<div>🌍 Stage <b>' + name + ' ' + sub + '</b></div>' +
+      '<div>✨ Stage score <b>+' + gained + '</b> · ⏱ Time bonus <b>+' + bonus + '</b></div>' +
+      '<div>🪙 Coins <b>+' + coins + '</b> · 💔 Lives <b>×' + lives + '</b></div>',
+    nextBtn: n => 'Next → ' + n,
+    introSub: (sub, lives) => sub + ' · ❤×' + lives
+  }
+};
+</script>
 <script src="game.js?v=20260906"></script>
 </body>
 </html>

@@ -1,4 +1,6 @@
 (() => {
+const STR = window.GAME_STR || { zh: {}, en: {} };
+const T = (k, ...a) => AMG.tf(STR, k, ...a);
 const N = 15, W = 600;
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
@@ -84,15 +86,15 @@ function isFour(bd, x, y, dx, dy, c) {
 }
 function isForbidden(bd, x, y) {
   for (const [dx, dy] of DIRS) {
-    if (countLine(bd, x, y, dx, dy, 1) + 1 > 5) return '长连禁手';
+    if (countLine(bd, x, y, dx, dy, 1) + 1 > 5) return T('forbidLong');
   }
   let fours = 0, threes = 0;
   for (const [dx, dy] of DIRS) {
     if (isFour(bd, x, y, dx, dy, 1)) fours++;
     if (isOpenThree(bd, x, y, dx, dy, 1)) threes++;
   }
-  if (fours >= 2) return '四四禁手';
-  if (threes >= 2) return '三三禁手';
+  if (fours >= 2) return T('forbid44');
+  if (threes >= 2) return T('forbid33');
   return null;
 }
 
@@ -212,7 +214,7 @@ function place(x, y) {
   const c = G.turn;
   if (G.forbid && c === 1) {
     const f = isForbidden(G.board, x, y);
-    if (f) { flashMsg(f + '，换个位置吧'); sfx.bad(); return false; }
+    if (f) { flashMsg(T('forbidHint', f)); sfx.bad(); return false; }
   }
   G.board[y][x] = c;
   G.moves.push([x, y]);
@@ -273,8 +275,8 @@ function endGame(winner) {
   store.stats = st;
   refreshStats();
   sfx.win();
-  $('over-title').textContent = winner === 0 ? '🤝 和棋！' : winner === 1 ? '⚫ 黑方获胜！' : '⚪ 白方获胜！';
-  $('over-sub').textContent = '共 ' + G.moves.length + ' 手' + (G.mode !== 'pvp' ? (winner === G.human ? ' · 你赢了 🎉' : winner === 0 ? '' : ' · AI 获胜，再接再厉！') : '');
+  $('over-title').textContent = winner === 0 ? T('drawTitle') : winner === 1 ? T('winBlack') : T('winWhite');
+  $('over-sub').textContent = T('overSub', G.moves.length, (G.mode !== 'pvp' ? (winner === G.human ? T('extraYou') : winner === 0 ? '' : T('extraAi')) : ''));
   setTimeout(() => { $('screen-over').classList.remove('hidden'); }, 500);
   updateHUD();
 }
@@ -307,9 +309,9 @@ function undo() {
 }
 function updateHUD() {
   const t = $('hud-turn');
-  t.textContent = (G.turn === 1 ? '⚫ 黑方' : '⚪ 白方') + '行棋' + (G.aiThinking ? '（AI 思考中…）' : '');
+  t.textContent = (G.turn === 1 ? T('hudBlack') : T('hudWhite')) + T('hudMove') + (G.aiThinking ? T('hudThinking') : '');
   t.className = 'turn ' + (G.turn === 1 ? 'black' : 'white');
-  $('hud-moves').textContent = '第 ' + G.moves.length + ' 手';
+  $('hud-moves').textContent = T('hudMoves', G.moves.length);
 }
 function refreshStats() {
   const st = store.stats;
@@ -414,6 +416,13 @@ function toggleMute() {
 }
 $('btn-mute').onclick = toggleMute;
 $('btn-mute').textContent = muted ? '🔇' : '🔊';
+// i18n boot: static DOM + dynamic boot texts
+AMG.apply(STR);
+AMG.mountBtn();
+$('btn-mute').title = T('muteTitle');
+$('btn-undo').title = T('undoTitle');
+$('btn-resign').title = T('resignTitle');
+$('btn-tomenu').title = T('tomenuTitle');
 
 refreshStats();
 window.__game = G;

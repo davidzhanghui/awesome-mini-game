@@ -13,8 +13,8 @@
   <header class="brand">
     <div class="logo">🃏</div>
     <div>
-      <h1>斗地主 <em>经典桌游</em></h1>
-      <p>单机三人局 · 你 + 两个 AI · 叫抢地主 · 春天炸弹结算</p>
+      <h1><span data-i18n="gameTitle">斗地主</span> <em data-i18n="subtitle">经典桌游</em></h1>
+      <p data-i18n="intro">单机三人局 · 你 + 两个 AI · 叫抢地主 · 春天炸弹结算</p>
     </div>
     <div class="brand-btns">
       <button id="btn-mute" class="icon-btn" title="声音开 / 关 (M)">🔊</button>
@@ -25,33 +25,102 @@
       <canvas id="game" width="760" height="620"></canvas>
       <div id="screen-menu" class="screen">
         <div class="title-badge">DOU DIZHU</div>
-        <h2 class="game-title">斗地主</h2>
+        <h2 class="game-title" data-i18n="gameTitle">斗地主</h2>
         <div class="board-emoji">🃏🂡🂱🃁🃎</div>
-        <button id="btn-start" class="btn primary">🚀 开始对局</button>
-        <p class="hint">点选手牌再点 <kbd>出牌</kbd> · 双击单张可快捷选中</p>
-        <div class="mini-board">🏆 胜 <b id="st-w">0</b> · 负 <b id="st-l">0</b> · 积分 <b id="st-s">0</b></div>
+        <button id="btn-start" class="btn primary" data-i18n="start">🚀 开始对局</button>
+        <p class="hint"><span data-i18n="hintA">点选手牌再点</span> <kbd data-i18n="play">出牌</kbd> <span data-i18n="hintB">· 双击单张可快捷选中</span></p>
+        <div class="mini-board">🏆 <span data-i18n="stWin">胜</span> <b id="st-w">0</b> · <span data-i18n="stLose">负</span> <b id="st-l">0</b> · <span data-i18n="stScore">积分</span> <b id="st-s">0</b></div>
       </div>
       <div id="screen-over" class="screen dim hidden">
         <div class="panel pop">
           <h3 id="over-title" class="over-title">🎉 农民胜利！</h3>
           <div id="over-sub" class="over-sub"></div>
           <div class="row">
-            <button id="btn-retry" class="btn primary">🔄 再来一局 (R)</button>
-            <button id="btn-menu" class="btn ghost">菜单</button>
+            <button id="btn-retry" class="btn primary" data-i18n="retry">🔄 再来一局 (R)</button>
+            <button id="btn-menu" class="btn ghost" data-i18n="menu">菜单</button>
           </div>
         </div>
       </div>
     </div>
     <aside class="side">
-      <div class="card"><h4>🧾 记牌器</h4><div id="card-counter" class="counter">开局后显示剩余牌</div></div>
-      <div class="card"><h4>🎮 操作</h4><ul>
-        <li>点击手牌选中 / 取消，再点出牌按钮</li><li>轮到你时可 <kbd>不出</kbd>（有大过上家的牌除外首手）</li><li>叫分：叫 1/2/3 分或不叫</li></ul></div>
-      <div class="card"><h4>🃏 牌型</h4><ul>
-        <li>单张 / 对子 / 三张 / 三带一 / 三带二</li><li>顺子(5+)/连对(3+)/飞机(可带)</li><li>四带二 / 四带两对 / 炸弹 / 王炸</li></ul></div>
+      <div class="card"><h4 data-i18n="counterTitle">🧾 记牌器</h4><div id="card-counter" class="counter">开局后显示剩余牌</div></div>
+      <div class="card"><h4 data-i18n="opTitle">🎮 操作</h4><ul>
+        <li data-i18n="op1">点击手牌选中 / 取消，再点出牌按钮</li><li><span data-i18n="op2a">轮到你时可</span> <kbd data-i18n="pass">不出</kbd> <span data-i18n="op2b">（有大过上家的牌除外首手）</span></li><li data-i18n="op3">叫分：叫 1/2/3 分或不叫</li></ul></div>
+      <div class="card"><h4 data-i18n="typeTitle">🃏 牌型</h4><ul>
+        <li data-i18n="type1">单张 / 对子 / 三张 / 三带一 / 三带二</li><li data-i18n="type2">顺子(5+)/连对(3+)/飞机(可带)</li><li data-i18n="type3">四带二 / 四带两对 / 炸弹 / 王炸</li></ul></div>
     </aside>
   </section>
-  <footer>Canvas + WebAudio 原生实现 · 零依赖 · 规则式 AI（农民配合 / 地主压制）</footer>
+  <footer data-i18n="footer">Canvas + WebAudio 原生实现 · 零依赖 · 规则式 AI（农民配合 / 地主压制）</footer>
 </main>
+<script src="../assets/i18n.js?v=20260906"></script>
+<script>
+window.GAME_STR = {
+  zh: {
+    title: '斗地主 · 经典桌游', subtitle: '经典桌游', gameTitle: '斗地主',
+    intro: '单机三人局 · 你 + 两个 AI · 叫抢地主 · 春天炸弹结算',
+    muteTitle: '声音开 / 关 (M)',
+    start: '🚀 开始对局',
+    hintA: '点选手牌再点', hintB: '· 双击单张可快捷选中',
+    stWin: '胜', stLose: '负', stScore: '积分',
+    retry: '🔄 再来一局 (R)', menu: '菜单',
+    counterTitle: '🧾 记牌器', counterEmpty: '开局后显示剩余牌',
+    opTitle: '🎮 操作', op1: '点击手牌选中 / 取消，再点出牌按钮', op2a: '轮到你时可', op2b: '（有大过上家的牌除外首手）', op3: '叫分：叫 1/2/3 分或不叫',
+    typeTitle: '🃏 牌型', type1: '单张 / 对子 / 三张 / 三带一 / 三带二', type2: '顺子(5+)/连对(3+)/飞机(可带)', type3: '四带二 / 四带两对 / 炸弹 / 王炸',
+    footer: 'Canvas + WebAudio 原生实现 · 零依赖 · 规则式 AI（农民配合 / 地主压制）',
+    jokerS: '小王', jokerB: '大王', jokerMin: '小', jokerMax: '大',
+    you: '你', aiR: 'AI·右', aiL: 'AI·左',
+    dipai: '底牌', bidding: '叫分中…',
+    lordIs: n => '地主:' + n,
+    topBar: (b, s) => '💣×' + b + '  ' + s,
+    handCount: n => ' 🂠×' + n,
+    pass: '不出', play: '出牌', selectAll: '全选',
+    noBid: '不叫', bidPts: v => v + '分',
+    waitBid: n => '等待 ' + n + ' 叫分…',
+    waitPlay: n => '等待 ' + n + ' 出牌…',
+    pickFirst: '先选牌',
+    noBidRedeal: '无人叫地主，重新发牌',
+    badCombo: '牌型不合法', cantBeat: '管不上上家', badType: '牌型不对',
+    spring: '春天', antiSpring: '反春',
+    winYou: '🎉 你赢了！', winLord: '😈 地主获胜', winFarmers: '🎉 农民胜利！',
+    overSub: (lord, bombs, spring, delta, total) => '地主：' + lord + ' · 炸弹×' + bombs + (spring ? ' · ' + spring : '') + '<br>积分 ' + (delta > 0 ? '+' : '') + delta + '（总 ' + total + '）',
+    tSingle: '单张', tPair: '对子', tTrio: '三张', tTrio1: '三带一', tTrio2: '三带二',
+    tStraight: '顺子', tPairseq: '连对', tPlane: '飞机', tPlane1: '飞机带单', tPlane2: '飞机带对',
+    tFour2: '四带二', tFour22: '四带两对', tBomb: '炸弹！', tRocket: '王炸！'
+  },
+  en: {
+    title: 'Dou Dizhu · Classic Card Game', subtitle: 'Classic Card Game', gameTitle: 'Dou Dizhu',
+    intro: 'Solo 3-player game · you + 2 AI · bid for the Landlord · Spring & Bomb scoring',
+    muteTitle: 'Sound on/off (M)',
+    start: '🚀 Deal Cards',
+    hintA: 'Tap cards to select, then press', hintB: '· double-tap a single to quick-select',
+    stWin: 'W', stLose: 'L', stScore: 'Pts',
+    retry: '🔄 Play Again (R)', menu: 'Menu',
+    counterTitle: '🧾 Card Counter', counterEmpty: 'Remaining cards show after the deal',
+    opTitle: '🎮 Controls', op1: 'Tap hand cards to select / deselect, then press Play', op2a: 'You may', op2b: '(except leading trick when you can beat)', op3: 'Bid 1/2/3 points or pass',
+    typeTitle: '🃏 Hands', type1: 'Single / Pair / Trio / Trio+1 / Trio+2', type2: 'Straight (5+) / Pair sequence (3+) / Plane (with kickers)', type3: 'Four+2 / Four+2 pairs / Bomb / Rocket',
+    footer: 'Native Canvas + WebAudio · zero dependencies · rule-based AI (peasants cooperate / landlord presses)',
+    jokerS: 'SJoker', jokerB: 'BJoker', jokerMin: 'S', jokerMax: 'B',
+    you: 'You', aiR: 'AI·R', aiL: 'AI·L',
+    dipai: 'Kitty', bidding: 'Bidding…',
+    lordIs: n => 'Landlord:' + n,
+    topBar: (b, s) => '💣×' + b + '  ' + s,
+    handCount: n => ' 🂠×' + n,
+    pass: 'Pass', play: 'Play', selectAll: 'All',
+    noBid: 'Pass', bidPts: v => v + (v > 1 ? ' pts' : ' pt'),
+    waitBid: n => 'Waiting for ' + n + ' to bid…',
+    waitPlay: n => 'Waiting for ' + n + ' to play…',
+    pickFirst: 'Select cards first',
+    noBidRedeal: 'No one bid — redealing',
+    badCombo: 'Illegal combo', cantBeat: "Can't beat that", badType: 'Wrong combo',
+    spring: 'Spring', antiSpring: 'Anti-Spring',
+    winYou: '🎉 You win!', winLord: '😈 Landlord wins', winFarmers: '🎉 Peasants win!',
+    overSub: (lord, bombs, spring, delta, total) => 'Landlord: ' + lord + ' · Bombs×' + bombs + (spring ? ' · ' + spring : '') + '<br>Points ' + (delta > 0 ? '+' : '') + delta + ' (total ' + total + ')',
+    tSingle: 'Single', tPair: 'Pair', tTrio: 'Trio', tTrio1: 'Trio+1', tTrio2: 'Trio+2',
+    tStraight: 'Straight', tPairseq: 'Pair seq', tPlane: 'Plane', tPlane1: 'Plane+singles', tPlane2: 'Plane+pairs',
+    tFour2: 'Four+2', tFour22: 'Four+2 pairs', tBomb: 'Bomb!', tRocket: 'Rocket!'
+  }
+};
+</script>
 <script src="game.js?v=20260906"></script>
 </body>
 </html>

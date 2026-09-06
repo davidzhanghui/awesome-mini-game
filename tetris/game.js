@@ -1,5 +1,7 @@
 (() => {
 // Guideline 俄罗斯方块：7-Bag / SRS（含I） / T-Spin 3角规则 / Hold / Ghost / B2B / 连击
+const STR = window.GAME_STR || { zh: {}, en: {} };
+const T = (k, ...a) => AMG.tf(STR, k, ...a);
 const COLS = 10, ROWS = 20, OX = 130, OY = 30, CELL = 29;
 const W = 460, H = 640;
 const canvas = document.getElementById('game');
@@ -269,7 +271,7 @@ function startGame() {
   reset();
   G.state = 'play';
   showScreen(null);
-  $('menu-best').textContent = '🏆 历史最高：' + Math.max(store.best, G.score);
+  $('menu-best').textContent = T('best', Math.max(store.best, G.score));
 }
 function togglePause() {
   if (G.state === 'play') { G.state = 'pause'; showScreen('pause'); }
@@ -441,7 +443,7 @@ function render() {
     ctx.fillStyle = '#ffd93d';
     ctx.fillText(G.msg, OX + COLS * CELL / 2, H / 2);
   }
-  if (G.state === 'pause') { ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.font = '900 30px system-ui'; ctx.fillText('⏸ 暂停中', W / 2, H / 2); }
+  if (G.state === 'pause') { ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.font = '900 30px system-ui'; ctx.fillText(T('paused'), W / 2, H / 2); }
 }
 let last = performance.now();
 function loop(now) {
@@ -462,7 +464,11 @@ function toggleMute() {
 }
 $('btn-mute').onclick = toggleMute;
 $('btn-mute').textContent = muted ? '🔇' : '🔊';
-$('menu-best').textContent = '🏆 历史最高：' + store.best;
+// i18n boot: static DOM + dynamic boot texts
+AMG.apply(STR);
+AMG.mountBtn();
+$('btn-mute').title = T('muteTitle');
+$('menu-best').textContent = T('best', store.best);
 requestAnimationFrame(t => { last = t; requestAnimationFrame(loop); });
 window.__game = G;
 window.__gameErrors = [];

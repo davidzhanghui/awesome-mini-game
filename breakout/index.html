@@ -13,8 +13,8 @@
   <header class="brand">
     <div class="logo">🧱</div>
     <div>
-      <h1>打砖块 <em>经典益智</em></h1>
-      <p>鼠标/键盘挡板 · 落点决定反弹角 · 7 种道具 · 多关卡</p>
+      <h1><span data-i18n="gameTitle">打砖块</span> <em data-i18n="subtitle">经典益智</em></h1>
+      <p data-i18n="intro">鼠标/键盘挡板 · 落点决定反弹角 · 7 种道具 · 多关卡</p>
     </div>
     <div class="brand-btns">
       <button id="btn-mute" class="icon-btn" title="声音开 / 关 (M)">🔊</button>
@@ -25,45 +25,88 @@
       <canvas id="game" width="480" height="640"></canvas>
       <div id="screen-menu" class="screen">
         <div class="title-badge">BREAKOUT</div>
-        <h2 class="game-title">打砖块</h2>
+        <h2 class="game-title" data-i18n="gameTitle">打砖块</h2>
         <div class="hero-row"><span class="hero">🧱</span><span class="hero f">⚾</span><span class="hero">🎾</span></div>
-        <button id="btn-start" class="btn primary">🚀 开始游戏</button>
-        <p class="hint">鼠标 / <kbd>←</kbd><kbd>→</kbd> 移动挡板 · 点击 / <kbd>空格</kbd> 发球 · <kbd>P</kbd> 暂停</p>
+        <button id="btn-start" class="btn primary" data-i18n="start">🚀 开始游戏</button>
+        <p class="hint"><span data-i18n="hintA">鼠标 /</span> <kbd>←</kbd><kbd>→</kbd> <span data-i18n="hintB">移动挡板 · 点击 /</span> <kbd>空格</kbd> <span data-i18n="hintC">发球 ·</span> <kbd>P</kbd> <span data-i18n="hintD">暂停</span></p>
         <div id="menu-best" class="mini-board">🏆 历史最高：0</div>
       </div>
       <div id="screen-pause" class="screen dim hidden">
-        <div class="panel"><h3>⏸ 已暂停</h3><p>按 P 继续</p>
-          <div class="row"><button id="btn-resume" class="btn primary">继续</button><button id="btn-quit" class="btn ghost">回菜单</button></div>
+        <div class="panel"><h3 data-i18n="paused">⏸ 已暂停</h3><p data-i18n="pressP">按 P 继续</p>
+          <div class="row"><button id="btn-resume" class="btn primary" data-i18n="resume">继续</button><button id="btn-quit" class="btn ghost" data-i18n="quitMenu">回菜单</button></div>
         </div>
       </div>
       <div id="screen-over" class="screen dim hidden">
         <div class="panel pop">
           <h3 class="over-title">GAME OVER</h3>
           <div class="score-row">
-            <div><label>得分</label><b id="final-score">0</b></div>
+            <div><label data-i18n="scoreLbl">得分</label><b id="final-score">0</b></div>
             <div class="divider"></div>
-            <div><label>到达关卡</label><b id="final-stage">1</b></div>
+            <div><label data-i18n="stageLbl">到达关卡</label><b id="final-stage">1</b></div>
           </div>
-          <div class="row"><button id="btn-retry" class="btn primary">🔄 再来一局 (R)</button><button id="btn-menu" class="btn ghost">菜单</button></div>
+          <div class="row"><button id="btn-retry" class="btn primary" data-i18n="retry">🔄 再来一局 (R)</button><button id="btn-menu" class="btn ghost" data-i18n="menu">菜单</button></div>
         </div>
       </div>
       <div id="screen-clear" class="screen dim hidden">
         <div class="panel pop">
-          <h3 class="clear-title">🎉 全部通关！</h3>
+          <h3 class="clear-title" data-i18n="clearTitle">🎉 全部通关！</h3>
           <div id="clear-stats" class="stat-list"></div>
-          <div class="row"><button id="btn-again" class="btn primary">再玩一次</button><button id="btn-menu2" class="btn ghost">菜单</button></div>
+          <div class="row"><button id="btn-again" class="btn primary" data-i18n="again">再玩一次</button><button id="btn-menu2" class="btn ghost" data-i18n="menu">菜单</button></div>
         </div>
       </div>
     </div>
     <aside class="side">
-      <div class="card"><h4>🎮 操作</h4><ul>
-        <li>鼠标 / <kbd>←</kbd><kbd>→</kbd> 移动挡板</li><li>点击 / <kbd>空格</kbd> 发射粘住的球</li><li>挡板不同落点反弹角不同</li></ul></div>
-      <div class="card"><h4>🎁 道具</h4><ul>
-        <li>↔️ 加长 · 🔫 激光 · 🌀 多球</li><li>💥 穿透 · 🧲 粘球 · ❤️ +命 · 🐢 减速</li></ul></div>
+      <div class="card"><h4 data-i18n="opTitle">🎮 操作</h4><ul>
+        <li><span data-i18n="op1a">鼠标 /</span> <kbd>←</kbd><kbd>→</kbd> <span data-i18n="op1b">移动挡板</span></li><li><span data-i18n="op2a">点击 /</span> <kbd>空格</kbd> <span data-i18n="op2b">发射粘住的球</span></li><li data-i18n="op3">挡板不同落点反弹角不同</li></ul></div>
+      <div class="card"><h4 data-i18n="itemTitle">🎁 道具</h4><ul>
+        <li data-i18n="item1">↔️ 加长 · 🔫 激光 · 🌀 多球</li><li data-i18n="item2">💥 穿透 · 🧲 粘球 · ❤️ +命 · 🐢 减速</li></ul></div>
     </aside>
   </section>
-  <footer>Canvas + WebAudio 原生实现 · 零依赖 · 街机风 33 关（32 布局 + DOH Boss）+ 道具系统</footer>
+  <footer data-i18n="footer">Canvas + WebAudio 原生实现 · 零依赖 · 街机风 33 关（32 布局 + DOH Boss）+ 道具系统</footer>
 </main>
+<script src="../assets/i18n.js?v=20260906"></script>
+<script>
+window.GAME_STR = {
+  zh: {
+    title: '打砖块 · 经典益智', subtitle: '经典益智', gameTitle: '打砖块',
+    intro: '鼠标/键盘挡板 · 落点决定反弹角 · 7 种道具 · 多关卡',
+    muteTitle: '声音开 / 关 (M)',
+    start: '🚀 开始游戏',
+    hintA: '鼠标 /', hintB: '移动挡板 · 点击 /', hintC: '发球 ·', hintD: '暂停',
+    paused: '⏸ 已暂停', pressP: '按 P 继续', resume: '继续', quitMenu: '回菜单',
+    scoreLbl: '得分', stageLbl: '到达关卡',
+    retry: '🔄 再来一局 (R)', menu: '菜单',
+    clearTitle: '🎉 全部通关！', again: '再玩一次',
+    opTitle: '🎮 操作', op1a: '鼠标 /', op1b: '移动挡板', op2a: '点击 /', op2b: '发射粘住的球', op3: '挡板不同落点反弹角不同',
+    itemTitle: '🎁 道具', item1: '↔️ 加长 · 🔫 激光 · 🌀 多球', item2: '💥 穿透 · 🧲 粘球 · ❤️ +命 · 🐢 减速',
+    footer: 'Canvas + WebAudio 原生实现 · 零依赖 · 街机风 33 关（32 布局 + DOH Boss）+ 道具系统',
+    best: v => '🏆 历史最高：' + v,
+    stageMsg: s => '第 ' + s + ' 关',
+    finalMsg: '最终决战 · DOH',
+    itemWide: '加长！', itemLaser: '激光！', itemMulti: '多球！', itemPierce: '穿透！', itemSticky: '粘球！', itemLife: '+1 命！', itemSlow: '减速！',
+    clearStats: (s, l) => '<div>👹 DOH 已击败！33 关全部通关！</div><div>🏆 总分 <b>' + s + '</b></div><div>❤️ 剩余生命 <b>×' + l + '</b></div>'
+  },
+  en: {
+    title: 'Breakout · Classic Arcade', subtitle: 'Classic Arcade', gameTitle: 'Breakout',
+    intro: 'Mouse/keyboard paddle · bounce angle by hit position · 7 power-ups · many stages',
+    muteTitle: 'Sound on/off (M)',
+    start: '🚀 Start Game',
+    hintA: 'Mouse /', hintB: 'to move · click /', hintC: 'to launch ·', hintD: 'to pause',
+    paused: '⏸ Paused', pressP: 'Press P to resume', resume: 'Resume', quitMenu: 'Menu',
+    scoreLbl: 'Score', stageLbl: 'Stage',
+    retry: '🔄 Play Again (R)', menu: 'Menu',
+    clearTitle: '🎉 All Clear!', again: 'Play Again',
+    opTitle: '🎮 Controls', op1a: 'Mouse /', op1b: 'to move the paddle', op2a: 'Click /', op2b: 'to launch the stuck ball', op3: 'Bounce angle depends on hit position',
+    itemTitle: '🎁 Power-ups', item1: '↔️ Extend · 🔫 Laser · 🌀 Multi-ball', item2: '💥 Pierce · 🧲 Sticky · ❤️ +Life · 🐢 Slow',
+    footer: 'Native Canvas + WebAudio · zero dependencies · 33 arcade stages (32 layouts + DOH boss) + power-ups',
+    best: v => '🏆 Best: ' + v,
+    stageMsg: s => 'Stage ' + s,
+    finalMsg: 'Final Battle · DOH',
+    itemWide: 'Extend!', itemLaser: 'Laser!', itemMulti: 'Multi-ball!', itemPierce: 'Pierce!', itemSticky: 'Sticky!', itemLife: '+1 Life!', itemSlow: 'Slow!',
+    clearStats: (s, l) => '<div>👹 DOH defeated! All 33 stages cleared!</div><div>🏆 Score <b>' + s + '</b></div><div>❤️ Lives left <b>×' + l + '</b></div>'
+  }
+};
+</script>
 <script src="game.js?v=20260906"></script>
 </body>
 </html>

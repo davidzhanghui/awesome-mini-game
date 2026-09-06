@@ -14,8 +14,8 @@
     <header class="brand">
       <div class="logo">🐤</div>
       <div>
-        <h1>Flappy Bird <em>像素天空</em></h1>
-        <p>单人闯关 / 双人对战 — 让小鸟飞起来，穿越水管！</p>
+        <h1>Flappy Bird <em data-i18n="subtitle">像素天空</em></h1>
+        <p data-i18n="intro">单人闯关 / 双人对战 — 让小鸟飞起来，穿越水管！</p>
       </div>
       <div class="brand-btns">
         <button id="btn-theme" class="icon-btn" title="切换白天 / 黑夜">🌙</button>
@@ -42,13 +42,13 @@
         <!-- 主菜单 -->
         <div id="screen-menu" class="screen">
           <div class="title-badge">FLAPPY</div>
-          <h2 class="game-title">像素天空</h2>
+          <h2 class="game-title" data-i18n="gameName">像素天空</h2>
           <div class="bird-preview"><span>🐤</span><span class="preview-p2">🐦</span></div>
           <div class="row mode-row">
-            <button id="btn-start" class="btn primary">🚀 单人闯关</button>
-            <button id="btn-duo" class="btn duel">⚔️ 双人对战</button>
+            <button id="btn-start" class="btn primary" data-i18n="solo">🚀 单人闯关</button>
+            <button id="btn-duo" class="btn duel" data-i18n="duo">⚔️ 双人对战</button>
           </div>
-          <p class="hint">单人：<kbd>空格</kbd> / 点击起飞 · 双人：<kbd>空格</kbd> P1 / <kbd>↑</kbd> P2</p>
+          <p class="hint"><span data-i18n="hintSoloPre">单人：</span><kbd data-i18n="kbdSpace">空格</kbd><span data-i18n="hintSoloSuf"> / 点击起飞</span> · <span data-i18n="hintDuoPre">双人：</span><kbd data-i18n="kbdSpace">空格</kbd> P1 / <kbd>↑</kbd> P2</p>
           <div id="menu-best" class="mini-board">🏆 历史最佳：0</div>
         </div>
 
@@ -56,7 +56,7 @@
         <div id="screen-ready" class="screen hidden">
           <div class="ready-card">
             <div class="ready-tap">👆</div>
-            <h3>准备好了吗？</h3>
+            <h3 data-i18n="readyTitle">准备好了吗？</h3>
             <p id="ready-tip">点击 / 空格 振翅，第一根水管在前方等你</p>
           </div>
         </div>
@@ -64,11 +64,11 @@
         <!-- 暂停 -->
         <div id="screen-pause" class="screen dim hidden">
           <div class="panel">
-            <h3>⏸ 已暂停</h3>
-            <p>按 P 或点击继续</p>
+            <h3 data-i18n="pausedTitle">⏸ 已暂停</h3>
+            <p data-i18n="pauseHint">按 P 或点击继续</p>
             <div class="row">
-              <button id="btn-resume" class="btn primary">继续</button>
-              <button id="btn-quit" class="btn ghost">回菜单</button>
+              <button id="btn-resume" class="btn primary" data-i18n="resume">继续</button>
+              <button id="btn-quit" class="btn ghost" data-i18n="quit">回菜单</button>
             </div>
           </div>
         </div>
@@ -80,9 +80,9 @@
             <div id="medal" class="medal">🥉</div>
             <div id="over-solo">
               <div class="score-row">
-                <div><label>本次得分</label><b id="final-score">0</b></div>
+                <div><label data-i18n="curScore">本次得分</label><b id="final-score">0</b></div>
                 <div class="divider"></div>
-                <div><label>历史最佳</label><b id="final-best">0</b><span id="new-record" class="new-record hidden">NEW!</span></div>
+                <div><label data-i18n="histBest">历史最佳</label><b id="final-best">0</b><span id="new-record" class="new-record hidden">NEW!</span></div>
               </div>
             </div>
             <div id="over-duo" class="hidden">
@@ -93,8 +93,8 @@
               </div>
             </div>
             <div class="row">
-              <button id="btn-retry" class="btn primary">🔄 再来一局 (R)</button>
-              <button id="btn-menu" class="btn ghost">菜单</button>
+              <button id="btn-retry" class="btn primary" data-i18n="retry">🔄 再来一局 (R)</button>
+              <button id="btn-menu" class="btn ghost" data-i18n="menu">菜单</button>
             </div>
           </div>
         </div>
@@ -102,33 +102,78 @@
 
       <aside class="side">
         <div class="card">
-          <h4>🎮 玩法</h4>
+          <h4 data-i18n="howTitle">🎮 玩法</h4>
           <ul>
-            <li>单人：<kbd>空格</kbd> / <kbd>↑</kbd> / <kbd>W</kbd> 振翅</li>
-            <li>双人：P1 <kbd>空格</kbd>/点左半屏 · P2 <kbd>↑</kbd>/点右半屏</li>
-            <li><kbd>P</kbd> 暂停 · <kbd>M</kbd> 静音 · <kbd>R</kbd> 重开</li>
-            <li>穿过水管 +1 分，撞到即结束</li>
+            <li><span data-i18n="hintSoloPre">单人：</span><kbd data-i18n="kbdSpace">空格</kbd> / <kbd>↑</kbd> / <kbd>W</kbd> <span data-i18n="flapKw">振翅</span></li>
+            <li><span data-i18n="hintDuoPre">双人：</span>P1 <kbd data-i18n="kbdSpace">空格</kbd>/<span data-i18n="tapLeft">点左半屏</span> · P2 <kbd>↑</kbd>/<span data-i18n="tapRight">点右半屏</span></li>
+            <li><kbd>P</kbd> <span data-i18n="pauseKw">暂停</span> · <kbd>M</kbd> <span data-i18n="muteKw">静音</span> · <kbd>R</kbd> <span data-i18n="rematchKw">重开</span></li>
+            <li data-i18n="rulePass">穿过水管 +1 分，撞到即结束</li>
           </ul>
         </div>
         <div class="card">
-          <h4>🏅 奖牌</h4>
+          <h4 data-i18n="medalTitle">🏅 奖牌</h4>
           <ul class="medals">
-            <li>🥉 10+ 铜牌</li>
-            <li>🥈 20+ 银牌</li>
-            <li>🥇 30+ 金牌</li>
-            <li>💎 40+ 钻石</li>
+            <li data-i18n="medalB">🥉 10+ 铜牌</li>
+            <li data-i18n="medalS">🥈 20+ 银牌</li>
+            <li data-i18n="medalG">🥇 30+ 金牌</li>
+            <li data-i18n="medalD">💎 40+ 钻石</li>
           </ul>
         </div>
         <div class="card diff">
-          <h4>⚡ 难度会递增</h4>
-          <p>飞得越远，水管越快、缝隙越窄。坚持住！</p>
+          <h4 data-i18n="diffTitle">⚡ 难度会递增</h4>
+          <p data-i18n="diffBody">飞得越远，水管越快、缝隙越窄。坚持住！</p>
         </div>
       </aside>
     </section>
 
-    <footer>用 Canvas + WebAudio 原生实现 · 零依赖 · 双击 <kbd>R</kbd> 秒开下一局</footer>
+    <footer><span data-i18n="footPre">用 Canvas + WebAudio 原生实现 · 零依赖 · 双击</span> <kbd>R</kbd> <span data-i18n="footSuf">秒开下一局</span></footer>
   </main>
 
+<script src="../assets/i18n.js?v=20260906"></script>
+<script>
+window.GAME_STR = {
+  zh: {
+    title: 'Flappy Bird · 像素天空', subtitle: '像素天空', gameName: '像素天空',
+    intro: '单人闯关 / 双人对战 — 让小鸟飞起来，穿越水管！',
+    solo: '🚀 单人闯关', duo: '⚔️ 双人对战',
+    hintSoloPre: '单人：', hintSoloSuf: ' / 点击起飞', hintDuoPre: '双人：', kbdSpace: '空格',
+    readyTitle: '准备好了吗？',
+    readySolo: '点击 / 空格 振翅，第一根水管在前方等你',
+    readyDuo: 'P1 按空格 / 点左半屏 · P2 按 ↑ / 点右半屏，一起起飞！',
+    pausedTitle: '⏸ 已暂停', pauseHint: '按 P 或点击继续', resume: '继续', quit: '回菜单',
+    curScore: '本次得分', histBest: '历史最佳',
+    retry: '🔄 再来一局 (R)', menu: '菜单',
+    duelOver: '对战结束', draw: '🤝 平局！', p1Win: '🏆 P1 获胜！', p2Win: '🏆 P2 获胜！',
+    howTitle: '🎮 玩法', flapKw: '振翅', tapLeft: '点左半屏', tapRight: '点右半屏',
+    pauseKw: '暂停', muteKw: '静音', rematchKw: '重开', rulePass: '穿过水管 +1 分，撞到即结束',
+    medalTitle: '🏅 奖牌', medalB: '🥉 10+ 铜牌', medalS: '🥈 20+ 银牌', medalG: '🥇 30+ 金牌', medalD: '💎 40+ 钻石',
+    diffTitle: '⚡ 难度会递增', diffBody: '飞得越远，水管越快、缝隙越窄。坚持住！',
+    footPre: '用 Canvas + WebAudio 原生实现 · 零依赖 · 双击', footSuf: '秒开下一局',
+    muteTitle: '声音开 / 关 (M)', pauseTitle: '暂停 (P)', themeTitle: '切换白天 / 黑夜',
+    bestLine: b => '🏆 历史最佳：' + b
+  },
+  en: {
+    title: 'Flappy Bird · Pixel Sky', subtitle: 'Pixel Sky', gameName: 'Pixel Sky',
+    intro: 'Solo runs / 2-player duels — keep the bird flying through the pipes!',
+    solo: '🚀 Solo Run', duo: '⚔️ 2-Player Duel',
+    hintSoloPre: 'Solo: ', hintSoloSuf: ' / tap to flap', hintDuoPre: 'Duo: ', kbdSpace: 'Space',
+    readyTitle: 'Ready?',
+    readySolo: 'Click / Space to flap, the first pipe is waiting ahead',
+    readyDuo: 'P1: Space / tap left half · P2: ↑ / tap right half, take off together!',
+    pausedTitle: '⏸ Paused', pauseHint: 'Press P or click to resume', resume: 'Resume', quit: 'Menu',
+    curScore: 'Score', histBest: 'Best',
+    retry: '🔄 Play Again (R)', menu: 'Menu',
+    duelOver: 'Duel Over', draw: '🤝 Draw!', p1Win: '🏆 P1 wins!', p2Win: '🏆 P2 wins!',
+    howTitle: '🎮 How to Play', flapKw: 'to flap', tapLeft: 'tap left half', tapRight: 'tap right half',
+    pauseKw: 'Pause', muteKw: 'Mute', rematchKw: 'Restart', rulePass: '+1 per pipe passed, crash and it is over',
+    medalTitle: '🏅 Medals', medalB: '🥉 10+ Bronze', medalS: '🥈 20+ Silver', medalG: '🥇 30+ Gold', medalD: '💎 40+ Diamond',
+    diffTitle: '⚡ It gets harder', diffBody: 'The further you fly, the faster the pipes and the narrower the gaps. Hang in there!',
+    footPre: 'Native Canvas + WebAudio · zero dependencies · hit', footSuf: 'for an instant rematch',
+    muteTitle: 'Sound on/off (M)', pauseTitle: 'Pause (P)', themeTitle: 'Toggle day / night',
+    bestLine: b => '🏆 Best: ' + b
+  }
+};
+</script>
 <script src="game.js?v=20260906"></script>
 </body>
 </html>

@@ -13,8 +13,8 @@
   <header class="brand">
     <div class="logo">🛡️</div>
     <div>
-      <h1>坦克大战 <em>经典街机</em></h1>
-      <p>单人闯关 / 双人守家 · 地图编辑器 · 6 种道具</p>
+      <h1><span data-i18n="gameTitle">坦克大战</span> <em data-i18n="arcadeSub">经典街机</em></h1>
+      <p data-i18n="intro">单人闯关 / 双人守家 · 地图编辑器 · 6 种道具</p>
     </div>
     <div class="brand-btns">
       <button id="btn-mute" class="icon-btn" title="声音开 / 关 (M)">🔊</button>
@@ -31,36 +31,36 @@
       </div>
       <div id="screen-menu" class="screen">
         <div class="title-badge">BATTLE CITY</div>
-        <h2 class="game-title">坦克大战</h2>
+        <h2 class="game-title" data-i18n="gameTitle">坦克大战</h2>
         <div class="tank-row"><span>🟡</span><span>🟢</span><span>🔴</span><span>⚪</span></div>
         <div class="row">
-          <button id="btn-1p" class="btn primary">🚀 单人出击</button>
-          <button id="btn-2p" class="btn duel">👥 双人守家</button>
+          <button id="btn-1p" class="btn primary" data-i18n="solo">🚀 单人出击</button>
+          <button id="btn-2p" class="btn duel" data-i18n="duo">👥 双人守家</button>
         </div>
         <div class="opt-row">
-          <label>关卡 <select id="sel-stage"></select></label>
-          <button id="btn-editor" class="btn ghost sm">🗺 地图编辑器</button>
+          <label><span data-i18n="stageLabel">关卡</span> <select id="sel-stage"></select></label>
+          <button id="btn-editor" class="btn ghost sm" data-i18n="editorBtn">🗺 地图编辑器</button>
         </div>
-        <div id="custom-note" class="custom-note hidden">已保存自创地图，可在编辑器中试玩</div>
-        <div class="mini-board">🏆 历史最高：<b id="menu-best">0</b></div>
+        <div id="custom-note" class="custom-note hidden" data-i18n="customNote">已保存自创地图，可在编辑器中试玩</div>
+        <div class="mini-board"><span data-i18n="bestPrefix">🏆 历史最高：</span><b id="menu-best">0</b></div>
       </div>
       <div id="screen-pause" class="screen dim hidden">
         <div class="panel">
-          <h3>⏸ 已暂停</h3>
-          <p>按 P 或点击继续</p>
+          <h3 data-i18n="pauseTitle">⏸ 已暂停</h3>
+          <p data-i18n="pauseTip">按 P 或点击继续</p>
           <div class="row">
-            <button id="btn-resume" class="btn primary">继续</button>
-            <button id="btn-quit" class="btn ghost">回菜单</button>
+            <button id="btn-resume" class="btn primary" data-i18n="resume">继续</button>
+            <button id="btn-quit" class="btn ghost" data-i18n="quit">回菜单</button>
           </div>
         </div>
       </div>
       <div id="screen-clear" class="screen dim hidden">
         <div class="panel pop">
-          <h3 class="clear-title">🏁 阵地守住了！</h3>
+          <h3 class="clear-title" data-i18n="clearTitle">🏁 阵地守住了！</h3>
           <div id="clear-stats" class="stat-list"></div>
           <div class="row">
-            <button id="btn-next" class="btn primary">下一关 →</button>
-            <button id="btn-menu2" class="btn ghost">菜单</button>
+            <button id="btn-next" class="btn primary" data-i18n="nextLabel">下一关 →</button>
+            <button id="btn-menu2" class="btn ghost" data-i18n="menu">菜单</button>
           </div>
         </div>
       </div>
@@ -69,23 +69,23 @@
           <h3 class="over-title">GAME OVER</h3>
           <div id="over-sub" class="over-sub"></div>
           <div class="row">
-            <button id="btn-retry" class="btn primary">🔄 重新出击 (R)</button>
-            <button id="btn-menu3" class="btn ghost">菜单</button>
+            <button id="btn-retry" class="btn primary" data-i18n="retry">🔄 重新出击 (R)</button>
+            <button id="btn-menu3" class="btn ghost" data-i18n="menu">菜单</button>
           </div>
         </div>
       </div>
       <div id="screen-win" class="screen dim hidden">
         <div class="panel pop win-panel">
-          <h3 class="win-title">👑 全部通关！老鹰安然无恙！</h3>
+          <h3 class="win-title" data-i18n="winTitle">👑 全部通关！老鹰安然无恙！</h3>
           <div class="medal">🦅🎖️</div>
           <div class="score-row">
-            <div><label>总分</label><b id="win-score">0</b></div>
+            <div><label data-i18n="totalScore">总分</label><b id="win-score">0</b></div>
             <div class="divider"></div>
-            <div><label>历史最高</label><b id="win-best">0</b></div>
+            <div><label data-i18n="bestRecord">历史最高</label><b id="win-best">0</b></div>
           </div>
           <div class="row">
-            <button id="btn-again" class="btn primary">🎮 再玩一次</button>
-            <button id="btn-menu4" class="btn ghost">菜单</button>
+            <button id="btn-again" class="btn primary" data-i18n="again">🎮 再玩一次</button>
+            <button id="btn-menu4" class="btn ghost" data-i18n="menu">菜单</button>
           </div>
         </div>
       </div>
@@ -99,9 +99,9 @@
           <button data-t="0" class="pal" title="橡皮擦">🧽</button>
         </div>
         <div class="palette">
-          <button id="ed-clear" class="pal text" title="清空">清空</button>
-          <button id="ed-test" class="pal text" title="试玩">▶试玩</button>
-          <button id="ed-save" class="pal text" title="保存">💾保存</button>
+          <button id="ed-clear" class="pal text" title="清空" data-i18n="edClear">清空</button>
+          <button id="ed-test" class="pal text" title="试玩" data-i18n="edTest">▶试玩</button>
+          <button id="ed-save" class="pal text" title="保存" data-i18n="edSave">💾保存</button>
           <button id="ed-back" class="pal text" title="返回">✖</button>
         </div>
       </div>
@@ -114,23 +114,100 @@
       </div>
     </div>
     <aside class="side">
-      <div class="card"><h4>🎮 操作</h4><ul>
-        <li>P1：<kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 移动 · <kbd>空格</kbd> 开火</li>
-        <li>P2：<kbd>↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd> 移动 · <kbd>回车</kbd> 开火</li>
-        <li><kbd>P</kbd> 暂停 · <kbd>M</kbd> 静音 · <kbd>R</kbd> 重开</li></ul></div>
-      <div class="card"><h4>🎁 道具</h4><ul class="medals">
-        <li>⭐ 星星 — 火力升级（可打穿钢板）</li>
-        <li>⛑ 头盔 — 8 秒无敌</li>
-        <li>⏰ 时钟 — 敌军定身 7 秒</li>
-        <li>🛡 工兵铲 — 家变钢墙 20 秒</li>
-        <li>💣 手雷 — 炸掉所有敌军</li>
-        <li>🎖 坦克 — 生命 +1</li></ul></div>
-      <div class="card diff"><h4>🦅 守家要点</h4>
-        <p>老鹰被击毁直接战败！注意流弹也会打坏老家砖墙。闪烁红光的敌军必掉道具。</p></div>
+      <div class="card"><h4 data-i18n="opTitle">🎮 操作</h4><ul>
+        <li><span data-i18n="opP1pre">P1：</span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><span data-i18n="opP1mid"> 移动 · </span><kbd data-i18n="keySpace">空格</kbd><span data-i18n="opP1post"> 开火</span></li>
+        <li><span data-i18n="opP2pre">P2：</span><kbd>↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd><span data-i18n="opP2mid"> 移动 · </span><kbd data-i18n="keyEnter">回车</kbd><span data-i18n="opP2post"> 开火</span></li>
+        <li><kbd>P</kbd><span data-i18n="ctlPause"> 暂停 · </span><kbd>M</kbd><span data-i18n="ctlMute"> 静音 · </span><kbd>R</kbd><span data-i18n="ctlRestart"> 重开</span></li></ul></div>
+      <div class="card"><h4 data-i18n="itemTitle">🎁 道具</h4><ul class="medals">
+        <li data-i18n="itemStar">⭐ 星星 — 火力升级（可打穿钢板）</li>
+        <li data-i18n="itemHelmet">⛑ 头盔 — 8 秒无敌</li>
+        <li data-i18n="itemClock">⏰ 时钟 — 敌军定身 7 秒</li>
+        <li data-i18n="itemShovel">🛡 工兵铲 — 家变钢墙 20 秒</li>
+        <li data-i18n="itemGrenade">💣 手雷 — 炸掉所有敌军</li>
+        <li data-i18n="itemLife">🎖 坦克 — 生命 +1</li></ul></div>
+      <div class="card diff"><h4 data-i18n="guardTitle">🦅 守家要点</h4>
+        <p data-i18n="guardText">老鹰被击毁直接战败！注意流弹也会打坏老家砖墙。闪烁红光的敌军必掉道具。</p></div>
     </aside>
   </section>
-  <footer>Canvas + WebAudio 原生实现 · 零依赖 · 致敬 Battle City</footer>
+  <footer data-i18n="footer">Canvas + WebAudio 原生实现 · 零依赖 · 致敬 Battle City</footer>
 </main>
+<script src="../assets/i18n.js?v=20260906"></script>
+<script>
+window.GAME_STR = {
+  zh: {
+    title: '坦克大战 · 经典街机', gameTitle: '坦克大战', arcadeSub: '经典街机',
+    intro: '单人闯关 / 双人守家 · 地图编辑器 · 6 种道具',
+    solo: '🚀 单人出击', duo: '👥 双人守家', stageLabel: '关卡', editorBtn: '🗺 地图编辑器',
+    customNote: '已保存自创地图，可在编辑器中试玩', bestPrefix: '🏆 历史最高：',
+    pauseTitle: '⏸ 已暂停', pauseTip: '按 P 或点击继续', resume: '继续', quit: '回菜单',
+    clearTitle: '🏁 阵地守住了！', nextLabel: '下一关 →', menu: '菜单',
+    retry: '🔄 重新出击 (R)', winTitle: '👑 全部通关！老鹰安然无恙！',
+    totalScore: '总分', bestRecord: '历史最高', again: '🎮 再玩一次',
+    edClear: '清空', edTest: '▶试玩', edSave: '💾保存',
+    opTitle: '🎮 操作', opP1pre: 'P1：', opP1mid: ' 移动 · ', opP1post: ' 开火',
+    opP2pre: 'P2：', opP2mid: ' 移动 · ', opP2post: ' 开火',
+    ctlPause: ' 暂停 · ', ctlMute: ' 静音 · ', ctlRestart: ' 重开',
+    keySpace: '空格', keyEnter: '回车',
+    itemTitle: '🎁 道具',
+    itemStar: '⭐ 星星 — 火力升级（可打穿钢板）', itemHelmet: '⛑ 头盔 — 8 秒无敌',
+    itemClock: '⏰ 时钟 — 敌军定身 7 秒', itemShovel: '🛡 工兵铲 — 家变钢墙 20 秒',
+    itemGrenade: '💣 手雷 — 炸掉所有敌军', itemLife: '🎖 坦克 — 生命 +1',
+    guardTitle: '🦅 守家要点', guardText: '老鹰被击毁直接战败！注意流弹也会打坏老家砖墙。闪烁红光的敌军必掉道具。',
+    footer: 'Canvas + WebAudio 原生实现 · 零依赖 · 致敬 Battle City',
+    muteTitle: '声音开 / 关 (M)',
+    stages: ['第 1 关 · 初露锋芒', '第 2 关 · 钢铁长城', '第 3 关 · 河流草原', '第 4 关 · 冰火两重', '第 5 关 · 最终决战'],
+    stageShort: n => '第 ' + n + ' 关', customMap: '自创地图',
+    foesLeft: n => '敌军 ' + n,
+    itemFloat: { star: '⭐火力+', helmet: '⛑无敌!', clock: '⏰定身!', shovel: '🛡钢墙!', grenade: '💣全灭!', life: '🎖+1命!' },
+    eagleDown: '老鹰被击毁了！', allLost: '坦克全部损毁！',
+    overSub: (r, s) => r + ' · 得分 ' + s,
+    clearStage: n => '🎯 ' + n,
+    clearBonus: b => '✨ 过关奖励 <b>+' + b + '</b>',
+    clearScore: s => '💯 总分 <b>' + s + '</b>',
+    nextStage: n => '下一关 → ' + n,
+    eagleTag: '🦅 老鹰',
+    freezeTag: s => '❄ 定身 ' + s + 's', shovelTag: s => '🛡 钢墙 ' + s + 's',
+    palTitles: { 1: '砖块', 2: '钢铁', 3: '河流', 4: '草丛', 5: '冰面', 0: '橡皮擦' },
+    edTitles: { clear: '清空', test: '试玩', save: '保存', back: '返回' }
+  },
+  en: {
+    title: 'Tank Battle · Arcade Classic', gameTitle: 'Tank Battle', arcadeSub: 'Arcade Classic',
+    intro: 'Solo campaign / 2P base defense · map editor · 6 power-ups',
+    solo: '🚀 Solo', duo: '👥 2P Co-op', stageLabel: 'Stage', editorBtn: '🗺 Map Editor',
+    customNote: 'Custom map saved — test it in the editor', bestPrefix: '🏆 Best: ',
+    pauseTitle: '⏸ Paused', pauseTip: 'Press P or click to resume', resume: 'Resume', quit: 'Menu',
+    clearTitle: '🏁 Base held!', nextLabel: 'Next stage →', menu: 'Menu',
+    retry: '🔄 Retry (R)', winTitle: '👑 Victory! The Eagle stands safe!',
+    totalScore: 'Total', bestRecord: 'Best', again: '🎮 Play again',
+    edClear: 'Clear', edTest: '▶Test', edSave: '💾Save',
+    opTitle: '🎮 Controls', opP1pre: 'P1: ', opP1mid: ' move · ', opP1post: ' fire',
+    opP2pre: 'P2: ', opP2mid: ' move · ', opP2post: ' fire',
+    ctlPause: ' Pause · ', ctlMute: ' Mute · ', ctlRestart: ' Restart',
+    keySpace: 'Space', keyEnter: 'Enter',
+    itemTitle: '🎁 Power-ups',
+    itemStar: '⭐ Star — upgrade firepower (pierces steel)', itemHelmet: '⛑ Helmet — 8s invincibility',
+    itemClock: '⏰ Clock — freeze enemies 7s', itemShovel: '🛡 Shovel — steel walls for 20s',
+    itemGrenade: '💣 Grenade — wipe out all enemies', itemLife: '🎖 Tank — +1 life',
+    guardTitle: '🦅 Defend the Eagle', guardText: 'Losing the Eagle means instant defeat! Stray shells also damage home walls. Flashing red enemies always drop power-ups.',
+    footer: 'Native Canvas + WebAudio · zero dependencies · a tribute to Battle City',
+    muteTitle: 'Sound on/off (M)',
+    stages: ['Stage 1 · First Blood', 'Stage 2 · Steel Wall', 'Stage 3 · River Meadow', 'Stage 4 · Ice & Fire', 'Stage 5 · Final Stand'],
+    stageShort: n => 'STAGE ' + n, customMap: 'Custom map',
+    foesLeft: n => 'Enemies ' + n,
+    itemFloat: { star: '⭐Power+', helmet: '⛑Shield!', clock: '⏰Frozen!', shovel: '🛡Steel!', grenade: '💣Wipeout!', life: '🎖+1 life!' },
+    eagleDown: 'The Eagle has been destroyed!', allLost: 'All tanks destroyed!',
+    overSub: (r, s) => r + ' · Score ' + s,
+    clearStage: n => '🎯 ' + n,
+    clearBonus: b => '✨ Stage bonus <b>+' + b + '</b>',
+    clearScore: s => '💯 Total <b>' + s + '</b>',
+    nextStage: n => 'Next → ' + n,
+    eagleTag: '🦅 EAGLE',
+    freezeTag: s => '❄ Frozen ' + s + 's', shovelTag: s => '🛡 Steel ' + s + 's',
+    palTitles: { 1: 'Bricks', 2: 'Steel', 3: 'River', 4: 'Bushes', 5: 'Ice', 0: 'Eraser' },
+    edTitles: { clear: 'Clear', test: 'Playtest', save: 'Save', back: 'Back' }
+  }
+};
+</script>
 <script src="game.js?v=20260906"></script>
 </body>
 </html>

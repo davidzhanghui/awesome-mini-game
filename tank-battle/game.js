@@ -1,5 +1,8 @@
 (() => {
 // 坦克大战：26x26 网格（经典 13x13 大格，每大格 2x2 小格），每小格 24px
+const STR = window.GAME_STR || { zh: {}, en: {} };
+const T = (k, ...a) => AMG.tf(STR, k, ...a);
+const stageFull = i => (T('stages') || [])[i] || STAGES[i].name;
 const COLS = 26, ROWS = 26, CELL = 24, W = COLS * CELL, H = ROWS * CELL;
 // 地形：0 空 1 砖 2 钢 3 水 4 草 5 冰
 const canvas = document.getElementById('game');
@@ -223,7 +226,7 @@ function eagleDown() {
   G.eagleAlive = false;
   G.shake = 14;
   sfx.gameover();
-  gameOver('老鹰被击毁了！');
+  gameOver(T('eagleDown'));
 }
 function addParts(x, y, c, n) {
   for (let i = 0; i < (n || 8); i++) G.parts.push({ x, y, vx: (Math.random() - .5) * 260, vy: (Math.random() - .5) * 260, life: .5, age: 0, r: 3, c });
@@ -267,7 +270,7 @@ function hurtPlayer(p) {
   sfx.boom();
   if (p.lives <= 0) {
     p.alive = false;
-    if (G.players.every(q => !q.alive)) gameOver('坦克全部损毁！');
+    if (G.players.every(q => !q.alive)) gameOver(T('allLost'));
   } else {
     // 原地重生
     p.x = (p.side === 'p2' ? 16 : p.side === 'p1' && G.mode === '2p' ? 6 : 8) * CELL + 2; p.y = 24 * CELL + 2;
@@ -294,7 +297,7 @@ function spawnItem(x, y) {
 }
 function applyItem(p, kind) {
   sfx.item();
-  addFloat(p.x + p.w / 2, p.y - 6, { star: '⭐火力+', helmet: '⛑无敌!', clock: '⏰定身!', shovel: '🛡钢墙!', grenade: '💣全灭!', life: '🎖+1命!' }[kind]);
+  addFloat(p.x + p.w / 2, p.y - 6, (T('itemFloat') || {})[kind] || kind);
   if (kind === 'star') {
     p.stars = Math.min(3, p.stars + 1);
     if (p.stars >= 1) p.maxBullets = 2;
@@ -529,9 +532,9 @@ function update(dt) {
   updateHUD();
 }
 function updateHUD() {
-  $('hud-stage').textContent = G.customStage ? '自创地图' : STAGES[G.stageIdx].name.split(' · ')[0];
+  $('hud-stage').textContent = G.customStage ? T('customMap') : T('stageShort', G.stageIdx + 1);
   const left = G.spawnQueue.length + G.foes.filter(f => f.alive).length;
-  $('hud-foes').textContent = '敌军 ' + left;
+  $('hud-foes').textContent = T('foesLeft', left);
   $('hud-score').textContent = String(G.score).padStart(6, '0');
   $('hud-lives').textContent = G.players.map(p => (p.side === 'p1' ? 'P1' : 'P2') + ' ❤' + Math.max(0, p.lives)).join(' ');
 }
@@ -547,7 +550,7 @@ function showMenu() {
   G.state = 'menu';
   setScreen('screen-menu');
   const sel = $('sel-stage');
-  sel.innerHTML = STAGES.map((s, i) => '<option value="' + i + '">' + s.name + '</option>').join('');
+  sel.innerHTML = STAGES.map((s, i) => '<option value="' + i + '">' + stageFull(i) + '</option>').join('');
   sel.value = G.stageIdx;
   $('custom-note').classList.toggle('hidden', !store.custom);
   $('menu-best').textContent = store.best;
@@ -573,11 +576,11 @@ function levelClear() {
   const bonus = 500 * (G.customStage ? 1 : G.stageIdx + 1);
   G.score += bonus;
   if (G.score > store.best) store.best = G.score;
-  $('clear-stats').innerHTML = '<div>🎯 ' + (G.customStage ? '自创地图' : STAGES[G.stageIdx].name) + '</div>' +
-    '<div>✨ 过关奖励 <b>+' + bonus + '</b></div>' +
-    '<div>💯 总分 <b>' + G.score + '</b></div>';
+  $('clear-stats').innerHTML = '<div>' + T('clearStage', G.customStage ? T('customMap') : stageFull(G.stageIdx)) + '</div>' +
+    '<div>' + T('clearBonus', bonus) + '</div>' +
+    '<div>' + T('clearScore', G.score) + '</div>';
   if (!G.customStage && G.stageIdx < STAGES.length - 1) {
-    $('btn-next').textContent = '下一关 → ' + STAGES[G.stageIdx + 1].name;
+    $('btn-next').textContent = T('nextStage', stageFull(G.stageIdx + 1));
     $('btn-next').classList.remove('hidden');
   } else $('btn-next').classList.add('hidden');
   setTimeout(() => setScreen('screen-clear'), 500);
@@ -586,7 +589,7 @@ function gameOver(reason) {
   if (G.state !== 'play') return;
   G.state = 'over';
   G.overReason = reason;
-  $('over-sub').textContent = reason + ' · 得分 ' + G.score;
+  $('over-sub').textContent = T('overSub', reason, G.score);
   if (!G.customStage && G.stageIdx >= STAGES.length - 1 && false) { /* never win via over */ }
   setTimeout(() => setScreen('screen-over'), 800);
 }
@@ -764,7 +767,7 @@ function render() {
     ctx.strokeStyle = 'rgba(255,217,61,.6)'; ctx.lineWidth = 2;
     ctx.strokeRect(12 * CELL, 24 * CELL, CELL * 2, CELL * 2);
     ctx.fillStyle = 'rgba(255,217,61,.9)'; ctx.font = '900 13px system-ui'; ctx.textAlign = 'center';
-    ctx.fillText('🦅 老鹰', 13 * CELL, 24 * CELL - 8);
+    ctx.fillText(T('eagleTag'), 13 * CELL, 24 * CELL - 8);
     // 出生点标记
     ctx.fillStyle = 'rgba(94,230,110,.9)';
     ctx.fillText('P1', 9 * CELL, 24 * CELL - 8);
@@ -833,12 +836,12 @@ function render() {
   if (G.freezeT > 0) {
     ctx.fillStyle = 'rgba(120,180,255,.9)';
     ctx.font = '900 14px system-ui'; ctx.textAlign = 'left';
-    ctx.fillText('❄ 定身 ' + Math.ceil(G.freezeT) + 's', 12, H - 12);
+    ctx.fillText(T('freezeTag', Math.ceil(G.freezeT)), 12, H - 12);
   }
   if (G.shovelT > 0) {
     ctx.fillStyle = 'rgba(255,217,61,.9)';
     ctx.font = '900 14px system-ui'; ctx.textAlign = 'right';
-    ctx.fillText('🛡 钢墙 ' + Math.ceil(G.shovelT) + 's', W - 12, H - 12);
+    ctx.fillText(T('shovelTag', Math.ceil(G.shovelT)), W - 12, H - 12);
   }
   ctx.restore();
 }
@@ -906,6 +909,16 @@ function toggleMute() {
 }
 $('btn-mute').onclick = e => { e.stopPropagation(); toggleMute(); };
 $('btn-mute').textContent = muted ? '🔇' : '🔊';
+// i18n boot: static DOM + dynamic boot texts
+AMG.apply(STR);
+AMG.mountBtn();
+$('btn-mute').title = T('muteTitle');
+document.querySelectorAll('#palette [data-t]').forEach(b => { const n = (T('palTitles') || {})[b.dataset.t]; if (n) b.title = n; });
+const edT = T('edTitles') || {};
+if ($('ed-clear')) $('ed-clear').title = edT.clear || $('ed-clear').title;
+if ($('ed-test')) $('ed-test').title = edT.test || $('ed-test').title;
+if ($('ed-save')) $('ed-save').title = edT.save || $('ed-save').title;
+if ($('ed-back')) $('ed-back').title = edT.back || $('ed-back').title;
 
 // 触屏
 function bindHold(id, code) {

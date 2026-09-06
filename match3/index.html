@@ -13,8 +13,8 @@
   <header class="brand">
     <div class="logo">💎</div>
     <div>
-      <h1>宝石消除 <em>经典益智</em></h1>
-      <p>交换消除 · 连锁倍率 · 目标闯关 · 无步自动洗牌</p>
+      <h1><span data-i18n="name">宝石消除</span> <em data-i18n="subtitle">经典益智</em></h1>
+      <p data-i18n="intro">交换消除 · 连锁倍率 · 目标闯关 · 无步自动洗牌</p>
     </div>
     <div class="brand-btns">
       <button id="btn-mute" class="icon-btn" title="声音开 / 关 (M)">🔊</button>
@@ -25,36 +25,81 @@
       <canvas id="game" width="480" height="640"></canvas>
       <div id="screen-menu" class="screen">
         <div class="title-badge">MATCH 3</div>
-        <h2 class="game-title">宝石消除</h2>
+        <h2 class="game-title" data-i18n="name">宝石消除</h2>
         <div class="hero-row"><span class="hero">🔴</span><span class="hero f">💎</span><span class="hero">🟢</span><span class="hero f">🟡</span></div>
-        <button id="btn-start" class="btn primary">🚀 开始闯关</button>
-        <p class="hint">点击两颗相邻宝石交换 · 3 连即消除</p>
+        <button id="btn-start" class="btn primary" data-i18n="start">🚀 开始闯关</button>
+        <p class="hint" data-i18n="hint">点击两颗相邻宝石交换 · 3 连即消除</p>
         <div id="menu-best" class="mini-board">🏆 历史最高：0</div>
       </div>
       <div id="screen-over" class="screen dim hidden">
         <div class="panel pop">
           <h3 id="over-title" class="over-title">闯关失败</h3>
           <div id="over-sub" class="over-sub"></div>
-          <div class="row"><button id="btn-retry" class="btn primary">🔄 重玩本关 (R)</button><button id="btn-menu" class="btn ghost">菜单</button></div>
+          <div class="row"><button id="btn-retry" class="btn primary" data-i18n="retry">🔄 重玩本关 (R)</button><button id="btn-menu" class="btn ghost" data-i18n="menu">菜单</button></div>
         </div>
       </div>
       <div id="screen-clear" class="screen dim hidden">
         <div class="panel pop">
-          <h3 class="clear-title">🎉 第 <span id="clear-lv">1</span> 关通过！</h3>
+          <h3 class="clear-title"><span data-i18n="clearPre">🎉 第</span> <span id="clear-lv">1</span> <span data-i18n="clearSuf">关通过！</span></h3>
           <div id="clear-stats" class="stat-list"></div>
-          <div class="row"><button id="btn-next" class="btn primary">下一关 →</button><button id="btn-menu2" class="btn ghost">菜单</button></div>
+          <div class="row"><button id="btn-next" class="btn primary" data-i18n="next">下一关 →</button><button id="btn-menu2" class="btn ghost" data-i18n="menu">菜单</button></div>
         </div>
       </div>
     </div>
     <aside class="side">
-      <div class="card"><h4>🎮 操作</h4><ul>
-        <li>点击一颗再点相邻一颗交换</li><li>或按住拖动交换</li><li>无效交换会自动换回来</li></ul></div>
-      <div class="card"><h4>✨ 规则</h4><ul>
-        <li>3 连消除，4 连 5 连高分</li><li>连锁反应倍率递增</li><li>前 5 关限步，后 3 关限时 · 停手约 6 秒会提示</li><li><kbd>P</kbd>/<kbd>Esc</kbd> 暂停</li></ul></div>
+      <div class="card"><h4 data-i18n="opTitle">🎮 操作</h4><ul>
+        <li data-i18n="op1">点击一颗再点相邻一颗交换</li><li data-i18n="op2">或按住拖动交换</li><li data-i18n="op3">无效交换会自动换回来</li></ul></div>
+      <div class="card"><h4 data-i18n="ruleTitle">✨ 规则</h4><ul>
+        <li data-i18n="rule1">3 连消除，4 连 5 连高分</li><li data-i18n="rule2">连锁反应倍率递增</li><li data-i18n="rule3">前 5 关限步，后 3 关限时 · 停手约 6 秒会提示</li><li><kbd>P</kbd>/<kbd>Esc</kbd> <span data-i18n="rulePause">暂停</span></li></ul></div>
     </aside>
   </section>
-  <footer>Canvas + WebAudio 原生实现 · 零依赖 · 8×8 棋盘 + 连锁 + 洗牌保底</footer>
+  <footer data-i18n="footer">Canvas + WebAudio 原生实现 · 零依赖 · 8×8 棋盘 + 连锁 + 洗牌保底</footer>
 </main>
+<script src="../assets/i18n.js?v=20260906"></script>
+<script>
+window.GAME_STR = {
+  zh: {
+    title: '宝石消除 · 经典益智', name: '宝石消除', subtitle: '经典益智',
+    intro: '交换消除 · 连锁倍率 · 目标闯关 · 无步自动洗牌',
+    start: '🚀 开始闯关', hint: '点击两颗相邻宝石交换 · 3 连即消除',
+    retry: '🔄 重玩本关 (R)', menu: '菜单', next: '下一关 →',
+    clearPre: '🎉 第', clearSuf: '关通过！',
+    opTitle: '🎮 操作', op1: '点击一颗再点相邻一颗交换', op2: '或按住拖动交换', op3: '无效交换会自动换回来',
+    ruleTitle: '✨ 规则', rule1: '3 连消除，4 连 5 连高分', rule2: '连锁反应倍率递增',
+    rule3: '前 5 关限步，后 3 关限时 · 停手约 6 秒会提示', rulePause: '暂停',
+    footer: 'Canvas + WebAudio 原生实现 · 零依赖 · 8×8 棋盘 + 连锁 + 洗牌保底',
+    muteTitle: '声音开 / 关 (M)', paused: '⏸ 暂停',
+    best: v => '🏆 历史最高：' + v,
+    shuffleMsg: '🔀 无步可走，已洗牌',
+    chainFloat: (pts, ch) => '+' + pts + (ch > 1 ? ' ×' + ch + '连锁！' : ''),
+    clearStats: (s, b) => '<div>⭐ 得分 <b>' + s + '</b> · 剩余步数奖励 <b>+' + b + '</b></div>',
+    failTimed: '时间到…', failMoves: '步数用完…',
+    failSub: (st, g, s) => '第 ' + st + ' 关 · 目标 ' + g + ' · 得分 ' + s,
+    hudStage: (st, g) => '关卡 ' + st + '  目标 ' + g,
+    hudTime: s => '时间 ' + s + 's', hudMoves: m => '步数 ' + m
+  },
+  en: {
+    title: 'Match 3 · Classic Puzzle', name: 'Match 3', subtitle: 'Classic Puzzle',
+    intro: 'Swap to match · chain multipliers · goal stages · auto-shuffle when stuck',
+    start: '🚀 Start Stages', hint: 'Click two adjacent gems to swap · 3 in a row clears',
+    retry: '🔄 Retry Stage (R)', menu: 'Menu', next: 'Next Stage →',
+    clearPre: '🎉 Stage', clearSuf: 'cleared!',
+    opTitle: '🎮 Controls', op1: 'Click one gem, then an adjacent one to swap', op2: 'Or press and drag to swap', op3: 'Invalid swaps swap back automatically',
+    ruleTitle: '✨ Rules', rule1: 'Match 3 to clear, bonus for 4 and 5', rule2: 'Chain reactions multiply the score',
+    rule3: 'First 5 stages are move-limited, last 3 are timed · idle ~6s shows a hint', rulePause: 'Pause',
+    footer: 'Native Canvas + WebAudio · zero dependencies · 8×8 board + chains + shuffle fallback',
+    muteTitle: 'Sound on/off (M)', paused: '⏸ Paused',
+    best: v => '🏆 Best: ' + v,
+    shuffleMsg: '🔀 No moves left, reshuffled',
+    chainFloat: (pts, ch) => '+' + pts + (ch > 1 ? ' ×' + ch + ' chain!' : ''),
+    clearStats: (s, b) => '<div>⭐ Score <b>' + s + '</b> · spare-move bonus <b>+' + b + '</b></div>',
+    failTimed: "Time's up…", failMoves: 'Out of moves…',
+    failSub: (st, g, s) => 'Stage ' + st + ' · goal ' + g + ' · score ' + s,
+    hudStage: (st, g) => 'Stage ' + st + '  Goal ' + g,
+    hudTime: s => 'Time ' + s + 's', hudMoves: m => 'Moves ' + m
+  }
+};
+</script>
 <script src="game.js?v=20260906"></script>
 </body>
 </html>

@@ -13,8 +13,8 @@
   <header class="brand">
     <div class="logo">🧱</div>
     <div>
-      <h1>俄罗斯方块 <em>经典益智</em></h1>
-      <p>7-Bag 发牌 · SRS 旋转 · T-Spin 判定 · Hold 暂存</p>
+      <h1><span data-i18n="name">俄罗斯方块</span> <em data-i18n="subtitle">经典益智</em></h1>
+      <p data-i18n="intro">7-Bag 发牌 · SRS 旋转 · T-Spin 判定 · Hold 暂存</p>
     </div>
     <div class="brand-btns">
       <button id="btn-mute" class="icon-btn" title="声音开 / 关 (M)">🔊</button>
@@ -25,26 +25,26 @@
       <canvas id="game" width="460" height="640"></canvas>
       <div id="screen-menu" class="screen">
         <div class="title-badge">TETRIS</div>
-        <h2 class="game-title">俄罗斯方块</h2>
+        <h2 class="game-title" data-i18n="name">俄罗斯方块</h2>
         <div class="hero-row"><span class="hero">🟨</span><span class="hero f">🟪</span><span class="hero">🟦</span><span class="hero f">🟧</span></div>
-        <button id="btn-start" class="btn primary">🚀 开始游戏</button>
-        <p class="hint"><kbd>←</kbd><kbd>→</kbd> 移动 · <kbd>↑</kbd>/<kbd>X</kbd> 顺时针 · <kbd>Z</kbd> 逆时针 · <kbd>↓</kbd> 软降 · <kbd>空格</kbd> 硬降 · <kbd>C</kbd> 暂存</p>
+        <button id="btn-start" class="btn primary" data-i18n="start">🚀 开始游戏</button>
+        <p class="hint"><kbd>←</kbd><kbd>→</kbd> <span data-i18n="hintMove">移动</span> · <kbd>↑</kbd>/<kbd>X</kbd> <span data-i18n="hintCw">顺时针</span> · <kbd>Z</kbd> <span data-i18n="hintCcw">逆时针</span> · <kbd>↓</kbd> <span data-i18n="hintSoft">软降</span> · <kbd data-i18n="kbdSpace">空格</kbd> <span data-i18n="hintHard">硬降</span> · <kbd>C</kbd> <span data-i18n="hintHold">暂存</span></p>
         <div id="menu-best" class="mini-board">🏆 历史最高：0</div>
       </div>
       <div id="screen-pause" class="screen dim hidden">
-        <div class="panel"><h3>⏸ 已暂停</h3><p>按 P 继续</p>
-          <div class="row"><button id="btn-resume" class="btn primary">继续</button><button id="btn-quit" class="btn ghost">回菜单</button></div>
+        <div class="panel"><h3 data-i18n="pausedTitle">⏸ 已暂停</h3><p data-i18n="resumeHint">按 P 继续</p>
+          <div class="row"><button id="btn-resume" class="btn primary" data-i18n="resume">继续</button><button id="btn-quit" class="btn ghost" data-i18n="quit">回菜单</button></div>
         </div>
       </div>
       <div id="screen-over" class="screen dim hidden">
         <div class="panel pop">
           <h3 class="over-title">GAME OVER</h3>
           <div class="score-row">
-            <div><label>得分</label><b id="final-score">0</b></div>
+            <div><label data-i18n="score">得分</label><b id="final-score">0</b></div>
             <div class="divider"></div>
-            <div><label>等级/行数</label><b id="final-lines">1 / 0</b></div>
+            <div><label data-i18n="levelLines">等级/行数</label><b id="final-lines">1 / 0</b></div>
           </div>
-          <div class="row"><button id="btn-retry" class="btn primary">🔄 再来一局 (R)</button><button id="btn-menu" class="btn ghost">菜单</button></div>
+          <div class="row"><button id="btn-retry" class="btn primary" data-i18n="retry">🔄 再来一局 (R)</button><button id="btn-menu" class="btn ghost" data-i18n="menu">菜单</button></div>
         </div>
       </div>
       <div class="touch hidden" id="touch">
@@ -53,16 +53,51 @@
       </div>
     </div>
     <aside class="side">
-      <div class="card"><h4>🎮 操作</h4><ul>
-        <li><kbd>←</kbd><kbd>→</kbd> 移动 · <kbd>↓</kbd> 软降 · <kbd>空格</kbd> 硬降</li>
-        <li><kbd>↑</kbd>/<kbd>X</kbd> 顺时针 · <kbd>Z</kbd> 逆时针</li>
-        <li><kbd>C</kbd>/<kbd>Shift</kbd> Hold · <kbd>P</kbd> 暂停</li></ul></div>
-      <div class="card"><h4>✨ 计分</h4><ul>
-        <li>T-Spin Single 800 · Double 1200 · Triple 1600</li><li>Tetris 800 · Back-to-Back ×1.5</li><li>连击每连 +50×连击数</li></ul></div>
+      <div class="card"><h4 data-i18n="opTitle">🎮 操作</h4><ul>
+        <li><kbd>←</kbd><kbd>→</kbd> <span data-i18n="hintMove">移动</span> · <kbd>↓</kbd> <span data-i18n="hintSoft">软降</span> · <kbd data-i18n="kbdSpace">空格</kbd> <span data-i18n="hintHard">硬降</span></li>
+        <li><kbd>↑</kbd>/<kbd>X</kbd> <span data-i18n="hintCw">顺时针</span> · <kbd>Z</kbd> <span data-i18n="hintCcw">逆时针</span></li>
+        <li><kbd>C</kbd>/<kbd>Shift</kbd> Hold · <kbd>P</kbd> <span data-i18n="opPause">暂停</span></li></ul></div>
+      <div class="card"><h4 data-i18n="scoreTitle">✨ 计分</h4><ul>
+        <li>T-Spin Single 800 · Double 1200 · Triple 1600</li><li>Tetris 800 · Back-to-Back ×1.5</li><li data-i18n="comboRule">连击每连 +50×连击数</li></ul></div>
     </aside>
   </section>
-  <footer>Canvas + WebAudio 原生实现 · 零依赖 · Guideline 规则（7-Bag / SRS / T-Spin 3角规则）</footer>
+  <footer data-i18n="footer">Canvas + WebAudio 原生实现 · 零依赖 · Guideline 规则（7-Bag / SRS / T-Spin 3角规则）</footer>
 </main>
+<script src="../assets/i18n.js?v=20260906"></script>
+<script>
+window.GAME_STR = {
+  zh: {
+    title: '俄罗斯方块 · 经典益智', name: '俄罗斯方块', subtitle: '经典益智',
+    intro: '7-Bag 发牌 · SRS 旋转 · T-Spin 判定 · Hold 暂存',
+    start: '🚀 开始游戏',
+    hintMove: '移动', hintCw: '顺时针', hintCcw: '逆时针', hintSoft: '软降', hintHard: '硬降', hintHold: '暂存',
+    kbdSpace: '空格',
+    pausedTitle: '⏸ 已暂停', resumeHint: '按 P 继续', resume: '继续', quit: '回菜单',
+    score: '得分', levelLines: '等级/行数',
+    retry: '🔄 再来一局 (R)', menu: '菜单',
+    opTitle: '🎮 操作', opPause: '暂停',
+    scoreTitle: '✨ 计分', comboRule: '连击每连 +50×连击数',
+    footer: 'Canvas + WebAudio 原生实现 · 零依赖 · Guideline 规则（7-Bag / SRS / T-Spin 3角规则）',
+    muteTitle: '声音开 / 关 (M)', paused: '⏸ 暂停中',
+    best: v => '🏆 历史最高：' + v
+  },
+  en: {
+    title: 'Tetris · Classic Puzzle', name: 'Tetris', subtitle: 'Classic Puzzle',
+    intro: '7-Bag dealing · SRS rotation · T-Spin detection · Hold',
+    start: '🚀 Start Game',
+    hintMove: 'Move', hintCw: 'Clockwise', hintCcw: 'Counterclockwise', hintSoft: 'Soft drop', hintHard: 'Hard drop', hintHold: 'Hold',
+    kbdSpace: 'Space',
+    pausedTitle: '⏸ Paused', resumeHint: 'Press P to resume', resume: 'Resume', quit: 'Menu',
+    score: 'Score', levelLines: 'Level/Lines',
+    retry: '🔄 Play Again (R)', menu: 'Menu',
+    opTitle: '🎮 Controls', opPause: 'Pause',
+    scoreTitle: '✨ Scoring', comboRule: 'Combo bonus +50 × combo count',
+    footer: 'Native Canvas + WebAudio · zero dependencies · Guideline rules (7-Bag / SRS / T-Spin 3-corner rule)',
+    muteTitle: 'Sound on/off (M)', paused: '⏸ Paused',
+    best: v => '🏆 Best: ' + v
+  }
+};
+</script>
 <script src="game.js?v=20260906"></script>
 </body>
 </html>

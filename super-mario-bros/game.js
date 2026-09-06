@@ -1,4 +1,8 @@
 (() => {
+const STR = window.GAME_STR || { zh: {}, en: {} };
+const T = (k, ...a) => AMG.tf(STR, k, ...a);
+const worldSub = wi => ((T('worldSubs') || [])[wi]);
+const levelSub = idx => (((T('worldLevels') || [])[Math.floor(idx / 4)] || [])[idx % 4]);
 const TILE = 32, VW = 640, VH = 480, GY = 13;
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
@@ -142,20 +146,20 @@ bindTouch('t-left', 'left'); bindTouch('t-right', 'right');
 bindTouch('t-a', 'jump'); bindTouch('t-b', 'run');
 
 const WORLDS = [
-  { sub: '青青草原', sky: ['#5c94fc', '#a5d8ff', '#d8f4ff'], hill: '#5db53c', trans: 0, levels: ['晨曦原野', '绿荫小径', '蘑菇丘陵', '城堡前哨'] },
-  { sub: '黄沙荒漠', sky: ['#e8963e', '#f7c873', '#ffedbe'], hill: '#c98a2e', trans: -2, levels: ['流沙之漠', '仙人掌谷', '烈日险道', '荒漠城堡'] },
-  { sub: '落日峡谷', sky: ['#3b2d6e', '#e2583e', '#ffc46b'], hill: '#7a9e3c', trans: -2, levels: ['彩霞山道', '断崖峡谷', '暮色高桥', '峡谷城堡'] },
-  { sub: '星空夜路', sky: ['#050718', '#141b4d', '#2c3a7a'], hill: '#1e4d2e', trans: 3, dark: true, levels: ['萤火小径', '银河高原', '午夜迷道', '暗夜城堡'] },
-  { sub: '冰雪极地', sky: ['#5e9fd8', '#bfe4ff', '#ffffff'], hill: '#dff0ff', trans: 5, levels: ['雪花平原', '冰棱滑道', '暴风雪山', '冰封城堡'] },
-  { sub: '熔岩火山', sky: ['#2b0a0a', '#a83226', '#ff7b3d'], hill: '#5a2a1a', trans: -5, dark: true, levels: ['火山口径', '熔岩洞窟', '灰烬荒原', '烈焰城堡'] },
-  { sub: '云端天空', sky: ['#3fb6ff', '#a5e8ff', '#ffffff'], hill: '#8fd694', trans: 7, levels: ['棉花云梯', '苍穹浮岛', '旋风气流', '天空城堡'] },
-  { sub: '库巴魔城', sky: ['#0d0618', '#3b1a5e', '#7a2e5e'], hill: '#3a2a4e', trans: -7, dark: true, levels: ['魔城外围', '陷阱回廊', '熔岩大厅', '库巴决战'] }
+  { sub: 0, sky: ['#5c94fc', '#a5d8ff', '#d8f4ff'], hill: '#5db53c', trans: 0, levels: [0, 1, 2, 3] },
+  { sub: 1, sky: ['#e8963e', '#f7c873', '#ffedbe'], hill: '#c98a2e', trans: -2, levels: [0, 1, 2, 3] },
+  { sub: 2, sky: ['#3b2d6e', '#e2583e', '#ffc46b'], hill: '#7a9e3c', trans: -2, levels: [0, 1, 2, 3] },
+  { sub: 3, sky: ['#050718', '#141b4d', '#2c3a7a'], hill: '#1e4d2e', trans: 3, dark: true, levels: [0, 1, 2, 3] },
+  { sub: 4, sky: ['#5e9fd8', '#bfe4ff', '#ffffff'], hill: '#dff0ff', trans: 5, levels: [0, 1, 2, 3] },
+  { sub: 5, sky: ['#2b0a0a', '#a83226', '#ff7b3d'], hill: '#5a2a1a', trans: -5, dark: true, levels: [0, 1, 2, 3] },
+  { sub: 6, sky: ['#3fb6ff', '#a5e8ff', '#ffffff'], hill: '#8fd694', trans: 7, levels: [0, 1, 2, 3] },
+  { sub: 7, sky: ['#0d0618', '#3b1a5e', '#7a2e5e'], hill: '#3a2a4e', trans: -7, dark: true, levels: [0, 1, 2, 3] }
 ];
 const WORLD_NAMES = WORLDS.map(w => w.sub);
 const THEMES = [];
 WORLDS.forEach((w, wi) => {
   w.levels.forEach((s, li) => {
-    THEMES.push({ name: (wi + 1) + '-' + (li + 1), sub: s, world: WORLD_NAMES[wi], sky: w.sky, hill: w.hill, trans: w.trans, dark: !!(w.dark || li === 3), castle: li === 3 });
+    THEMES.push({ name: (wi + 1) + '-' + (li + 1), sub: wi * 4 + li, world: wi, sky: w.sky, hill: w.hill, trans: w.trans, dark: !!(w.dark || li === 3), castle: li === 3 });
   });
 });
 
@@ -841,8 +845,8 @@ function buildMenu() {
     const b = document.createElement('button');
     b.className = 'world-btn';
     b.dataset.world = wi;
-    b.innerHTML = '<span class="w-emo">' + WORLD_EMOJI[wi] + '</span><span class="w-name">世界 ' + (wi + 1) + '</span><span class="w-sub">' + w.sub + '</span>';
-    b.title = '世界 ' + (wi + 1) + ' · ' + w.sub;
+    b.innerHTML = '<span class="w-emo">' + WORLD_EMOJI[wi] + '</span><span class="w-name">' + T('worldTag', wi + 1) + '</span><span class="w-sub">' + worldSub(wi) + '</span>';
+    b.title = T('worldTitle', wi + 1, worldSub(wi));
     b.onclick = () => pickWorld(wi);
     box.appendChild(b);
   });
@@ -859,7 +863,7 @@ function renderStages() {
   panel.classList.remove('hidden');
   const wi = G.worldPick;
   const w = WORLDS[wi];
-  label.textContent = WORLD_EMOJI[wi] + ' 世界 ' + (wi + 1) + ' · ' + w.sub;
+  label.textContent = T('stageLabel', WORLD_EMOJI[wi], wi + 1, worldSub(wi));
   sel.innerHTML = '';
   const un = store.unlocked;
   for (let li = 0; li < 4; li++) {
@@ -868,8 +872,8 @@ function renderStages() {
     const b = document.createElement('button');
     b.className = 'lvl-btn' + (th.castle ? ' castle' : '') + (i >= un ? ' locked' : '') + (i === G.selected ? ' active' : '');
     b.dataset.lvl = i;
-    b.innerHTML = th.name + '<small>' + th.sub + '</small>';
-    b.title = th.world + ' · ' + th.name + ' ' + th.sub;
+    b.innerHTML = th.name + '<small>' + levelSub(i) + '</small>';
+    b.title = T('levelTitle', worldSub(th.world), th.name, levelSub(i));
     b.onclick = () => {
       if (i >= un) { tone(160, .15, 'square', .1); return; }
       G.selected = i;
@@ -890,7 +894,7 @@ function refreshMenu() {
     b.classList.toggle('active', wi === G.worldPick);
   });
   renderStages();
-  $('menu-best').textContent = '🏆 历史最高：' + Math.max(store.best, G.score);
+  $('menu-best').textContent = T('best', Math.max(store.best, G.score));
 }
 function toMenu() {
   G.state = 'menu';
@@ -933,10 +937,7 @@ function levelClear() {
   if (G.levelIdx + 1 >= un && un < THEMES.length) store.unlocked = un + 1;
   if (G.score > store.best) store.best = G.score;
   Music.stop(); sfx.clear();
-  $('clear-stats').innerHTML =
-    '<div>🌍 关卡 <b>' + THEMES[G.levelIdx].name + ' ' + THEMES[G.levelIdx].sub + '</b></div>' +
-    '<div>✨ 本关得分 <b>+' + gained + '</b> · ⏱ 时间奖励 <b>+' + bonus + '</b></div>' +
-    '<div>🪙 金币 <b>+' + gotCoins + '</b> · 💔 剩余生命 <b>×' + G.lives + '</b></div>';
+  $('clear-stats').innerHTML = T('clearStats', THEMES[G.levelIdx].name, levelSub(G.levelIdx), gained, bonus, gotCoins, G.lives);
   if (G.levelIdx >= THEMES.length - 1) {
     G.state = 'win';
     $('win-score').textContent = G.score;
@@ -944,7 +945,7 @@ function levelClear() {
     setTimeout(() => showScreen('win'), 600);
   } else {
     G.state = 'clear';
-    $('btn-next').textContent = '下一关 → ' + THEMES[G.levelIdx + 1].name;
+    $('btn-next').textContent = T('nextBtn', THEMES[G.levelIdx + 1].name);
     setTimeout(() => showScreen('clear'), 600);
   }
 }
@@ -1748,7 +1749,7 @@ function drawHUD() {
     ctx.fillText('WORLD ' + THEMES[G.levelIdx].name, VW / 2, VH / 2 - 30);
     ctx.font = '700 17px system-ui';
     ctx.fillStyle = '#ffd93d';
-    ctx.fillText(THEMES[G.levelIdx].sub + ' · ❤×' + G.lives, VW / 2, VH / 2 + 4);
+    ctx.fillText(T('introSub', levelSub(G.levelIdx), G.lives), VW / 2, VH / 2 + 4);
   }
 }
 
@@ -1801,6 +1802,13 @@ function toggleMute() {
 }
 $('btn-mute').onclick = e => { e.stopPropagation(); toggleMute(); };
 $('btn-mute').textContent = muted ? '🔇' : '🔊';
+// i18n boot: static DOM + dynamic boot texts
+AMG.apply(STR);
+AMG.mountBtn();
+$('btn-mute').title = T('muteTitle');
+$('btn-music').title = T('musicTitle');
+$('btn-theme').title = T('themeTitle');
+$('btn-pause').title = T('pauseTitle');
 $('btn-music').onclick = e => {
   e.stopPropagation();
   musicOn = !musicOn; store.music = musicOn;

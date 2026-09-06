@@ -1,4 +1,6 @@
 'use strict';
+var STR = window.GAME_STR || { zh: {}, en: {} };
+var T = (k, ...a) => AMG.tf(STR, k, ...a);
 
 const Game = {
   canvas: null, ctx: null,
@@ -19,7 +21,7 @@ const Game = {
     this.star = new Starfield(110);
     this.updateHi();
   },
-  updateHi() { document.getElementById('hi-score-top').textContent = 'HI-SCORE ' + this.hi.toLocaleString(); },
+  updateHi() { document.getElementById('hi-score-top').textContent = T('hiScore', this.hi); },
 
   start(nPlayers, stage, diff, autofire, assist) {
     this.running = true; this.paused = false; this.over = false; this.victory = false;
@@ -47,13 +49,13 @@ const Game = {
       for (const p of this.players) { if (!p.alive && this.stock > 0) { this.stock--; p.reset(false); } else { p.inv = 2; p.x = CFG.W / 2 + (p.idx === 0 ? -70 : 70); p.y = CFG.H - 110; p.alive = true; } }
     }
     const s = CFG.STAGES[idx];
-    document.getElementById('stage-card-kicker').textContent = s.en;
-    document.getElementById('stage-card-title').textContent = 'STAGE ' + (idx + 1) + ' · ' + s.name;
-    document.getElementById('stage-card-desc').textContent = s.desc;
+    document.getElementById('stage-card-kicker').textContent = T('stageKicker', idx + 1, s.en);
+    document.getElementById('stage-card-title').textContent = T('stageTitle', idx + 1, stageName(idx));
+    document.getElementById('stage-card-desc').textContent = stageDesc(idx);
     const card = document.getElementById('stage-card');
     card.classList.add('show'); this.cardT = 3.2;
     AudioSys.warn();
-    this.toast(s.en, 3);
+    this.toast(T('stageKicker', idx + 1, s.en), 3);
   },
 
   toMenu() {
@@ -73,7 +75,7 @@ const Game = {
     for (const p of this.players) { p.reset(false); p.score = Math.floor(p.score / 2); }
     this.over = false;
     document.getElementById('end-modal').classList.add('hidden');
-    this.toast('CONTINUE! 续关!', 2);
+    this.toast(T('continueToast'), 2);
   },
 
   toast(text, ttl = 1.6) { this.toasts.push({ text, ttl, age: 0 }); },
@@ -100,23 +102,23 @@ const Game = {
       const w = document.getElementById('warn');
       w.style.display = 'block'; AudioSys.warn();
       setTimeout(() => { w.style.display = 'none'; }, 2600);
-      this.toast('⚠ ' + this.boss.name + ' 接近! ⚠', 2.6);
-      document.getElementById('boss-name').textContent = CFG.STAGES[this.stageIdx].bossEn + ' · ' + this.boss.name;
+      this.toast(T('bossApproach', this.boss.name), 2.6);
+      document.getElementById('boss-name').textContent = T('bossBar', CFG.STAGES[this.stageIdx].bossEn, this.boss.name);
       return;
     }
     if (this.bossActive) return;
 
-    // 1) 固定波次:按时间轴精确刷出,同一关每次都一样,可背板
+    // 1) fixed waves: spawn exactly on the timeline, same pattern every run, memorizable
     const script = STAGE_WAVES[this.stageIdx] || [];
     while (this.waveIdx < script.length && this.stageTime >= script[this.waveIdx].t) {
       const w = script[this.waveIdx++];
-      if (w.f === 'bonus') WaveKit.spawn(this, w); // 补给不受敌机上限影响
+      if (w.f === 'bonus') WaveKit.spawn(this, w); // supplies ignore the foe cap
       else if (this.enemies.length < 30) WaveKit.spawn(this, w);
-      if (w.say && w.f !== 'bonus') this.toast(w.say, 1.4);
+      if (w.say && w.f !== 'bonus') this.toast(T(w.say), 1.4);
       AudioSys.pickup();
     }
 
-    // 2) 随机涓流:填补波次间隙,重型单位(turret/gunboat/carrier)依然只走固定脚本
+    // 2) random trickle: fills gaps between waves, heavies (turret/gunboat/carrier) stay scripted only
     this.trickleT -= dt;
     if (this.trickleT <= 0) {
       this.trickleT = rand(1.6, 2.8) / this.diff;
@@ -232,7 +234,7 @@ const Game = {
     const bonus = CFG.SCORES.bossBonus[this.stageIdx] || 50000;
     for (const p of this.players) if (p.alive) p.score += Math.round(bonus / this.players.filter(q => q.alive).length);
     this.foeBullets.length = 0;
-    this.toast(`STAGE ${this.stageIdx + 1} CLEAR! +${bonus.toLocaleString()}`, 3);
+    this.toast(T('stageClear', this.stageIdx + 1, bonus), 3);
     this.pickups.push(new Pickup('B', b.x - 40, b.y), new Pickup('P', b.x, b.y), new Pickup('MEDAL', b.x + 40, b.y));
     if (this.stageIdx >= 7) { this.gameOver(true); return; }
     setTimeout(() => { if (this.running && !this.over) this.enterStage(this.stageIdx + 1, false); }, 2600);
@@ -246,15 +248,17 @@ const Game = {
     const total = this.totalScore();
     const t = document.getElementById('end-title'), s = document.getElementById('end-sub'), st = document.getElementById('end-stats');
     if (win) {
-      t.textContent = '🏆 MISSION COMPLETE!';
-      s.textContent = '8 大关卡全部突破 —— 地球得救了!通关奖励 +1,000,000!';
+      t.textContent = T('endWinTitle');
+      s.textContent = T('endWinSub');
       for (const p of this.players) p.score += Math.round(1000000 / this.players.length);
     } else {
-      t.textContent = 'GAME OVER';
-      s.textContent = '战机全部坠毁 —— 按回车投币续关，或返回菜单再战!';
+      t.textContent = T('endLoseTitle');
+      s.textContent = T('endLoseSub');
     }
-    st.innerHTML = `总分 <b>${this.totalScore().toLocaleString()}</b> · 击坠 ${this.kills} · 用时 ${Math.floor(this.playT / 60)}:${String(Math.floor(this.playT % 60)).padStart(2, '0')} · 到达 STAGE ${this.stageIdx + 1}<br>` +
-      this.players.map(p => `${p.name}: ${p.score.toLocaleString()} · 武器${p.weapon} Lv.${p.wlv} · 炸弹${p.bombs}`).join('<br>');
+    const mm = Math.floor(this.playT / 60) + ':' + String(Math.floor(this.playT % 60)).padStart(2, '0');
+    const wFull = p => p.weapon === 'V' ? T('wVulcan') : p.weapon === 'L' ? T('wLaser') : T('wPlasma');
+    st.innerHTML = T('endStats', this.totalScore(), this.kills, mm, this.stageIdx + 1) +
+      this.players.map(p => T('endPlayerLine', p.name, p.score, wFull(p), p.wlv, p.bombs)).join('<br>');
     document.getElementById('end-modal').classList.remove('hidden');
   },
 
@@ -393,7 +397,7 @@ const Game = {
     this.players.forEach((p, i) => {
       if (!p.alive && this.stock > 0 && this.running && !this.over) {
         ctx.fillStyle = i === 0 ? '#ff8ba0' : '#8bb4ff';
-        ctx.fillText(`${p.name} ${Math.ceil(p.respawnT)}秒后复活… (剩余备用机 ${this.stock})`, CFG.W / 2, CFG.H - 60 - i * 24);
+        ctx.fillText(T('respawn', p.name, Math.ceil(p.respawnT), this.stock), CFG.W / 2, CFG.H - 60 - i * 24);
       }
     });
     ctx.restore();
@@ -411,9 +415,11 @@ const Game = {
     f('hud-total', this.totalScore().toLocaleString());
     f('hud-combo', 'x' + this.combo);
     f('hud-medal', this.medalChain);
-    const wpn = p => p ? `${p.weapon==='V'?'火神':p.weapon==='L'?'激光':'等离子'} Lv.${p.wlv} · ${p.mtype === 'H' ? '追踪' : '核弹'}M${p.mlv} · 炸弹${p.bombs}${p.options ? ' · 僚机' + p.options : ''}${p.alive ? '' : ' · 阵亡'}` : '—';
-    f('hud-p1', 'P1 ' + wpn(p1)); f('hud-p2', 'P2 ' + (p2 ? wpn(p2) : '未参战 (按2P模式开始)'));
-    f('hud-l1', p1 ? '✈'.repeat(Math.max(0, Math.min(9, this.stock))) + ` 备用机 ${this.stock}` : '');
+    const wShort = p => p.weapon === 'V' ? T('wVulcan') : p.weapon === 'L' ? T('wLaser') : T('wPlasma');
+    const mShort = p => p.mtype === 'H' ? T('mHoming') : T('mNuke');
+    const wpn = p => p ? T('hudWpn', wShort(p), p.wlv, mShort(p), p.mlv, p.bombs, p.options, p.alive) : '—';
+    f('hud-p1', 'P1 ' + wpn(p1)); f('hud-p2', 'P2 ' + (p2 ? wpn(p2) : T('hudP2Absent')));
+    f('hud-l1', p1 ? '✈'.repeat(Math.max(0, Math.min(9, this.stock))) + T('hudStock', this.stock) : '');
     f('hud-l2', '');
   },
 

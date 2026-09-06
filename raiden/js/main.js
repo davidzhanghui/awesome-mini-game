@@ -1,4 +1,6 @@
 'use strict';
+var STR = window.GAME_STR || { zh: {}, en: {} };
+var T = (k, ...a) => AMG.tf(STR, k, ...a);
 (function () {
   const canvas = document.getElementById('game');
   Game.init(canvas);
@@ -8,8 +10,8 @@
   CFG.STAGES.forEach((s, i) => {
     const d = document.createElement('div');
     d.className = 'stage-chip';
-    d.innerHTML = `<b>STAGE ${i + 1}</b><span>${s.name}</span><br><span style="color:#ffb3c4">👹 ${s.boss}</span>`;
-    d.title = s.desc;
+    d.innerHTML = `<b>STAGE ${i + 1}</b><span>${stageName(i)}</span><br><span style="color:#ffb3c4">👹 ${bossName(i)}</span>`;
+    d.title = stageDesc(i);
     d.onclick = () => { document.getElementById('sel-stage').value = String(i); startGame(1, i); };
     strip.appendChild(d);
   });
@@ -38,8 +40,13 @@
   document.getElementById('btn-again').onclick = () => { document.getElementById('end-modal').classList.add('hidden'); startGame(Game.nPlayers || 1, 0); };
   document.getElementById('btn-tomenu').onclick = () => { document.getElementById('end-modal').classList.add('hidden'); Game.toMenu(); };
   const snd = document.getElementById('btn-sound');
-  snd.onclick = () => { AudioSys.enabled = !AudioSys.enabled; snd.textContent = AudioSys.enabled ? '🔊 声音开' : '🔇 声音关'; };
+  const syncSnd = () => { snd.textContent = AudioSys.enabled ? T('soundOn') : T('soundOff'); };
+  snd.onclick = () => { AudioSys.enabled = !AudioSys.enabled; syncSnd(); };
   document.getElementById('opt-shake').checked = true;
+  // i18n boot: static DOM + dynamic boot texts
+  AMG.apply(STR);
+  AMG.mountBtn();
+  syncSnd();
 
   // gamepad polling merged into input each frame
   let last = performance.now();

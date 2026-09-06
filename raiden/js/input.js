@@ -1,4 +1,6 @@
 'use strict';
+var STR = window.GAME_STR || { zh: {}, en: {} };
+var T = (k, ...a) => AMG.tf(STR, k, ...a);
 const Input = {
   keys: {},
   padPrev: [],

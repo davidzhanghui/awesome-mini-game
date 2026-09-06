@@ -13,8 +13,8 @@
   <header class="brand">
     <div class="logo">🫧</div>
     <div>
-      <h1>泡泡龙 <em>经典益智</em></h1>
-      <p>瞄准发射 · 边墙反弹 · 3连消除 · 孤块掉落 · 多关卡</p>
+      <h1><span data-i18n="name">泡泡龙</span> <em data-i18n="subtitle">经典益智</em></h1>
+      <p data-i18n="intro">瞄准发射 · 边墙反弹 · 3连消除 · 孤块掉落 · 多关卡</p>
     </div>
     <div class="brand-btns">
       <button id="btn-mute" class="icon-btn" title="声音开 / 关 (M)">🔊</button>
@@ -25,45 +25,84 @@
       <canvas id="game" width="480" height="640"></canvas>
       <div id="screen-menu" class="screen">
         <div class="title-badge">BUBBLE</div>
-        <h2 class="game-title">泡泡龙</h2>
+        <h2 class="game-title" data-i18n="name">泡泡龙</h2>
         <div class="hero-row"><span class="hero">🔴</span><span class="hero f">🟡</span><span class="hero">🔵</span><span class="hero f">🟢</span></div>
-        <button id="btn-start" class="btn primary">🚀 开始游戏</button>
-        <p class="hint">鼠标 / <kbd>←</kbd><kbd>→</kbd> 瞄准 · 点击 / <kbd>空格</kbd> 发射 · <kbd>P</kbd> 暂停</p>
+        <button id="btn-start" class="btn primary" data-i18n="start">🚀 开始游戏</button>
+        <p class="hint"><span data-i18n="aimPre">鼠标</span> / <kbd>←</kbd><kbd>→</kbd> <span data-i18n="aimKw">瞄准</span> · <span data-i18n="firePre">点击</span> / <kbd data-i18n="kbdSpace">空格</kbd> <span data-i18n="fireKw">发射</span> · <kbd>P</kbd> <span data-i18n="pauseKw">暂停</span></p>
         <div id="menu-best" class="mini-board">🏆 历史最高：0</div>
       </div>
       <div id="screen-pause" class="screen dim hidden">
-        <div class="panel"><h3>⏸ 已暂停</h3><p>按 P 继续</p>
-          <div class="row"><button id="btn-resume" class="btn primary">继续</button><button id="btn-quit" class="btn ghost">回菜单</button></div>
+        <div class="panel"><h3 data-i18n="pausedTitle">⏸ 已暂停</h3><p data-i18n="resumeHint">按 P 继续</p>
+          <div class="row"><button id="btn-resume" class="btn primary" data-i18n="resume">继续</button><button id="btn-quit" class="btn ghost" data-i18n="quit">回菜单</button></div>
         </div>
       </div>
       <div id="screen-over" class="screen dim hidden">
         <div class="panel pop">
           <h3 id="over-title" class="over-title">GAME OVER</h3>
           <div class="score-row">
-            <div><label>得分</label><b id="final-score">0</b></div>
+            <div><label data-i18n="score">得分</label><b id="final-score">0</b></div>
             <div class="divider"></div>
-            <div><label>到达关卡</label><b id="final-stage">1</b></div>
+            <div><label data-i18n="stageReached">到达关卡</label><b id="final-stage">1</b></div>
           </div>
-          <div class="row"><button id="btn-retry" class="btn primary">🔄 再来一局 (R)</button><button id="btn-menu" class="btn ghost">菜单</button></div>
+          <div class="row"><button id="btn-retry" class="btn primary" data-i18n="retry">🔄 再来一局 (R)</button><button id="btn-menu" class="btn ghost" data-i18n="menu">菜单</button></div>
         </div>
       </div>
       <div id="screen-clear" class="screen dim hidden">
         <div class="panel pop">
-          <h3 class="clear-title">🎉 第 <span id="clear-lv">1</span> 关通过！</h3>
+          <h3 class="clear-title"><span data-i18n="clearPre">🎉 第</span> <span id="clear-lv">1</span> <span data-i18n="clearSuf">关通过！</span></h3>
           <div id="clear-stats" class="stat-list"></div>
-          <div class="row"><button id="btn-next" class="btn primary">下一关 →</button><button id="btn-menu2" class="btn ghost">菜单</button></div>
+          <div class="row"><button id="btn-next" class="btn primary" data-i18n="next">下一关 →</button><button id="btn-menu2" class="btn ghost" data-i18n="menu">菜单</button></div>
         </div>
       </div>
     </div>
     <aside class="side">
-      <div class="card"><h4>🎮 操作</h4><ul>
-        <li>鼠标移动瞄准，点击发射</li><li><kbd>←</kbd><kbd>→</kbd> 微调 · <kbd>空格</kbd> 发射</li><li>相同色 3 连即消除</li></ul></div>
-      <div class="card"><h4>✨ 规则</h4><ul>
-        <li>消除后无连接的孤块会掉落加分</li><li>发射数达上限天花板下压一行</li><li>泡泡压过底线即失败</li></ul></div>
+      <div class="card"><h4 data-i18n="opTitle">🎮 操作</h4><ul>
+        <li data-i18n="op1">鼠标移动瞄准，点击发射</li><li><kbd>←</kbd><kbd>→</kbd> <span data-i18n="fineTune">微调</span> · <kbd data-i18n="kbdSpace">空格</kbd> <span data-i18n="fireKw">发射</span></li><li data-i18n="op3">相同色 3 连即消除</li></ul></div>
+      <div class="card"><h4 data-i18n="ruleTitle">✨ 规则</h4><ul>
+        <li data-i18n="rule1">消除后无连接的孤块会掉落加分</li><li data-i18n="rule2">发射数达上限天花板下压一行</li><li data-i18n="rule3">泡泡压过底线即失败</li></ul></div>
     </aside>
   </section>
-  <footer>Canvas + WebAudio 原生实现 · 零依赖 · 30 张手绘固定关卡 + 通关后无尽循环 · 六角网格吸附 + 角度反弹</footer>
+  <footer data-i18n="footer">Canvas + WebAudio 原生实现 · 零依赖 · 30 张手绘固定关卡 + 通关后无尽循环 · 六角网格吸附 + 角度反弹</footer>
 </main>
+<script src="../assets/i18n.js?v=20260906"></script>
+<script>
+window.GAME_STR = {
+  zh: {
+    title: '泡泡龙 · 经典益智', name: '泡泡龙', subtitle: '经典益智',
+    intro: '瞄准发射 · 边墙反弹 · 3连消除 · 孤块掉落 · 多关卡',
+    start: '🚀 开始游戏',
+    aimPre: '鼠标', aimKw: '瞄准', firePre: '点击', fireKw: '发射', pauseKw: '暂停', kbdSpace: '空格',
+    pausedTitle: '⏸ 已暂停', resumeHint: '按 P 继续', resume: '继续', quit: '回菜单',
+    score: '得分', stageReached: '到达关卡',
+    retry: '🔄 再来一局 (R)', menu: '菜单', next: '下一关 →',
+    clearPre: '🎉 第', clearSuf: '关通过！',
+    opTitle: '🎮 操作', op1: '鼠标移动瞄准，点击发射', fineTune: '微调', op3: '相同色 3 连即消除',
+    ruleTitle: '✨ 规则', rule1: '消除后无连接的孤块会掉落加分', rule2: '发射数达上限天花板下压一行', rule3: '泡泡压过底线即失败',
+    footer: 'Canvas + WebAudio 原生实现 · 零依赖 · 30 张手绘固定关卡 + 通关后无尽循环 · 六角网格吸附 + 角度反弹',
+    muteTitle: '声音开 / 关 (M)',
+    best: v => '🏆 历史最高：' + v,
+    nextLabel: '下个：',
+    clearStats: (b, s) => '<div>🎯 关卡奖励 <b>+' + b + '</b></div><div>⭐ 总分 <b>' + s + '</b></div>'
+  },
+  en: {
+    title: 'Bubble Shooter · Classic Puzzle', name: 'Bubble Shooter', subtitle: 'Classic Puzzle',
+    intro: 'Aim & shoot · wall bounce · match 3 · drop orphans · many stages',
+    start: '🚀 Start Game',
+    aimPre: 'Mouse', aimKw: 'to aim', firePre: 'Click', fireKw: 'to shoot', pauseKw: 'to pause', kbdSpace: 'Space',
+    pausedTitle: '⏸ Paused', resumeHint: 'Press P to resume', resume: 'Resume', quit: 'Menu',
+    score: 'Score', stageReached: 'Stage reached',
+    retry: '🔄 Play Again (R)', menu: 'Menu', next: 'Next Stage →',
+    clearPre: '🎉 Stage', clearSuf: 'cleared!',
+    opTitle: '🎮 Controls', op1: 'Move the mouse to aim, click to shoot', fineTune: 'fine-tune', op3: '3+ same color pops',
+    ruleTitle: '✨ Rules', rule1: 'Orphaned bubbles drop for bonus points', rule2: 'The ceiling pushes down after enough shots', rule3: 'Game over if bubbles cross the bottom line',
+    footer: 'Native Canvas + WebAudio · zero dependencies · 30 handcrafted stages + endless loop · hex-grid snap + angle bounce',
+    muteTitle: 'Sound on/off (M)',
+    best: v => '🏆 Best: ' + v,
+    nextLabel: 'Next:',
+    clearStats: (b, s) => '<div>🎯 Stage bonus <b>+' + b + '</b></div><div>⭐ Total <b>' + s + '</b></div>'
+  }
+};
+</script>
 <script src="game.js?v=20260906"></script>
 </body>
 </html>

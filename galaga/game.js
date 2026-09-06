@@ -1,6 +1,8 @@
 (() => {
 // ================= 小蜜蜂 Galaga =================
 // 阵型入场 / 俯冲 / Boss抓机 / 双机合体 / 奖励关 / 双人协作
+const STR = window.GAME_STR || { zh: {}, en: {} };
+const T = (k, ...a) => AMG.tf(STR, k, ...a);
 const W = 480, H = 640;
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
@@ -284,7 +286,7 @@ function hitPlayer(p) {
     // 双机时只损失一架
     G.dual = false;
     p.warp = 1.2;
-    float(p.x, p.y - 20, '单机！');
+    float(p.x, p.y - 20, T('floatSolo'));
     return;
   }
   p.alive = false; p.respawn = 1.6;
@@ -300,7 +302,7 @@ function checkExtend() {
   if (G._extend < marks.length && G.score >= marks[G._extend]) {
     G._extend++;
     G.lives++;
-    float(W / 2, H / 2 - 40, '🎉 奖励一命！');
+    float(W / 2, H / 2 - 40, T('floatLife'));
     sfx.rescue();
   }
 }
@@ -312,7 +314,7 @@ function capturePlayer(boss, p) {
   G.bossBeam = null;
   boss.diving = false; boss.mode = 'return'; boss.retT = 0;
   sfx.capture();
-  float(p.x, p.y - 24, '被抓走了！');
+  float(p.x, p.y - 24, T('floatCaptured'));
   G.dual = false;
   G.lives--;
   if (G.lives < 0) {
@@ -334,7 +336,7 @@ function rescueCheck(boss) {
     p.warp = 1.2;
     if (p.y > H - 80) { p.x = W / 2; p.y = PY; }
     addScore(1500, boss.x, boss.y);
-    float(boss.x, boss.y - 20, '救回！双机合体！');
+    float(boss.x, boss.y - 20, T('floatRescue'));
     sfx.rescue();
     return true;
   }
@@ -348,7 +350,7 @@ function showScreen(name) {
   if (!name) for (const k in screens) screens[k].classList.add('hidden');
   $('btn-pause').classList.toggle('hidden', G.state !== 'play');
 }
-function refreshMenu() { $('menu-best').textContent = '🏆 历史最高：' + Math.max(store.best, G.score); }
+function refreshMenu() { $('menu-best').textContent = T('best', Math.max(store.best, G.score)); }
 function toMenu() { G.state = 'menu'; Music.stop(); refreshMenu(); showScreen('menu'); }
 function togglePause(force) {
   if (G.state === 'play') { G.state = 'pause'; showScreen('pause'); Music.stop(); }
@@ -365,10 +367,10 @@ function stageClear() {
   G.state = 'clear';
   $('clear-stage').textContent = G.stage;
   $('clear-stats').innerHTML =
-    '<div>🎯 本关得分 <b>+' + gained + '</b></div>' +
-    (G.challenge ? '<div>⭐ 奖励关剩余 <b>' + G.challLeft + '</b> · 全歼奖励 <b>+' + G.challBonus + '</b></div>' : '') +
-    '<div>💥 击坠 <b>' + G.kills + '</b> · 🚀 剩余 <b>×' + Math.max(0, G.lives) + '</b></div>' +
-    (G.dual ? '<div>🚀🚀 双机合体保持！</div>' : '');
+    '<div>' + T('clearScore', gained) + '</div>' +
+    (G.challenge ? '<div>' + T('challLine', G.challLeft, G.challBonus) + '</div>' : '') +
+    '<div>' + T('killsLine', G.kills, Math.max(0, G.lives)) + '</div>' +
+    (G.dual ? '<div>' + T('dualKeep') + '</div>' : '');
   setTimeout(() => showScreen('clear'), 700);
 }
 function gameOver() {
@@ -661,7 +663,7 @@ function damageEnemy(e, dmg, hx, hy) {
   // 被抓走的战机：其他情况下 boss 死时若带机，战机坠毁
   if (G.captured && G.captured.boss === e) {
     G.captured = null;
-    float(e.x, e.y, '战机坠毁…');
+    float(e.x, e.y, T('floatLost'));
   }
   let sc = SCORES[e.type] || 50;
   if (diving) sc *= 2; // 俯冲中双倍
@@ -898,11 +900,11 @@ function drawHUD() {
   ctx.fillText((G.challenge ? '⭐ CHALLENGE ' : 'STAGE ') + G.stage, W / 2, 24);
   if (G.challenge && G.state === 'play') {
     ctx.fillStyle = '#ffd93d';
-    ctx.fillText('剩余 ' + G.challLeft, W / 2, 41);
+    ctx.fillText(T('hudChallLeft', G.challLeft), W / 2, 41);
   } else {
     ctx.fillStyle = '#fff';
     const left = G.enemies.length + G.entering.filter(e => !e.done).length;
-    ctx.fillText('敌机 ' + left, W / 2, 41);
+    ctx.fillText(T('hudFoes', left), W / 2, 41);
   }
   ctx.textAlign = 'right';
   ctx.fillStyle = '#fff';
@@ -914,23 +916,23 @@ function drawHUD() {
   if (G.dual) {
     ctx.fillStyle = '#5ee66e';
     ctx.font = '900 13px system-ui';
-    ctx.fillText('🚀🚀 双机！', 12, 64);
+    ctx.fillText(T('hudDual'), 12, 64);
     ctx.font = '900 15px system-ui';
   }
   if (G.captured) {
     ctx.fillStyle = '#ff8c42';
     ctx.font = '900 13px system-ui';
-    ctx.fillText('⚠ 战机被抓！击落俯冲Boss救回！', 90, 64);
+    ctx.fillText(T('hudCaptured'), 90, 64);
     ctx.font = '900 15px system-ui';
   }
   if (G.state === 'intro') {
     ctx.fillStyle = 'rgba(0,0,0,.55)'; ctx.fillRect(0, 0, W, H);
     ctx.fillStyle = '#fff'; ctx.textAlign = 'center';
     ctx.font = '900 36px system-ui';
-    ctx.fillText(G.challenge ? '⭐ 奖励关 ⭐' : 'STAGE ' + G.stage, W / 2, H / 2 - 20);
+    ctx.fillText(G.challenge ? T('introChall') : 'STAGE ' + G.stage, W / 2, H / 2 - 20);
     ctx.font = '700 16px system-ui';
     ctx.fillStyle = '#ffd93d';
-    ctx.fillText(G.challenge ? '击落 40 只敌机！全歼 +10000' : '- 出击！ -', W / 2, H / 2 + 14);
+    ctx.fillText(G.challenge ? T('introChallSub') : T('introGo'), W / 2, H / 2 + 14);
     ctx.textAlign = 'left';
   }
 }
@@ -957,7 +959,13 @@ $('btn-mute').textContent = muted ? '🔇' : '🔊';
 $('btn-music').onclick = e => {
   e.stopPropagation();
   musicOn = !musicOn; store.music = musicOn;
-  $('btn-music').textContent = musicOn ? '🎵' : '🚫';
+$('btn-music').textContent = musicOn ? '🎵' : '🚫';
+// i18n boot: static DOM + dynamic boot texts
+AMG.apply(STR);
+AMG.mountBtn();
+$('btn-mute').title = T('muteTitle');
+$('btn-music').title = T('musicTitle');
+$('btn-pause').title = T('pauseBtnTitle');
   if (!musicOn) Music.stop();
   else if (G.state === 'play') Music.start();
 };

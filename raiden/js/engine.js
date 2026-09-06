@@ -1,4 +1,6 @@
 'use strict';
+var STR = window.GAME_STR || { zh: {}, en: {} };
+var T = (k, ...a) => AMG.tf(STR, k, ...a);
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
 const rand = (a, b) => a + Math.random() * (b - a);
 const randi = (a, b) => Math.floor(rand(a, b + 1));
@@ -98,7 +100,7 @@ function drawPower(ctx, p) {
     ctx.fillStyle = '#fff'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('🧚', 0, 3.5);
   } else if (p.kind === 'MICLUS') {
     ctx.fillStyle = '#9dff57'; ctx.fillRect(-8, -6, 16, 12);
-    ctx.fillStyle = '#1a3a00'; ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('牛', 0, 4);
+    ctx.fillStyle = '#1a3a00'; ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(T('miclusChar'), 0, 4);
   } else {
     const c = POW_COLOR[p.kind] || '#fff';
     ctx.shadowColor = c; ctx.shadowBlur = 12;
