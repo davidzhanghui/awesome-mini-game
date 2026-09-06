@@ -27,13 +27,16 @@ try{
     --soft:rgba(19,28,51,.6);
     --input-bg:rgba(19,28,51,.85);
     --header-bg:rgba(11,17,32,.72);
-    --card-bg:linear-gradient(180deg,rgba(25,36,66,.92),rgba(15,23,42,.94));
+    --card-bg:linear-gradient(180deg,rgba(30,43,80,.96),rgba(17,26,48,.96));
+    --body-bg:rgba(2,6,18,.38);
+    --card-line:rgba(148,163,184,.3);
     --feat-bg:rgba(19,28,51,.7);
     --line:rgba(148,163,184,.16);
     --text:#e8edf7;
     --muted:#94a3b8;
-    --meta-color:#a5b4cf;
-    --meta-bg:rgba(148,163,184,.1);
+    --desc:#bcc7dc;
+    --meta-color:#c6d1e4;
+    --meta-bg:rgba(148,163,184,.17);
     --kbd-bg:#1e293b;
     --ph:#64748b;
     --cyan:#22d3ee;
@@ -54,13 +57,16 @@ try{
     --soft:rgba(255,255,255,.75);
     --input-bg:rgba(255,255,255,.95);
     --header-bg:rgba(255,255,255,.82);
-    --card-bg:linear-gradient(180deg,#ffffff,#f3f6fb);
+    --card-bg:linear-gradient(180deg,#ffffff,#eef2f8);
+    --body-bg:rgba(15,23,42,.045);
+    --card-line:rgba(15,23,42,.2);
     --feat-bg:rgba(255,255,255,.92);
     --line:rgba(15,23,42,.13);
     --text:#0f172a;
     --muted:#5b6b82;
-    --meta-color:#475569;
-    --meta-bg:rgba(15,23,42,.06);
+    --desc:#3d4c63;
+    --meta-color:#334155;
+    --meta-bg:rgba(15,23,42,.09);
     --kbd-bg:#e2e8f0;
     --ph:#94a3b8;
     --cyan:#0891b2;
@@ -168,7 +174,8 @@ try{
   @media(max-width:960px){.grid{grid-template-columns:repeat(2,1fr)}}
   @media(max-width:600px){.grid{grid-template-columns:1fr}}
   .card{background:var(--card-bg);
-    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
+    border:1px solid var(--card-line);border-radius:var(--radius);overflow:hidden;
+    box-shadow:0 12px 32px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.07);
     transition:transform .25s,box-shadow .25s,border-color .25s;display:flex;flex-direction:column}
   .card:hover{transform:translateY(-6px);border-color:rgba(34,211,238,.4);box-shadow:var(--shadow-hover)}
   .cover{height:148px;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
@@ -180,10 +187,11 @@ try{
   .cover .flag{position:absolute;top:12px;right:12px;z-index:2;font-size:12px;padding:4px 12px;border-radius:999px;
     background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;font-weight:700}
   .cover .pixels{position:absolute;font-size:13px;opacity:.35;user-select:none}
-  .body{padding:20px 20px 18px;display:flex;flex-direction:column;gap:8px;flex:1}
+  .body{padding:20px 20px 18px;display:flex;flex-direction:column;gap:8px;flex:1;
+    background:var(--body-bg);border-top:1px solid var(--card-line)}
   .body h3{font-size:18px;letter-spacing:.5px}
   .body h3 small{font-weight:400;color:var(--muted);font-size:12.5px;margin-left:8px}
-  .desc{font-size:13.5px;color:var(--muted);min-height:44px}
+  .desc{font-size:13.5px;color:var(--desc);min-height:44px}
   .meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:2px}
   .meta span{font-size:12px;color:var(--meta-color);background:var(--meta-bg);border:1px solid var(--line);padding:3px 11px;border-radius:999px}
   .play{margin-top:12px;display:flex;gap:10px}
@@ -303,10 +311,10 @@ try{
 <script>
 /* ---------- 分类 ---------- */
 var CATS = {
-  puzzle:  {zh:"益智解谜", en:"Puzzle"},
-  board:   {zh:"棋牌桌游", en:"Board"},
-  shooter: {zh:"射击街机", en:"Shooters"},
-  pixel:   {zh:"像素冒险", en:"Pixel"}
+  puzzle:  {zh:"益智解谜", en:"Puzzle", ja:"パズル", ko:"퍼즐"},
+  board:   {zh:"棋牌桌游", en:"Board", ja:"ボードゲーム", ko:"보드게임"},
+  shooter: {zh:"射击街机", en:"Shooters", ja:"シューティング", ko:"슈팅"},
+  pixel:   {zh:"像素冒险", en:"Pixel", ja:"ピクセル", ko:"픽셀"}
 };
 
 /* ---------- 游戏数据（zh + en） ---------- */
@@ -439,23 +447,88 @@ var I18N = {
     "footer.text": "Classics remade · Vanilla JavaScript · For learning only · ",
     "footer.back": "Back to top", "toTop": "Back to top",
     "theme.system": "Follow system", "theme.dark": "Dark", "theme.light": "Light",
+    "lang.btn": "日本語", "lang.title": "日本語に切り替え"
+  },
+  ja: {
+    "doc.title": "Awesome Mini Game · クラシックミニゲーム集",
+    "doc.desc": "ピュアなバニラJSで再現した14のクラシックミニゲーム：テトリス、2048、マインスイーパ、雷電、タンクバトル、マリオ、中国将棋、闘地主……クリックですぐ遊べる。",
+    "nav.games": "ゲーム一覧", "nav.features": "特徴", "nav.play": "遊ぶ ▶",
+    "hero.badge": "オープンソース · ピュアJS · すぐ遊べる",
+    "hero.title": 'ゲームセンターを<span class="grad">丸ごと</span><br>1つのページに',
+    "hero.subtitle": "14の名作リメイク——テトリス、雷電、タンクバトル、マリオ、中国将棋、闘地主……インストール不要。すぐ遊べて、ソースも読める。",
+    "stats.games": "クラシックゲーム", "stats.free": "依存ゼロ", "stats.cats": "ゲームジャンル",
+    "cta.browse": "🎮 ゲーム一覧へ", "cta.hot": "🔥 2P雷電 · 一番人気",
+    "hero.hint": "<kbd>/</kbd> で検索 ·「遊ぶ」でスタート",
+    "search.ph": "検索：テトリス / 雷電 / 将棋 / マリオ…",
+    "filter.all": "すべて", "filter.puzzle": "パズル", "filter.board": "ボードゲーム",
+    "filter.shooter": "シューティング", "filter.pixel": "ピクセル",
+    "card.play": "▶ 遊ぶ",
+    "empty.t": "ゲームが見つかりません 😢",
+    "empty.d": "例：「テトリス」「雷電」「将棋」で試してみて",
+    "feat.title": "なぜ楽しい？", "feat.sub": "動いて、読めて、改造できるバニラ実装",
+    "feat.1t": "依存ゼロですぐ遊べる", "feat.1d": "ピュアHTML + CSS + JS。ビルド不要、index.htmlを開くだけ",
+    "feat.2t": "本格アーケード感", "feat.2d": "2P雷電協力、タンクバトルの面制覇、小蜜蜂の弾幕——あの味",
+    "feat.3t": "AI＆2人対戦", "feat.3d": "中国将棋AIエンジン、五目並べCPU戦、闘地主完全ルール",
+    "feat.4t": "ソースがチュートリアル", "feat.4d": "1ゲーム1フォルダ、game.jsが心臓部。学習に最適",
+    "footer.text": "クラシック再現 · バニラJavaScript · 学習用 · ",
+    "footer.back": "トップへ戻る", "toTop": "トップへ戻る",
+    "theme.system": "システムに従う", "theme.dark": "ダーク", "theme.light": "ライト",
+    "lang.btn": "한국어", "lang.title": "한국어로 전환"
+  },
+  ko: {
+    "doc.title": "Awesome Mini Game · 클래식 미니게임 모음",
+    "doc.desc": "순수 바닐라 JS로 재현한 14가지 클래식 미니게임: 테트리스, 2048, 지뢰찾기, 라이덴, 탱크 배틀, 마리오, 중국 장기, 도우 디주…… 클릭 한 번이면 플레이.",
+    "nav.games": "게임 목록", "nav.features": "특징", "nav.play": "플레이 ▶",
+    "hero.badge": "오픈소스 · 순수 JS · 바로 플레이",
+    "hero.title": '오락실 <span class="grad">한 채를</span><br>웹페이지 하나에',
+    "hero.subtitle": "14개 명작 리메이크 — 테트리스, 라이덴, 탱크 배틀, 마리오, 중국 장기, 도우 디주…… 설치 없이 바로 플레이, 소스 코드도 읽어보세요.",
+    "stats.games": "클래식 게임", "stats.free": "의존성 제로", "stats.cats": "게임 장르",
+    "cta.browse": "🎮 게임 목록으로", "cta.hot": "🔥 2P 라이덴 · 최고 인기",
+    "hero.hint": "<kbd>/</kbd>로 검색 · 플레이 버튼으로 시작",
+    "search.ph": "검색: 테트리스 / 라이덴 / 장기 / 마리오…",
+    "filter.all": "전체", "filter.puzzle": "퍼즐", "filter.board": "보드게임",
+    "filter.shooter": "슈팅", "filter.pixel": "픽셀",
+    "card.play": "▶ 플레이",
+    "empty.t": "게임을 찾을 수 없어요 😢",
+    "empty.d": "예: 테트리스, 라이덴, 장기로 검색해 보세요",
+    "feat.title": "왜 재밌을까?", "feat.sub": "실행되고, 읽히고, 개조 가능한 바닐라 구현",
+    "feat.1t": "의존성 제로, 바로 플레이", "feat.1d": "순수 HTML + CSS + JS. 빌드 불필요, index.html만 열면 됨",
+    "feat.2t": "정통 아케이드 감성", "feat.2d": "2P 라이덴 협동, 탱크 배틀 스테이지, 갤러그 탄막 — 그 시절 그 맛",
+    "feat.3t": "AI와 2인 대전", "feat.3d": "중국 장기 AI 엔진, 오목 CPU전, 도우 디주 완전 룰",
+    "feat.4t": "소스가 곧 튜토리얼", "feat.4d": "게임당 한 폴더, game.js가 핵심 로직. 학습에 최적",
+    "footer.text": "클래식 재현 · 바닐라 JavaScript · 학습용 · ",
+    "footer.back": "맨 위로", "toTop": "맨 위로",
+    "theme.system": "시스템 설정 따름", "theme.dark": "다크", "theme.light": "라이트",
     "lang.btn": "中文", "lang.title": "切换到中文"
   }
 };
 
 /* ---------- 语言状态 ---------- */
+var LANGS = ["zh", "en", "ja", "ko"];
+function navLang(){
+  var nav = "";
+  try{ nav = (navigator.language || "zh").toLowerCase(); }catch(_){}
+  if (nav.indexOf("zh") === 0) return "zh";
+  if (nav.indexOf("ja") === 0) return "ja";
+  if (nav.indexOf("ko") === 0) return "ko";
+  return "en";
+}
 var lang = "zh";
 try{
   var qLang = new URLSearchParams(location.search).get("lang");
-  if (qLang === "zh" || qLang === "en"){
+  if (LANGS.indexOf(qLang) >= 0){
     lang = qLang;
     try{ localStorage.setItem("amg-lang", lang); }catch(_){}
   } else {
-    lang = localStorage.getItem("amg-lang")
-      || (((navigator.language || "zh").toLowerCase().indexOf("zh") === 0) ? "zh" : "en");
+    lang = localStorage.getItem("amg-lang") || navLang();
+    if (LANGS.indexOf(lang) < 0) lang = "zh";
   }
 }catch(_){ lang = "zh"; }
-function t(key){ return (I18N[lang] && I18N[lang][key]) || I18N.zh[key] || key; }
+function t(key){
+  return (I18N[lang] && I18N[lang][key])
+    || (I18N.en && I18N.en[key])
+    || I18N.zh[key] || key;
+}
 
 /* ---------- 主题状态 ---------- */
 var themeSetting = "system";
@@ -486,7 +559,7 @@ document.getElementById("themeSeg").addEventListener("click", function(e){
 
 /* ---------- 语言应用 ---------- */
 function applyLang(){
-  document.documentElement.lang = (lang === "zh") ? "zh" : "en";
+  document.documentElement.lang = (lang === "zh") ? "zh" : lang;
   document.title = t("doc.title");
   document.getElementById("metaDesc").setAttribute("content", t("doc.desc"));
   var els = document.querySelectorAll("[data-i18n]");
@@ -499,13 +572,15 @@ function applyLang(){
   lb.textContent = t("lang.btn");
   lb.title = t("lang.title");
   document.getElementById("toTop").title = t("toTop");
-  document.getElementById("ghLink").title = (lang === "zh") ? "GitHub 仓库" : "GitHub repo";
+  document.getElementById("ghLink").title =
+    (lang === "zh") ? "GitHub 仓库" : (lang === "ja") ? "GitHub リポジトリ" :
+    (lang === "ko") ? "GitHub 저장소" : "GitHub repo";
   document.getElementById("hotLink").href = "raiden/index.html?lang=" + lang;
   paintTheme();
   render();
 }
 document.getElementById("langBtn").addEventListener("click", function(){
-  lang = (lang === "zh") ? "en" : "zh";
+  lang = LANGS[(LANGS.indexOf(lang) + 1) % LANGS.length];
   try{ localStorage.setItem("amg-lang", lang); }catch(_){}
   applyLang();
 });
@@ -537,6 +612,10 @@ function render(){
   });
   if (lang === "zh"){
     countLine.innerHTML = "共收录 <b>" + GAMES.length + "</b> 款 · 当前显示 <b>" + list.length + "</b> 款";
+  } else if (lang === "ja"){
+    countLine.innerHTML = "全 <b>" + GAMES.length + "</b> 作中 <b>" + list.length + "</b> 作を表示";
+  } else if (lang === "ko"){
+    countLine.innerHTML = "총 <b>" + GAMES.length + "</b>개 중 <b>" + list.length + "</b>개 표시";
   } else {
     countLine.innerHTML = "<b>" + GAMES.length + "</b> games total · showing <b>" + list.length + "</b>";
   }

@@ -85,6 +85,38 @@ window.GAME_STR = {
     loseSub: (n, o) => n + ' · ' + o + ' cells opened',
     bestLine: (a, b, c) => '🏆 Best: B ' + a + ' · I ' + b + ' · E ' + c,
     na: '--'
+  },
+  ja: {
+    title: 'マインスイーパ · クラシックパズル', name: 'マインスイーパ', subtitle: 'クラシックパズル',
+    intro: '初級 / 中級 / 上級 · 初手は安全 · ダブルクリックで展開',
+    mode0: '🌱 初級 9×9·10', mode1: '🌿 中級 16×16·40', mode2: '🌳 上級 30×16·99',
+    retry: '🔄 もう一回 (R)', menu: 'メニュー',
+    opTitle: '🎮 操作', op1: '左クリックで開く · 右クリックで旗（長押し対応）', op2: '数字をダブルクリック：旗が揃えば周囲を展開',
+    ruleTitle: '📏 ルール', rule1: '初手は必ず安全', rule2: '数字 = 周囲8マスの地雷数', rule3: '安全マスをすべて開けば勝利',
+    footer: 'Canvas + WebAudio ネイティブ実装 · 依存なし · 定番3レベル + 初手保護',
+    muteTitle: 'サウンド ON/OFF (M)', paused: '⏸ 一時停止中', op3a: 'リスタート', op3b: '一時停止', op3c: 'ミュート',
+    diffs: ['初級', '中級', '上級'], diffShort: ['初', '中', '上'],
+    winTitle: '🎉 クリア！', loseTitle: '💥 ドカン！地雷ヒット！',
+    winSub: (n, s, b) => n + ' · ' + s + '秒 · ベスト ' + b + '秒',
+    loseSub: (n, o) => n + ' · ' + o + 'マス開放済み',
+    bestLine: (a, b, c) => '🏆 ベスト：初 ' + a + ' · 中 ' + b + ' · 上 ' + c,
+    na: '--'
+  },
+  ko: {
+    title: '지뢰찾기 · 클래식 퍼즐', name: '지뢰찾기', subtitle: '클래식 퍼즐',
+    intro: '초급 / 중급 / 고급 · 첫 클릭 안전 · 더블클릭으로 열기',
+    mode0: '🌱 초급 9×9·10', mode1: '🌿 중급 16×16·40', mode2: '🌳 고급 30×16·99',
+    retry: '🔄 다시 하기 (R)', menu: '메뉴',
+    opTitle: '🎮 조작', op1: '좌클릭으로 열기 · 우클릭으로 깃발 (터치는 길게 누르기)', op2: '숫자 더블클릭: 깃발이 맞으면 주변 열기',
+    ruleTitle: '📏 규칙', rule1: '첫 클릭은 항상 안전', rule2: '숫자 = 주변 8칸의 지뢰 수', rule3: '모든 안전 칸을 열면 승리',
+    footer: 'Canvas + WebAudio 네이티브 구현 · 의존성 없음 · 클래식 3단계 + 첫 클릭 보호',
+    muteTitle: '사운드 켜기/끄기 (M)', paused: '⏸ 일시정지', op3a: '다시 시작', op3b: '일시정지', op3c: '음소거',
+    diffs: ['초급', '중급', '고급'], diffShort: ['초', '중', '고'],
+    winTitle: '🎉 클리어!', loseTitle: '💥 꽝! 지뢰 밟음!',
+    winSub: (n, s, b) => n + ' · ' + s + '초 · 최고 ' + b + '초',
+    loseSub: (n, o) => n + ' · ' + o + '칸 열음',
+    bestLine: (a, b, c) => '🏆 최고: 초 ' + a + ' · 중 ' + b + ' · 고 ' + c,
+    na: '--'
   }
 };
 </script>

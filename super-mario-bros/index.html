@@ -230,6 +230,84 @@ window.GAME_STR = {
       '<div>🪙 Coins <b>+' + coins + '</b> · 💔 Lives <b>×' + lives + '</b></div>',
     nextBtn: n => 'Next → ' + n,
     introSub: (sub, lives) => sub + ' · ❤×' + lives
+  },
+  ja: {
+    title: 'スーパーマリオ · ピクセル冒険', subtitle: 'ピクセル冒険', gameTitle: 'スーパーマリオ',
+    intro: '← → 移動 · Z/スペースでジャンプ · Xでダッシュ/射撃 · ブロックを叩き、キノコを取って、カメを踏んで旗へ！',
+    themeTitle: '昼 / 夜 切替', musicTitle: '音楽 ON/OFF', muteTitle: '効果音 ON/OFF (M)', pauseTitle: '一時停止 (P)',
+    pickWorld: 'ワールド選択', start: '🚀 冒険スタート',
+    hintA: '押して', hintB: 'でジャンプ · 長押しで', hintC: 'ダッシュ', spc: 'スペース',
+    paused: '⏸ 一時停止中', pauseTip: 'ひと休み — キノコは逃げない', resume: '再開', quitMenu: 'メニュー',
+    clearTitle: '🏁 クリア！', nextBtnD: '次へ →', replay: 'やり直す',
+    scoreLbl: 'スコア', bestLbl: 'ベスト', retry: '🔄 もう一度 (R)', menu: 'メニュー',
+    winTitle: '👑 クリア！姫を救った！', totalLbl: '合計スコア', livesLbl: '残りライフ', again: '🎮 もう一度遊ぶ',
+    opTitle: '🎮 操作', opMove: '移動', opJump: 'ジャンプ（長押しで高く）', opRun: 'ダッシュ＋ファイア', opPause: '一時停止', opSound: '効果音', opRestart: 'リスタート',
+    itemTitle: '🍄 アイテム図鑑',
+    item1: '🍄 キノコ — 巨大化、レンガ破壊', item2: '🌸 ファイアフラワー — Xで火球発射', item3: '⭐ スーパースター — 10秒無敵',
+    item4: '💚 1UPキノコ — ライフ+1', item5: '🪙 コイン — 100枚で1UP？いや、爽快感',
+    enemyTitle: '🐢 敵図鑑', enemyBody: '頭踏みが基本！カメは甲羅になり、蹴れば一掃できる。パックンフラワーはファイアのみ — 体当たり禁止。',
+    footer: 'Canvas + WebAudio ネイティブ実装 · 依存ゼロ · 全32面の冒険（8ワールド×4） · BGMとファイア付き',
+    worldSubs: ['緑の草原', '黄金砂漠', '夕日渓谷', '星空の夜道', '氷雪極地', '溶岩火山', '雲の天空', 'クッパ魔城'],
+    worldLevels: [
+      ['夜明けの野原', '緑陰の小径', 'キノコの丘', '城前哨'],
+      ['流砂の砂漠', 'サボテン谷', '灼熱の道', '砂漠の城'],
+      ['夕焼け山道', '断崖渓谷', '黄昏の高橋', '渓谷の城'],
+      ['ホタルの小道', '銀河高原', '真夜中の迷路', '暗夜の城'],
+      ['雪の平原', '氷の滑走路', '吹雪の山', '氷結の城'],
+      ['火口の縁', '溶岩洞窟', '灰の荒野', '烈火の城'],
+      ['綿雲の階段', '天空の浮島', '旋風の気流', '天空の城'],
+      ['魔城の外郭', '罠の回廊', '溶岩の大広間', 'クッパ決戦']
+    ],
+    worldTag: n => 'ワールド ' + n,
+    worldTitle: (n, sub) => 'ワールド ' + n + ' · ' + sub,
+    stageLabel: (emo, n, sub) => emo + ' ワールド ' + n + ' · ' + sub,
+    levelTitle: (w, name, sub) => w + ' · ' + name + ' ' + sub,
+    best: v => '🏆 ベスト：' + v,
+    clearStats: (name, sub, gained, bonus, coins, lives) =>
+      '<div>🌍 ステージ <b>' + name + ' ' + sub + '</b></div>' +
+      '<div>✨ ステージ得点 <b>+' + gained + '</b> · ⏱ タイムボーナス <b>+' + bonus + '</b></div>' +
+      '<div>🪙 コイン <b>+' + coins + '</b> · 💔 残りライフ <b>×' + lives + '</b></div>',
+    nextBtn: n => '次へ → ' + n,
+    introSub: (sub, lives) => sub + ' · ❤×' + lives
+  },
+  ko: {
+    title: '슈퍼 마리오 · 픽셀 대모험', subtitle: '픽셀 대모험', gameTitle: '슈퍼 마리오',
+    intro: '← → 이동 · Z/스페이스로 점프 · X로 대시/사격 · 벽돌을 치고 버섯을 먹고 거북이를 밟고 깃발로!',
+    themeTitle: '낮 / 밤 전환', musicTitle: '음악 켜기/끄기', muteTitle: '효과음 켜기/끄기 (M)', pauseTitle: '일시정지 (P)',
+    pickWorld: '월드 선택', start: '🚀 모험 시작',
+    hintA: '누르고', hintB: '로 점프 · 길게 누르면', hintC: '로 대시', spc: '스페이스',
+    paused: '⏸ 일시정지', pauseTip: '잠시 쉬어가세요 — 버섯은 도망가지 않아요', resume: '계속', quitMenu: '메뉴',
+    clearTitle: '🏁 클리어!', nextBtnD: '다음 →', replay: '다시 하기',
+    scoreLbl: '점수', bestLbl: '최고 기록', retry: '🔄 다시 하기 (R)', menu: '메뉴',
+    winTitle: '👑 클리어! 공주를 구했다!', totalLbl: '총점', livesLbl: '남은 목숨', again: '🎮 다시 하기',
+    opTitle: '🎮 조작', opMove: '이동', opJump: '점프(길게 누르면 높이)', opRun: '대시+파이어 사격', opPause: '일시정지', opSound: '효과음', opRestart: '재시작',
+    itemTitle: '🍄 아이템 도감',
+    item1: '🍄 버섯 — 거대화, 벽돌 파괴', item2: '🌸 파이어플라워 — X로 화염탄 발사', item3: '⭐ 슈퍼스타 — 10초 무적',
+    item4: '💚 1UP 버섯 — 목숨 +1', item5: '🪙 코인 — 100개면 1UP? 아니, 그냥 재미',
+    enemyTitle: '🐢 적 도감', enemyBody: '머리 밟기가 정석! 거북이는 등껍질이 되고, 차면 일망타진. 식인꽃은 파이어로만 — 몸으로 받지 마세요.',
+    footer: 'Canvas + WebAudio 네이티브 구현 · 의존성 제로 · 32스테이지 대모험(8월드×4) · BGM과 파이어 포함',
+    worldSubs: ['초록 초원', '황금 사막', '석양 협곡', '별빛 밤길', '빙설 극지', '용암 화산', '구름 하늘', '쿠파 마성'],
+    worldLevels: [
+      ['새벽 들판', '그늘 오솔길', '버섯 언덕', '성 앞 전초'],
+      ['유사 사막', '선인장 계곡', '작열의 길', '사막 성'],
+      ['노을 산길', '단애 협곡', '황혼 고가교', '협곡 성'],
+      ['반딧불 오솔길', '은하 고원', '한밤 미로', '암야 성'],
+      ['눈꽃 평원', '고드름 슬라이드', '눈보라 산', '얼음 성'],
+      ['화구 가장자리', '용암 동굴', '잿더미 황야', '화염 성'],
+      ['솜구름 계단', '하늘 부유섬', '회오리 기류', '하늘 성'],
+      ['마성 외곽', '함정 회랑', '용암 대전', '쿠파 결전']
+    ],
+    worldTag: n => '월드 ' + n,
+    worldTitle: (n, sub) => '월드 ' + n + ' · ' + sub,
+    stageLabel: (emo, n, sub) => emo + ' 월드 ' + n + ' · ' + sub,
+    levelTitle: (w, name, sub) => w + ' · ' + name + ' ' + sub,
+    best: v => '🏆 최고 기록: ' + v,
+    clearStats: (name, sub, gained, bonus, coins, lives) =>
+      '<div>🌍 스테이지 <b>' + name + ' ' + sub + '</b></div>' +
+      '<div>✨ 스테이지 점수 <b>+' + gained + '</b> · ⏱ 시간 보너스 <b>+' + bonus + '</b></div>' +
+      '<div>🪙 코인 <b>+' + coins + '</b> · 💔 남은 목숨 <b>×' + lives + '</b></div>',
+    nextBtn: n => '다음 → ' + n,
+    introSub: (sub, lives) => sub + ' · ❤×' + lives
   }
 };
 </script>

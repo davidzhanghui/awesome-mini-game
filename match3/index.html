@@ -97,6 +97,46 @@ window.GAME_STR = {
     failSub: (st, g, s) => 'Stage ' + st + ' · goal ' + g + ' · score ' + s,
     hudStage: (st, g) => 'Stage ' + st + '  Goal ' + g,
     hudTime: s => 'Time ' + s + 's', hudMoves: m => 'Moves ' + m
+  },
+  ja: {
+    title: '宝石消し · クラシックパズル', name: '宝石消し', subtitle: 'クラシックパズル',
+    intro: '入れ替え消し · 連鎖倍率 · 目標ステージ · 手詰まり自動シャッフル',
+    start: '🚀 ステージ開始', hint: '隣り合う宝石2つをタップで入れ替え · 3つ並べば消去',
+    retry: '🔄 この面を再挑戦 (R)', menu: 'メニュー', next: '次の面へ →',
+    clearPre: '🎉 ステージ', clearSuf: 'クリア！',
+    opTitle: '🎮 操作', op1: '宝石をタップ→隣をタップで入れ替え', op2: 'ドラッグで入れ替えもOK', op3: '無効な入れ替えは自動で戻る',
+    ruleTitle: '✨ ルール', rule1: '3つ消し、4・5つは高得点', rule2: '連鎖するほど倍率アップ',
+    rule3: '前半5面は手数制限、後半3面は時間制限 · 約6秒放置でヒント', rulePause: '一時停止',
+    footer: 'Canvas + WebAudio ネイティブ実装 · 依存なし · 8×8盤 + 連鎖 + シャッフル救済',
+    muteTitle: 'サウンド ON/OFF (M)', paused: '⏸ 一時停止中',
+    best: v => '🏆 最高記録：' + v,
+    shuffleMsg: '🔀 手詰まり、シャッフルしました',
+    chainFloat: (pts, ch) => '+' + pts + (ch > 1 ? ' ×' + ch + '連鎖！' : ''),
+    clearStats: (s, b) => '<div>⭐ スコア <b>' + s + '</b> · 残り手数ボーナス <b>+' + b + '</b></div>',
+    failTimed: '時間切れ…', failMoves: '手数切れ…',
+    failSub: (st, g, s) => 'ステージ ' + st + ' · 目標 ' + g + ' · スコア ' + s,
+    hudStage: (st, g) => 'ステージ ' + st + '  目標 ' + g,
+    hudTime: s => '時間 ' + s + '秒', hudMoves: m => '手数 ' + m
+  },
+  ko: {
+    title: '보석 맞추기 · 클래식 퍼즐', name: '보석 맞추기', subtitle: '클래식 퍼즐',
+    intro: '교환해서 맞추기 · 연쇄 배율 · 목표 스테이지 · 막히면 자동 섞기',
+    start: '🚀 스테이지 시작', hint: '인접한 보석 2개를 눌러 교환 · 3개 맞추면 제거',
+    retry: '🔄 이 스테이지 다시 하기 (R)', menu: '메뉴', next: '다음 스테이지 →',
+    clearPre: '🎉 스테이지', clearSuf: '클리어!',
+    opTitle: '🎮 조작', op1: '보석 하나를 누르고 이웃 보석을 눌러 교환', op2: '드래그로 교환도 가능', op3: '무효한 교환은 자동으로 되돌아옴',
+    ruleTitle: '✨ 규칙', rule1: '3개 맞추면 제거, 4·5개는 고득점', rule2: '연쇄가 이어질수록 배율 증가',
+    rule3: '앞 5개 스테이지는 수 제한, 뒤 3개는 시간 제한 · 약 6초 방치 시 힌트', rulePause: '일시정지',
+    footer: 'Canvas + WebAudio 네이티브 구현 · 의존성 없음 · 8×8 보드 + 연쇄 + 섞기 보장',
+    muteTitle: '사운드 켜기/끄기 (M)', paused: '⏸ 일시정지',
+    best: v => '🏆 최고 기록: ' + v,
+    shuffleMsg: '🔀 둘 곳이 없어 섞었습니다',
+    chainFloat: (pts, ch) => '+' + pts + (ch > 1 ? ' ×' + ch + '연쇄!' : ''),
+    clearStats: (s, b) => '<div>⭐ 점수 <b>' + s + '</b> · 남은 수 보너스 <b>+' + b + '</b></div>',
+    failTimed: '시간 종료…', failMoves: '남은 수 없음…',
+    failSub: (st, g, s) => '스테이지 ' + st + ' · 목표 ' + g + ' · 점수 ' + s,
+    hudStage: (st, g) => '스테이지 ' + st + '  목표 ' + g,
+    hudTime: s => '시간 ' + s + '초', hudMoves: m => '남은 수 ' + m
   }
 };
 </script>

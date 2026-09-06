@@ -21,14 +21,30 @@
 (function () {
   'use strict';
 
+  var LANGS = ['zh', 'en', 'ja', 'ko'];
+  // Button shows the NEXT language in the cycle.
+  var NEXT_LABEL = { zh: 'EN', en: '日本語', ja: '한국어', ko: '中文' };
+  var NEXT_TITLE = {
+    zh: 'Switch to English', en: '日本語に切り替え',
+    ja: '한국어로 전환', ko: '切换到中文'
+  };
+
+  function navLang() {
+    var nav = '';
+    try { nav = (navigator.language || 'zh').toLowerCase(); } catch (e) {}
+    if (nav.indexOf('zh') === 0) return 'zh';
+    if (nav.indexOf('ja') === 0) return 'ja';
+    if (nav.indexOf('ko') === 0) return 'ko';
+    return 'en';
+  }
+
   function getLang() {
     try {
-      var m = /[?&]lang=(zh|en)\b/.exec(location.search || '');
+      var m = /[?&]lang=(zh|en|ja|ko)\b/.exec(location.search || '');
       if (m) return m[1];
       var saved = localStorage.getItem('amg-lang');
-      if (saved === 'zh' || saved === 'en') return saved;
-      var nav = (navigator.language || 'zh').toLowerCase();
-      return nav.indexOf('zh') === 0 ? 'zh' : 'en';
+      if (LANGS.indexOf(saved) >= 0) return saved;
+      return navLang();
     } catch (e) {
       return 'zh';
     }
@@ -43,10 +59,11 @@
     location.href = url.toString();
   }
 
-  // Plain lookup with zh fallback.
+  // Lookup with fallback chain: lang -> en -> zh.
   function t(dict, key) {
     if (!dict) return key;
     if (dict[lang] && dict[lang][key] !== undefined) return dict[lang][key];
+    if (lang !== 'en' && dict.en && dict.en[key] !== undefined) return dict.en[key];
     if (dict.zh && dict.zh[key] !== undefined) return dict.zh[key];
     return key;
   }
@@ -64,22 +81,25 @@
   function apply(dict) {
     var ttl = t(dict, 'title');
     if (ttl && ttl !== 'title') document.title = ttl;
-    try { document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en'; } catch (e) {}
+    try { document.documentElement.lang = lang === 'zh' ? 'zh-CN' : lang; } catch (e) {}
     var els = document.querySelectorAll('[data-i18n]');
     for (var i = 0; i < els.length; i++) {
       els[i].textContent = t(dict, els[i].getAttribute('data-i18n'));
     }
   }
 
-  // Language toggle button. Prefers .brand-btns, else fixed top-right.
+  // Language cycle button (zh -> en -> ja -> ko). Prefers .brand-btns,
+  // else fixed top-right.
   function mountBtn() {
     var btn = document.createElement('button');
     btn.id = 'amg-lang-btn';
     btn.className = 'icon-btn';
-    btn.textContent = lang === 'zh' ? 'EN' : '中文';
-    btn.title = lang === 'zh' ? 'Switch to English' : '切换到中文';
-    btn.style.minWidth = '44px';
-    btn.onclick = function () { setLang(lang === 'zh' ? 'en' : 'zh'); };
+    btn.textContent = NEXT_LABEL[lang] || 'EN';
+    btn.title = NEXT_TITLE[lang] || 'Switch language';
+    btn.style.minWidth = '52px';
+    btn.onclick = function () {
+      setLang(LANGS[(LANGS.indexOf(lang) + 1) % LANGS.length]);
+    };
     var host = document.querySelector('.brand-btns');
     if (host) {
       host.insertBefore(btn, host.firstChild);
