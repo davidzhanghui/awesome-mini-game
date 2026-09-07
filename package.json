@@ -1,6 +1,6 @@
 {
   "name": "awesome-mini-game-desktop",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "private": true,
   "description": "Awesome Mini Game macOS 桌面版壳 (Tauri v2)，网页本体零改造",
   "scripts": {
