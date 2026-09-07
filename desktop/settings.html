@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>偏好设置</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "SF Pro Text", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: #0f172a; color: #e8edf7; min-height: 100vh; padding: 24px; line-height: 1.7;
+  }
+  h1 { font-size: 17px; margin-bottom: 4px; }
+  .sub { font-size: 12.5px; color: #94a3b8; margin-bottom: 18px; }
+  .row { display: flex; gap: 12px; align-items: flex-start; background: rgba(19,28,51,.8);
+    border: 1px solid rgba(148,163,184,.2); border-radius: 14px; padding: 14px 16px; margin-bottom: 12px; }
+  .row input { width: 18px; height: 18px; margin-top: 4px; accent-color: #22d3ee; flex: none; cursor: pointer; }
+  .row b { font-size: 14px; display: block; }
+  .row p { font-size: 12.5px; color: #94a3b8; }
+  .tip { font-size: 12px; color: #64748b; margin-top: 8px; }
+  .tip code { background: #1e293b; padding: 1px 6px; border-radius: 6px; font-family: inherit; }
+</style>
+</head>
+<body>
+  <h1>偏好设置</h1>
+  <p class="sub" id="ver">Awesome Mini Game 桌面版</p>
+  <label class="row">
+    <input type="checkbox" id="checkOnStartup">
+    <span><b>启动时自动检查更新</b><p>每次打开应用时在后台检查一次，有新版本会弹出提示。</p></span>
+  </label>
+  <label class="row">
+    <input type="checkbox" id="autoInstall">
+    <span><b>发现更新时自动下载安装</b><p>跳过确认框直接下载安装，装好后仍会询问是否重启生效。</p></span>
+  </label>
+  <p class="tip">设置保存在本机应用数据目录，网页版不受影响。游戏进度与存档走 <code>localStorage</code>，与浏览器相互独立。</p>
+<script>
+(function () {
+  var tauri = window.__TAURI__;
+  var c1 = document.getElementById('checkOnStartup');
+  var c2 = document.getElementById('autoInstall');
+  if (!tauri || !tauri.core) return;
+  tauri.core.invoke('get_app_version').then(function (v) {
+    document.getElementById('ver').textContent = 'Awesome Mini Game v' + v + ' · 桌面版';
+  }).catch(function () {});
+  tauri.core.invoke('get_settings').then(function (s) {
+    c1.checked = !!s.check_on_startup;
+    c2.checked = !!s.auto_install;
+  }).catch(function () {});
+  function save() {
+    tauri.core.invoke('set_settings', {
+      settings: { check_on_startup: c1.checked, auto_install: c2.checked }
+    }).catch(function () {});
+  }
+  c1.addEventListener('change', save);
+  c2.addEventListener('change', save);
+})();
+</script>
+</body>
+</html>

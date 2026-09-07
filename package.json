@@ -1,0 +1,16 @@
+{
+  "name": "awesome-mini-game-desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Awesome Mini Game macOS 桌面版壳 (Tauri v2)，网页本体零改造",
+  "scripts": {
+    "sync-web": "bash scripts/sync-web.sh",
+    "tauri:dev": "bash scripts/sync-web.sh && (lsof -iTCP:8000 -sTCP:LISTEN >/dev/null 2>&1 || (python3 -m http.server 8000 >/tmp/amg-dev-server.log 2>&1 &)) && tauri dev",
+    "tauri:build": "bash scripts/sync-web.sh && tauri build --bundles app,dmg",
+    "tauri:icon": "tauri icon",
+    "tauri:signer": "tauri signer generate"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2"
+  }
+}

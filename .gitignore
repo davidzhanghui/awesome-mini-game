@@ -1,2 +1,8 @@
 .DS_Store
 .commandcode/
+# ---- Tauri desktop ----
+node_modules/
+dist/
+src-tauri/target/
+*.key
+.tauri-signing.key

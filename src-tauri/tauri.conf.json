@@ -1,0 +1,46 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Awesome Mini Game",
+  "version": "0.1.0",
+  "identifier": "com.davidzhanghui.awesome-mini-game",
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:8000",
+    "beforeDevCommand": "",
+    "beforeBuildCommand": ""
+  },
+  "app": {
+    "security": {
+      "csp": null
+    },
+    "withGlobalTauri": true
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["app", "dmg"],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "category": "Game",
+    "shortDescription": "14 款纯原生 JS 经典小游戏合集，离线可玩",
+    "longDescription": "Awesome Mini Game: 14 classic mini-games rebuilt with pure HTML + CSS + JS. Tetris, Raiden, Mario, Chinese Chess and more. Play offline on macOS.",
+    "macOS": {
+      "minimumSystemVersion": "10.15"
+    },
+    "createUpdaterArtifacts": true
+  },
+  "plugins": {
+    "updater": {
+      "active": true,
+      "dialog": false,
+      "endpoints": [
+        "https://github.com/davidzhanghui/awesome-mini-game/releases/latest/download/latest.json"
+      ],
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDFEMkNDM0I4RTc3OEY4NDIKUldSQytIam51TU1zSFY2NU1Ic2dMSkNTSVpzbk4yTmlUOUp4WVNBWWczZEV6Z3NHd0diWnBkeXAK"
+    }
+  }
+}

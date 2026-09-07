@@ -1,0 +1,16 @@
+{
+  "$schema": "https://schema.tauri.app/config/2/capability",
+  "identifier": "default",
+  "description": "Awesome Mini Game 桌面版默认权限：主窗口/关于/设置窗口 + 对话框 + 外链 + 更新",
+  "windows": ["main", "about", "settings"],
+  "permissions": [
+    "core:default",
+    "dialog:allow-message",
+    "dialog:allow-ask",
+    "dialog:allow-confirm",
+    "opener:allow-open-url",
+    "process:allow-restart",
+    "updater:allow-check",
+    "updater:allow-download-and-install"
+  ]
+}
