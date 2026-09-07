@@ -85,3 +85,6 @@ select{background:#0a152c;color:#fff;border:1px solid var(--line);border-radius:
 footer{text-align:center;color:var(--muted);font-size:12px;margin-top:22px}
 .hidden{display:none!important}
 @media(max-width:980px){#game-screen.active{flex-direction:column;align-items:center}.game-frame{width:min(700px,96vw)}.side{max-width:min(700px,96vw);width:100%}.menu-grid{grid-template-columns:1fr}.stages-strip{grid-template-columns:repeat(4,1fr)}.game-title{font-size:44px}.brand{flex-wrap:wrap}#hi-score-top{margin-left:0}}
+
+/* 触屏设备隐藏键盘按键提示（无键盘可用） */
+@media (pointer:coarse),(hover:none){.cabinet kbd,.screen kbd,.hint kbd{display:none}}
