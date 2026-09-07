@@ -94,13 +94,28 @@ fn handle_navigation(url: &tauri::Url) -> bool {
                 return true;
             }
         }
-        #[cfg(target_os = "macos")]
-        {
-            let _ = std::process::Command::new("open").arg(url.as_str()).spawn();
-        }
+        open_external_url(url.as_str());
         return false;
     }
     false
+}
+
+/// 跨平台：用系统默认浏览器打开外链（macOS open / Windows start / Linux xdg-open）。
+fn open_external_url(url: &str) {
+    #[cfg(target_os = "macos")]
+    {
+        let _ = std::process::Command::new("open").arg(url).spawn();
+    }
+    #[cfg(target_os = "windows")]
+    {
+        let _ = std::process::Command::new("cmd")
+            .args(["/C", "start", "", url])
+            .spawn();
+    }
+    #[cfg(target_os = "linux")]
+    {
+        let _ = std::process::Command::new("xdg-open").arg(url).spawn();
+    }
 }
 
 /// macOS 标准应用菜单：App / 文件 / 编辑 / 显示 / 窗口 / 帮助

@@ -1,0 +1,130 @@
+# 桌面版全平台发版：推 tag vX.Y.Z 即自动构建并发 draft release。
+# 全绿后 updater-json 作业生成 latest.json，最后人工 publish。
+name: 'release'
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: 'macos-latest' # Apple Silicon
+            args: '--target aarch64-apple-darwin --bundles app,dmg'
+          - platform: 'macos-latest' # Intel Mac
+            args: '--target x86_64-apple-darwin --bundles app,dmg'
+          - platform: 'windows-latest' # exe(NSIS) + msi
+            args: '--bundles nsis,msi'
+          - platform: 'ubuntu-22.04' # appimage + deb
+            args: '--bundles appimage,deb'
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: install Linux deps
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf xdg-utils
+
+      - name: setup node
+        uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+          cache: 'npm'
+
+      - name: install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      - name: install frontend deps
+        run: npm ci
+
+      - name: sync web into dist
+        run: bash scripts/sync-web.sh
+
+      - uses: tauri-apps/tauri-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+        with:
+          tagName: v__VERSION__
+          releaseName: 'Awesome Mini Game v__VERSION__'
+          releaseBody: |
+            🎮 Awesome Mini Game desktop builds (macOS / Windows / Ubuntu) are attached below.
+            桌面版安装包见下方附件（macOS 双架构 dmg / Windows exe+msi / Ubuntu appimage+deb）。网页源码在 `main` 分支。
+            未经 Apple 公证的 macOS 包首次打开需右键 → 打开。Windows 首次运行如被 SmartScreen 拦截，选"仍要运行"。
+          releaseDraft: true
+          prerelease: false
+          args: ${{ matrix.args }}
+
+  # 给 updater 通道生成 latest.json 并上传到同一 draft release
+  updater-json:
+    needs: build
+    permissions:
+      contents: write
+    runs-on: ubuntu-22.04
+    steps:
+      - name: generate and upload latest.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+          REPO_SLUG: 'davidzhanghui/awesome-mini-game'
+        run: |
+          set -euo pipefail
+          ASSETS=$(gh release view "$TAG" --json assets --jq '.assets[].name')
+          echo "$ASSETS"
+          pick() { echo "$ASSETS" | grep -m1 -E "$1" || true; }
+          ARM_TAR=$(pick 'aarch64.*\.app\.tar\.gz$')
+          X64_TAR=$(pick 'x86_64.*\.app\.tar\.gz$|x64.*\.app\.tar\.gz$')
+          WIN_ZIP=$(pick '\.nsis\.zip$')
+          [ -z "$WIN_ZIP" ] && WIN_ZIP=$(pick '\.msi\.zip$')
+          LIN_TAR=$(pick 'x86_64.*\.AppImage\.tar\.gz$')
+          [ -z "$ARM_TAR" ] && { echo 'FATAL: aarch64 updater bundle missing'; exit 1; }
+          [ -z "$X64_TAR" ] && { echo 'FATAL: x86_64 updater bundle missing'; exit 1; }
+          [ -z "$WIN_ZIP" ] && { echo 'FATAL: windows updater bundle missing'; exit 1; }
+          rm -rf /tmp/sigs && mkdir -p /tmp/sigs
+          gh release download "$TAG" --pattern '*.sig' --dir /tmp/sigs --clobber
+          ARM_SIG=$(cat "/tmp/sigs/${ARM_TAR}.sig")
+          X64_SIG=$(cat "/tmp/sigs/${X64_TAR}.sig")
+          WIN_SIG=$(cat "/tmp/sigs/${WIN_ZIP}.sig")
+          export TAG REPO_SLUG ARM_TAR ARM_SIG X64_TAR X64_SIG WIN_ZIP WIN_SIG
+          if [ -n "$LIN_TAR" ] && [ -f "/tmp/sigs/${LIN_TAR}.sig" ]; then
+            export LIN_TAR LIN_SIG=$(cat "/tmp/sigs/${LIN_TAR}.sig")
+          fi
+          python3 - <<'EOF'
+          import json, os
+          tag = os.environ['TAG']
+          ver = tag.lstrip('v')
+          slug = os.environ['REPO_SLUG']
+          def entry(bundle, sig):
+              return {'signature': sig,
+                      'url': f'https://github.com/{slug}/releases/download/{tag}/{bundle}'}
+          platforms = {
+              'darwin-aarch64': entry(os.environ['ARM_TAR'], os.environ['ARM_SIG']),
+              'darwin-x86_64': entry(os.environ['X64_TAR'], os.environ['X64_SIG']),
+              'windows-x86_64': entry(os.environ['WIN_ZIP'], os.environ['WIN_SIG']),
+          }
+          if os.environ.get('LIN_TAR') and os.environ.get('LIN_SIG'):
+              platforms['linux-x86_64'] = entry(os.environ['LIN_TAR'], os.environ['LIN_SIG'])
+          with open('latest.json', 'w') as f:
+              json.dump({'version': ver,
+                         'notes': f'Awesome Mini Game v{ver}',
+                         'pub_date': __import__('datetime').datetime.now(__import__('datetime').timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'),
+                         'platforms': platforms}, f, indent=2)
+          print(json.dumps({'version': ver, 'platforms': sorted(platforms)}, indent=2))
+          EOF
+          gh release upload "$TAG" latest.json --clobber
