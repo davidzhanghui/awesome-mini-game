@@ -22,7 +22,32 @@ awesome-mini-game/
     └── icons/                          # 由 favicon.svg 生成的全套图标
 ```
 
-## 本地开发 / 打包
+## CI 全自动发版（v0.1.3 起，推荐）
+
+推 tag 即触发 `.github/workflows/release.yml`：双 mac（aarch64/x86_64）+ Windows（nsis+msi）+ Ubuntu（appimage+deb）并行构建，
+产物进 draft release，随后 `updater-json` 作业自动生成 `latest.json` 并上传。
+
+```bash
+git checkout feat/tauri-desktop && git merge main   # 合入最新游戏
+# bump 三处版本：package.json / src-tauri/Cargo.toml / src-tauri/tauri.conf.json
+git commit -am "chore: bump desktop to vX.Y.Z" && git tag vX.Y.Z
+git push origin feat/tauri-desktop && git push origin vX.Y.Z
+gh run watch   # 等全绿（约 20-40 分钟）
+```
+
+收尾（draft → 正式）：
+
+```bash
+gh release view vX.Y.Z --json assets --jq '.assets[].name'  # 核对资产（含 latest.json）
+# 换上中英双语说明（模板见 skill），然后发布：
+gh release edit vX.Y.Z --notes-file notes.md --draft=false
+curl -sL https://github.com/davidzhanghui/awesome-mini-game/releases/latest/download/latest.json
+```
+
+CI 要用的签名已配好：repo secret `TAURI_SIGNING_PRIVATE_KEY`（内容即 `~/.tauri/awesome-mini-game.key` 全文）。
+本地补发/排障可用 `scripts/make-latest-from-release.sh <tag>`（与 CI 同逻辑）。
+
+## 本地开发 / 打包（调试与应急）
 
 ```bash
 npm install
