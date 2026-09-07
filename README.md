@@ -63,6 +63,10 @@ Each game folder is self-contained — open any `index.html` to play that game a
 
 PRs welcome: bug fixes, new games, or better AI/handling. Keep it dependency-free.
 
-## License
+## License & Disclaimer
 
-For learning and research only. Tribute to the original game creators.
+- The code in this repo is original work, licensed under the [MIT License](LICENSE).
+- Game names, designs and rules belong to their respective original creators
+  (e.g. Tetris, Super Mario, Raiden, Galaga, Tank Battle). This project is a
+  non-commercial fan tribute for learning purposes — please support the
+  official releases.
