@@ -78,6 +78,7 @@ jobs:
       contents: write
     runs-on: ubuntu-22.04
     steps:
+      - uses: actions/checkout@v7
       - name: generate and upload latest.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
