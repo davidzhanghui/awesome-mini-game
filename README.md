@@ -2,7 +2,7 @@
 
 14 classic mini-games rebuilt with pure HTML + CSS + JS — zero dependencies, playable out of the box.
 
-[中文版](README.zh-CN.md)
+[中文版](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
 
 ## Play
 

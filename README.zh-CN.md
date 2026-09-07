@@ -2,7 +2,7 @@
 
 14 款经典小游戏的纯原生 JS 复刻合集：俄罗斯方块、雷电、坦克大战、马里奥、中国象棋……零依赖，双击即玩。
 
-[English](README.md)
+[English](README.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
 
 ## 开始玩
 
