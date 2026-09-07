@@ -91,20 +91,21 @@ jobs:
           pick() { echo "$ASSETS" | grep -m1 -E "$1" || true; }
           ARM_TAR=$(pick 'aarch64.*\.app\.tar\.gz$')
           X64_TAR=$(pick 'x86_64.*\.app\.tar\.gz$|x64.*\.app\.tar\.gz$')
-          WIN_ZIP=$(pick '\.nsis\.zip$')
-          [ -z "$WIN_ZIP" ] && WIN_ZIP=$(pick '\.msi\.zip$')
-          LIN_TAR=$(pick 'x86_64.*\.AppImage\.tar\.gz$')
+          # Windows 更新包就是 -setup.exe 本身（v2 起 nsis/msi 安装器自带 .sig 即 updater bundle）
+          WIN_EXE=$(pick '-setup\.exe$')
+          [ -z "$WIN_EXE" ] && WIN_EXE=$(pick '\.msi$')
+          LIN_APP=$(pick '\.AppImage$')
           [ -z "$ARM_TAR" ] && { echo 'FATAL: aarch64 updater bundle missing'; exit 1; }
           [ -z "$X64_TAR" ] && { echo 'FATAL: x86_64 updater bundle missing'; exit 1; }
-          [ -z "$WIN_ZIP" ] && { echo 'FATAL: windows updater bundle missing'; exit 1; }
+          [ -z "$WIN_EXE" ] && { echo 'FATAL: windows updater bundle missing'; exit 1; }
           rm -rf /tmp/sigs && mkdir -p /tmp/sigs
           gh release download "$TAG" --pattern '*.sig' --dir /tmp/sigs --clobber
           ARM_SIG=$(cat "/tmp/sigs/${ARM_TAR}.sig")
           X64_SIG=$(cat "/tmp/sigs/${X64_TAR}.sig")
-          WIN_SIG=$(cat "/tmp/sigs/${WIN_ZIP}.sig")
-          export TAG REPO_SLUG ARM_TAR ARM_SIG X64_TAR X64_SIG WIN_ZIP WIN_SIG
-          if [ -n "$LIN_TAR" ] && [ -f "/tmp/sigs/${LIN_TAR}.sig" ]; then
-            export LIN_TAR LIN_SIG=$(cat "/tmp/sigs/${LIN_TAR}.sig")
+          WIN_SIG=$(cat "/tmp/sigs/${WIN_EXE}.sig")
+          export TAG REPO_SLUG ARM_TAR ARM_SIG X64_TAR X64_SIG WIN_EXE WIN_SIG
+          if [ -n "$LIN_APP" ] && [ -f "/tmp/sigs/${LIN_APP}.sig" ]; then
+            export LIN_APP LIN_SIG=$(cat "/tmp/sigs/${LIN_APP}.sig")
           fi
           python3 - <<'EOF'
           import json, os
@@ -117,10 +118,10 @@ jobs:
           platforms = {
               'darwin-aarch64': entry(os.environ['ARM_TAR'], os.environ['ARM_SIG']),
               'darwin-x86_64': entry(os.environ['X64_TAR'], os.environ['X64_SIG']),
-              'windows-x86_64': entry(os.environ['WIN_ZIP'], os.environ['WIN_SIG']),
+              'windows-x86_64': entry(os.environ['WIN_EXE'], os.environ['WIN_SIG']),
           }
-          if os.environ.get('LIN_TAR') and os.environ.get('LIN_SIG'):
-              platforms['linux-x86_64'] = entry(os.environ['LIN_TAR'], os.environ['LIN_SIG'])
+          if os.environ.get('LIN_APP') and os.environ.get('LIN_SIG'):
+              platforms['linux-x86_64'] = entry(os.environ['LIN_APP'], os.environ['LIN_SIG'])
           with open('latest.json', 'w') as f:
               json.dump({'version': ver,
                          'notes': f'Awesome Mini Game v{ver}',
