@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """把网页本体同步到 dist/（Tauri frontendDist），全平台可跑（macOS/Windows/Linux）。
-
-只用标准库。排除规则与 scripts/sync-web.sh 一致，.sh 仅作本地备用。
-用法：python3 scripts/sync-web.py
+只用标准库。用法：python3 scripts/sync-web.py
 """
 import os
 import shutil

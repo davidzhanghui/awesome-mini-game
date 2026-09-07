@@ -11,7 +11,7 @@ awesome-mini-game/
 │   ├── about.html                      # 关于页（随包发布，同步进 dist/desktop/）
 │   ├── settings.html                   # 偏好设置页（随包发布）
 │   └── RELEASE.md                      # 本文件
-├── scripts/sync-web.sh                 # 网页本体 → dist/ 同步脚本（排除 .git/src-tauri/node_modules）
+├── scripts/sync-web.py                 # 网页本体 → dist/ 同步脚本（全平台，排除 .git/src-tauri/node_modules）
 ├── dist/                               # 生成物（gitignore），即 frontendDist
 └── src-tauri/
     ├── tauri.conf.json                 # 应用配置（版本 / dmg / updater 公钥…）
