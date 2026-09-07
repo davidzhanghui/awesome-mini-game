@@ -62,11 +62,11 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
         with:
           tagName: v__VERSION__
-          releaseName: 'Awesome Mini Game v__VERSION__'
+          releaseName: 'v__VERSION__'
           releaseBody: |
             🎮 Awesome Mini Game desktop builds (macOS / Windows / Ubuntu) are attached below.
             桌面版安装包见下方附件（macOS 双架构 dmg / Windows exe+msi / Ubuntu appimage+deb）。网页源码在 `main` 分支。
-            未经 Apple 公证的 macOS 包首次打开需右键 → 打开。Windows 首次运行如被 SmartScreen 拦截，选"仍要运行"。
+            未经 Apple 公证的 macOS 包如提示"已损坏"：xattr -dr com.apple.quarantine "/Applications/Awesome Mini Game.app"。Windows 首次运行如被 SmartScreen 拦截，选"仍要运行"。
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}
