@@ -24,13 +24,12 @@ const store = {
   set unlocked(v) { localStorage.setItem('mario-unlocked', v); },
   get muted() { return localStorage.getItem('mario-muted') === '1'; },
   set muted(v) { localStorage.setItem('mario-muted', v ? '1' : '0'); },
-  get music() { return localStorage.getItem('mario-music') !== '0'; },
-  set music(v) { localStorage.setItem('mario-music', v ? '1' : '0'); },
   get night() { return localStorage.getItem('mario-night') === '1'; },
   set night(v) { localStorage.setItem('mario-night', v ? '1' : '0'); }
 };
 
-let actx = null, muted = store.muted, musicOn = store.music;
+let actx = null, muted = store.muted;
+const musicOn = true; // BGM 与其他游戏一致：由声音键统管，不再独立开关
 function ac() {
   if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
   if (actx.state === 'suspended') actx.resume();
@@ -1799,6 +1798,8 @@ canvas.parentElement.addEventListener('pointerdown', e => {
 function toggleMute() {
   muted = !muted; store.muted = muted;
   $('btn-mute').textContent = muted ? '🔇' : '🔊';
+  if (muted) Music.stop();
+  else if (G.state === 'play') Music.start(THEMES[G.levelIdx].trans);
 }
 $('btn-mute').onclick = e => { e.stopPropagation(); toggleMute(); };
 $('btn-mute').textContent = muted ? '🔇' : '🔊';
@@ -1807,22 +1808,12 @@ AMG.mountBtn();
 window.__refreshLang = function() {
   AMG.apply(STR);
   $('btn-mute').title = T('muteTitle');
-  $('btn-music').title = T('musicTitle');
   $('btn-theme').title = T('themeTitle');
   $('btn-pause').title = T('pauseTitle');
   buildMenu();
   refreshMenu();
 };
 window.__refreshLang();
-$('btn-music').onclick = e => {
-  e.stopPropagation();
-  musicOn = !musicOn; store.music = musicOn;
-  $('btn-music').textContent = musicOn ? '🎵' : '🚫';
-  if (!musicOn) Music.stop();
-  else if (G.state === 'play') Music.start(THEMES[G.levelIdx].trans);
-  else tone(700, .08, 'sine', .1);
-};
-$('btn-music').textContent = musicOn ? '🎵' : '🚫';
 function applyNight() {
   document.body.classList.toggle('night', store.night);
   $('btn-theme').textContent = store.night ? '☀️' : '🌙';
