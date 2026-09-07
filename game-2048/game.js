@@ -196,10 +196,13 @@ function toggleMute() {
 $('btn-mute').onclick = toggleMute;
 $('btn-mute').textContent = muted ? '🔇' : '🔊';
 // i18n boot: static DOM + dynamic boot texts
-AMG.apply(STR);
+window.__refreshLang = function () {
+  AMG.apply(STR);
+  $('btn-mute').title = T('muteTitle');
+  $('menu-best').textContent = T('best', store.best);
+};
 AMG.mountBtn();
-$('btn-mute').title = T('muteTitle');
-$('menu-best').textContent = T('best', store.best);
+window.__refreshLang();
 
 function cellXY(x, y) {
   return [BX + GAP + x * (CS + GAP), BY + GAP + y * (CS + GAP)];

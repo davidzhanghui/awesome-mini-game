@@ -487,10 +487,13 @@ function toggleMute() {
 $('btn-mute').onclick = toggleMute;
 $('btn-mute').textContent = muted ? '🔇' : '🔊';
 // i18n boot: static DOM + dynamic boot texts
-AMG.apply(STR);
 AMG.mountBtn();
-$('btn-mute').title = T('muteTitle');
-$('menu-best').textContent = T('best', store.best);
+window.__refreshLang = function() {
+  AMG.apply(STR);
+  $('btn-mute').title = T('muteTitle');
+  $('menu-best').textContent = T('best', store.best);
+};
+window.__refreshLang();
 
 function render() {
   const g = ctx.createLinearGradient(0, 0, 0, H);

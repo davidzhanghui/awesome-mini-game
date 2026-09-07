@@ -15,13 +15,12 @@ const store = {
   get best() { return +(localStorage.getItem('galaga-best') || 0); },
   set best(v) { localStorage.setItem('galaga-best', v); },
   get muted() { return localStorage.getItem('galaga-muted') === '1'; },
-  set muted(v) { localStorage.setItem('galaga-muted', v ? '1' : '0'); },
-  get music() { return localStorage.getItem('galaga-music') !== '0'; },
-  set music(v) { localStorage.setItem('galaga-music', v ? '1' : '0'); }
+  set muted(v) { localStorage.setItem('galaga-muted', v ? '1' : '0'); }
 };
 
 // ---------- 音频 ----------
-let actx = null, muted = store.muted, musicOn = store.music;
+let actx = null, muted = store.muted;
+const musicOn = true; // BGM 与其他游戏一致：由声音键统管，不再独立开关
 function ac() {
   if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
   if (actx.state === 'suspended') actx.resume();
@@ -953,23 +952,20 @@ function render() {
 function toggleMute() {
   muted = !muted; store.muted = muted;
   $('btn-mute').textContent = muted ? '🔇' : '🔊';
+  if (muted) Music.stop();
+  else if (G.state === 'play') Music.start();
 }
 $('btn-mute').onclick = e => { e.stopPropagation(); toggleMute(); };
 $('btn-mute').textContent = muted ? '🔇' : '🔊';
-$('btn-music').onclick = e => {
-  e.stopPropagation();
-  musicOn = !musicOn; store.music = musicOn;
-$('btn-music').textContent = musicOn ? '🎵' : '🚫';
-  if (!musicOn) Music.stop();
-  else if (G.state === 'play') Music.start();
-};
 // i18n boot: static DOM + dynamic boot texts
-AMG.apply(STR);
 AMG.mountBtn();
-$('btn-mute').title = T('muteTitle');
-$('btn-music').title = T('musicTitle');
-$('btn-pause').title = T('pauseBtnTitle');
-$('btn-music').textContent = musicOn ? '🎵' : '🚫';
+window.__refreshLang = function() {
+  AMG.apply(STR);
+  $('btn-mute').title = T('muteTitle');
+  $('btn-pause').title = T('pauseBtnTitle');
+  refreshMenu();
+};
+window.__refreshLang();
 document.querySelectorAll('[data-mode]').forEach(b => b.onclick = () => { ac(); sfx.click(); G.mode = b.dataset.mode; G.score = 0; G.lives = 3; G.stage = 1; G.kills = 0; startStage(1); });
 $('btn-next').onclick = () => { startStage(G.stage + 1); };
 $('btn-replay').onclick = () => { startStage(G.stage); };
@@ -983,7 +979,6 @@ canvas.parentElement.addEventListener('pointerdown', e => {
   if (G.state === 'pause') togglePause();
 });
 
-refreshMenu();
 resetCommon();
 G.players = [newPlayer(W / 2, false)];
 showScreen('menu');

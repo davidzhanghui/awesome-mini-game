@@ -1803,12 +1803,17 @@ function toggleMute() {
 $('btn-mute').onclick = e => { e.stopPropagation(); toggleMute(); };
 $('btn-mute').textContent = muted ? '🔇' : '🔊';
 // i18n boot: static DOM + dynamic boot texts
-AMG.apply(STR);
 AMG.mountBtn();
-$('btn-mute').title = T('muteTitle');
-$('btn-music').title = T('musicTitle');
-$('btn-theme').title = T('themeTitle');
-$('btn-pause').title = T('pauseTitle');
+window.__refreshLang = function() {
+  AMG.apply(STR);
+  $('btn-mute').title = T('muteTitle');
+  $('btn-music').title = T('musicTitle');
+  $('btn-theme').title = T('themeTitle');
+  $('btn-pause').title = T('pauseTitle');
+  buildMenu();
+  refreshMenu();
+};
+window.__refreshLang();
 $('btn-music').onclick = e => {
   e.stopPropagation();
   musicOn = !musicOn; store.music = musicOn;
@@ -1825,10 +1830,8 @@ function applyNight() {
 $('btn-theme').onclick = e => { e.stopPropagation(); store.night = !store.night; applyNight(); tone(700, .08, 'sine', .1); };
 
 applyNight();
-buildMenu();
 G.lv = buildLevel(0);
 G.player = newPlayer(2.5 * TILE, (GY - 2) * TILE, 0);
-refreshMenu();
 showScreen('menu');
 // 调试钩子（试玩验证用）
 window.__mario = { G, THEMES, WORLDS, buildLevel, loadLevel, startLevel, setForm, showScreen };

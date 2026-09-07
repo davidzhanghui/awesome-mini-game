@@ -367,10 +367,13 @@ function toggleMute() {
 $('btn-mute').onclick = toggleMute;
 $('btn-mute').textContent = muted ? '🔇' : '🔊';
 // i18n boot: static DOM + dynamic boot texts
-AMG.apply(STR);
+window.__refreshLang = function () {
+  AMG.apply(STR);
+  $('btn-mute').title = T('muteTitle');
+  $('menu-best').textContent = T('best', store.best);
+};
 AMG.mountBtn();
-$('btn-mute').title = T('muteTitle');
-$('menu-best').textContent = T('best', store.best);
+window.__refreshLang();
 
 function drawBall(x, y, color, ghost) {
   const g = ctx.createRadialGradient(x - 5, y - 6, 2, x, y, R);

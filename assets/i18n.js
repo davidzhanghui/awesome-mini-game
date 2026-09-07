@@ -50,6 +50,27 @@
     location.href = url.toString();
   }
 
+  // No-reload switch for game pages (same UX as the landing page).
+  // Updates ?lang= via replaceState and delegates DOM refresh to the game
+  // via window.__refreshLang (games define it next to their boot code).
+  // Canvas/event texts already read T() live, so they need no handling.
+  function setLangLive(next) {
+    lang = next;
+    window.AMG.lang = next;
+    try { localStorage.setItem('amg-lang', next); } catch (e) {}
+    try {
+      var url = new URL(location.href);
+      url.searchParams.set('lang', next);
+      history.replaceState(null, '', url.toString());
+    } catch (e) {}
+    var f = window.__refreshLang;
+    if (typeof f === 'function') {
+      try { f(); } catch (e) {}
+    }
+    var sel = document.getElementById('amg-lang-btn');
+    if (sel && sel.tagName === 'SELECT') sel.value = next;
+  }
+
   // Lookup with fallback chain: lang -> en -> zh.
   function t(dict, key) {
     if (!dict) return key;
@@ -95,7 +116,7 @@
       sel.appendChild(op);
     }
     sel.value = lang;
-    sel.onchange = function () { setLang(sel.value); };
+    sel.onchange = function () { setLangLive(sel.value); };
     var host = document.querySelector('.brand-btns');
     if (host) {
       host.insertBefore(sel, host.firstChild);
@@ -107,7 +128,7 @@
     }
   }
 
-  window.AMG = { lang: lang, getLang: getLang, setLang: setLang, t: t, tf: tf, apply: apply, mountBtn: mountBtn, mountHome: mountHome };
+  window.AMG = { lang: lang, getLang: getLang, setLang: setLang, setLangLive: setLangLive, t: t, tf: tf, apply: apply, mountBtn: mountBtn, mountHome: mountHome };
 
   // ---- Home button (back to landing page) ----
   // Anchor normalizer: <button> centers its glyph natively, <a> does not.

@@ -250,9 +250,13 @@ function toggleMute() {
 $('btn-mute').onclick = toggleMute;
 $('btn-mute').textContent = muted ? '🔇' : '🔊';
 // i18n boot: static DOM + dynamic boot texts
-AMG.apply(STR);
+window.__refreshLang = function () {
+  AMG.apply(STR);
+  $('btn-mute').title = T('muteTitle');
+  refreshBest();
+};
 AMG.mountBtn();
-$('btn-mute').title = T('muteTitle');
+window.__refreshLang();
 
 function render() {
   ctx.fillStyle = '#1c2536'; ctx.fillRect(0, 0, W, H);

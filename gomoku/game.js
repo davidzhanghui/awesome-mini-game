@@ -417,12 +417,16 @@ function toggleMute() {
 $('btn-mute').onclick = toggleMute;
 $('btn-mute').textContent = muted ? '🔇' : '🔊';
 // i18n boot: static DOM + dynamic boot texts
-AMG.apply(STR);
+window.__refreshLang = function () {
+  AMG.apply(STR);
+  $('btn-mute').title = T('muteTitle');
+  $('btn-undo').title = T('undoTitle');
+  $('btn-resign').title = T('resignTitle');
+  $('btn-tomenu').title = T('tomenuTitle');
+  refreshStats();
+};
 AMG.mountBtn();
-$('btn-mute').title = T('muteTitle');
-$('btn-undo').title = T('undoTitle');
-$('btn-resign').title = T('resignTitle');
-$('btn-tomenu').title = T('tomenuTitle');
+window.__refreshLang();
 
 refreshStats();
 window.__game = G;

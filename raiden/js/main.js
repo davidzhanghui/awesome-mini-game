@@ -7,14 +7,6 @@ var T = (k, ...a) => AMG.tf(STR, k, ...a);
   Input.init(canvas);
 
   const strip = document.getElementById('stages-strip');
-  CFG.STAGES.forEach((s, i) => {
-    const d = document.createElement('div');
-    d.className = 'stage-chip';
-    d.innerHTML = `<b>STAGE ${i + 1}</b><span>${stageName(i)}</span><br><span style="color:#ffb3c4">👹 ${bossName(i)}</span>`;
-    d.title = stageDesc(i);
-    d.onclick = () => { document.getElementById('sel-stage').value = String(i); startGame(1, i); };
-    strip.appendChild(d);
-  });
 
   const opts = () => ({
     stage: parseInt(document.getElementById('sel-stage').value, 10) || 0,
@@ -44,9 +36,21 @@ var T = (k, ...a) => AMG.tf(STR, k, ...a);
   snd.onclick = () => { AudioSys.enabled = !AudioSys.enabled; syncSnd(); };
   document.getElementById('opt-shake').checked = true;
   // i18n boot: static DOM + dynamic boot texts
-  AMG.apply(STR);
   AMG.mountBtn();
-  syncSnd();
+  window.__refreshLang = function () {
+    AMG.apply(STR);
+    strip.innerHTML = '';
+    CFG.STAGES.forEach((s, i) => {
+      const d = document.createElement('div');
+      d.className = 'stage-chip';
+      d.innerHTML = `<b>STAGE ${i + 1}</b><span>${stageName(i)}</span><br><span style="color:#ffb3c4">👹 ${bossName(i)}</span>`;
+      d.title = stageDesc(i);
+      d.onclick = () => { document.getElementById('sel-stage').value = String(i); startGame(1, i); };
+      strip.appendChild(d);
+    });
+    syncSnd();
+  };
+  window.__refreshLang();
 
   // gamepad polling merged into input each frame
   let last = performance.now();

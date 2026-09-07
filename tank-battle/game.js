@@ -910,15 +910,27 @@ function toggleMute() {
 $('btn-mute').onclick = e => { e.stopPropagation(); toggleMute(); };
 $('btn-mute').textContent = muted ? '🔇' : '🔊';
 // i18n boot: static DOM + dynamic boot texts
-AMG.apply(STR);
 AMG.mountBtn();
-$('btn-mute').title = T('muteTitle');
-document.querySelectorAll('#palette [data-t]').forEach(b => { const n = (T('palTitles') || {})[b.dataset.t]; if (n) b.title = n; });
-const edT = T('edTitles') || {};
-if ($('ed-clear')) $('ed-clear').title = edT.clear || $('ed-clear').title;
-if ($('ed-test')) $('ed-test').title = edT.test || $('ed-test').title;
-if ($('ed-save')) $('ed-save').title = edT.save || $('ed-save').title;
-if ($('ed-back')) $('ed-back').title = edT.back || $('ed-back').title;
+window.__refreshLang = function() {
+  AMG.apply(STR);
+  $('btn-mute').title = T('muteTitle');
+  document.querySelectorAll('#palette [data-t]').forEach(b => { const n = (T('palTitles') || {})[b.dataset.t]; if (n) b.title = n; });
+  const edT = T('edTitles') || {};
+  if ($('ed-clear')) $('ed-clear').title = edT.clear || $('ed-clear').title;
+  if ($('ed-test')) $('ed-test').title = edT.test || $('ed-test').title;
+  if ($('ed-save')) $('ed-save').title = edT.save || $('ed-save').title;
+  if ($('ed-back')) $('ed-back').title = edT.back || $('ed-back').title;
+  const sel = $('sel-stage');
+  if (sel) {
+    const cur = sel.value;
+    sel.innerHTML = STAGES.map((s, i) => '<option value="' + i + '">' + stageFull(i) + '</option>').join('');
+    sel.value = cur === '' ? G.stageIdx : cur;
+    if (sel.value === '') sel.value = G.stageIdx;
+  }
+  const mb = $('menu-best');
+  if (mb) mb.textContent = store.best;
+};
+window.__refreshLang();
 
 // 触屏
 function bindHold(id, code) {

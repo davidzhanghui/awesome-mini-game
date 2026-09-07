@@ -540,11 +540,15 @@ $('btn-theme').onclick = e => { e.stopPropagation(); G.night = !G.night; store.n
 
 // ---------- 启动 ----------
 // i18n boot: static DOM + dynamic boot texts
-AMG.apply(STR);
+window.__refreshLang = function () {
+  AMG.apply(STR);
+  $('btn-mute').title = T('muteTitle');
+  $('btn-pause').title = T('pauseTitle');
+  $('btn-theme').title = T('themeTitle');
+  $('menu-best').textContent = T('bestLine', G.best);
+};
 AMG.mountBtn();
-$('btn-mute').title = T('muteTitle');
-$('btn-pause').title = T('pauseTitle');
-$('btn-theme').title = T('themeTitle');
+window.__refreshLang();
 applyNight();
 show('menu');
 updateHUD();
