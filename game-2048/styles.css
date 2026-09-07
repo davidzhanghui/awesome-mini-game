@@ -48,3 +48,6 @@ body{font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sa
 footer{text-align:center;color:var(--muted);font-size:12px;margin-top:22px}
 .hidden{display:none!important}
 @media (max-width:900px){.cabinet{flex-direction:column;align-items:center}.side{max-width:min(480px,94vw);width:100%}}
+
+/* 触屏设备隐藏键盘按键提示（无键盘可用） */
+@media (pointer:coarse),(hover:none){.cabinet kbd,.screen kbd,.hint kbd{display:none}}

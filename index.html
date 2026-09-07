@@ -129,6 +129,19 @@ try{
     border-radius:999px;transition:.2s;padding:0}
   .gh-btn:hover{color:var(--text);border-color:rgba(34,211,238,.5)}
   .gh-btn svg{width:24px;height:24px;fill:currentColor;display:block;flex:none}
+  /* 小屏：压缩顶栏，避免 390px 左右溢出（置于基础规则之后，保证优先级） */
+  @media(max-width:560px){
+    .nav{padding:10px 14px;gap:8px}
+    .logo{gap:8px}
+    .logo img{width:30px;height:30px}
+    .logo b{font-size:15px}
+    .logo small{display:none}
+    .nav-links{gap:4px}
+    .nav-links a{padding:7px 10px;font-size:13px}
+    .seg button{padding:6px 8px;font-size:13px}
+    .lang-btn{min-width:40px;padding:7px 8px;font-size:12px}
+  }
+  @media(max-width:480px){.gh-btn{display:none}}
 
   /* Hero */
   .hero{text-align:center;padding:84px 0 30px}
