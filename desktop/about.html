@@ -4,31 +4,36 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>关于 Awesome Mini Game</title>
+<link rel="stylesheet" href="../assets/ui.css">
+<script src="../assets/theme.js"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     font-family: -apple-system, "SF Pro Text", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-    background: #0b1120; color: #e8edf7; min-height: 100vh;
+    background: var(--ui-bg) !important; color: var(--ui-text); min-height: 100vh;
     display: flex; flex-direction: column; align-items: center;
     padding: 36px 28px 28px; line-height: 1.7; text-align: center;
   }
-  .logo { width: 88px; height: 88px; border-radius: 20px; box-shadow: 0 8px 30px rgba(34,211,238,.35); }
-  h1 { font-size: 22px; margin: 16px 0 2px; letter-spacing: 1px; }
-  .ver { color: #22d3ee; font-size: 13px; font-weight: 700; letter-spacing: 1px; }
-  .desc { color: #94a3b8; font-size: 13.5px; margin: 14px 0 4px; max-width: 380px; }
+  .logo { width: 88px; height: 88px; border-radius: 20px; box-shadow: 0 8px 30px rgba(208,128,57,.35); }
+  h1 { font-size: 22px; margin: 16px 0 2px; letter-spacing: 1px;
+    font-family: "AMG Display", "PingFang SC", system-ui, sans-serif; font-weight: 400; }
+  .ver { color: var(--ui-primary); font-size: 13px; font-weight: 700; letter-spacing: 1px; }
+  .desc { color: var(--ui-muted-text); font-size: 13.5px; margin: 14px 0 4px; max-width: 380px; }
   .games { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin: 14px 0; max-width: 400px; }
-  .games span { font-size: 12px; color: #c6d1e4; background: rgba(148,163,184,.15);
-    border: 1px solid rgba(148,163,184,.25); padding: 3px 11px; border-radius: 999px; }
-  .tech { font-size: 12.5px; color: #64748b; margin-top: 6px; }
+  .games span { font-size: 12px; color: var(--ui-chip-text); background: var(--ui-chip);
+    padding: 3px 11px; border-radius: 999px; }
+  .tech { font-size: 12.5px; color: var(--ui-muted-text); margin-top: 6px; }
   .btns { display: flex; gap: 10px; margin-top: 20px; }
   .btn { font-family: inherit; font-size: 14px; font-weight: 700; padding: 10px 22px;
     border-radius: 12px; cursor: pointer; border: 1px solid transparent; transition: .2s; }
-  .btn-primary { background: linear-gradient(135deg,#22d3ee,#818cf8); color: #06121f; }
-  .btn-primary:hover { filter: brightness(1.1); }
-  .btn-ghost { background: rgba(34,211,238,.08); border-color: rgba(34,211,238,.35); color: #22d3ee; text-decoration: none; }
-  .btn-ghost:hover { background: rgba(34,211,238,.16); }
-  .foot { margin-top: auto; padding-top: 18px; font-size: 12px; color: #64748b; }
-  .foot a { color: #22d3ee; text-decoration: none; }
+  .btn-primary { background: var(--ui-primary); color: var(--ui-primary-fg);
+    box-shadow: 0 4px 0 var(--ui-primary-edge); }
+  .btn-primary:hover { filter: brightness(1.08); }
+  .btn-primary:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ui-primary-edge); }
+  .btn-ghost { background: var(--ui-primary-soft); color: var(--ui-primary); text-decoration: none; }
+  .btn-ghost:hover { filter: brightness(1.03); }
+  .foot { margin-top: auto; padding-top: 18px; font-size: 12px; color: var(--ui-muted-text); }
+  .foot a { color: var(--ui-primary); text-decoration: none; }
 </style>
 </head>
 <body>

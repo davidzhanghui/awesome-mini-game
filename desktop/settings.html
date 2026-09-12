@@ -4,21 +4,25 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>偏好设置</title>
+<link rel="stylesheet" href="../assets/ui.css">
+<script src="../assets/theme.js"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     font-family: -apple-system, "SF Pro Text", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-    background: #0f172a; color: #e8edf7; min-height: 100vh; padding: 24px; line-height: 1.7;
+    background: var(--ui-bg) !important; color: var(--ui-text); min-height: 100vh; padding: 24px; line-height: 1.7;
   }
-  h1 { font-size: 17px; margin-bottom: 4px; }
-  .sub { font-size: 12.5px; color: #94a3b8; margin-bottom: 18px; }
-  .row { display: flex; gap: 12px; align-items: flex-start; background: rgba(19,28,51,.8);
-    border: 1px solid rgba(148,163,184,.2); border-radius: 14px; padding: 14px 16px; margin-bottom: 12px; }
-  .row input { width: 18px; height: 18px; margin-top: 4px; accent-color: #22d3ee; flex: none; cursor: pointer; }
+  h1 { font-size: 17px; margin-bottom: 4px;
+    font-family: "AMG Display", "PingFang SC", system-ui, sans-serif; font-weight: 400; }
+  .sub { font-size: 12.5px; color: var(--ui-muted-text); margin-bottom: 18px; }
+  .row { display: flex; gap: 12px; align-items: flex-start; background: var(--ui-card);
+    border: 1px solid var(--ui-card-border); border-radius: 14px; padding: 14px 16px;
+    margin-bottom: 12px; box-shadow: var(--ui-shadow-card); }
+  .row input { width: 18px; height: 18px; margin-top: 4px; accent-color: var(--ui-primary); flex: none; cursor: pointer; }
   .row b { font-size: 14px; display: block; }
-  .row p { font-size: 12.5px; color: #94a3b8; }
-  .tip { font-size: 12px; color: #64748b; margin-top: 8px; }
-  .tip code { background: #1e293b; padding: 1px 6px; border-radius: 6px; font-family: inherit; }
+  .row p { font-size: 12.5px; color: var(--ui-muted-text); }
+  .tip { font-size: 12px; color: var(--ui-muted-text); margin-top: 8px; }
+  .tip code { background: var(--ui-chip); color: var(--ui-chip-text); padding: 1px 6px; border-radius: 6px; font-family: inherit; }
 </style>
 </head>
 <body>

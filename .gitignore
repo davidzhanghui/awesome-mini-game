@@ -1,5 +1,6 @@
 .DS_Store
 .commandcode/
+.venv/
 # ---- Tauri desktop ----
 node_modules/
 dist/
