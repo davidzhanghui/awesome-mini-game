@@ -6,7 +6,7 @@
 <link rel="icon" href="/favicon.svg" />
 <title>五子棋 · 经典桌游</title>
 <link rel="stylesheet" href="styles.css" />
-<link rel="stylesheet" href="../assets/ui.css" />
+<link rel="stylesheet" href="../assets/ui.css?v=20260913" />
 <script src="../assets/theme.js"></script>
 </head>
 <body>
@@ -16,7 +16,7 @@
     <div class="logo">⚫</div>
     <div>
       <h1><span data-i18n="name">五子棋</span> <em data-i18n="subtitle">经典桌游</em></h1>
-      <p data-i18n="intro">本地双人 / 三档 AI · 悔棋认输 · 可选黑棋禁手</p>
+      <p data-i18n="intro">五颗棋子连成一条线就赢！双人对战或挑战电脑</p>
     </div>
     <div class="brand-btns">
       <button id="btn-mute" class="icon-btn" title="声音开 / 关 (M)">🔊</button>
@@ -70,14 +70,14 @@
         <li data-i18n="rule3">棋盘下满且无人连五则和棋</li></ul></div>
     </aside>
   </section>
-  <footer data-i18n="footer">Canvas + WebAudio 原生实现 · 零依赖 · AI 搜索：启发式 + Negamax α-β</footer>
+  <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏</footer>
 </main>
-<script src="../assets/i18n.js?v=20260908"></script>
+<script src="../assets/i18n.js?v=20260913"></script>
 <script>
 window.GAME_STR = {
   zh: {
     title: '五子棋 · 经典桌游', name: '五子棋', subtitle: '经典桌游',
-    intro: '本地双人 / 三档 AI · 悔棋认输 · 可选黑棋禁手',
+    intro: '五颗棋子连成一条线就赢！双人对战或挑战电脑',
     modePvp: '👥 双人对战', modeAi0: '🤖 AI 简单', modeAi1: '🧠 AI 普通', modeAi2: '👹 AI 困难',
     me: '我方', optBlack: '⚫ 执黑先行', optWhite: '⚪ 执白后行',
     forbidLabel: '黑棋禁手（三三/四四/长连）',
@@ -88,7 +88,7 @@ window.GAME_STR = {
     opTitle: '🎮 操作', op1: '点击棋盘交叉点落子',
     undoKw: '悔棋', rematchKw: '重开', muteKw: '静音', op3: 'AI 对局中轮到你时再落子',
     ruleTitle: '📏 规则', rule1: '黑先白后，横竖斜连成五即胜', rule2: '禁手仅判黑方，白方无禁手', rule3: '棋盘下满且无人连五则和棋',
-    footer: 'Canvas + WebAudio 原生实现 · 零依赖 · AI 搜索：启发式 + Negamax α-β',
+    footer: '🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏',
     muteTitle: '声音开 / 关 (M)',
     forbidLong: '长连禁手', forbid44: '四四禁手', forbid33: '三三禁手',
     forbidHint: f => f + '，换个位置吧',
@@ -100,7 +100,7 @@ window.GAME_STR = {
   },
   en: {
     title: 'Gomoku · Classic Board Game', name: 'Gomoku', subtitle: 'Classic Board Game',
-    intro: 'Local 2-player / 3 AI levels · Undo & resign · Optional Black forbidden moves',
+    intro: 'Get 5 in a row to win — play a friend or the computer',
     modePvp: '👥 2 Players', modeAi0: '🤖 AI Easy', modeAi1: '🧠 AI Normal', modeAi2: '👹 AI Hard',
     me: 'Play as', optBlack: '⚫ Black (first)', optWhite: '⚪ White (second)',
     forbidLabel: 'Black forbidden moves (3×3 / 4×4 / overline)',
@@ -111,7 +111,7 @@ window.GAME_STR = {
     opTitle: '🎮 Controls', op1: 'Click an intersection to place a stone',
     undoKw: 'Undo', rematchKw: 'Restart', muteKw: 'Mute', op3: 'In AI games, move when it is your turn',
     ruleTitle: '📏 Rules', rule1: 'Black first, five in a row (any direction) wins', rule2: 'Forbidden moves apply to Black only', rule3: 'Full board with no five is a draw',
-    footer: 'Native Canvas + WebAudio · zero dependencies · AI: heuristics + Negamax α-β',
+    footer: '🕹️ Play instantly · Free · Keyboard & touch friendly',
     muteTitle: 'Sound on/off (M)',
     forbidLong: 'Overline forbidden', forbid44: 'Double-four forbidden', forbid33: 'Double-three forbidden',
     forbidHint: f => f + ', try another spot',
@@ -123,7 +123,7 @@ window.GAME_STR = {
   },
   ja: {
     title: '五目並べ · 定番ボードゲーム', name: '五目並べ', subtitle: '定番ボードゲーム',
-    intro: '2人対戦 / AI 3段階 · 待った・投了あり · 黒の禁手オプション',
+    intro: '石を5つ並べたら勝ち！2人対戦 or コンピュータに挑戦',
     modePvp: '👥 2人対戦', modeAi0: '🤖 AI やさしい', modeAi1: '🧠 AI ふつう', modeAi2: '👹 AI つよい',
     me: '自分', optBlack: '⚫ 黒（先手）', optWhite: '⚪ 白（後手）',
     forbidLabel: '黒の禁手あり（三三/四四/長連）',
@@ -134,7 +134,7 @@ window.GAME_STR = {
     opTitle: '🎮 操作', op1: '盤の交点をタップして着手',
     undoKw: '待った', rematchKw: '再戦', muteKw: 'ミュート', op3: 'AI戦では自分の番に打ってください',
     ruleTitle: '📏 ルール', rule1: '黒先白後、縦横斜め5つ並べば勝ち', rule2: '禁手は黒のみ、白は対象外', rule3: '満杯で五連なしなら引き分け',
-    footer: 'Canvas + WebAudio ネイティブ実装 · 依存なし · AI探索：ヒューリスティクス + Negamax α-β',
+    footer: '🕹️ すぐ遊べる · 完全無料 · キーボード＆タッチ対応',
     muteTitle: 'サウンド ON/OFF (M)',
     forbidLong: '長連禁手', forbid44: '四四禁手', forbid33: '三三禁手',
     forbidHint: f => f + '、別の場所に打ってね',
@@ -146,7 +146,7 @@ window.GAME_STR = {
   },
   ko: {
     title: '오목 · 클래식 보드게임', name: '오목', subtitle: '클래식 보드게임',
-    intro: '로컬 2인 / AI 3단계 · 무르기·기권 · 흑 금수 옵션',
+    intro: '돌 5개를 연결하면 승리! 친구 또는 컴퓨터와 대결',
     modePvp: '👥 2인 대결', modeAi0: '🤖 AI 쉬움', modeAi1: '🧠 AI 보통', modeAi2: '👹 AI 어려움',
     me: '내 돌', optBlack: '⚫ 흑 (선공)', optWhite: '⚪ 백 (후공)',
     forbidLabel: '흑 금수 있음 (3×3 / 4×4 / 장목)',
@@ -157,7 +157,7 @@ window.GAME_STR = {
     opTitle: '🎮 조작', op1: '보드 교차점을 눌러 착수',
     undoKw: '무르기', rematchKw: '재대결', muteKw: '음소거', op3: 'AI 대국에서는 차례일 때 두세요',
     ruleTitle: '📏 규칙', rule1: '흑 선공, 가로·세로·대각선 5목이면 승리', rule2: '금수는 흑에만 적용, 백은 해당 없음', rule3: '보드 가득 차고 5목 없으면 무승부',
-    footer: 'Canvas + WebAudio 네이티브 구현 · 의존성 없음 · AI 탐색: 휴리스틱 + Negamax α-β',
+    footer: '🕹️ 바로 플레이 · 완전 무료 · 키보드 & 터치 지원',
     muteTitle: '사운드 켜기/끄기 (M)',
     forbidLong: '장목 금수', forbid44: '사사 금수', forbid33: '삼삼 금수',
     forbidHint: f => f + ', 다른 곳에 두세요',

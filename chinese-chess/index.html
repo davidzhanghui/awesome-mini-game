@@ -6,7 +6,7 @@
 <link rel="icon" href="/favicon.svg" />
 <title>中国象棋 · 经典桌游</title>
 <link rel="stylesheet" href="styles.css" />
-<link rel="stylesheet" href="../assets/ui.css" />
+<link rel="stylesheet" href="../assets/ui.css?v=20260913" />
 <script src="../assets/theme.js"></script>
 </head>
 <body>
@@ -16,7 +16,7 @@
     <div class="logo">♞</div>
     <div>
       <h1><span data-i18n="gameTitle">中国象棋</span> <em data-i18n="subtitle">经典桌游</em></h1>
-      <p data-i18n="intro">完整规则 · 本地双人 / 三档 AI · Web Worker 极速思考</p>
+      <p data-i18n="intro">和朋友对战，或挑战三个难度的电脑棋手</p>
     </div>
     <div class="brand-btns">
       <button id="btn-flip" class="icon-btn" title="翻转棋盘">🔄</button>
@@ -70,15 +70,15 @@
         <li data-i18n="rule1">马腿象眼别住即不可走</li><li data-i18n="rule2">将帅不见面，飞将可吃</li><li data-i18n="rule3">困毙判负 · 三次重复局面判和</li></ul></div>
     </aside>
   </section>
-  <footer data-i18n="footer">Canvas + WebAudio 原生实现 · 零依赖 · Negamax α-β + Web Worker</footer>
+  <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏</footer>
 </main>
 <script src="ai-worker.js?v=20260906"></script>
-<script src="../assets/i18n.js?v=20260908"></script>
+<script src="../assets/i18n.js?v=20260913"></script>
 <script>
 window.GAME_STR = {
   zh: {
     title: '中国象棋 · 经典桌游', subtitle: '经典桌游', gameTitle: '中国象棋',
-    intro: '完整规则 · 本地双人 / 三档 AI · Web Worker 极速思考',
+    intro: '和朋友对战，或挑战三个难度的电脑棋手',
     muteTitle: '声音开 / 关 (M)', flipTitle: '翻转棋盘',
     modePvp: '👥 双人对战', modeAi0: '🤖 AI 简单', modeAi1: '🧠 AI 普通', modeAi2: '👹 AI 困难',
     mySide: '我方', redFirst: '🔴 执红先行', blkFirst: '⚫ 执黑后行', showHint: '显示可走位置',
@@ -87,7 +87,7 @@ window.GAME_STR = {
     undo: '↩ 悔棋 (U)', resignBtn: '🏳 认输', toMenu: '📋 菜单',
     opTitle: '🎮 操作', op1: '点击己方棋子选中，再点目标走子', opU: '悔棋', opR: '重开', opM: '静音',
     ruleTitle: '📏 规则要点', rule1: '马腿象眼别住即不可走', rule2: '将帅不见面，飞将可吃', rule3: '困毙判负 · 三次重复局面判和',
-    footer: 'Canvas + WebAudio 原生实现 · 零依赖 · Negamax α-β + Web Worker',
+    footer: '🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏',
     pk: '将', pa: '士', pb: '象', pn: '馬', pr: '車', pc: '炮', pp: '卒',
     redK: '帥', redN: '傌', redB: '相',
     river: '楚 河         漢 界',
@@ -101,7 +101,7 @@ window.GAME_STR = {
   },
   en: {
     title: 'Xiangqi · Classic Board Game', subtitle: 'Classic Board Game', gameTitle: 'Xiangqi',
-    intro: 'Full rules · local 2-player / 3 AI levels · fast thinking via Web Worker',
+    intro: 'Play a friend, or challenge the computer at 3 difficulty levels',
     muteTitle: 'Sound on/off (M)', flipTitle: 'Flip board',
     modePvp: '👥 2 Players', modeAi0: '🤖 AI Easy', modeAi1: '🧠 AI Normal', modeAi2: '👹 AI Hard',
     mySide: 'Play as', redFirst: '🔴 Red first', blkFirst: '⚫ Black second', showHint: 'Show legal moves',
@@ -110,7 +110,7 @@ window.GAME_STR = {
     undo: '↩ Undo (U)', resignBtn: '🏳 Resign', toMenu: '📋 Menu',
     opTitle: '🎮 Controls', op1: 'Tap your piece, then tap the destination', opU: 'undo', opR: 'restart', opM: 'mute',
     ruleTitle: '📏 Key Rules', rule1: 'Blocked horse legs & elephant eyes stop moves', rule2: 'Generals can\'t face off — flying general captures', rule3: 'Stalemate loses · threefold repetition draws',
-    footer: 'Native Canvas + WebAudio · zero dependencies · Negamax α-β + Web Worker',
+    footer: '🕹️ Play instantly · Free · Keyboard & touch friendly',
     pk: '将', pa: '士', pb: '象', pn: '馬', pr: '車', pc: '炮', pp: '卒',
     redK: '帥', redN: '傌', redB: '相',
     river: '楚 河         漢 界',
@@ -124,7 +124,7 @@ window.GAME_STR = {
   },
   ja: {
     title: '中国将棋（シャンチー） · 定番ボードゲーム', subtitle: '定番ボードゲーム', gameTitle: '中国将棋',
-    intro: '完全ルール · 2人対戦 / AI 3段階 · Web Worker 高速思考',
+    intro: '友達と対戦、または3段階のコンピュータに挑戦',
     muteTitle: 'サウンド ON/OFF (M)', flipTitle: '盤面を反転',
     modePvp: '👥 2人対戦', modeAi0: '🤖 AI 簡単', modeAi1: '🧠 AI 普通', modeAi2: '👹 AI 困難',
     mySide: '手番', redFirst: '🔴 紅が先手', blkFirst: '⚫ 黒が後手', showHint: '合法手を表示',
@@ -133,7 +133,7 @@ window.GAME_STR = {
     undo: '↩ 待った (U)', resignBtn: '🏳 投了', toMenu: '📋 メニュー',
     opTitle: '🎮 操作', op1: '自駒をタップ→移動先をタップ', opU: '待った', opR: '再開', opM: 'ミュート',
     ruleTitle: '📏 基本ルール', rule1: '塞がれた馬脚・象眼では進めない', rule2: '将帥は対面不可、飛将で取れる', rule3: 'ステイルメイトは負け · 三回同局面は引分',
-    footer: 'Canvas + WebAudio ネイティブ実装 · 依存ゼロ · Negamax α-β + Web Worker',
+    footer: '🕹️ すぐ遊べる · 完全無料 · キーボード＆タッチ対応',
     pk: '将', pa: '士', pb: '象', pn: '馬', pr: '車', pc: '炮', pp: '卒',
     redK: '帥', redN: '傌', redB: '相',
     river: '楚 河         漢 界',
@@ -147,7 +147,7 @@ window.GAME_STR = {
   },
   ko: {
     title: '중국 장기(샹치) · 클래식 보드게임', subtitle: '클래식 보드게임', gameTitle: '중국 장기',
-    intro: '완전 규칙 · 로컬 2인 / AI 3단계 · Web Worker 고속 사고',
+    intro: '친구와 대국하거나 3단계 컴퓨터에 도전하세요',
     muteTitle: '사운드 켜기/끄기 (M)', flipTitle: '보드 뒤집기',
     modePvp: '👥 2인 대결', modeAi0: '🤖 AI 쉬움', modeAi1: '🧠 AI 보통', modeAi2: '👹 AI 어려움',
     mySide: '내 진영', redFirst: '🔴 홍이 선수', blkFirst: '⚫ 흑이 후수', showHint: '둘 수 있는 위치 표시',
@@ -156,7 +156,7 @@ window.GAME_STR = {
     undo: '↩ 무르기 (U)', resignBtn: '🏳 항복', toMenu: '📋 메뉴',
     opTitle: '🎮 조작', op1: '아군 말을 탭한 뒤 목표 지점 탭', opU: '무르기', opR: '재시작', opM: '음소거',
     ruleTitle: '📏 핵심 규칙', rule1: '막힌 마 다리·상 눈으로는 이동 불가', rule2: '장수는 마주볼 수 없음, 비장으로 잡기', rule3: '스테일메이트는 패 · 3회 동형 반복은 무승부',
-    footer: 'Canvas + WebAudio 네이티브 구현 · 의존성 제로 · Negamax α-β + Web Worker',
+    footer: '🕹️ 바로 플레이 · 완전 무료 · 키보드 & 터치 지원',
     pk: '将', pa: '士', pb: '象', pn: '馬', pr: '車', pc: '炮', pp: '卒',
     redK: '帥', redN: '傌', redB: '相',
     river: '楚 河         漢 界',

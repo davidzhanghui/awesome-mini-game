@@ -6,7 +6,7 @@
 <link rel="icon" href="/favicon.svg" />
 <title>泡泡龙 · 经典益智</title>
 <link rel="stylesheet" href="styles.css" />
-<link rel="stylesheet" href="../assets/ui.css" />
+<link rel="stylesheet" href="../assets/ui.css?v=20260913" />
 <script src="../assets/theme.js"></script>
 </head>
 <body>
@@ -16,7 +16,7 @@
     <div class="logo">🫧</div>
     <div>
       <h1><span data-i18n="name">泡泡龙</span> <em data-i18n="subtitle">经典益智</em></h1>
-      <p data-i18n="intro">瞄准发射 · 边墙反弹 · 3连消除 · 孤块掉落 · 多关卡</p>
+      <p data-i18n="intro">瞄准发射，三个同色泡泡连在一起就消除！</p>
     </div>
     <div class="brand-btns">
       <button id="btn-mute" class="icon-btn" title="声音开 / 关 (M)">🔊</button>
@@ -64,14 +64,14 @@
         <li data-i18n="rule1">消除后无连接的孤块会掉落加分</li><li data-i18n="rule2">发射数达上限天花板下压一行</li><li data-i18n="rule3">泡泡压过底线即失败</li></ul></div>
     </aside>
   </section>
-  <footer data-i18n="footer">Canvas + WebAudio 原生实现 · 零依赖 · 30 张手绘固定关卡 + 通关后无尽循环 · 六角网格吸附 + 角度反弹</footer>
+  <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏</footer>
 </main>
-<script src="../assets/i18n.js?v=20260908"></script>
+<script src="../assets/i18n.js?v=20260913"></script>
 <script>
 window.GAME_STR = {
   zh: {
     title: '泡泡龙 · 经典益智', name: '泡泡龙', subtitle: '经典益智',
-    intro: '瞄准发射 · 边墙反弹 · 3连消除 · 孤块掉落 · 多关卡',
+    intro: '瞄准发射，三个同色泡泡连在一起就消除！',
     start: '🚀 开始游戏',
     aimPre: '鼠标', aimKw: '瞄准', firePre: '点击', fireKw: '发射', pauseKw: '暂停', kbdSpace: '空格',
     pausedTitle: '⏸ 已暂停', resumeHint: '按 P 继续', resume: '继续', quit: '回菜单',
@@ -80,7 +80,7 @@ window.GAME_STR = {
     clearPre: '🎉 第', clearSuf: '关通过！',
     opTitle: '🎮 操作', op1: '鼠标移动瞄准，点击发射', fineTune: '微调', op3: '相同色 3 连即消除',
     ruleTitle: '✨ 规则', rule1: '消除后无连接的孤块会掉落加分', rule2: '发射数达上限天花板下压一行', rule3: '泡泡压过底线即失败',
-    footer: 'Canvas + WebAudio 原生实现 · 零依赖 · 30 张手绘固定关卡 + 通关后无尽循环 · 六角网格吸附 + 角度反弹',
+    footer: '🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏',
     muteTitle: '声音开 / 关 (M)',
     best: v => '🏆 历史最高：' + v,
     nextLabel: '下个：',
@@ -88,7 +88,7 @@ window.GAME_STR = {
   },
   en: {
     title: 'Bubble Shooter · Classic Puzzle', name: 'Bubble Shooter', subtitle: 'Classic Puzzle',
-    intro: 'Aim & shoot · wall bounce · match 3 · drop orphans · many stages',
+    intro: 'Aim and shoot — pop 3 or more same-color bubbles!',
     start: '🚀 Start Game',
     aimPre: 'Mouse', aimKw: 'to aim', firePre: 'Click', fireKw: 'to shoot', pauseKw: 'to pause', kbdSpace: 'Space',
     pausedTitle: '⏸ Paused', resumeHint: 'Press P to resume', resume: 'Resume', quit: 'Menu',
@@ -97,7 +97,7 @@ window.GAME_STR = {
     clearPre: '🎉 Stage', clearSuf: 'cleared!',
     opTitle: '🎮 Controls', op1: 'Move the mouse to aim, click to shoot', fineTune: 'fine-tune', op3: '3+ same color pops',
     ruleTitle: '✨ Rules', rule1: 'Orphaned bubbles drop for bonus points', rule2: 'The ceiling pushes down after enough shots', rule3: 'Game over if bubbles cross the bottom line',
-    footer: 'Native Canvas + WebAudio · zero dependencies · 30 handcrafted stages + endless loop · hex-grid snap + angle bounce',
+    footer: '🕹️ Play instantly · Free · Keyboard & touch friendly',
     muteTitle: 'Sound on/off (M)',
     best: v => '🏆 Best: ' + v,
     nextLabel: 'Next:',
@@ -105,7 +105,7 @@ window.GAME_STR = {
   },
   ja: {
     title: 'バブルシューティング · クラシックパズル', name: 'バブルシューティング', subtitle: 'クラシックパズル',
-    intro: '狙って発射 · 壁反射 · 3つ消し · 孤立落下 · 多ステージ',
+    intro: '狙って撃とう！同じ色の泡を3つそろえると消えるよ',
     start: '🚀 ゲームスタート',
     aimPre: 'マウス', aimKw: 'で狙う', firePre: 'クリック', fireKw: 'で発射', pauseKw: 'で一時停止', kbdSpace: 'スペース',
     pausedTitle: '⏸ 一時停止中', resumeHint: 'Pキーで再開', resume: '再開', quit: 'メニューへ',
@@ -114,7 +114,7 @@ window.GAME_STR = {
     clearPre: '🎉 ステージ', clearSuf: 'クリア！',
     opTitle: '🎮 操作', op1: 'マウスで狙ってクリックで発射', fineTune: '微調整', op3: '同色3つで消去',
     ruleTitle: '✨ ルール', rule1: '消去後に孤立したバブルは落下ボーナス', rule2: '規定発射数で天井が一段下降', rule3: 'バブルが底線を超えたら終了',
-    footer: 'Canvas + WebAudio ネイティブ実装 · 依存なし · 手作り30面 + 無限ループ · 六角グリッド吸着 + 反射',
+    footer: '🕹️ すぐ遊べる · 完全無料 · キーボード＆タッチ対応',
     muteTitle: 'サウンド ON/OFF (M)',
     best: v => '🏆 最高記録：' + v,
     nextLabel: '次：',
@@ -122,7 +122,7 @@ window.GAME_STR = {
   },
   ko: {
     title: '버블슈팅 · 클래식 퍼즐', name: '버블슈팅', subtitle: '클래식 퍼즐',
-    intro: '조준 발사 · 벽 반사 · 3개 맞추기 · 고립 낙하 · 다중 스테이지',
+    intro: '조준해서 발사! 같은 색 거품 3개를 모으면 터져요',
     start: '🚀 게임 시작',
     aimPre: '마우스', aimKw: '로 조준', firePre: '클릭', fireKw: '으로 발사', pauseKw: '로 일시정지', kbdSpace: '스페이스',
     pausedTitle: '⏸ 일시정지', resumeHint: 'P를 눌러 계속', resume: '계속', quit: '메뉴로',
@@ -131,7 +131,7 @@ window.GAME_STR = {
     clearPre: '🎉 스테이지', clearSuf: '클리어!',
     opTitle: '🎮 조작', op1: '마우스로 조준하고 클릭해 발사', fineTune: '미세 조정', op3: '같은 색 3개면 제거',
     ruleTitle: '✨ 규칙', rule1: '제거 후 연결 끊긴 버블은 낙하 보너스', rule2: '발사 수가 차면 천장이 한 줄 하강', rule3: '버블이 바닥선을 넘으면 종료',
-    footer: 'Canvas + WebAudio 네이티브 구현 · 의존성 없음 · 수제 30 스테이지 + 무한 루프 · 육각 그리드 흡착 + 반사',
+    footer: '🕹️ 바로 플레이 · 완전 무료 · 키보드 & 터치 지원',
     muteTitle: '사운드 켜기/끄기 (M)',
     best: v => '🏆 최고 기록: ' + v,
     nextLabel: '다음:',

@@ -6,7 +6,7 @@
 <link rel="icon" href="/favicon.svg" />
 <title>2048 · 经典益智</title>
 <link rel="stylesheet" href="styles.css" />
-<link rel="stylesheet" href="../assets/ui.css" />
+<link rel="stylesheet" href="../assets/ui.css?v=20260913" />
 <script src="../assets/theme.js"></script>
 </head>
 <body>
@@ -16,7 +16,7 @@
     <div class="logo">🔢</div>
     <div>
       <h1>2048 <em data-i18n="subtitle">经典益智</em></h1>
-      <p data-i18n="intro">方向键 / WASD / 触屏滑动 · 合成 2048，之后可继续挑战！</p>
+      <p data-i18n="intro">滑动合成相同数字，挑战 2048！</p>
     </div>
     <div class="brand-btns">
       <button id="btn-mute" class="icon-btn" title="声音开 / 关 (M)">🔊</button>
@@ -48,19 +48,19 @@
         <li data-i18n="goal1">合成 2048 即胜利，可继续冲击更高</li><li data-i18n="goal2">棋盘填满且无法合并则结束</li></ul></div>
     </aside>
   </section>
-  <footer data-i18n="footer">Canvas + WebAudio 原生实现 · 零依赖 · 滑动合并动画 + 最高分存档</footer>
+  <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏</footer>
 </main>
-<script src="../assets/i18n.js?v=20260908"></script>
+<script src="../assets/i18n.js?v=20260913"></script>
 <script>
 window.GAME_STR = {
   zh: {
     title: '2048 · 经典益智', subtitle: '经典益智',
-    intro: '方向键 / WASD / 触屏滑动 · 合成 2048，之后可继续挑战！',
+    intro: '滑动合成相同数字，挑战 2048！',
     start: '🚀 开始游戏', hintMerge: '滑动合并',
     retry: '🔄 再来一局 (R)', menu: '菜单',
     opTitle: '🎮 操作', op1: '方向键 / WASD 滑动', op2: '触屏滑动合并', op3: '相同数字相撞合并翻倍',
     goalTitle: '🏆 目标', goal1: '合成 2048 即胜利，可继续冲击更高', goal2: '棋盘填满且无法合并则结束',
-    footer: 'Canvas + WebAudio 原生实现 · 零依赖 · 滑动合并动画 + 最高分存档',
+    footer: '🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏',
     muteTitle: '声音开 / 关 (M)', goal: '合成 2048！', paused: '⏸ 暂停',
     overTitle: '游戏结束', winMsg: '🎉 2048！可继续挑战',
     best: v => '🏆 历史最高：' + v,
@@ -68,12 +68,12 @@ window.GAME_STR = {
   },
   en: {
     title: '2048 · Classic Puzzle', subtitle: 'Classic Puzzle',
-    intro: 'Arrow keys / WASD / swipe · Merge to 2048, then keep going!',
+    intro: 'Swipe to merge matching numbers — can you reach 2048?',
     start: '🚀 Start Game', hintMerge: 'slide to merge',
     retry: '🔄 Play Again (R)', menu: 'Menu',
     opTitle: '🎮 Controls', op1: 'Arrow keys / WASD to slide', op2: 'Swipe on touch screens', op3: 'Equal tiles collide and double',
     goalTitle: '🏆 Goal', goal1: 'Reach 2048 to win, then chase higher tiles', goal2: 'Game ends when the board is full and stuck',
-    footer: 'Native Canvas + WebAudio · zero dependencies · slide-merge animation + best score',
+    footer: '🕹️ Play instantly · Free · Keyboard & touch friendly',
     muteTitle: 'Sound on/off (M)', goal: 'Merge to 2048!', paused: '⏸ Paused',
     overTitle: 'Game Over', winMsg: '🎉 2048! Keep going!',
     best: v => '🏆 Best: ' + v,
@@ -81,12 +81,12 @@ window.GAME_STR = {
   },
   ja: {
     title: '2048 · クラシックパズル', subtitle: 'クラシックパズル',
-    intro: '矢印キー / WASD / スワイプ · 2048を目指して合体、その先も挑戦！',
+    intro: 'スワイプで同じ数字を合体、2048を目指そう！',
     start: '🚀 ゲームスタート', hintMerge: 'スワイプで合体',
     retry: '🔄 もう一回 (R)', menu: 'メニュー',
     opTitle: '🎮 操作', op1: '矢印キー / WASD でスライド', op2: 'タッチでスワイプ合体', op3: '同じ数字がぶつかると倍に合体',
     goalTitle: '🏆 目標', goal1: '2048を作ればクリア、さらに高みを目指そう', goal2: '盤面が埋まって動けなくなると終了',
-    footer: 'Canvas + WebAudio ネイティブ実装 · 依存なし · スライド合体アニメ + 最高記録保存',
+    footer: '🕹️ すぐ遊べる · 完全無料 · キーボード＆タッチ対応',
     muteTitle: 'サウンド ON/OFF (M)', goal: '2048を目指して合体！', paused: '⏸ 一時停止中',
     overTitle: 'ゲームオーバー', winMsg: '🎉 2048達成！まだまだいける！',
     best: v => '🏆 最高記録：' + v,
@@ -94,12 +94,12 @@ window.GAME_STR = {
   },
   ko: {
     title: '2048 · 클래식 퍼즐', subtitle: '클래식 퍼즐',
-    intro: '방향키 / WASD / 스와이프 · 2048 합치기, 이후에도 계속 도전!',
+    intro: '스와이프로 같은 숫자를 합쳐 2048에 도전!',
     start: '🚀 게임 시작', hintMerge: '밀어서 합치기',
     retry: '🔄 다시 하기 (R)', menu: '메뉴',
     opTitle: '🎮 조작', op1: '방향키 / WASD로 밀기', op2: '터치로 스와이프 합치기', op3: '같은 숫자가 부딪히면 2배로 합쳐짐',
     goalTitle: '🏆 목표', goal1: '2048을 만들면 승리, 더 높은 타일에 도전', goal2: '보드가 가득 차서 움직일 수 없으면 종료',
-    footer: 'Canvas + WebAudio 네이티브 구현 · 의존성 없음 · 슬라이드 합치기 애니 + 최고 기록 저장',
+    footer: '🕹️ 바로 플레이 · 완전 무료 · 키보드 & 터치 지원',
     muteTitle: '사운드 켜기/끄기 (M)', goal: '2048에 합치기!', paused: '⏸ 일시정지',
     overTitle: '게임 오버', winMsg: '🎉 2048 달성! 계속 도전!',
     best: v => '🏆 최고 기록: ' + v,

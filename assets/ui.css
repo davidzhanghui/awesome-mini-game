@@ -349,6 +349,16 @@ select.icon-btn option { background: var(--ui-card); color: var(--ui-text); }
 footer { color: var(--ui-muted-text) !important; }
 ::selection { background: rgba(208, 128, 57, .28); }
 
+/* ---------- 移动端顶栏：标题给足宽度，按钮排不下时换行右对齐 ---------- */
+@media (max-width: 640px) {
+  .brand { flex-wrap: wrap; row-gap: 10px; }
+  .brand > div:nth-child(2) { flex: 1 1 170px; min-width: 170px; }
+  .brand h1 { font-size: 21px !important; }
+  .brand h1 em { font-size: 11px !important; padding: 1px 7px !important; margin-left: 5px !important; }
+  .brand p { font-size: 12.5px !important; }
+  .brand-btns { margin-left: auto; }
+}
+
 /* ==========================================================================
    Raiden（结构特殊，单独适配同一套 token）
    ========================================================================== */

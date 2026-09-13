@@ -6,7 +6,7 @@
 <link rel="icon" href="/favicon.svg" />
 <title>超级马里奥 · 像素大冒险</title>
 <link rel="stylesheet" href="styles.css" />
-<link rel="stylesheet" href="../assets/ui.css" />
+<link rel="stylesheet" href="../assets/ui.css?v=20260913" />
 <script src="../assets/theme.js"></script>
 </head>
 <body>
@@ -17,7 +17,7 @@
       <div class="logo">🍄</div>
       <div>
         <h1><span data-i18n="gameTitle">超级马里奥</span> <em data-i18n="subtitle">像素大冒险</em></h1>
-        <p data-i18n="intro">← → 移动 · Z/空格 跳跃 · X 跑/射击 · 顶砖块吃蘑菇，踩乌龟，冲向旗杆！</p>
+        <p data-i18n="intro">顶砖块吃蘑菇，踩扁乌龟，冲到旗杆就过关！</p>
       </div>
       <div class="brand-btns">
         <button id="btn-theme" class="icon-btn" title="切换白天 / 黑夜">🌙</button>
@@ -148,16 +148,16 @@
       </aside>
     </section>
 
-    <footer data-i18n="footer">Canvas + WebAudio 原生实现 · 零依赖 · 32 关完整冒险（8 世界 × 4 关）· 含背景音乐与火焰花</footer>
+    <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏</footer>
   </main>
 
-<script src="../assets/i18n.js?v=20260908"></script>
+<script src="../assets/i18n.js?v=20260913"></script>
 <script src="../assets/touch.js?v=20260908"></script>
 <script>
 window.GAME_STR = {
   zh: {
     title: '超级马里奥 · 像素大冒险', subtitle: '像素大冒险', gameTitle: '超级马里奥',
-    intro: '← → 移动 · Z/空格 跳跃 · X 跑/射击 · 顶砖块吃蘑菇，踩乌龟，冲向旗杆！',
+    intro: '顶砖块吃蘑菇，踩扁乌龟，冲到旗杆就过关！',
     themeTitle: '切换白天 / 黑夜', musicTitle: '音乐开 / 关', muteTitle: '声音开 / 关 (M)', pauseTitle: '暂停 (P)',
     pickWorld: '选择世界', start: '🚀 开始冒险',
     hintA: '按', hintB: '跳跃 · 按住', hintC: '加速跑', spc: '空格',
@@ -170,7 +170,7 @@ window.GAME_STR = {
     item1: '🍄 蘑菇 — 长大，可顶碎砖块', item2: '🌸 火焰花 — 按 X 发射火球', item3: '⭐ 无敌星 — 10 秒横冲直撞',
     item4: '💚 绿蘑菇 — 生命 +1', item5: '🪙 金币 — 100 枚=1 条命？不，纯爽',
     enemyTitle: '🐢 敌人手册', enemyBody: '踩头是王道！乌龟踩一下变壳，再碰踢飞，壳能连撞一片。食人花只能烧，千万别脸接。',
-    footer: 'Canvas + WebAudio 原生实现 · 零依赖 · 32 关完整冒险（8 世界 × 4 关）· 含背景音乐与火焰花',
+    footer: '🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏',
     worldSubs: ['青青草原', '黄沙荒漠', '落日峡谷', '星空夜路', '冰雪极地', '熔岩火山', '云端天空', '库巴魔城'],
     worldLevels: [
       ['晨曦原野', '绿荫小径', '蘑菇丘陵', '城堡前哨'],
@@ -196,7 +196,7 @@ window.GAME_STR = {
   },
   en: {
     title: 'Super Mario · Pixel Adventure', subtitle: 'Pixel Adventure', gameTitle: 'Super Mario',
-    intro: '← → move · Z/Space jump · X run/shoot · bump blocks, grab mushrooms, stomp koopas, dash to the flag!',
+    intro: 'Bump blocks, grab mushrooms, stomp koopas, and reach the flag!',
     themeTitle: 'Toggle day / night', musicTitle: 'Music on/off', muteTitle: 'Sound on/off (M)', pauseTitle: 'Pause (P)',
     pickWorld: 'Pick a world', start: '🚀 Start Adventure',
     hintA: 'Press', hintB: 'to jump · hold', hintC: 'to dash', spc: 'Space',
@@ -209,7 +209,7 @@ window.GAME_STR = {
     item1: '🍄 Mushroom — grow big, smash bricks', item2: '🌸 Fire Flower — press X to shoot fireballs', item3: '⭐ Super Star — 10s of mayhem',
     item4: '💚 1-Up Mushroom — +1 life', item5: '🪙 Coins — 100 for a life? Nah, just fun',
     enemyTitle: '🐢 Enemy Guide', enemyBody: 'Stomp heads to win! A koopa becomes a shell, kick it to bowl through enemies. Piranha plants only die by fire — never face-tank them.',
-    footer: 'Native Canvas + WebAudio · zero dependencies · 32-stage adventure (8 worlds × 4) · with BGM and Fire Flower',
+    footer: '🕹️ Play instantly · Free · Keyboard & touch friendly',
     worldSubs: ['Green Meadow', 'Golden Desert', 'Sunset Canyon', 'Starry Night', 'Frosty Peaks', 'Lava Volcano', 'Cloud Realm', "Bowser's Castle"],
     worldLevels: [
       ['Dawn Field', 'Shady Trail', 'Mushroom Hills', 'Castle Outpost'],
@@ -235,7 +235,7 @@ window.GAME_STR = {
   },
   ja: {
     title: 'スーパーマリオ · ピクセル冒険', subtitle: 'ピクセル冒険', gameTitle: 'スーパーマリオ',
-    intro: '← → 移動 · Z/スペースでジャンプ · Xでダッシュ/射撃 · ブロックを叩き、キノコを取って、カメを踏んで旗へ！',
+    intro: 'ブロックを叩いてキノコを取り、カメを踏んでゴールの旗へ！',
     themeTitle: '昼 / 夜 切替', musicTitle: '音楽 ON/OFF', muteTitle: 'サウンド ON/OFF (M)', pauseTitle: '一時停止 (P)',
     pickWorld: 'ワールド選択', start: '🚀 冒険スタート',
     hintA: '押して', hintB: 'でジャンプ · 長押しで', hintC: 'ダッシュ', spc: 'スペース',
@@ -248,7 +248,7 @@ window.GAME_STR = {
     item1: '🍄 キノコ — 巨大化、レンガ破壊', item2: '🌸 ファイアフラワー — Xで火球発射', item3: '⭐ スーパースター — 10秒無敵',
     item4: '💚 1UPキノコ — ライフ+1', item5: '🪙 コイン — 100枚で1UP？いや、爽快感',
     enemyTitle: '🐢 敵図鑑', enemyBody: '頭踏みが基本！カメは甲羅になり、蹴れば一掃できる。パックンフラワーはファイアのみ — 体当たり禁止。',
-    footer: 'Canvas + WebAudio ネイティブ実装 · 依存ゼロ · 全32面の冒険（8ワールド×4） · BGMとファイア付き',
+    footer: '🕹️ すぐ遊べる · 完全無料 · キーボード＆タッチ対応',
     worldSubs: ['緑の草原', '黄金砂漠', '夕日渓谷', '星空の夜道', '氷雪極地', '溶岩火山', '雲の天空', 'クッパ魔城'],
     worldLevels: [
       ['夜明けの野原', '緑陰の小径', 'キノコの丘', '城前哨'],
@@ -274,7 +274,7 @@ window.GAME_STR = {
   },
   ko: {
     title: '슈퍼 마리오 · 픽셀 대모험', subtitle: '픽셀 대모험', gameTitle: '슈퍼 마리오',
-    intro: '← → 이동 · Z/스페이스로 점프 · X로 대시/사격 · 벽돌을 치고 버섯을 먹고 거북이를 밟고 깃발로!',
+    intro: '블록을 치고 버섯을 먹고 거북이를 밟아 깃발에 도달하세요!',
     themeTitle: '낮 / 밤 전환', musicTitle: '음악 켜기/끄기', muteTitle: '사운드 켜기/끄기 (M)', pauseTitle: '일시정지 (P)',
     pickWorld: '월드 선택', start: '🚀 모험 시작',
     hintA: '누르고', hintB: '로 점프 · 길게 누르면', hintC: '로 대시', spc: '스페이스',
@@ -287,7 +287,7 @@ window.GAME_STR = {
     item1: '🍄 버섯 — 거대화, 벽돌 파괴', item2: '🌸 파이어플라워 — X로 화염탄 발사', item3: '⭐ 슈퍼스타 — 10초 무적',
     item4: '💚 1UP 버섯 — 목숨 +1', item5: '🪙 코인 — 100개면 1UP? 아니, 그냥 재미',
     enemyTitle: '🐢 적 도감', enemyBody: '머리 밟기가 정석! 거북이는 등껍질이 되고, 차면 일망타진. 식인꽃은 파이어로만 — 몸으로 받지 마세요.',
-    footer: 'Canvas + WebAudio 네이티브 구현 · 의존성 제로 · 32스테이지 대모험(8월드×4) · BGM과 파이어 포함',
+    footer: '🕹️ 바로 플레이 · 완전 무료 · 키보드 & 터치 지원',
     worldSubs: ['초록 초원', '황금 사막', '석양 협곡', '별빛 밤길', '빙설 극지', '용암 화산', '구름 하늘', '쿠파 마성'],
     worldLevels: [
       ['새벽 들판', '그늘 오솔길', '버섯 언덕', '성 앞 전초'],

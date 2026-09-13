@@ -6,7 +6,7 @@
 <link rel="icon" href="/favicon.svg" />
 <title>斗地主 · 经典桌游</title>
 <link rel="stylesheet" href="styles.css" />
-<link rel="stylesheet" href="../assets/ui.css" />
+<link rel="stylesheet" href="../assets/ui.css?v=20260913" />
 <script src="../assets/theme.js"></script>
 </head>
 <body>
@@ -16,7 +16,7 @@
     <div class="logo">🃏</div>
     <div>
       <h1><span data-i18n="gameTitle">斗地主</span> <em data-i18n="subtitle">经典桌游</em></h1>
-      <p data-i18n="intro">单机三人局 · 你 + 两个 AI · 叫抢地主 · 春天炸弹结算</p>
+      <p data-i18n="intro">你和两个电脑对手比赛，谁先出完牌谁赢！</p>
     </div>
     <div class="brand-btns">
       <button id="btn-mute" class="icon-btn" title="声音开 / 关 (M)">🔊</button>
@@ -53,14 +53,14 @@
         <li data-i18n="type1">单张 / 对子 / 三张 / 三带一 / 三带二</li><li data-i18n="type2">顺子(5+)/连对(3+)/飞机(可带)</li><li data-i18n="type3">四带二 / 四带两对 / 炸弹 / 王炸</li></ul></div>
     </aside>
   </section>
-  <footer data-i18n="footer">Canvas + WebAudio 原生实现 · 零依赖 · 规则式 AI（农民配合 / 地主压制）</footer>
+  <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏</footer>
 </main>
-<script src="../assets/i18n.js?v=20260908"></script>
+<script src="../assets/i18n.js?v=20260913"></script>
 <script>
 window.GAME_STR = {
   zh: {
     title: '斗地主 · 经典桌游', subtitle: '经典桌游', gameTitle: '斗地主',
-    intro: '单机三人局 · 你 + 两个 AI · 叫抢地主 · 春天炸弹结算',
+    intro: '你和两个电脑对手比赛，谁先出完牌谁赢！',
     muteTitle: '声音开 / 关 (M)',
     start: '🚀 开始对局',
     hintA: '点选手牌再点', hintB: '· 双击单张可快捷选中',
@@ -69,7 +69,7 @@ window.GAME_STR = {
     counterTitle: '🧾 记牌器', counterEmpty: '开局后显示剩余牌',
     opTitle: '🎮 操作', op1: '点击手牌选中 / 取消，再点出牌按钮', op2a: '轮到你时可', op2b: '（有大过上家的牌除外首手）', op3: '叫分：叫 1/2/3 分或不叫',
     typeTitle: '🃏 牌型', type1: '单张 / 对子 / 三张 / 三带一 / 三带二', type2: '顺子(5+)/连对(3+)/飞机(可带)', type3: '四带二 / 四带两对 / 炸弹 / 王炸',
-    footer: 'Canvas + WebAudio 原生实现 · 零依赖 · 规则式 AI（农民配合 / 地主压制）',
+    footer: '🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏',
     jokerS: '小王', jokerB: '大王', jokerMin: '小', jokerMax: '大',
     you: '你', aiR: 'AI·右', aiL: 'AI·左',
     dipai: '底牌', bidding: '叫分中…',
@@ -92,7 +92,7 @@ window.GAME_STR = {
   },
   en: {
     title: 'Dou Dizhu · Classic Card Game', subtitle: 'Classic Card Game', gameTitle: 'Dou Dizhu',
-    intro: 'Solo 3-player game · you + 2 AI · bid for the Landlord · Spring & Bomb scoring',
+    intro: 'You vs two AI rivals — first to empty your hand wins!',
     muteTitle: 'Sound on/off (M)',
     start: '🚀 Deal Cards',
     hintA: 'Tap cards to select, then press', hintB: '· double-tap a single to quick-select',
@@ -101,7 +101,7 @@ window.GAME_STR = {
     counterTitle: '🧾 Card Counter', counterEmpty: 'Remaining cards show after the deal',
     opTitle: '🎮 Controls', op1: 'Tap hand cards to select / deselect, then press Play', op2a: 'You may', op2b: '(except leading trick when you can beat)', op3: 'Bid 1/2/3 points or pass',
     typeTitle: '🃏 Hands', type1: 'Single / Pair / Trio / Trio+1 / Trio+2', type2: 'Straight (5+) / Pair sequence (3+) / Plane (with kickers)', type3: 'Four+2 / Four+2 pairs / Bomb / Rocket',
-    footer: 'Native Canvas + WebAudio · zero dependencies · rule-based AI (peasants cooperate / landlord presses)',
+    footer: '🕹️ Play instantly · Free · Keyboard & touch friendly',
     jokerS: 'SJoker', jokerB: 'BJoker', jokerMin: 'S', jokerMax: 'B',
     you: 'You', aiR: 'AI·R', aiL: 'AI·L',
     dipai: 'Kitty', bidding: 'Bidding…',
@@ -124,7 +124,7 @@ window.GAME_STR = {
   },
   ja: {
     title: '闘地主 · 定番カードゲーム', subtitle: '定番カードゲーム', gameTitle: '闘地主',
-    intro: '1人用3人対戦 · あなた + AI2人 · 地主決めコール · 春天・爆弾で精算',
+    intro: 'あなた vs コンピュータ2人、先に手札を出し切ったら勝ち！',
     muteTitle: 'サウンド ON/OFF (M)',
     start: '🚀 対局スタート',
     hintA: '手札をタップで選択、次に', hintB: '· シングルはダブルタップで快速選択',
@@ -133,7 +133,7 @@ window.GAME_STR = {
     counterTitle: '🧾 残り牌カウンター', counterEmpty: '配札後に残り牌を表示',
     opTitle: '🎮 操作', op1: '手札をタップで選択/解除、次に出すボタン', op2a: '自分の番に', op2b: '（先手を除き場より強い役限定）', op3: 'コール：1/2/3点またはパス',
     typeTitle: '🃏 役', type1: 'シングル / ペア / トリオ / トリオ+1 / トリオ+2', type2: 'ストレート(5枚+)/連ペア(3組+)/飛行機(付き可)', type3: '四枚+2 / 四枚+2ペア / 爆弾 / ロケット',
-    footer: 'Canvas + WebAudio ネイティブ実装 · 依存ゼロ · ルールベースAI（農民連携 / 地主プレッシャー）',
+    footer: '🕹️ すぐ遊べる · 完全無料 · キーボード＆タッチ対応',
     jokerS: '小王', jokerB: '大王', jokerMin: '小', jokerMax: '大',
     you: 'あなた', aiR: 'AI·右', aiL: 'AI·左',
     dipai: '伏せ札', bidding: 'コール中…',
@@ -156,7 +156,7 @@ window.GAME_STR = {
   },
   ko: {
     title: '두디주 · 클래식 카드 게임', subtitle: '클래식 카드 게임', gameTitle: '두디주',
-    intro: '1인용 3인 대국 · 당신 + AI 2인 · 지주 정하기 콜 · 봄·폭탄 정산',
+    intro: '당신 vs 컴퓨터 2명, 먼저 패를 다 내면 승리!',
     muteTitle: '사운드 켜기/끄기 (M)',
     start: '🚀 대국 시작',
     hintA: '패를 탭해 선택한 뒤', hintB: '· 싱글은 더블탭으로 빠른 선택',
@@ -165,7 +165,7 @@ window.GAME_STR = {
     counterTitle: '🧾 남은 패 카운터', counterEmpty: '분배 후 남은 패 표시',
     opTitle: '🎮 조작', op1: '패를 탭해 선택/해제 후 내기 버튼', op2a: '자기 차례에', op2b: '(선공 제외, 앞 패보다 센 조합만)', op3: '콜: 1/2/3점 또는 패스',
     typeTitle: '🃏 족보', type1: '싱글 / 페어 / 트리오 / 트리오+1 / 트리오+2', type2: '스트레이트(5장+)/연속 페어(3개+)/비행기(키커 가능)', type3: '포카드+2 / 포카드+2페어 / 폭탄 / 로켓',
-    footer: 'Canvas + WebAudio 네이티브 구현 · 의존성 제로 · 룰 기반 AI(농민 협력 / 지주 압박)',
+    footer: '🕹️ 바로 플레이 · 완전 무료 · 키보드 & 터치 지원',
     jokerS: '소왕', jokerB: '대왕', jokerMin: '소', jokerMax: '대',
     you: '당신', aiR: 'AI·우', aiL: 'AI·좌',
     dipai: '히든 카드', bidding: '콜 진행 중…',

@@ -143,7 +143,7 @@ function loadStage(idx, custom) {
     seq.push({ type: t, bonus: i % 4 === 3 });
   }
   G.spawnQueue = seq;
-  G.spawnT = 1; G.spawned = 0;
+  G.spawnT = 1; G.spawned = 0; G.stageT = 0;
   // 玩家出生
   G.players = [];
   const mk = (x, side) => ({
@@ -368,9 +368,11 @@ function foeAI(f, dt) {
     else want = Math.random() * 4 | 0;
     f.dir = want;
   }
-  // 开火：前方是砖/钢/老鹰/玩家时才打，不浪费子弹
-  if (looksShootable(f) && f.cd <= 0) fire(f);
-  else if (Math.random() < dt * .25 && f.cd <= 0) fire(f);
+  // 开火：前方是砖/钢/老鹰/玩家时才打，不浪费子弹；每关开局 5 秒敌军不开火（保护期）
+  if (G.stageT > 5) {
+    if (looksShootable(f) && f.cd <= 0) fire(f);
+    else if (Math.random() < dt * .25 && f.cd <= 0) fire(f);
+  }
 }
 // 前方两格内有可击目标（砖/钢/老鹰/玩家）则值得开火
 function looksShootable(f) {
@@ -424,6 +426,7 @@ function pressDir(p, side) {
 }
 function update(dt) {
   G.t += dt;
+  if (G.state === 'play') G.stageT += dt;
   if (G.shake > 0) G.shake = Math.max(0, G.shake - dt * 30);
   for (let i = G.parts.length - 1; i >= 0; i--) {
     const p = G.parts[i];

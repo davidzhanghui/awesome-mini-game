@@ -124,7 +124,7 @@
       sel.style.cssText = 'position:fixed;top:12px;right:12px;z-index:99;'
         + 'background:rgba(20,28,48,.9);color:#fff;border:1px solid rgba(148,163,184,.4);'
         + 'border-radius:10px;padding:8px 12px;font-size:13px;font-weight:700;cursor:pointer;';
-      document.body.appendChild(btn);
+      document.body.appendChild(sel);
     }
   }
 
