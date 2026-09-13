@@ -6,7 +6,7 @@
 <link rel="icon" href="/favicon.svg" />
 <title>扫雷 · 经典益智</title>
 <link rel="stylesheet" href="styles.css" />
-<link rel="stylesheet" href="../assets/ui.css" />
+<link rel="stylesheet" href="../assets/ui.css?v=20260913" />
 <script src="../assets/theme.js"></script>
 </head>
 <body>
@@ -16,7 +16,7 @@
     <div class="logo">💣</div>
     <div>
       <h1><span data-i18n="name">扫雷</span> <em data-i18n="subtitle">经典益智</em></h1>
-      <p data-i18n="intro">初级 / 中级 / 高级 · 首击安全 · 双击展开</p>
+      <p data-i18n="intro">点开所有安全格子，小心别踩到地雷！</p>
     </div>
     <div class="brand-btns">
       <button id="btn-mute" class="icon-btn" title="声音开 / 关 (M)">🔊</button>
@@ -52,19 +52,19 @@
         <li data-i18n="rule1">首次点击必定安全</li><li data-i18n="rule2">数字 = 周围 8 格地雷数</li><li data-i18n="rule3">全部安全格揭开即胜利</li></ul></div>
     </aside>
   </section>
-  <footer data-i18n="footer">Canvas + WebAudio 原生实现 · 零依赖 · 经典三档 + 首击保护</footer>
+  <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏</footer>
 </main>
-<script src="../assets/i18n.js?v=20260908"></script>
+<script src="../assets/i18n.js?v=20260913"></script>
 <script>
 window.GAME_STR = {
   zh: {
     title: '扫雷 · 经典益智', name: '扫雷', subtitle: '经典益智',
-    intro: '初级 / 中级 / 高级 · 首击安全 · 双击展开',
+    intro: '点开所有安全格子，小心别踩到地雷！',
     mode0: '🌱 初级 9×9·10', mode1: '🌿 中级 16×16·40', mode2: '🌳 高级 30×16·99',
     retry: '🔄 再来一局 (R)', menu: '菜单',
     opTitle: '🎮 操作', op1: '左键揭开 · 右键标旗（触屏长按标旗）', op2: '双击数字：旗数够则展开周围',
     ruleTitle: '📏 规则', rule1: '首次点击必定安全', rule2: '数字 = 周围 8 格地雷数', rule3: '全部安全格揭开即胜利',
-    footer: 'Canvas + WebAudio 原生实现 · 零依赖 · 经典三档 + 首击保护',
+    footer: '🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏',
     muteTitle: '声音开 / 关 (M)', paused: '⏸ 暂停', op3a: '重开', op3b: '暂停', op3c: '静音',
     diffs: ['初级', '中级', '高级'], diffShort: ['初', '中', '高'],
     winTitle: '🎉 扫雷成功！', loseTitle: '💥 踩到地雷！',
@@ -75,12 +75,12 @@ window.GAME_STR = {
   },
   en: {
     title: 'Minesweeper · Classic Puzzle', name: 'Minesweeper', subtitle: 'Classic Puzzle',
-    intro: 'Beginner / Intermediate / Expert · Safe first click · Double-click to chord',
+    intro: 'Open all the safe squares — watch out for mines!',
     mode0: '🌱 Beginner 9×9·10', mode1: '🌿 Intermediate 16×16·40', mode2: '🌳 Expert 30×16·99',
     retry: '🔄 Play Again (R)', menu: 'Menu',
     opTitle: '🎮 Controls', op1: 'Left-click to open · right-click to flag (long-press on touch)', op2: 'Double-click a number: chord when flags match',
     ruleTitle: '📏 Rules', rule1: 'First click is always safe', rule2: 'Number = mines in the 8 neighbors', rule3: 'Open all safe cells to win',
-    footer: 'Native Canvas + WebAudio · zero dependencies · 3 classic levels + first-click safety',
+    footer: '🕹️ Play instantly · Free · Keyboard & touch friendly',
     muteTitle: 'Sound on/off (M)', paused: '⏸ Paused', op3a: 'restart', op3b: 'pause', op3c: 'mute',
     diffs: ['Beginner', 'Intermediate', 'Expert'], diffShort: ['B', 'I', 'E'],
     winTitle: '🎉 Cleared!', loseTitle: '💥 Boom! Mine hit!',
@@ -91,12 +91,12 @@ window.GAME_STR = {
   },
   ja: {
     title: 'マインスイーパ · クラシックパズル', name: 'マインスイーパ', subtitle: 'クラシックパズル',
-    intro: '初級 / 中級 / 上級 · 初手は安全 · ダブルクリックで展開',
+    intro: '安全なマスを全部開こう、地雷に気をつけて！',
     mode0: '🌱 初級 9×9·10', mode1: '🌿 中級 16×16·40', mode2: '🌳 上級 30×16·99',
     retry: '🔄 もう一回 (R)', menu: 'メニュー',
     opTitle: '🎮 操作', op1: '左クリックで開く · 右クリックで旗（長押し対応）', op2: '数字をダブルクリック：旗が揃えば周囲を展開',
     ruleTitle: '📏 ルール', rule1: '初手は必ず安全', rule2: '数字 = 周囲8マスの地雷数', rule3: '安全マスをすべて開けば勝利',
-    footer: 'Canvas + WebAudio ネイティブ実装 · 依存なし · 定番3レベル + 初手保護',
+    footer: '🕹️ すぐ遊べる · 完全無料 · キーボード＆タッチ対応',
     muteTitle: 'サウンド ON/OFF (M)', paused: '⏸ 一時停止中', op3a: 'リスタート', op3b: '一時停止', op3c: 'ミュート',
     diffs: ['初級', '中級', '上級'], diffShort: ['初', '中', '上'],
     winTitle: '🎉 クリア！', loseTitle: '💥 ドカン！地雷ヒット！',
@@ -107,12 +107,12 @@ window.GAME_STR = {
   },
   ko: {
     title: '지뢰찾기 · 클래식 퍼즐', name: '지뢰찾기', subtitle: '클래식 퍼즐',
-    intro: '초급 / 중급 / 고급 · 첫 클릭 안전 · 더블클릭으로 열기',
+    intro: '안전한 칸을 모두 여세요, 지뢰 조심!',
     mode0: '🌱 초급 9×9·10', mode1: '🌿 중급 16×16·40', mode2: '🌳 고급 30×16·99',
     retry: '🔄 다시 하기 (R)', menu: '메뉴',
     opTitle: '🎮 조작', op1: '좌클릭으로 열기 · 우클릭으로 깃발 (터치는 길게 누르기)', op2: '숫자 더블클릭: 깃발이 맞으면 주변 열기',
     ruleTitle: '📏 규칙', rule1: '첫 클릭은 항상 안전', rule2: '숫자 = 주변 8칸의 지뢰 수', rule3: '모든 안전 칸을 열면 승리',
-    footer: 'Canvas + WebAudio 네이티브 구현 · 의존성 없음 · 클래식 3단계 + 첫 클릭 보호',
+    footer: '🕹️ 바로 플레이 · 완전 무료 · 키보드 & 터치 지원',
     muteTitle: '사운드 켜기/끄기 (M)', paused: '⏸ 일시정지', op3a: '다시 시작', op3b: '일시정지', op3c: '음소거',
     diffs: ['초급', '중급', '고급'], diffShort: ['초', '중', '고'],
     winTitle: '🎉 클리어!', loseTitle: '💥 꽝! 지뢰 밟음!',

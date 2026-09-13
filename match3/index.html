@@ -6,7 +6,7 @@
 <link rel="icon" href="/favicon.svg" />
 <title>宝石消除 · 经典益智</title>
 <link rel="stylesheet" href="styles.css" />
-<link rel="stylesheet" href="../assets/ui.css" />
+<link rel="stylesheet" href="../assets/ui.css?v=20260913" />
 <script src="../assets/theme.js"></script>
 </head>
 <body>
@@ -16,7 +16,7 @@
     <div class="logo">💎</div>
     <div>
       <h1><span data-i18n="name">宝石消除</span> <em data-i18n="subtitle">经典益智</em></h1>
-      <p data-i18n="intro">交换消除 · 连锁倍率 · 目标闯关 · 无步自动洗牌</p>
+      <p data-i18n="intro">交换相邻宝石，三个以上连成线就消除得分！</p>
     </div>
     <div class="brand-btns">
       <button id="btn-mute" class="icon-btn" title="声音开 / 关 (M)">🔊</button>
@@ -55,21 +55,21 @@
         <li data-i18n="rule1">3 连消除，4 连 5 连高分</li><li data-i18n="rule2">连锁反应倍率递增</li><li data-i18n="rule3">前 5 关限步，后 3 关限时 · 停手约 6 秒会提示</li><li><kbd>P</kbd>/<kbd>Esc</kbd> <span data-i18n="rulePause">暂停</span></li></ul></div>
     </aside>
   </section>
-  <footer data-i18n="footer">Canvas + WebAudio 原生实现 · 零依赖 · 8×8 棋盘 + 连锁 + 洗牌保底</footer>
+  <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏</footer>
 </main>
-<script src="../assets/i18n.js?v=20260908"></script>
+<script src="../assets/i18n.js?v=20260913"></script>
 <script>
 window.GAME_STR = {
   zh: {
     title: '宝石消除 · 经典益智', name: '宝石消除', subtitle: '经典益智',
-    intro: '交换消除 · 连锁倍率 · 目标闯关 · 无步自动洗牌',
+    intro: '交换相邻宝石，三个以上连成线就消除得分！',
     start: '🚀 开始闯关', hint: '点击两颗相邻宝石交换 · 3 连即消除',
     retry: '🔄 重玩本关 (R)', menu: '菜单', next: '下一关 →',
     clearPre: '🎉 第', clearSuf: '关通过！',
     opTitle: '🎮 操作', op1: '点击一颗再点相邻一颗交换', op2: '或按住拖动交换', op3: '无效交换会自动换回来',
     ruleTitle: '✨ 规则', rule1: '3 连消除，4 连 5 连高分', rule2: '连锁反应倍率递增',
     rule3: '前 5 关限步，后 3 关限时 · 停手约 6 秒会提示', rulePause: '暂停',
-    footer: 'Canvas + WebAudio 原生实现 · 零依赖 · 8×8 棋盘 + 连锁 + 洗牌保底',
+    footer: '🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏',
     muteTitle: '声音开 / 关 (M)', paused: '⏸ 暂停',
     best: v => '🏆 历史最高：' + v,
     shuffleMsg: '🔀 无步可走，已洗牌',
@@ -82,14 +82,14 @@ window.GAME_STR = {
   },
   en: {
     title: 'Match 3 · Classic Puzzle', name: 'Match 3', subtitle: 'Classic Puzzle',
-    intro: 'Swap to match · chain multipliers · goal stages · auto-shuffle when stuck',
+    intro: 'Swap neighboring gems — line up 3 or more to pop and score!',
     start: '🚀 Start Stages', hint: 'Click two adjacent gems to swap · 3 in a row clears',
     retry: '🔄 Retry Stage (R)', menu: 'Menu', next: 'Next Stage →',
     clearPre: '🎉 Stage', clearSuf: 'cleared!',
     opTitle: '🎮 Controls', op1: 'Click one gem, then an adjacent one to swap', op2: 'Or press and drag to swap', op3: 'Invalid swaps swap back automatically',
     ruleTitle: '✨ Rules', rule1: 'Match 3 to clear, bonus for 4 and 5', rule2: 'Chain reactions multiply the score',
     rule3: 'First 5 stages are move-limited, last 3 are timed · idle ~6s shows a hint', rulePause: 'Pause',
-    footer: 'Native Canvas + WebAudio · zero dependencies · 8×8 board + chains + shuffle fallback',
+    footer: '🕹️ Play instantly · Free · Keyboard & touch friendly',
     muteTitle: 'Sound on/off (M)', paused: '⏸ Paused',
     best: v => '🏆 Best: ' + v,
     shuffleMsg: '🔀 No moves left, reshuffled',
@@ -102,14 +102,14 @@ window.GAME_STR = {
   },
   ja: {
     title: '宝石消し · クラシックパズル', name: '宝石消し', subtitle: 'クラシックパズル',
-    intro: '入れ替え消し · 連鎖倍率 · 目標ステージ · 手詰まり自動シャッフル',
+    intro: 'となりの宝石を入れ替えて、3つそろえて消そう！',
     start: '🚀 ステージ開始', hint: '隣り合う宝石2つをタップで入れ替え · 3つ並べば消去',
     retry: '🔄 この面を再挑戦 (R)', menu: 'メニュー', next: '次の面へ →',
     clearPre: '🎉 ステージ', clearSuf: 'クリア！',
     opTitle: '🎮 操作', op1: '宝石をタップ→隣をタップで入れ替え', op2: 'ドラッグで入れ替えもOK', op3: '無効な入れ替えは自動で戻る',
     ruleTitle: '✨ ルール', rule1: '3つ消し、4・5つは高得点', rule2: '連鎖するほど倍率アップ',
     rule3: '前半5面は手数制限、後半3面は時間制限 · 約6秒放置でヒント', rulePause: '一時停止',
-    footer: 'Canvas + WebAudio ネイティブ実装 · 依存なし · 8×8盤 + 連鎖 + シャッフル救済',
+    footer: '🕹️ すぐ遊べる · 完全無料 · キーボード＆タッチ対応',
     muteTitle: 'サウンド ON/OFF (M)', paused: '⏸ 一時停止中',
     best: v => '🏆 最高記録：' + v,
     shuffleMsg: '🔀 手詰まり、シャッフルしました',
@@ -122,14 +122,14 @@ window.GAME_STR = {
   },
   ko: {
     title: '보석 맞추기 · 클래식 퍼즐', name: '보석 맞추기', subtitle: '클래식 퍼즐',
-    intro: '교환해서 맞추기 · 연쇄 배율 · 목표 스테이지 · 막히면 자동 섞기',
+    intro: '이웃한 보석을 바꿔 3개 이상을 맞춰 터뜨리세요!',
     start: '🚀 스테이지 시작', hint: '인접한 보석 2개를 눌러 교환 · 3개 맞추면 제거',
     retry: '🔄 이 스테이지 다시 하기 (R)', menu: '메뉴', next: '다음 스테이지 →',
     clearPre: '🎉 스테이지', clearSuf: '클리어!',
     opTitle: '🎮 조작', op1: '보석 하나를 누르고 이웃 보석을 눌러 교환', op2: '드래그로 교환도 가능', op3: '무효한 교환은 자동으로 되돌아옴',
     ruleTitle: '✨ 규칙', rule1: '3개 맞추면 제거, 4·5개는 고득점', rule2: '연쇄가 이어질수록 배율 증가',
     rule3: '앞 5개 스테이지는 수 제한, 뒤 3개는 시간 제한 · 약 6초 방치 시 힌트', rulePause: '일시정지',
-    footer: 'Canvas + WebAudio 네이티브 구현 · 의존성 없음 · 8×8 보드 + 연쇄 + 섞기 보장',
+    footer: '🕹️ 바로 플레이 · 완전 무료 · 키보드 & 터치 지원',
     muteTitle: '사운드 켜기/끄기 (M)', paused: '⏸ 일시정지',
     best: v => '🏆 최고 기록: ' + v,
     shuffleMsg: '🔀 둘 곳이 없어 섞었습니다',

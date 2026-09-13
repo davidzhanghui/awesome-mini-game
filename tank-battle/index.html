@@ -6,7 +6,7 @@
 <link rel="icon" href="/favicon.svg" />
 <title>坦克大战 · 经典街机</title>
 <link rel="stylesheet" href="styles.css" />
-<link rel="stylesheet" href="../assets/ui.css" />
+<link rel="stylesheet" href="../assets/ui.css?v=20260913" />
 <script src="../assets/theme.js"></script>
 </head>
 <body>
@@ -16,7 +16,7 @@
     <div class="logo">🪖</div>
     <div>
       <h1><span data-i18n="gameTitle">坦克大战</span> <em data-i18n="arcadeSub">经典街机</em></h1>
-      <p data-i18n="intro">单人闯关 / 双人守家 · 地图编辑器 · 6 种道具</p>
+      <p data-i18n="intro">驾驶坦克保卫基地，消灭所有敌方坦克！</p>
     </div>
     <div class="brand-btns">
       <button id="btn-mute" class="icon-btn" title="声音开 / 关 (M)">🔊</button>
@@ -131,15 +131,15 @@
         <p data-i18n="guardText">老鹰被击毁直接战败！注意流弹也会打坏老家砖墙。闪烁红光的敌军必掉道具。</p></div>
     </aside>
   </section>
-  <footer data-i18n="footer">Canvas + WebAudio 原生实现 · 零依赖 · 致敬 Battle City</footer>
+  <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏</footer>
 </main>
-<script src="../assets/i18n.js?v=20260908"></script>
+<script src="../assets/i18n.js?v=20260913"></script>
 <script src="../assets/touch.js?v=20260908"></script>
 <script>
 window.GAME_STR = {
   zh: {
     title: '坦克大战 · 经典街机', gameTitle: '坦克大战', arcadeSub: '经典街机',
-    intro: '单人闯关 / 双人守家 · 地图编辑器 · 6 种道具',
+    intro: '驾驶坦克保卫基地，消灭所有敌方坦克！',
     solo: '🚀 单人出击', duo: '👥 双人守家', stageLabel: '关卡', editorBtn: '🗺 地图编辑器',
     customNote: '已保存自创地图，可在编辑器中试玩', bestPrefix: '🏆 历史最高：',
     pauseTitle: '⏸ 已暂停', pauseTip: '按 P 或点击继续', resume: '继续', quit: '回菜单',
@@ -156,7 +156,7 @@ window.GAME_STR = {
     itemClock: '⏰ 时钟 — 敌军定身 7 秒', itemShovel: '🛡 工兵铲 — 家变钢墙 20 秒',
     itemGrenade: '💣 手雷 — 炸掉所有敌军', itemLife: '🎖 坦克 — 生命 +1',
     guardTitle: '🦅 守家要点', guardText: '老鹰被击毁直接战败！注意流弹也会打坏老家砖墙。闪烁红光的敌军必掉道具。',
-    footer: 'Canvas + WebAudio 原生实现 · 零依赖 · 致敬 Battle City',
+    footer: '🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏',
     muteTitle: '声音开 / 关 (M)',
     stages: ['第 1 关 · 初露锋芒', '第 2 关 · 钢铁长城', '第 3 关 · 河流草原', '第 4 关 · 冰火两重', '第 5 关 · 最终决战'],
     stageShort: n => '第 ' + n + ' 关', customMap: '自创地图',
@@ -175,7 +175,7 @@ window.GAME_STR = {
   },
   en: {
     title: 'Tank Battle · Arcade Classic', gameTitle: 'Tank Battle', arcadeSub: 'Arcade Classic',
-    intro: 'Solo campaign / 2P base defense · map editor · 6 power-ups',
+    intro: 'Drive your tank, defend the base, blast every enemy!',
     solo: '🚀 Solo', duo: '👥 2P Co-op', stageLabel: 'Stage', editorBtn: '🗺 Map Editor',
     customNote: 'Custom map saved — test it in the editor', bestPrefix: '🏆 Best: ',
     pauseTitle: '⏸ Paused', pauseTip: 'Press P or click to resume', resume: 'Resume', quit: 'Menu',
@@ -192,7 +192,7 @@ window.GAME_STR = {
     itemClock: '⏰ Clock — freeze enemies 7s', itemShovel: '🛡 Shovel — steel walls for 20s',
     itemGrenade: '💣 Grenade — wipe out all enemies', itemLife: '🎖 Tank — +1 life',
     guardTitle: '🦅 Defend the Eagle', guardText: 'Losing the Eagle means instant defeat! Stray shells also damage home walls. Flashing red enemies always drop power-ups.',
-    footer: 'Native Canvas + WebAudio · zero dependencies · a tribute to Battle City',
+    footer: '🕹️ Play instantly · Free · Keyboard & touch friendly',
     muteTitle: 'Sound on/off (M)',
     stages: ['Stage 1 · First Blood', 'Stage 2 · Steel Wall', 'Stage 3 · River Meadow', 'Stage 4 · Ice & Fire', 'Stage 5 · Final Stand'],
     stageShort: n => 'STAGE ' + n, customMap: 'Custom map',
@@ -211,7 +211,7 @@ window.GAME_STR = {
   },
   ja: {
     title: '戦車バトル · アーケードクラシック', gameTitle: '戦車バトル', arcadeSub: 'アーケードクラシック',
-    intro: 'ソロ攻略 / 2P基地防衛 · マップエディタ · パワーアップ6種',
+    intro: '戦車を動かして基地を守り、敵を全部倒そう！',
     solo: '🚀 ソロ出撃', duo: '👥 2P協力', stageLabel: 'ステージ', editorBtn: '🗺 マップエディタ',
     customNote: '自作マップを保存済 — エディタで試遊可能', bestPrefix: '🏆 ベスト： ',
     pauseTitle: '⏸ 一時停止中', pauseTip: 'Pキーまたはクリックで再開', resume: '再開', quit: 'メニュー',
@@ -228,7 +228,7 @@ window.GAME_STR = {
     itemClock: '⏰ 時計 — 敵を7秒停止', itemShovel: '🛡 シャベル — 基地が鋼壁に20秒',
     itemGrenade: '💣 手榴弾 — 敵を全滅', itemLife: '🎖 戦車 — 残機 +1',
     guardTitle: '🦅 基地防衛の要点', guardText: '基地が破壊されると即敗北！流れ弾も自陣の壁を壊す。赤く点滅する敵は必ずアイテムを落とす。',
-    footer: 'Canvas + WebAudioネイティブ実装 · 依存ゼロ · Battle Cityに敬意を',
+    footer: '🕹️ すぐ遊べる · 完全無料 · キーボード＆タッチ対応',
     muteTitle: 'サウンド切替 (M)',
     stages: ['ステージ1 · 初陣', 'ステージ2 · 鋼の壁', 'ステージ3 · 河と草原', 'ステージ4 · 氷と火', 'ステージ5 · 最終決戦'],
     stageShort: n => 'STAGE ' + n, customMap: '自作マップ',
@@ -247,7 +247,7 @@ window.GAME_STR = {
   },
   ko: {
     title: '탱크 배틀 · 아케이드 클래식', gameTitle: '탱크 배틀', arcadeSub: '아케이드 클래식',
-    intro: '솔로 공략 / 2P 기지 방어 · 맵 에디터 · 파워업 6종',
+    intro: '전차로 기지를 지키며 적 전차를 모두 격파하세요!',
     solo: '🚀 솔로 출격', duo: '👥 2P 협동', stageLabel: '스테이지', editorBtn: '🗺 맵 에디터',
     customNote: '커스텀 맵 저장됨 — 에디터에서 테스트 가능', bestPrefix: '🏆 최고: ',
     pauseTitle: '⏸ 일시정지', pauseTip: 'P 키 또는 클릭으로 계속', resume: '계속', quit: '메뉴',
@@ -264,7 +264,7 @@ window.GAME_STR = {
     itemClock: '⏰ 시계 — 적 7초 정지', itemShovel: '🛡 삽 — 기지가 강철벽으로 20초',
     itemGrenade: '💣 수류탄 — 적 전멸', itemLife: '🎖 탱크 — 목숨 +1',
     guardTitle: '🦅 기지 방어 요점', guardText: '기지(독수리)가 파괴되면 즉시 패배! 유탄도 아군 벽을 부순다. 빨갛게 깜빡이는 적은 반드시 아이템을 떨군다.',
-    footer: 'Canvas + WebAudio 네이티브 구현 · 의존성 제로 · Battle City 오마주',
+    footer: '🕹️ 바로 플레이 · 완전 무료 · 키보드 & 터치 지원',
     muteTitle: '사운드 켜기/끄기 (M)',
     stages: ['스테이지 1 · 첫 출격', '스테이지 2 · 강철 장벽', '스테이지 3 · 강과 초원', '스테이지 4 · 얼음과 불', '스테이지 5 · 최종 결전'],
     stageShort: n => 'STAGE ' + n, customMap: '커스텀 맵',
@@ -283,6 +283,6 @@ window.GAME_STR = {
   }
 };
 </script>
-<script src="game.js?v=20260906"></script>
+<script src="game.js?v=20260913"></script>
 </body>
 </html>

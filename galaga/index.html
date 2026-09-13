@@ -6,7 +6,7 @@
 <link rel="icon" href="/favicon.svg" />
 <title>小蜜蜂 Galaga · 经典空战</title>
 <link rel="stylesheet" href="styles.css" />
-<link rel="stylesheet" href="../assets/ui.css" />
+<link rel="stylesheet" href="../assets/ui.css?v=20260913" />
 <script src="../assets/theme.js"></script>
 </head>
 <body>
@@ -16,7 +16,7 @@
     <div class="logo">🐝</div>
     <div>
       <h1><span data-i18n="gameTitle">小蜜蜂</span> <em data-i18n="galagaSub">GALAGA 空战</em></h1>
-      <p data-i18n="intro">← → / AD 移动 · Z/空格 开火 · Boss 牵引抓机可救回双机合体</p>
+      <p data-i18n="intro">左右移动射击外星机群，被抓住的战机还能救回来！</p>
     </div>
     <div class="brand-btns">
       <button id="btn-mute" class="icon-btn" title="声音开 / 关 (M)">🔊</button>
@@ -113,15 +113,15 @@
       </div>
     </aside>
   </section>
-  <footer data-i18n="footer">Canvas + WebAudio 原生实现 · 零依赖 · 阵型入场 / 俯冲 / 抓机双机 / 奖励关</footer>
+  <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏</footer>
 </main>
-<script src="../assets/i18n.js?v=20260908"></script>
+<script src="../assets/i18n.js?v=20260913"></script>
 <script src="../assets/touch.js?v=20260908"></script>
 <script>
 window.GAME_STR = {
   zh: {
     title: '小蜜蜂 Galaga · 经典空战', gameTitle: '小蜜蜂', galagaSub: 'GALAGA 空战',
-    intro: '← → / AD 移动 · Z/空格 开火 · Boss 牵引抓机可救回双机合体',
+    intro: '左右移动射击外星机群，被抓住的战机还能救回来！',
     solo: '🚀 单人出击', coop: '👥 双人协作 (P2: JK)',
     hintPre: '按 ', keySpace: '空格', hintPost: '开火 · 被抓住的战机可以救回来变双机！',
     pauseTitle: '⏸ 已暂停', pauseTip: '敌机群正在待命…', resume: '继续', quit: '回菜单',
@@ -136,7 +136,7 @@ window.GAME_STR = {
     dexBoss: '🟢 Boss Galaga — 150 分，需 2 发，俯冲 300~400 分',
     dexBonus: '⚡ 奖励关：全歼 40 只 +10000 分',
     dualTitle: '🚀 双机合体', dualText: 'Boss 会放出牵引光束抓走你的战机！击落抓机的 Boss（俯冲时）即可救回，火力翻倍。双机时被击中只损失一架。',
-    footer: 'Canvas + WebAudio 原生实现 · 零依赖 · 阵型入场 / 俯冲 / 抓机双机 / 奖励关',
+    footer: '🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏',
     muteTitle: '声音开 / 关 (M)', musicTitle: '音乐开 / 关', pauseBtnTitle: '暂停 (P)',
     best: v => '🏆 历史最高：' + v,
     floatSolo: '单机！', floatLife: '🎉 奖励一命！', floatCaptured: '被抓走了！',
@@ -151,7 +151,7 @@ window.GAME_STR = {
   },
   en: {
     title: 'Galaga · Classic Space Shooter', gameTitle: 'Galaga', galagaSub: 'GALAGA DOGFIGHT',
-    intro: '← → / AD to move · Z/Space to fire · rescue fighters from Boss tractor beams for dual mode',
+    intro: 'Dodge and blast the alien swarm — rescue captured fighters to fly double!',
     solo: '🚀 Solo', coop: '👥 Co-op (P2: JK)',
     hintPre: 'Press ', keySpace: 'Space', hintPost: ' to fire · rescue captured fighters for dual mode!',
     pauseTitle: '⏸ Paused', pauseTip: 'The swarm is standing by…', resume: 'Resume', quit: 'Menu',
@@ -166,7 +166,7 @@ window.GAME_STR = {
     dexBoss: '🟢 Boss Galaga — 150 pts, takes 2 hits, 300–400 diving',
     dexBonus: '⚡ Bonus stage: wipe out all 40 for +10,000',
     dualTitle: '🚀 Dual Fighter', dualText: 'Bosses fire tractor beams to capture your fighter! Down the capturing Boss mid-dive to rescue it and double your firepower. While dual, a hit only costs one ship.',
-    footer: 'Native Canvas + WebAudio · zero dependencies · formation entry / dives / capture & dual / bonus stages',
+    footer: '🕹️ Play instantly · Free · Keyboard & touch friendly',
     muteTitle: 'Sound on/off (M)', musicTitle: 'Music on/off', pauseBtnTitle: 'Pause (P)',
     best: v => '🏆 Best: ' + v,
     floatSolo: 'Solo ship!', floatLife: '🎉 Bonus life!', floatCaptured: 'Captured!',
@@ -181,7 +181,7 @@ window.GAME_STR = {
   },
   ja: {
     title: 'ギャラガ · クラシックシューティング', gameTitle: 'ギャラガ', galagaSub: 'GALAGA 空戦',
-    intro: '← → / ADで移動 · Z/スペースで射撃 · 牽引光線の捕獲機を救出しダブル合体',
+    intro: '左右に動いてエイリアンを撃とう！捕まった戦闘機は救出できるよ',
     solo: '🚀 ソロ出撃', coop: '👥 2P協力 (P2: JK)',
     hintPre: '', keySpace: 'スペース', hintPost: 'で射撃 · 捕獲機を救出してダブル合体！',
     pauseTitle: '⏸ 一時停止中', pauseTip: '敵の大群が待機中…', resume: '再開', quit: 'メニュー',
@@ -196,7 +196,7 @@ window.GAME_STR = {
     dexBoss: '🟢 ボスギャラガ — 150点、2発必要、急降下で300〜400点',
     dexBonus: '⚡ ボーナス面：40機全滅で+10000点',
     dualTitle: '🚀 ダブル合体', dualText: 'ボスは牽引光線で自機を捕獲する！急降下中のボスを撃墜すれば救出でき、火力2倍。ダブル時は被弾しても1機のみ損失。',
-    footer: 'Canvas + WebAudioネイティブ実装 · 依存ゼロ · 編隊突入 / 急降下 / 捕獲·救出 / ボーナス面',
+    footer: '🕹️ すぐ遊べる · 完全無料 · キーボード＆タッチ対応',
     muteTitle: 'サウンド 切替 (M)', musicTitle: '音楽 切替', pauseBtnTitle: '一時停止 (P)',
     best: v => '🏆 ベスト：' + v,
     floatSolo: '単機！', floatLife: '🎉 1機追加！', floatCaptured: '捕獲された！',
@@ -211,7 +211,7 @@ window.GAME_STR = {
   },
   ko: {
     title: '갤러그 · 클래식 슈팅', gameTitle: '갤러그', galagaSub: 'GALAGA 공중전',
-    intro: '← → / AD 이동 · Z/스페이스로 발사 · 견인 빔 포획 기체를 구출해 듀얼 합체',
+    intro: '좌우로 움직여 외계 함대를 격파! 잡힌 전투기는 구출할 수 있어요',
     solo: '🚀 솔로 출격', coop: '👥 2인 협동 (P2: JK)',
     hintPre: '', keySpace: '스페이스', hintPost: '로 발사 · 잡힌 기체를 구출하면 듀얼 합체!',
     pauseTitle: '⏸ 일시정지', pauseTip: '적 편대가 대기 중…', resume: '계속', quit: '메뉴',
@@ -226,7 +226,7 @@ window.GAME_STR = {
     dexBoss: '🟢 보스 갤러그 — 150점, 2발 필요, 급강하 300~400점',
     dexBonus: '⚡ 보너스 스테이지: 40기 전멸 시 +10000점',
     dualTitle: '🚀 듀얼 합체', dualText: '보스는 견인 빔으로 아군을 포획한다! 급강하 중인 보스를 격추해 구출하면 화력 2배. 듀얼 중 피탄 시 1기만 손실.',
-    footer: 'Canvas + WebAudio 네이티브 구현 · 의존성 제로 · 편대 진입 / 급강하 / 포획·구출 / 보너스 스테이지',
+    footer: '🕹️ 바로 플레이 · 완전 무료 · 키보드 & 터치 지원',
     muteTitle: '사운드 켜기/끄기 (M)', musicTitle: '음악 켜기/끄기', pauseBtnTitle: '일시정지 (P)',
     best: v => '🏆 최고: ' + v,
     floatSolo: '단독기!', floatLife: '🎉 보너스 1기!', floatCaptured: '잡혔다!',

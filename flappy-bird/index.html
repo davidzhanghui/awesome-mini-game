@@ -6,7 +6,7 @@
 <link rel="icon" href="/favicon.svg" />
 <title>Flappy Bird · 像素天空</title>
 <link rel="stylesheet" href="styles.css" />
-<link rel="stylesheet" href="../assets/ui.css" />
+<link rel="stylesheet" href="../assets/ui.css?v=20260913" />
 <script src="../assets/theme.js"></script>
 </head>
 <body>
@@ -17,7 +17,7 @@
       <div class="logo">🐤</div>
       <div>
         <h1>Flappy Bird <em data-i18n="subtitle">像素天空</em></h1>
-        <p data-i18n="intro">单人闯关 / 双人对战 — 让小鸟飞起来，穿越水管！</p>
+        <p data-i18n="intro">让小鸟飞起来，一根根水管穿过去！单人闯关或和朋友对战</p>
       </div>
       <div class="brand-btns">
         <button id="btn-theme" class="icon-btn" title="切换白天 / 黑夜">🌙</button>
@@ -128,15 +128,15 @@
       </aside>
     </section>
 
-    <footer><span data-i18n="footPre">用 Canvas + WebAudio 原生实现 · 零依赖 · 双击</span> <kbd>R</kbd> <span data-i18n="footSuf">秒开下一局</span></footer>
+    <footer><span data-i18n="footPre">🕹️ 打开即玩 · 免费 · 双击</span> <kbd>R</kbd> <span data-i18n="footSuf">马上再来一局</span></footer>
   </main>
 
-<script src="../assets/i18n.js?v=20260908"></script>
+<script src="../assets/i18n.js?v=20260913"></script>
 <script>
 window.GAME_STR = {
   zh: {
     title: 'Flappy Bird · 像素天空', subtitle: '像素天空', gameName: '像素天空',
-    intro: '单人闯关 / 双人对战 — 让小鸟飞起来，穿越水管！',
+    intro: '让小鸟飞起来，一根根水管穿过去！单人闯关或和朋友对战',
     solo: '🚀 单人闯关', duo: '⚔️ 双人对战',
     hintSoloPre: '单人：', hintSoloSuf: ' / 点击起飞', hintDuoPre: '双人：', kbdSpace: '空格',
     readyTitle: '准备好了吗？',
@@ -150,13 +150,13 @@ window.GAME_STR = {
     pauseKw: '暂停', muteKw: '静音', rematchKw: '重开', rulePass: '穿过水管 +1 分，撞到即结束',
     medalTitle: '🏅 奖牌', medalB: '🥉 10+ 铜牌', medalS: '🥈 20+ 银牌', medalG: '🥇 30+ 金牌', medalD: '💎 40+ 钻石',
     diffTitle: '⚡ 难度会递增', diffBody: '飞得越远，水管越快、缝隙越窄。坚持住！',
-    footPre: '用 Canvas + WebAudio 原生实现 · 零依赖 · 双击', footSuf: '秒开下一局',
+    footPre: '🕹️ 打开即玩 · 免费 · 双击', footSuf: '马上再来一局',
     muteTitle: '声音开 / 关 (M)', pauseTitle: '暂停 (P)', themeTitle: '切换白天 / 黑夜',
     bestLine: b => '🏆 历史最佳：' + b
   },
   en: {
     title: 'Flappy Bird · Pixel Sky', subtitle: 'Pixel Sky', gameName: 'Pixel Sky',
-    intro: 'Solo runs / 2-player duels — keep the bird flying through the pipes!',
+    intro: 'Keep the bird flying through the pipes! Solo run or duel a friend',
     solo: '🚀 Solo Run', duo: '⚔️ 2-Player Duel',
     hintSoloPre: 'Solo: ', hintSoloSuf: ' / tap to flap', hintDuoPre: 'Duo: ', kbdSpace: 'Space',
     readyTitle: 'Ready?',
@@ -170,13 +170,13 @@ window.GAME_STR = {
     pauseKw: 'Pause', muteKw: 'Mute', rematchKw: 'Restart', rulePass: '+1 per pipe passed, crash and it is over',
     medalTitle: '🏅 Medals', medalB: '🥉 10+ Bronze', medalS: '🥈 20+ Silver', medalG: '🥇 30+ Gold', medalD: '💎 40+ Diamond',
     diffTitle: '⚡ It gets harder', diffBody: 'The further you fly, the faster the pipes and the narrower the gaps. Hang in there!',
-    footPre: 'Native Canvas + WebAudio · zero dependencies · hit', footSuf: 'for an instant rematch',
+    footPre: '🕹️ Play instantly · Free · hit', footSuf: 'for an instant rematch',
     muteTitle: 'Sound on/off (M)', pauseTitle: 'Pause (P)', themeTitle: 'Toggle day / night',
     bestLine: b => '🏆 Best: ' + b
   },
   ja: {
     title: 'フラッピーバード · ピクセルスカイ', subtitle: 'ピクセルスカイ', gameName: 'ピクセルスカイ',
-    intro: 'ソロ挑戦 / 2人対戦 — 鳥を羽ばたかせて土管を抜けよう！',
+    intro: '鳥を羽ばたかせて土管をくぐり抜けよう！ソロ or 2人対戦',
     solo: '🚀 ソロ挑戦', duo: '⚔️ 2人対戦',
     hintSoloPre: 'ソロ：', hintSoloSuf: ' / タップで羽ばたき', hintDuoPre: '2人：', kbdSpace: 'スペース',
     readyTitle: '準備はいい？',
@@ -190,13 +190,13 @@ window.GAME_STR = {
     pauseKw: '一時停止', muteKw: 'ミュート', rematchKw: '再戦', rulePass: '土管通過で+1、ぶつかったら終了',
     medalTitle: '🏅 メダル', medalB: '🥉 10+ ブロンズ', medalS: '🥈 20+ シルバー', medalG: '🥇 30+ ゴールド', medalD: '💎 40+ ダイヤ',
     diffTitle: '⚡ どんどん難しくなる', diffBody: '遠くへ進むほど土管が速く、隙間が狭くなる。粘れ！',
-    footPre: 'Canvas + WebAudio ネイティブ実装 · 依存なし ·', footSuf: '連打で即リマッチ',
+    footPre: '🕹️ すぐ遊べる · 無料 ·', footSuf: '連打で即リマッチ',
     muteTitle: 'サウンド ON/OFF (M)', pauseTitle: '一時停止 (P)', themeTitle: '昼 / 夜 切替',
     bestLine: b => '🏆 最高記録：' + b
   },
   ko: {
     title: '플래피 버드 · 픽셀 스카이', subtitle: '픽셀 스카이', gameName: '픽셀 스카이',
-    intro: '솔로 도전 / 2인 대결 — 새를 날려 파이프를 통과하세요!',
+    intro: '새를 날려 파이프를 통과하세요! 솔로 또는 친구와 대결',
     solo: '🚀 솔로 도전', duo: '⚔️ 2인 대결',
     hintSoloPre: '솔로: ', hintSoloSuf: ' / 탭해서 날기', hintDuoPre: '2인: ', kbdSpace: '스페이스',
     readyTitle: '준비됐나요?',
@@ -210,7 +210,7 @@ window.GAME_STR = {
     pauseKw: '일시정지', muteKw: '음소거', rematchKw: '재시작', rulePass: '파이프 통과 +1점, 부딪히면 종료',
     medalTitle: '🏅 메달', medalB: '🥉 10+ 동메달', medalS: '🥈 20+ 은메달', medalG: '🥇 30+ 금메달', medalD: '💎 40+ 다이아',
     diffTitle: '⚡ 점점 어려워져요', diffBody: '멀리 날수록 파이프는 빨라지고 틈은 좁아져요. 버텨보세요!',
-    footPre: 'Canvas + WebAudio 네이티브 구현 · 의존성 없음 ·', footSuf: '연타로 바로 재시작',
+    footPre: '🕹️ 바로 플레이 · 무료 ·', footSuf: '연타로 바로 재시작',
     muteTitle: '사운드 켜기/끄기 (M)', pauseTitle: '일시정지 (P)', themeTitle: '낮 / 밤 전환',
     bestLine: b => '🏆 최고 기록: ' + b
   }
