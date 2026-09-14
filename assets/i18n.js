@@ -28,16 +28,17 @@
     ja: '言語を切り替え', ko: '언어 변경'
   };
 
-  // Default language is English. ?lang= > localStorage > en.
+  // Default language is Chinese (matches landing page & static HTML).
+  // ?lang= > localStorage > zh.
   function getLang() {
     try {
       var m = /[?&]lang=(zh|en|ja|ko)\b/.exec(location.search || '');
       if (m) return m[1];
       var saved = localStorage.getItem('amg-lang');
       if (LANGS.indexOf(saved) >= 0) return saved;
-      return 'en';
+      return 'zh';
     } catch (e) {
-      return 'en';
+      return 'zh';
     }
   }
 
@@ -94,6 +95,16 @@
     var ttl = t(dict, 'title');
     if (ttl && ttl !== 'title') document.title = ttl;
     try { document.documentElement.lang = lang === 'zh' ? 'zh-CN' : lang; } catch (e) {}
+    // SEO: ?lang= 语言变体页的 canonical 必须自指（否则被合并回默认语言页）
+    try {
+      var can = document.querySelector('link[rel="canonical"]');
+      if (can) {
+        var cu = new URL(can.getAttribute('href'), location.href);
+        if (lang === 'zh') cu.searchParams.delete('lang');
+        else cu.searchParams.set('lang', lang);
+        can.setAttribute('href', cu.toString());
+      }
+    } catch (e) {}
     var els = document.querySelectorAll('[data-i18n]');
     for (var i = 0; i < els.length; i++) {
       els[i].textContent = t(dict, els[i].getAttribute('data-i18n'));

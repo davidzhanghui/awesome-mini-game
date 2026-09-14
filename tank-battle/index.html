@@ -3,10 +3,50 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="description" content="驾驶坦克保卫基地，消灭所有敌方坦克！">
+<link rel="canonical" href="https://awesome-mini-game.vercel.app/tank-battle/">
+<link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/tank-battle/">
+<link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/tank-battle/?lang=en">
+<link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/tank-battle/?lang=ja">
+<link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/tank-battle/?lang=ko">
+<link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/tank-battle/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Awesome Mini Game">
+<meta property="og:title" content="坦克大战 · 经典街机">
+<meta property="og:description" content="驾驶坦克保卫基地，消灭所有敌方坦克！">
+<meta property="og:url" content="https://awesome-mini-game.vercel.app/tank-battle/">
+<meta property="og:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="坦克大战 · 经典街机">
+<meta name="twitter:description" content="驾驶坦克保卫基地，消灭所有敌方坦克！">
+<meta name="twitter:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "坦克大战 · 经典街机",
+  "description": "驾驶坦克保卫基地，消灭所有敌方坦克！",
+  "url": "https://awesome-mini-game.vercel.app/tank-battle/",
+  "genre": "射击街机",
+  "gamePlatform": "Web Browser",
+  "inLanguage": [
+    "zh-CN",
+    "en",
+    "ja",
+    "ko"
+  ],
+  "isAccessibleForFree": true,
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "CNY"
+  }
+}
+</script>
 <link rel="icon" href="/favicon.svg" />
 <title>坦克大战 · 经典街机</title>
 <link rel="stylesheet" href="styles.css" />
-<link rel="stylesheet" href="../assets/ui.css?v=20260913" />
+<link rel="stylesheet" href="../assets/ui.css?v=20260915" />
 <script src="../assets/theme.js"></script>
 </head>
 <body>
@@ -39,8 +79,9 @@
           <button id="btn-1p" class="btn primary" data-i18n="solo">🚀 单人出击</button>
           <button id="btn-2p" class="btn duel" data-i18n="duo">👥 双人守家</button>
         </div>
+        <p class="pick-hint" data-i18n="stageLabel">关卡</p>
+        <div id="stage-select" class="level-select"></div>
         <div class="opt-row">
-          <label><span data-i18n="stageLabel">关卡</span> <select id="sel-stage"></select></label>
           <button id="btn-editor" class="btn ghost sm" data-i18n="editorBtn">🗺 地图编辑器</button>
         </div>
         <div id="custom-note" class="custom-note hidden" data-i18n="customNote">已保存自创地图，可在编辑器中试玩</div>
@@ -131,9 +172,11 @@
         <p data-i18n="guardText">老鹰被击毁直接战败！注意流弹也会打坏老家砖墙。闪烁红光的敌军必掉道具。</p></div>
     </aside>
   </section>
+  <details class="card seo-about"><summary data-i18n="aboutTitle">📖 关于这款游戏</summary><p data-i18n="aboutBody">驾驶坦克保卫基地，消灭所有敌方坦克！ 浏览器打开即玩，支持键盘和触屏，无需下载安装，完全免费。</p></details>
+
   <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏</footer>
 </main>
-<script src="../assets/i18n.js?v=20260913"></script>
+<script src="../assets/i18n.js?v=20260915"></script>
 <script src="../assets/touch.js?v=20260908"></script>
 <script>
 window.GAME_STR = {
@@ -171,7 +214,9 @@ window.GAME_STR = {
     eagleTag: '🦅 老鹰',
     freezeTag: s => '❄ 定身 ' + s + 's', shovelTag: s => '🛡 钢墙 ' + s + 's',
     palTitles: { 1: '砖块', 2: '钢铁', 3: '河流', 4: '草丛', 5: '冰面', 0: '橡皮擦' },
-    edTitles: { clear: '清空', test: '试玩', save: '保存', back: '返回' }
+    edTitles: { clear: '清空', test: '试玩', save: '保存', back: '返回' },
+    aboutTitle: '📖 关于这款游戏',
+    aboutBody: '驾驶坦克保卫基地，消灭所有敌方坦克！ 浏览器打开即玩，支持键盘和触屏，无需下载安装，完全免费。',
   },
   en: {
     title: 'Tank Battle · Arcade Classic', gameTitle: 'Tank Battle', arcadeSub: 'Arcade Classic',
@@ -207,7 +252,9 @@ window.GAME_STR = {
     eagleTag: '🦅 EAGLE',
     freezeTag: s => '❄ Frozen ' + s + 's', shovelTag: s => '🛡 Steel ' + s + 's',
     palTitles: { 1: 'Bricks', 2: 'Steel', 3: 'River', 4: 'Bushes', 5: 'Ice', 0: 'Eraser' },
-    edTitles: { clear: 'Clear', test: 'Playtest', save: 'Save', back: 'Back' }
+    edTitles: { clear: 'Clear', test: 'Playtest', save: 'Save', back: 'Back' },
+    aboutTitle: '📖 About this game',
+    aboutBody: 'Drive your tank, defend the base, blast every enemy! Play instantly in your browser — keyboard and touch supported, no download needed, completely free.',
   },
   ja: {
     title: '戦車バトル · アーケードクラシック', gameTitle: '戦車バトル', arcadeSub: 'アーケードクラシック',
@@ -243,7 +290,9 @@ window.GAME_STR = {
     eagleTag: '🦅 基地',
     freezeTag: s => '❄ 停止 ' + s + 's', shovelTag: s => '🛡 鋼壁 ' + s + 's',
     palTitles: { 1: 'レンガ', 2: '鋼鉄', 3: '河川', 4: '草むら', 5: '氷', 0: '消しゴム' },
-    edTitles: { clear: 'クリア', test: '試遊', save: '保存', back: '戻る' }
+    edTitles: { clear: 'クリア', test: '試遊', save: '保存', back: '戻る' },
+    aboutTitle: '📖 このゲームについて',
+    aboutBody: '戦車を動かして基地を守り、敵を全部倒そう！ ブラウザでそのまま遊べます。キーボード・タッチ操作対応、ダウンロード不要・完全無料。',
   },
   ko: {
     title: '탱크 배틀 · 아케이드 클래식', gameTitle: '탱크 배틀', arcadeSub: '아케이드 클래식',
@@ -279,10 +328,12 @@ window.GAME_STR = {
     eagleTag: '🦅 기지',
     freezeTag: s => '❄ 정지 ' + s + 's', shovelTag: s => '🛡 강철 ' + s + 's',
     palTitles: { 1: '벽돌', 2: '강철', 3: '강', 4: '수풀', 5: '얼음', 0: '지우개' },
-    edTitles: { clear: '지우기', test: '테스트', save: '저장', back: '뒤로' }
+    edTitles: { clear: '지우기', test: '테스트', save: '저장', back: '뒤로' },
+    aboutTitle: '📖 게임 소개',
+    aboutBody: '전차로 기지를 지키며 적 전차를 모두 격파하세요! 브라우저에서 바로 플레이 — 키보드와 터치 지원, 다운로드 불필요, 완전 무료.',
   }
 };
 </script>
-<script src="game.js?v=20260913"></script>
+<script src="game.js?v=20260914"></script>
 </body>
 </html>

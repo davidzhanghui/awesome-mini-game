@@ -3,10 +3,50 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="description" content="交换相邻宝石，三个以上连成线就消除得分！">
+<link rel="canonical" href="https://awesome-mini-game.vercel.app/match3/">
+<link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/match3/">
+<link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/match3/?lang=en">
+<link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/match3/?lang=ja">
+<link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/match3/?lang=ko">
+<link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/match3/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Awesome Mini Game">
+<meta property="og:title" content="宝石消除 · 经典益智">
+<meta property="og:description" content="交换相邻宝石，三个以上连成线就消除得分！">
+<meta property="og:url" content="https://awesome-mini-game.vercel.app/match3/">
+<meta property="og:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="宝石消除 · 经典益智">
+<meta name="twitter:description" content="交换相邻宝石，三个以上连成线就消除得分！">
+<meta name="twitter:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "宝石消除 · 经典益智",
+  "description": "交换相邻宝石，三个以上连成线就消除得分！",
+  "url": "https://awesome-mini-game.vercel.app/match3/",
+  "genre": "益智解谜",
+  "gamePlatform": "Web Browser",
+  "inLanguage": [
+    "zh-CN",
+    "en",
+    "ja",
+    "ko"
+  ],
+  "isAccessibleForFree": true,
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "CNY"
+  }
+}
+</script>
 <link rel="icon" href="/favicon.svg" />
 <title>宝石消除 · 经典益智</title>
 <link rel="stylesheet" href="styles.css" />
-<link rel="stylesheet" href="../assets/ui.css?v=20260914" />
+<link rel="stylesheet" href="../assets/ui.css?v=20260915" />
 <script src="../assets/theme.js"></script>
 </head>
 <body>
@@ -29,6 +69,8 @@
         <div class="title-badge">MATCH 3</div>
         <h2 class="game-title" data-i18n="name">宝石消除</h2>
         <div class="hero-row"><span class="hero">🔴</span><span class="hero f">💎</span><span class="hero">🟢</span><span class="hero f">🟡</span></div>
+        <p class="pick-hint" data-i18n="pickStage">选择关卡</p>
+        <div id="stage-select" class="level-select"></div>
         <button id="btn-start" class="btn primary" data-i18n="start">🚀 开始闯关</button>
         <p class="hint" data-i18n="hint">点击两颗相邻宝石交换 · 3 连即消除</p>
         <div id="menu-best" class="mini-board">🏆 历史最高：0</div>
@@ -57,9 +99,11 @@
         <p data-i18n="tipBody">优先在底部交换！上方宝石下落常常白送连锁，比一颗颗凑划算多了。</p></div>
     </aside>
   </section>
+  <details class="card seo-about"><summary data-i18n="aboutTitle">📖 关于这款游戏</summary><p data-i18n="aboutBody">交换相邻宝石，三个以上连成线就消除得分！ 浏览器打开即玩，支持键盘和触屏，无需下载安装，完全免费。</p></details>
+
   <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏</footer>
 </main>
-<script src="../assets/i18n.js?v=20260913"></script>
+<script src="../assets/i18n.js?v=20260915"></script>
 <script>
 window.GAME_STR = {
   zh: {
@@ -82,7 +126,9 @@ window.GAME_STR = {
     failTimed: '时间到…', failMoves: '步数用完…',
     failSub: (st, g, s) => '第 ' + st + ' 关 · 目标 ' + g + ' · 得分 ' + s,
     hudStage: (st, g) => '关卡 ' + st + '  目标 ' + g,
-    hudTime: s => '时间 ' + s + 's', hudMoves: m => '步数 ' + m
+    hudTime: s => '时间 ' + s + 's', hudMoves: m => '步数 ' + m,
+    aboutTitle: '📖 关于这款游戏',
+    aboutBody: '交换相邻宝石，三个以上连成线就消除得分！ 浏览器打开即玩，支持键盘和触屏，无需下载安装，完全免费。',
   },
   en: {
     title: 'Match 3 · Classic Puzzle', name: 'Match 3', subtitle: 'Classic Puzzle',
@@ -104,7 +150,9 @@ window.GAME_STR = {
     failTimed: "Time's up…", failMoves: 'Out of moves…',
     failSub: (st, g, s) => 'Stage ' + st + ' · goal ' + g + ' · score ' + s,
     hudStage: (st, g) => 'Stage ' + st + '  Goal ' + g,
-    hudTime: s => 'Time ' + s + 's', hudMoves: m => 'Moves ' + m
+    hudTime: s => 'Time ' + s + 's', hudMoves: m => 'Moves ' + m,
+    aboutTitle: '📖 About this game',
+    aboutBody: 'Swap neighboring gems — line up 3 or more to pop and score! Play instantly in your browser — keyboard and touch supported, no download needed, completely free.',
   },
   ja: {
     title: '宝石消し · クラシックパズル', name: '宝石消し', subtitle: 'クラシックパズル',
@@ -126,7 +174,9 @@ window.GAME_STR = {
     failTimed: '時間切れ…', failMoves: '手数切れ…',
     failSub: (st, g, s) => 'ステージ ' + st + ' · 目標 ' + g + ' · スコア ' + s,
     hudStage: (st, g) => 'ステージ ' + st + '  目標 ' + g,
-    hudTime: s => '時間 ' + s + '秒', hudMoves: m => '手数 ' + m
+    hudTime: s => '時間 ' + s + '秒', hudMoves: m => '手数 ' + m,
+    aboutTitle: '📖 このゲームについて',
+    aboutBody: 'となりの宝石を入れ替えて、3つそろえて消そう！ ブラウザでそのまま遊べます。キーボード・タッチ操作対応、ダウンロード不要・完全無料。',
   },
   ko: {
     title: '보석 맞추기 · 클래식 퍼즐', name: '보석 맞추기', subtitle: '클래식 퍼즐',
@@ -148,7 +198,9 @@ window.GAME_STR = {
     failTimed: '시간 종료…', failMoves: '남은 수 없음…',
     failSub: (st, g, s) => '스테이지 ' + st + ' · 목표 ' + g + ' · 점수 ' + s,
     hudStage: (st, g) => '스테이지 ' + st + '  목표 ' + g,
-    hudTime: s => '시간 ' + s + '초', hudMoves: m => '남은 수 ' + m
+    hudTime: s => '시간 ' + s + '초', hudMoves: m => '남은 수 ' + m,
+    aboutTitle: '📖 게임 소개',
+    aboutBody: '이웃한 보석을 바꿔 3개 이상을 맞춰 터뜨리세요! 브라우저에서 바로 플레이 — 키보드와 터치 지원, 다운로드 불필요, 완전 무료.',
   }
 };
 </script>

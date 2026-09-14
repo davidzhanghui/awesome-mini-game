@@ -3,10 +3,50 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="description" content="和朋友对战，或挑战三个难度的电脑棋手">
+<link rel="canonical" href="https://awesome-mini-game.vercel.app/chinese-chess/">
+<link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/chinese-chess/">
+<link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/chinese-chess/?lang=en">
+<link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/chinese-chess/?lang=ja">
+<link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/chinese-chess/?lang=ko">
+<link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/chinese-chess/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Awesome Mini Game">
+<meta property="og:title" content="中国象棋 · 经典桌游">
+<meta property="og:description" content="和朋友对战，或挑战三个难度的电脑棋手">
+<meta property="og:url" content="https://awesome-mini-game.vercel.app/chinese-chess/">
+<meta property="og:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="中国象棋 · 经典桌游">
+<meta name="twitter:description" content="和朋友对战，或挑战三个难度的电脑棋手">
+<meta name="twitter:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "中国象棋 · 经典桌游",
+  "description": "和朋友对战，或挑战三个难度的电脑棋手",
+  "url": "https://awesome-mini-game.vercel.app/chinese-chess/",
+  "genre": "棋牌桌游",
+  "gamePlatform": "Web Browser",
+  "inLanguage": [
+    "zh-CN",
+    "en",
+    "ja",
+    "ko"
+  ],
+  "isAccessibleForFree": true,
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "CNY"
+  }
+}
+</script>
 <link rel="icon" href="/favicon.svg" />
 <title>中国象棋 · 经典桌游</title>
 <link rel="stylesheet" href="styles.css" />
-<link rel="stylesheet" href="../assets/ui.css?v=20260914" />
+<link rel="stylesheet" href="../assets/ui.css?v=20260915" />
 <script src="../assets/theme.js"></script>
 </head>
 <body>
@@ -72,10 +112,12 @@
         <p data-i18n="tipBody">开局先出車馬炮，别让大子睡家里！多看对手上一步想干啥，稳扎稳打别贪吃。</p></div>
     </aside>
   </section>
+  <details class="card seo-about"><summary data-i18n="aboutTitle">📖 关于这款游戏</summary><p data-i18n="aboutBody">和朋友对战，或挑战三个难度的电脑棋手 浏览器打开即玩，支持键盘和触屏，无需下载安装，完全免费。</p></details>
+
   <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏</footer>
 </main>
 <script src="ai-worker.js?v=20260906"></script>
-<script src="../assets/i18n.js?v=20260913"></script>
+<script src="../assets/i18n.js?v=20260915"></script>
 <script>
 window.GAME_STR = {
   zh: {
@@ -100,7 +142,9 @@ window.GAME_STR = {
     overSub: (reason, n) => reason + ' · 共 ' + n + ' 手',
     youWin: ' · 你赢了 🎉', aiWin: ' · AI 获胜，再接再厉！',
     hudTurn: (red, thinking) => (red ? '🔴 红方' : '⚫ 黑方') + '行棋' + (thinking ? '（AI 思考中…）' : ''),
-    hudInfo: (n, ms) => '第 ' + n + ' 手' + (ms ? ' · AI ' + ms + 'ms' : '')
+    hudInfo: (n, ms) => '第 ' + n + ' 手' + (ms ? ' · AI ' + ms + 'ms' : ''),
+    aboutTitle: '📖 关于这款游戏',
+    aboutBody: '和朋友对战，或挑战三个难度的电脑棋手 浏览器打开即玩，支持键盘和触屏，无需下载安装，完全免费。',
   },
   en: {
     title: 'Xiangqi · Classic Board Game', subtitle: 'Classic Board Game', gameTitle: 'Xiangqi',
@@ -124,7 +168,9 @@ window.GAME_STR = {
     overSub: (reason, n) => reason + ' · ' + n + ' moves',
     youWin: ' · You win 🎉', aiWin: ' · AI wins — try again!',
     hudTurn: (red, thinking) => (red ? '🔴 Red' : '⚫ Black') + ' to move' + (thinking ? ' (AI thinking…)' : ''),
-    hudInfo: (n, ms) => 'Move ' + n + (ms ? ' · AI ' + ms + 'ms' : '')
+    hudInfo: (n, ms) => 'Move ' + n + (ms ? ' · AI ' + ms + 'ms' : ''),
+    aboutTitle: '📖 About this game',
+    aboutBody: 'Play a friend, or challenge the computer at 3 difficulty levels Play instantly in your browser — keyboard and touch supported, no download needed, completely free.',
   },
   ja: {
     title: '中国将棋（シャンチー） · 定番ボードゲーム', subtitle: '定番ボードゲーム', gameTitle: '中国将棋',
@@ -148,7 +194,9 @@ window.GAME_STR = {
     overSub: (reason, n) => reason + ' · ' + n + '手',
     youWin: ' · あなたの勝ち 🎉', aiWin: ' · AIの勝ち — 再挑戦！',
     hudTurn: (red, thinking) => (red ? '🔴 紅' : '⚫ 黒') + 'の番' + (thinking ? '（AI思考中…）' : ''),
-    hudInfo: (n, ms) => '第' + n + '手' + (ms ? ' · AI ' + ms + 'ms' : '')
+    hudInfo: (n, ms) => '第' + n + '手' + (ms ? ' · AI ' + ms + 'ms' : ''),
+    aboutTitle: '📖 このゲームについて',
+    aboutBody: '友達と対戦、または3段階のコンピュータに挑戦 ブラウザでそのまま遊べます。キーボード・タッチ操作対応、ダウンロード不要・完全無料。',
   },
   ko: {
     title: '중국 장기(샹치) · 클래식 보드게임', subtitle: '클래식 보드게임', gameTitle: '중국 장기',
@@ -172,7 +220,9 @@ window.GAME_STR = {
     overSub: (reason, n) => reason + ' · ' + n + '수',
     youWin: ' · 당신이 승리 🎉', aiWin: ' · AI 승리 — 다시 도전!',
     hudTurn: (red, thinking) => (red ? '🔴 홍' : '⚫ 흑') + '의 차례' + (thinking ? ' (AI 생각 중…)' : ''),
-    hudInfo: (n, ms) => n + '수' + (ms ? ' · AI ' + ms + 'ms' : '')
+    hudInfo: (n, ms) => n + '수' + (ms ? ' · AI ' + ms + 'ms' : ''),
+    aboutTitle: '📖 게임 소개',
+    aboutBody: '친구와 대국하거나 3단계 컴퓨터에 도전하세요 브라우저에서 바로 플레이 — 키보드와 터치 지원, 다운로드 불필요, 완전 무료.',
   }
 };
 </script>

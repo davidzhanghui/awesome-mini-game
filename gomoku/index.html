@@ -3,10 +3,50 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="description" content="五颗棋子连成一条线就赢！双人对战或挑战电脑">
+<link rel="canonical" href="https://awesome-mini-game.vercel.app/gomoku/">
+<link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/gomoku/">
+<link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/gomoku/?lang=en">
+<link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/gomoku/?lang=ja">
+<link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/gomoku/?lang=ko">
+<link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/gomoku/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Awesome Mini Game">
+<meta property="og:title" content="五子棋 · 经典桌游">
+<meta property="og:description" content="五颗棋子连成一条线就赢！双人对战或挑战电脑">
+<meta property="og:url" content="https://awesome-mini-game.vercel.app/gomoku/">
+<meta property="og:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="五子棋 · 经典桌游">
+<meta name="twitter:description" content="五颗棋子连成一条线就赢！双人对战或挑战电脑">
+<meta name="twitter:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "五子棋 · 经典桌游",
+  "description": "五颗棋子连成一条线就赢！双人对战或挑战电脑",
+  "url": "https://awesome-mini-game.vercel.app/gomoku/",
+  "genre": "棋牌桌游",
+  "gamePlatform": "Web Browser",
+  "inLanguage": [
+    "zh-CN",
+    "en",
+    "ja",
+    "ko"
+  ],
+  "isAccessibleForFree": true,
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "CNY"
+  }
+}
+</script>
 <link rel="icon" href="/favicon.svg" />
 <title>五子棋 · 经典桌游</title>
 <link rel="stylesheet" href="styles.css" />
-<link rel="stylesheet" href="../assets/ui.css?v=20260914" />
+<link rel="stylesheet" href="../assets/ui.css?v=20260915" />
 <script src="../assets/theme.js"></script>
 </head>
 <body>
@@ -72,9 +112,11 @@
         <p data-i18n="tipBody">活三不慌，活四必赢！进攻时多造双三，AI 再聪明也堵不住两个口。</p></div>
     </aside>
   </section>
+  <details class="card seo-about"><summary data-i18n="aboutTitle">📖 关于这款游戏</summary><p data-i18n="aboutBody">五颗棋子连成一条线就赢！双人对战或挑战电脑 浏览器打开即玩，支持键盘和触屏，无需下载安装，完全免费。</p></details>
+
   <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏</footer>
 </main>
-<script src="../assets/i18n.js?v=20260913"></script>
+<script src="../assets/i18n.js?v=20260915"></script>
 <script>
 window.GAME_STR = {
   zh: {
@@ -99,7 +141,9 @@ window.GAME_STR = {
     overSub: (n, extra) => '共 ' + n + ' 手' + extra,
     extraYou: ' · 你赢了 🎉', extraAi: ' · AI 获胜，再接再厉！',
     hudBlack: '⚫ 黑方', hudWhite: '⚪ 白方', hudMove: '行棋', hudThinking: '（AI 思考中…）',
-    hudMoves: n => '第 ' + n + ' 手'
+    hudMoves: n => '第 ' + n + ' 手',
+    aboutTitle: '📖 关于这款游戏',
+    aboutBody: '五颗棋子连成一条线就赢！双人对战或挑战电脑 浏览器打开即玩，支持键盘和触屏，无需下载安装，完全免费。',
   },
   en: {
     title: 'Gomoku · Classic Board Game', name: 'Gomoku', subtitle: 'Classic Board Game',
@@ -123,7 +167,9 @@ window.GAME_STR = {
     overSub: (n, extra) => n + ' moves' + extra,
     extraYou: ' · You win! 🎉', extraAi: ' · AI wins, try again!',
     hudBlack: '⚫ Black', hudWhite: '⚪ White', hudMove: ' to move', hudThinking: ' (AI thinking…)',
-    hudMoves: n => 'Move ' + n
+    hudMoves: n => 'Move ' + n,
+    aboutTitle: '📖 About this game',
+    aboutBody: 'Get 5 in a row to win — play a friend or the computer Play instantly in your browser — keyboard and touch supported, no download needed, completely free.',
   },
   ja: {
     title: '五目並べ · 定番ボードゲーム', name: '五目並べ', subtitle: '定番ボードゲーム',
@@ -147,7 +193,9 @@ window.GAME_STR = {
     overSub: (n, extra) => n + '手' + extra,
     extraYou: ' · あなたの勝ち 🎉', extraAi: ' · AIの勝ち、次こそ！',
     hudBlack: '⚫ 黒', hudWhite: '⚪ 白', hudMove: 'の番', hudThinking: '（AI思考中…）',
-    hudMoves: n => n + '手目'
+    hudMoves: n => n + '手目',
+    aboutTitle: '📖 このゲームについて',
+    aboutBody: '石を5つ並べたら勝ち！2人対戦 or コンピュータに挑戦 ブラウザでそのまま遊べます。キーボード・タッチ操作対応、ダウンロード不要・完全無料。',
   },
   ko: {
     title: '오목 · 클래식 보드게임', name: '오목', subtitle: '클래식 보드게임',
@@ -171,7 +219,9 @@ window.GAME_STR = {
     overSub: (n, extra) => n + '수' + extra,
     extraYou: ' · 당신이 이겼어요 🎉', extraAi: ' · AI 승리, 다시 도전!',
     hudBlack: '⚫ 흑', hudWhite: '⚪ 백', hudMove: ' 차례', hudThinking: ' (AI 생각 중…)',
-    hudMoves: n => n + '수째'
+    hudMoves: n => n + '수째',
+    aboutTitle: '📖 게임 소개',
+    aboutBody: '돌 5개를 연결하면 승리! 친구 또는 컴퓨터와 대결 브라우저에서 바로 플레이 — 키보드와 터치 지원, 다운로드 불필요, 완전 무료.',
   }
 };
 </script>

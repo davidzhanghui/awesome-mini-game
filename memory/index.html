@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="description" content="翻开卡片找相同，考验你的小脑瓜！">
+<link rel="canonical" href="https://awesome-mini-game.vercel.app/memory/">
+<link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/memory/">
+<link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/memory/?lang=en">
+<link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/memory/?lang=ja">
+<link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/memory/?lang=ko">
+<link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/memory/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Awesome Mini Game">
+<meta property="og:title" content="记忆翻牌 · 益智解谜">
+<meta property="og:description" content="翻开卡片找相同，考验你的小脑瓜！">
+<meta property="og:url" content="https://awesome-mini-game.vercel.app/memory/">
+<meta property="og:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="记忆翻牌 · 益智解谜">
+<meta name="twitter:description" content="翻开卡片找相同，考验你的小脑瓜！">
+<meta name="twitter:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "记忆翻牌 · 益智解谜",
+  "description": "翻开卡片找相同，考验你的小脑瓜！",
+  "url": "https://awesome-mini-game.vercel.app/memory/",
+  "genre": "益智解谜",
+  "gamePlatform": "Web Browser",
+  "inLanguage": [
+    "zh-CN",
+    "en",
+    "ja",
+    "ko"
+  ],
+  "isAccessibleForFree": true,
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "CNY"
+  }
+}
+</script>
+<link rel="icon" href="/favicon.svg" />
+<title>记忆翻牌 · 益智解谜</title>
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="../assets/ui.css?v=20260915" />
+<script src="../assets/theme.js"></script>
+</head>
+<body>
+<div class="bg-orbs"><span></span><span></span><span></span></div>
+<main class="page">
+  <header class="brand">
+    <div class="logo">🃏</div>
+    <div>
+      <h1><span data-i18n="name">记忆翻牌</span> <em data-i18n="subtitle">益智解谜</em></h1>
+      <p data-i18n="intro">翻开卡片找相同，考验你的小脑瓜！</p>
+    </div>
+    <div class="brand-btns">
+      <button id="btn-mute" class="icon-btn" title="声音开 / 关 (M)">🔊</button>
+    </div>
+  </header>
+  <section class="cabinet">
+    <div class="game-frame">
+      <canvas id="game" width="480" height="620"></canvas>
+      <div id="screen-menu" class="screen">
+        <div class="title-badge">MEMORY</div>
+        <h2 class="game-title" data-i18n="menuTitle">记忆翻牌</h2>
+        <div class="hero-row"><span class="hero">🍎</span><span class="hero f">🐶</span><span class="hero">🚀</span></div>
+        <button id="btn-start" class="btn primary" data-i18n="start">🚀 开始游戏</button>
+        <p class="hint"><span data-i18n="hintFlip">点卡片翻开，配对所有图案！</span></p>
+        <div id="menu-best" class="mini-board">🏆 最少步数：—</div>
+      </div>
+      <div id="screen-over" class="screen dim hidden">
+        <div class="panel pop">
+          <h3 id="over-title" class="over-title">🎉 全部配对！</h3>
+          <div id="over-sub" class="over-sub"></div>
+          <div class="row"><button id="btn-retry" class="btn primary" data-i18n="retry">🔄 再来一局 (R)</button><button id="btn-menu" class="btn ghost" data-i18n="menu">菜单</button></div>
+        </div>
+      </div>
+    </div>
+    <aside class="side">
+      <div class="card"><h4 data-i18n="opTitle">🎮 操作</h4><ul>
+        <li data-i18n="op1">点击卡片翻正面</li><li data-i18n="op2">两张相同就消除</li><li data-i18n="op3">不一样会自动翻回去</li><li><kbd>R</kbd> <span data-i18n="restartKw">重开</span> · <kbd>M</kbd> <span data-i18n="muteKw">静音</span></li></ul></div>
+      <div class="card"><h4 data-i18n="goalTitle">🏆 目标</h4><ul class="medals">
+        <li data-i18n="goal1">👑 用最少的步数配对所有卡片</li><li data-i18n="goal2">🧠 记住位置，越玩越快！</li></ul></div>
+      <div class="card diff"><h4 data-i18n="tipTitle">🧠 记忆诀窍</h4>
+        <p data-i18n="tipBody">翻到陌生卡片先默记位置，别急着点下一张。能确定的对子先消，剩下的靠排除法。</p></div>
+    </aside>
+  </section>
+  <details class="card seo-about"><summary data-i18n="aboutTitle">📖 关于这款游戏</summary><p data-i18n="aboutBody">翻开卡片找相同，考验你的小脑瓜！ 浏览器打开即玩，支持键盘和触屏，无需下载安装，完全免费。</p></details>
+
+  <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持鼠标和触屏</footer>
+</main>
+<script src="../assets/i18n.js?v=20260915"></script>
+<script>
+window.GAME_STR = {
+  zh: {
+    title: '记忆翻牌 · 益智解谜', name: '记忆翻牌', subtitle: '益智解谜', menuTitle: '记忆翻牌',
+    intro: '翻开卡片找相同，考验你的小脑瓜！',
+    start: '🚀 开始游戏', hintFlip: '点卡片翻开，配对所有图案！',
+    retry: '🔄 再来一局 (R)', menu: '菜单',
+    opTitle: '🎮 操作', op1: '点击卡片翻正面', op2: '两张相同就消除', op3: '不一样会自动翻回去', restartKw: '重开', muteKw: '静音',
+    goalTitle: '🏆 目标', goal1: '👑 用最少的步数配对所有卡片', goal2: '🧠 记住位置，越玩越快！',
+    tipTitle: '🧠 记忆诀窍', tipBody: '翻到陌生卡片先默记位置，别急着点下一张。能确定的对子先消，剩下的靠排除法。',
+    footer: '🕹️ 打开即玩 · 完全免费 · 支持鼠标和触屏',
+    muteTitle: '声音开 / 关 (M)', paused: '⏸ 暂停', overTitle: '🎉 全部配对！',
+    moves: '步', time: '秒',
+    best: v => v > 0 ? '🏆 最少步数：' + v : '🏆 还没有纪录',
+    overSub: (m, t) => '用了 ' + m + ' 步 · ' + t + ' 秒' + (Math.floor(m / 2) <= 12 ? ' · 天才记忆！' : ''),
+    aboutTitle: '📖 关于这款游戏',
+    aboutBody: '翻开卡片找相同，考验你的小脑瓜！ 浏览器打开即玩，支持键盘和触屏，无需下载安装，完全免费。',
+  },
+  en: {
+    title: 'Memory Match · Puzzle', name: 'Memory Match', subtitle: 'Puzzle', menuTitle: 'MEMORY MATCH',
+    intro: 'Flip the cards and find every matching pair!',
+    start: '🚀 Start Game', hintFlip: 'Tap cards to flip, match all pairs!',
+    retry: '🔄 Play Again (R)', menu: 'Menu',
+    opTitle: '🎮 Controls', op1: 'Tap a card to flip it', op2: 'Two matching cards stay open', op3: 'Mismatched cards flip back', restartKw: 'restart', muteKw: 'mute',
+    goalTitle: '🏆 Goal', goal1: '👑 Match all pairs in as few moves as possible', goal2: '🧠 Memorize positions to get faster!',
+    tipTitle: '🧠 Memory Trick', tipBody: 'Note where each new card is before flipping on. Clear the pairs you know first, then deduce the rest.',
+    footer: '🕹️ Play instantly · Free · Mouse & touch friendly',
+    muteTitle: 'Sound on/off (M)', paused: '⏸ Paused', overTitle: '🎉 All matched!',
+    moves: 'moves', time: 's',
+    best: v => v > 0 ? '🏆 Best: ' + v + ' moves' : '🏆 No record yet',
+    overSub: (m, t) => m + ' moves · ' + t + 's' + (Math.floor(m / 2) <= 12 ? ' · Genius!' : ''),
+    aboutTitle: '📖 About this game',
+    aboutBody: 'Flip the cards and find every matching pair! Play instantly in your browser — keyboard and touch supported, no download needed, completely free.',
+  },
+  ja: {
+    title: '神経衰弱 · パズル', name: '神経衰弱', subtitle: 'パズル', menuTitle: '神経衰弱',
+    intro: 'カードをめくって同じ絵を探そう！',
+    start: '🚀 ゲームスタート', hintFlip: 'カードをタップ、ペアを全部見つけよう！',
+    retry: '🔄 もう一回 (R)', menu: 'メニュー',
+    opTitle: '🎮 操作', op1: 'カードをタップしてめくる', op2: '同じ絵2枚でペア成立', op3: '違うと裏に戻るよ', restartKw: 'リスタート', muteKw: 'ミュート',
+    goalTitle: '🏆 目標', goal1: '👑 できるだけ少ない手数で全部ペアに', goal2: '🧠 位置を覚えればどんどん速くなる！',
+    tipTitle: '🧠 記憶のコツ', tipBody: '新しいカードは位置を覚えてから次へ。確実なペアから消して、残りは消去法で。',
+    footer: '🕹️ すぐ遊べる · 完全無料 · マウス＆タッチ対応',
+    muteTitle: 'サウンド ON/OFF (M)', paused: '⏸ 一時停止中', overTitle: '🎉 全部そろった！',
+    moves: '手', time: '秒',
+    best: v => v > 0 ? '🏆 最少手数：' + v : '🏆 記録なし',
+    overSub: (m, t) => m + ' 手 · ' + t + ' 秒' + (Math.floor(m / 2) <= 12 ? ' · 天才！' : ''),
+    aboutTitle: '📖 このゲームについて',
+    aboutBody: 'カードをめくって同じ絵を探そう！ ブラウザでそのまま遊べます。キーボード・タッチ操作対応、ダウンロード不要・完全無料。',
+  },
+  ko: {
+    title: '카드 뒤집기 · 퍼즐', name: '카드 뒤집기', subtitle: '퍼즐', menuTitle: '카드 뒤집기',
+    intro: '카드를 뒤집어 같은 그림을 찾아보세요!',
+    start: '🚀 게임 시작', hintFlip: '카드를 눌러 뒤집고 짝을 맞춰요!',
+    retry: '🔄 다시 하기 (R)', menu: '메뉴',
+    opTitle: '🎮 조작', op1: '카드를 눌러 뒤집기', op2: '같은 그림 두 장이면 짝 성공', op3: '다르면 다시 뒤집혀요', restartKw: '다시 시작', muteKw: '음소거',
+    goalTitle: '🏆 목표', goal1: '👑 가장 적은 횟수로 모든 짝 맞추기', goal2: '🧠 위치를 기억하면 점점 빨라져요!',
+    tipTitle: '🧠 기억 요령', tipBody: '새 카드는 위치를 기억하고 다음을 넘기세요. 확실한 짝부터 없애고 나머지는 소거법으로.',
+    footer: '🕹️ 바로 플레이 · 완전 무료 · 마우스 & 터치 지원',
+    muteTitle: '사운드 켜기/끄기 (M)', paused: '⏸ 일시정지', overTitle: '🎉 모두 맞췄어요!',
+    moves: '번', time: '초',
+    best: v => v > 0 ? '🏆 최소 횟수: ' + v : '🏆 기록 없음',
+    overSub: (m, t) => m + ' 번 · ' + t + ' 초' + (Math.floor(m / 2) <= 12 ? ' · 천재!' : ''),
+    aboutTitle: '📖 게임 소개',
+    aboutBody: '카드를 뒤집어 같은 그림을 찾아보세요! 브라우저에서 바로 플레이 — 키보드와 터치 지원, 다운로드 불필요, 완전 무료.',
+  }
+};
+</script>
+<script src="game.js?v=20260913"></script>
+</body>
+</html>

@@ -3,10 +3,50 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="description" content="双人同屏的复古纵版射击 — 闯过 8 大关，直捣异星母舰！">
+<link rel="canonical" href="https://awesome-mini-game.vercel.app/raiden/">
+<link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/raiden/">
+<link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/raiden/?lang=en">
+<link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/raiden/?lang=ja">
+<link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/raiden/?lang=ko">
+<link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/raiden/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Awesome Mini Game">
+<meta property="og:title" content="RAIDEN 雷电 · 双人街机重制版">
+<meta property="og:description" content="双人同屏的复古纵版射击 — 闯过 8 大关，直捣异星母舰！">
+<meta property="og:url" content="https://awesome-mini-game.vercel.app/raiden/">
+<meta property="og:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="RAIDEN 雷电 · 双人街机重制版">
+<meta name="twitter:description" content="双人同屏的复古纵版射击 — 闯过 8 大关，直捣异星母舰！">
+<meta name="twitter:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "RAIDEN 雷电 · 双人街机重制版",
+  "description": "双人同屏的复古纵版射击 — 闯过 8 大关，直捣异星母舰！",
+  "url": "https://awesome-mini-game.vercel.app/raiden/",
+  "genre": "射击街机",
+  "gamePlatform": "Web Browser",
+  "inLanguage": [
+    "zh-CN",
+    "en",
+    "ja",
+    "ko"
+  ],
+  "isAccessibleForFree": true,
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "CNY"
+  }
+}
+</script>
 <link rel="icon" href="/favicon.svg" />
 <title>RAIDEN Thunder · 2P Arcade Remake</title>
-<link rel="stylesheet" href="css/style.css">
-<link rel="stylesheet" href="../assets/ui.css?v=20260913">
+<link rel="stylesheet" href="css/style.css?v=20260914">
+<link rel="stylesheet" href="../assets/ui.css?v=20260915">
 <script src="../assets/theme.js"></script>
 </head>
 <body>
@@ -16,8 +56,8 @@
     <div class="logo">⚡</div>
     <div>
       <h1>RAIDEN <em data-i18n="logoEm">Thunder · 1990 TRIBUTE</em></h1>
+      <p data-i18n="intro">双人同屏的复古纵版射击 — 闯过 8 大关，直捣异星母舰！</p>
     </div>
-    <span id="hi-score-top">HI-SCORE 0</span>
     <div class="brand-btns">
       <button id="btn-help" class="ghost-btn" data-i18n="btnHelp">How to play</button>
       <button id="btn-sound" class="ghost-btn">🔊 Sound On</button>
@@ -25,8 +65,8 @@
   </header>
     <section id="menu-screen" class="screen active">
       <div class="title-block">
-        <div class="kicker">SEIBU KAIHATSU TRIBUTE · FAN REMAKE</div>
-        <h1 class="game-title"><span class="thunder">RAIDEN</span><span class="cn" data-i18n="titleCn">RAIDEN</span></h1>
+        <div class="title-badge">SEIBU KAIHATSU TRIBUTE · FAN REMAKE</div>
+        <h2 class="game-title"><span class="thunder">RAIDEN</span><span class="cn" data-i18n="titleCn">RAIDEN</span></h2>
         <p class="subtitle" data-i18n="subtitle">2090 · Alien fleet invades — Thunder supersonic fighters, launch!</p>
         <div class="title-jets">
           <div class="jet p1-jet">✈</div>
@@ -81,6 +121,7 @@
       </div>
 
       <div class="stages-strip" id="stages-strip"></div>
+      <div id="hi-score-top" class="mini-board">🏆 HI-SCORE 0</div>
       <p class="foot" data-i18n="foot">A tribute to Seibu Kaihatsu's 1990 arcade Raiden · 8 stages + 8 bosses · 2 keyboards co-op · hi-score saved locally</p>
     </section>
 
@@ -155,14 +196,17 @@
         </div>
       </div>
     </section>
+  <details class="card seo-about"><summary data-i18n="aboutTitle">📖 关于这款游戏</summary><p data-i18n="aboutBody">双人同屏的复古纵版射击 — 闯过 8 大关，直捣异星母舰！ 浏览器打开即玩，支持键盘和触屏，无需下载安装，完全免费。</p></details>
+
     <footer data-i18n="footBar">RAIDEN 雷电 · 🕹️ 打开即玩 · 完全免费</footer>
   </main>
-<script src="../assets/i18n.js?v=20260913"></script>
+<script src="../assets/i18n.js?v=20260915"></script>
 <script>
 window.GAME_STR = {
   zh: {
     title: 'RAIDEN 雷电 · 双人街机重制版',
     logoEm: '雷电 · 1990 TRIBUTE',
+    intro: '双人同屏的复古纵版射击 — 闯过 8 大关，直捣异星母舰！',
     btnHelp: '操作说明',
     soundOn: '🔊 声音开', soundOff: '🔇 声音关',
     titleCn: '雷電',
@@ -245,11 +289,14 @@ window.GAME_STR = {
     optionPlus: name => name + ' 僚机+1!',
     shieldUp: name => name + ' 护盾!',
     fairy: '仙女 +5000!',
-    miclus: '隐藏米克鲁斯 +100000!! 🐄'
+    miclus: '隐藏米克鲁斯 +100000!! 🐄',
+    aboutTitle: '📖 关于这款游戏',
+    aboutBody: '双人同屏的复古纵版射击 — 闯过 8 大关，直捣异星母舰！ 浏览器打开即玩，支持键盘和触屏，无需下载安装，完全免费。',
   },
   en: {
     title: 'RAIDEN Thunder · 2P Arcade Remake',
     logoEm: 'Thunder · 1990 TRIBUTE',
+    intro: 'Retro 2-player co-op vertical shooter — clear 8 stages and strike the alien mothership!',
     btnHelp: 'How to play',
     soundOn: '🔊 Sound On', soundOff: '🔇 Sound Off',
     titleCn: 'RAIDEN',
@@ -332,11 +379,14 @@ window.GAME_STR = {
     optionPlus: name => name + ' option +1!',
     shieldUp: name => name + ' shield!',
     fairy: 'Fairy +5000!',
-    miclus: 'Hidden Miclus +100000!! 🐄'
+    miclus: 'Hidden Miclus +100000!! 🐄',
+    aboutTitle: '📖 About this game',
+    aboutBody: 'Retro 2-player co-op vertical shooter — clear 8 stages and strike the alien mothership! Play instantly in your browser — keyboard and touch supported, no download needed, completely free.',
   },
   ja: {
     title: 'RAIDEN Thunder · 2P アーケードリメイク',
     logoEm: 'サンダー · 1990 TRIBUTE',
+    intro: '2人同屏のレトロ縦スクロールSTG — 8ステージを突破し、異星の母艦を撃破せよ！',
     btnHelp: '遊び方',
     soundOn: '🔊 サウンドON', soundOff: '🔇 サウンドOFF',
     titleCn: 'RAIDEN',
@@ -419,11 +469,14 @@ window.GAME_STR = {
     optionPlus: name => name + ' 僚機+1!',
     shieldUp: name => name + ' シールド!',
     fairy: '妖精 +5000!',
-    miclus: '隠しミクラス +100000!! 🐄'
+    miclus: '隠しミクラス +100000!! 🐄',
+    aboutTitle: '📖 このゲームについて',
+    aboutBody: '2人同屏のレトロ縦スクロールSTG — 8ステージを突破し、異星の母艦を撃破せよ！ ブラウザでそのまま遊べます。キーボード・タッチ操作対応、ダウンロード不要・完全無料。',
   },
   ko: {
     title: 'RAIDEN Thunder · 2P 아케이드 리메이크',
     logoEm: 'Thunder · 1990 TRIBUTE',
+    intro: '2인 동시 플레이 레트로 종스크롤 슈팅 — 8개 스테이지를 돌파해 외계 모함을 격파하라!',
     btnHelp: '조작법',
     soundOn: '🔊 소리 켬', soundOff: '🔇 소리 끔',
     titleCn: 'RAIDEN',
@@ -506,7 +559,9 @@ window.GAME_STR = {
     optionPlus: name => name + ' 僚機+1!',
     shieldUp: name => name + ' 실드!',
     fairy: '요정 +5000!',
-    miclus: '숨겨진 미클러스 +100000!! 🐄'
+    miclus: '숨겨진 미클러스 +100000!! 🐄',
+    aboutTitle: '📖 게임 소개',
+    aboutBody: '2인 동시 플레이 레트로 종스크롤 슈팅 — 8개 스테이지를 돌파해 외계 모함을 격파하라! 브라우저에서 바로 플레이 — 키보드와 터치 지원, 다운로드 불필요, 완전 무료.',
   }
 };
 </script>

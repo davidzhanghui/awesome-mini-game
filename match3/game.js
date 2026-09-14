@@ -28,7 +28,9 @@ const store = {
   get best() { return +(localStorage.getItem('match3-best') || 0); },
   set best(v) { localStorage.setItem('match3-best', v); },
   get muted() { return localStorage.getItem('match3-muted') === '1'; },
-  set muted(v) { localStorage.setItem('match3-muted', v ? '1' : '0'); }
+  set muted(v) { localStorage.setItem('match3-muted', v ? '1' : '0'); },
+  get unlocked() { return Math.min(+(localStorage.getItem('match3-unlocked') || 1), STAGES.length); },
+  set unlocked(v) { localStorage.setItem('match3-unlocked', v); }
 };
 let actx = null, muted = store.muted;
 function tone(f, dur, type, vol) {
@@ -51,7 +53,7 @@ const sfx = {
   over: () => [400, 300, 200].forEach((f, i) => setTimeout(() => tone(f, .2, 'sine', .09), i * 140))
 };
 const G = {
-  state: 'menu', stage: 1, score: 0, movesLeft: 0, kinds: 5,
+  state: 'menu', stage: 1, pick: store.unlocked, score: 0, movesLeft: 0, kinds: 5,
   grid: [], sel: null, busy: false, parts: [], floats: [], hintT: 0,
   hint: null, idleT: 0, timeLeft: 0, timed: false, animT: 0, msg: '', msgT: 0
 };
@@ -192,6 +194,7 @@ function stageClear() {
   const bonus = G.movesLeft * 50;
   G.score += bonus;
   if (G.score > store.best) store.best = G.score;
+  if (G.stage >= store.unlocked && store.unlocked < STAGES.length) store.unlocked = G.stage + 1;
   sfx.win();
   $('clear-lv').textContent = G.stage;
   $('clear-stats').innerHTML = T('clearStats', G.score, bonus);
@@ -268,18 +271,19 @@ window.addEventListener('keydown', e => {
   else if (e.code === 'KeyR' || e.code === 'Enter') { if (G.state === 'over' || G.state === 'menu') startGame(G.stage); }
   else if (e.code === 'Escape') {
     if (G.state === 'play' || G.state === 'pause') togglePause();
-    else { G.state = 'menu'; showScreen('menu'); }
+    else toMenu();
   }
 });
 function togglePause() {
   if (G.state === 'play') G.state = 'pause';
   else if (G.state === 'pause') G.state = 'play';
 }
-$('btn-start').onclick = () => startGame(1);
+$('btn-start').onclick = () => startGame(G.pick || 1);
 $('btn-retry').onclick = () => startGame(G.stage);
 $('btn-next').onclick = () => startGame(Math.min(G.stage + 1, STAGES.length));
-$('btn-menu').onclick = () => { G.state = 'menu'; showScreen('menu'); };
-$('btn-menu2').onclick = () => { G.state = 'menu'; showScreen('menu'); };
+function toMenu() { G.state = 'menu'; G.pick = store.unlocked; showScreen('menu'); buildStageGrid(); }
+$('btn-menu').onclick = toMenu;
+$('btn-menu2').onclick = toMenu;
 function toggleMute() {
   muted = !muted; store.muted = muted;
   $('btn-mute').textContent = muted ? '🔇' : '🔊';
@@ -287,10 +291,31 @@ function toggleMute() {
 $('btn-mute').onclick = toggleMute;
 $('btn-mute').textContent = muted ? '🔇' : '🔊';
 // i18n boot: static DOM + dynamic boot texts
+function buildStageGrid() {
+  const box = $('stage-select');
+  if (!box) return;
+  box.innerHTML = '';
+  const un = store.unlocked;
+  if (G.pick > un) G.pick = un;
+  STAGES.forEach((st, i) => {
+    const n = i + 1, locked = n > un;
+    const b = document.createElement('button');
+    b.className = 'lvl-btn' + (locked ? ' locked' : '') + (n === G.pick ? ' active' : '');
+    const sub = st.time ? '⏱' + st.time + 's' : '👟' + st.moves;
+    b.innerHTML = (locked ? '🔒' : n) + '<small>🎯' + st.goal + ' ' + sub + '</small>';
+    b.onclick = () => {
+      if (locked) { sfx.bad(); return; }
+      if (G.pick === n) return;
+      G.pick = n; sfx.swap(); buildStageGrid();
+    };
+    box.appendChild(b);
+  });
+}
 window.__refreshLang = function () {
   AMG.apply(STR);
   $('btn-mute').title = T('muteTitle');
   $('menu-best').textContent = T('best', store.best);
+  buildStageGrid();
 };
 AMG.mountBtn();
 window.__refreshLang();

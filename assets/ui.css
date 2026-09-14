@@ -367,18 +367,22 @@ footer { color: var(--ui-muted-text) !important; }
    Raiden（结构特殊，单独适配同一套 token）
    ========================================================================== */
 #menu-screen .title-block {
-  background: var(--ui-card) !important;
-  border-color: var(--ui-card-border) !important;
-  box-shadow: var(--ui-shadow-card);
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
 }
-#menu-screen .kicker { color: var(--ui-muted-text) !important; }
 #menu-screen .game-title .thunder {
   background: linear-gradient(180deg, #e8a763, var(--ui-primary) 60%, #9c5518) !important;
   -webkit-background-clip: text !important;
   background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
   text-shadow: none !important;
 }
-#menu-screen .game-title .cn { color: var(--acc2) !important; text-shadow: none !important; }
+#menu-screen .game-title .cn {
+  color: var(--acc2) !important;
+  -webkit-text-fill-color: var(--acc2) !important;
+  text-shadow: none !important;
+}
 #menu-screen .subtitle { color: var(--ui-text-soft) !important; }
 #menu-screen .menu-card {
   background: var(--ui-card) !important;
@@ -438,3 +442,26 @@ footer { color: var(--ui-muted-text) !important; }
 [data-theme="dark"] .pill.yellow { background: #463614 !important; color: #e8cc80 !important; }
 [data-theme="dark"] .pill.green { background: #1e3a20 !important; color: #a2d89c !important; }
 [data-theme="dark"] .pill.cyan { background: #143a40 !important; color: #8cd4de !important; }
+
+/* ---------- 关卡选择（马里奥式卡片格，明暗通吃） ---------- */
+.pick-hint { font-size: 11px !important; letter-spacing: 3px !important; color: var(--ui-muted-text) !important; margin: 4px 0 0 !important; }
+.level-select { display: grid !important; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; gap: 6px !important; width: 100% !important; max-width: 360px !important; }
+.lvl-btn { font-family: inherit !important; font-weight: 800 !important; font-size: 13px !important; color: var(--ui-text) !important; background: var(--ui-card) !important; border: 2px solid var(--ui-card-border) !important; border-radius: 12px !important; padding: 8px 6px !important; cursor: pointer !important; transition: .18s !important; line-height: 1.25 !important; min-width: 0 !important; }
+.lvl-btn small { font-weight: 400 !important; color: var(--ui-muted-text) !important; font-size: 10px !important; display: block !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; margin-top: 1px !important; }
+.lvl-btn .lv-emo { font-size: 16px !important; display: block !important; line-height: 1.2 !important; }
+.lvl-btn:hover:not(.locked) { border-color: var(--ui-primary) !important; transform: translateY(-2px) !important; }
+.lvl-btn.active { border-color: var(--ui-primary) !important; background: var(--ui-primary-soft) !important; box-shadow: 0 0 0 3px rgba(208, 128, 57, .2) !important; }
+.lvl-btn.locked { opacity: .42 !important; cursor: not-allowed !important; }
+
+/* ---------- SEO 简介折叠卡（各游戏页底部） ---------- */
+details.seo-about { margin-top: 18px; }
+details.seo-about summary {
+  cursor: pointer; list-style: none; font-weight: 700; font-size: 14px;
+  color: var(--ui-text) !important; user-select: none;
+}
+details.seo-about summary::-webkit-details-marker { display: none; }
+details.seo-about summary::after {
+  content: "▾"; float: right; color: var(--ui-muted-text); transition: transform .2s;
+}
+details.seo-about[open] summary::after { transform: rotate(180deg); }
+details.seo-about p { margin-top: 10px; font-size: 13px; line-height: 1.8; color: var(--ui-text-soft) !important; }
