@@ -3,10 +3,50 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="description" content="顶砖块吃蘑菇，踩扁乌龟，冲到旗杆就过关！">
+<link rel="canonical" href="https://awesome-mini-game.vercel.app/super-mario-bros/">
+<link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/super-mario-bros/">
+<link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/super-mario-bros/?lang=en">
+<link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/super-mario-bros/?lang=ja">
+<link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/super-mario-bros/?lang=ko">
+<link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/super-mario-bros/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Awesome Mini Game">
+<meta property="og:title" content="超级马里奥 · 像素大冒险">
+<meta property="og:description" content="顶砖块吃蘑菇，踩扁乌龟，冲到旗杆就过关！">
+<meta property="og:url" content="https://awesome-mini-game.vercel.app/super-mario-bros/">
+<meta property="og:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="超级马里奥 · 像素大冒险">
+<meta name="twitter:description" content="顶砖块吃蘑菇，踩扁乌龟，冲到旗杆就过关！">
+<meta name="twitter:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "超级马里奥 · 像素大冒险",
+  "description": "顶砖块吃蘑菇，踩扁乌龟，冲到旗杆就过关！",
+  "url": "https://awesome-mini-game.vercel.app/super-mario-bros/",
+  "genre": "像素冒险",
+  "gamePlatform": "Web Browser",
+  "inLanguage": [
+    "zh-CN",
+    "en",
+    "ja",
+    "ko"
+  ],
+  "isAccessibleForFree": true,
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "CNY"
+  }
+}
+</script>
 <link rel="icon" href="/favicon.svg" />
 <title>超级马里奥 · 像素大冒险</title>
 <link rel="stylesheet" href="styles.css" />
-<link rel="stylesheet" href="../assets/ui.css?v=20260913" />
+<link rel="stylesheet" href="../assets/ui.css?v=20260915" />
 <script src="../assets/theme.js"></script>
 </head>
 <body>
@@ -147,11 +187,13 @@
         </div>
       </aside>
     </section>
+  <details class="card seo-about"><summary data-i18n="aboutTitle">📖 关于这款游戏</summary><p data-i18n="aboutBody">顶砖块吃蘑菇，踩扁乌龟，冲到旗杆就过关！ 浏览器打开即玩，支持键盘和触屏，无需下载安装，完全免费。</p></details>
+
 
     <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏</footer>
   </main>
 
-<script src="../assets/i18n.js?v=20260913"></script>
+<script src="../assets/i18n.js?v=20260915"></script>
 <script src="../assets/touch.js?v=20260908"></script>
 <script>
 window.GAME_STR = {
@@ -192,7 +234,9 @@ window.GAME_STR = {
       '<div>✨ 本关得分 <b>+' + gained + '</b> · ⏱ 时间奖励 <b>+' + bonus + '</b></div>' +
       '<div>🪙 金币 <b>+' + coins + '</b> · 💔 剩余生命 <b>×' + lives + '</b></div>',
     nextBtn: n => '下一关 → ' + n,
-    introSub: (sub, lives) => sub + ' · ❤×' + lives
+    introSub: (sub, lives) => sub + ' · ❤×' + lives,
+    aboutTitle: '📖 关于这款游戏',
+    aboutBody: '顶砖块吃蘑菇，踩扁乌龟，冲到旗杆就过关！ 浏览器打开即玩，支持键盘和触屏，无需下载安装，完全免费。',
   },
   en: {
     title: 'Super Mario · Pixel Adventure', subtitle: 'Pixel Adventure', gameTitle: 'Super Mario',
@@ -231,7 +275,9 @@ window.GAME_STR = {
       '<div>✨ Stage score <b>+' + gained + '</b> · ⏱ Time bonus <b>+' + bonus + '</b></div>' +
       '<div>🪙 Coins <b>+' + coins + '</b> · 💔 Lives <b>×' + lives + '</b></div>',
     nextBtn: n => 'Next → ' + n,
-    introSub: (sub, lives) => sub + ' · ❤×' + lives
+    introSub: (sub, lives) => sub + ' · ❤×' + lives,
+    aboutTitle: '📖 About this game',
+    aboutBody: 'Bump blocks, grab mushrooms, stomp koopas, and reach the flag! Play instantly in your browser — keyboard and touch supported, no download needed, completely free.',
   },
   ja: {
     title: 'スーパーマリオ · ピクセル冒険', subtitle: 'ピクセル冒険', gameTitle: 'スーパーマリオ',
@@ -270,7 +316,9 @@ window.GAME_STR = {
       '<div>✨ ステージ得点 <b>+' + gained + '</b> · ⏱ タイムボーナス <b>+' + bonus + '</b></div>' +
       '<div>🪙 コイン <b>+' + coins + '</b> · 💔 残りライフ <b>×' + lives + '</b></div>',
     nextBtn: n => '次へ → ' + n,
-    introSub: (sub, lives) => sub + ' · ❤×' + lives
+    introSub: (sub, lives) => sub + ' · ❤×' + lives,
+    aboutTitle: '📖 このゲームについて',
+    aboutBody: 'ブロックを叩いてキノコを取り、カメを踏んでゴールの旗へ！ ブラウザでそのまま遊べます。キーボード・タッチ操作対応、ダウンロード不要・完全無料。',
   },
   ko: {
     title: '슈퍼 마리오 · 픽셀 대모험', subtitle: '픽셀 대모험', gameTitle: '슈퍼 마리오',
@@ -309,7 +357,9 @@ window.GAME_STR = {
       '<div>✨ 스테이지 점수 <b>+' + gained + '</b> · ⏱ 시간 보너스 <b>+' + bonus + '</b></div>' +
       '<div>🪙 코인 <b>+' + coins + '</b> · 💔 남은 목숨 <b>×' + lives + '</b></div>',
     nextBtn: n => '다음 → ' + n,
-    introSub: (sub, lives) => sub + ' · ❤×' + lives
+    introSub: (sub, lives) => sub + ' · ❤×' + lives,
+    aboutTitle: '📖 게임 소개',
+    aboutBody: '블록을 치고 버섯을 먹고 거북이를 밟아 깃발에 도달하세요! 브라우저에서 바로 플레이 — 키보드와 터치 지원, 다운로드 불필요, 완전 무료.',
   }
 };
 </script>

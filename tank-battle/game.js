@@ -549,12 +549,23 @@ function setScreen(n) {
   if (!n) for (const id of ['screen-menu', 'screen-pause', 'screen-clear', 'screen-over', 'screen-win']) $(id).classList.add('hidden');
   $('btn-pause') && $('btn-pause').classList.toggle('hidden', G.state !== 'play');
 }
+function buildStageGrid() {
+  const box = $('stage-select');
+  if (!box) return;
+  box.innerHTML = '';
+  STAGES.forEach((s, i) => {
+    const parts = stageFull(i).split('·');
+    const b = document.createElement('button');
+    b.className = 'lvl-btn' + (i === G.stageIdx ? ' active' : '');
+    b.innerHTML = parts[0].trim() + '<small>' + (parts[1] || '').trim() + '</small>';
+    b.onclick = () => { if (G.stageIdx === i) return; G.stageIdx = i; sfx.click(); buildStageGrid(); };
+    box.appendChild(b);
+  });
+}
 function showMenu() {
   G.state = 'menu';
   setScreen('screen-menu');
-  const sel = $('sel-stage');
-  sel.innerHTML = STAGES.map((s, i) => '<option value="' + i + '">' + stageFull(i) + '</option>').join('');
-  sel.value = G.stageIdx;
+  buildStageGrid();
   $('custom-note').classList.toggle('hidden', !store.custom);
   $('menu-best').textContent = store.best;
 }
@@ -887,8 +898,8 @@ function loop(now) {
 }
 
 // ---------- 按钮 ----------
-$('btn-1p').onclick = () => startGame('1p', +$('sel-stage').value, false);
-$('btn-2p').onclick = () => startGame('2p', +$('sel-stage').value, false);
+$('btn-1p').onclick = () => startGame('1p', G.stageIdx, false);
+$('btn-2p').onclick = () => startGame('2p', G.stageIdx, false);
 $('btn-resume').onclick = togglePause;
 $('btn-quit').onclick = () => { showMenu(); };
 $('btn-menu2').onclick = () => showMenu();
@@ -923,13 +934,7 @@ window.__refreshLang = function() {
   if ($('ed-test')) $('ed-test').title = edT.test || $('ed-test').title;
   if ($('ed-save')) $('ed-save').title = edT.save || $('ed-save').title;
   if ($('ed-back')) $('ed-back').title = edT.back || $('ed-back').title;
-  const sel = $('sel-stage');
-  if (sel) {
-    const cur = sel.value;
-    sel.innerHTML = STAGES.map((s, i) => '<option value="' + i + '">' + stageFull(i) + '</option>').join('');
-    sel.value = cur === '' ? G.stageIdx : cur;
-    if (sel.value === '') sel.value = G.stageIdx;
-  }
+  buildStageGrid();
   const mb = $('menu-best');
   if (mb) mb.textContent = store.best;
 };

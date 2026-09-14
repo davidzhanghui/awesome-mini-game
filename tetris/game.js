@@ -15,7 +15,9 @@ const store = {
   get best() { return +(localStorage.getItem('tetris-best') || 0); },
   set best(v) { localStorage.setItem('tetris-best', v); },
   get muted() { return localStorage.getItem('tetris-muted') === '1'; },
-  set muted(v) { localStorage.setItem('tetris-muted', v ? '1' : '0'); }
+  set muted(v) { localStorage.setItem('tetris-muted', v ? '1' : '0'); },
+  get level() { return +(localStorage.getItem('tetris-level') || 1); },
+  set level(v) { localStorage.setItem('tetris-level', v); }
 };
 let actx = null, muted = store.muted;
 function tone(f, dur, type, vol, slide) {
@@ -81,6 +83,7 @@ const GRAVITY = [1, .9, .8, .7, .6, .5, .4, .32, .25, .2, .16, .13, .1, .08, .06
 const G = {
   state: 'menu', grid: [], cur: null, bag: [], next: [],
   hold: null, canHold: true, score: 0, lines: 0, level: 1, combo: -1, b2b: false,
+  startLevel: Math.min(Math.max(store.level || 1, 1), 9),
   dropT: 0, lockT: 0, lockResets: 0, dasT: 0, arrT: 0, dasDir: 0,
   msg: '', msgT: 0, clearFx: [], soft: false
 };
@@ -89,7 +92,7 @@ function reset() {
   G.bag = []; G.next = [];
   for (let i = 0; i < 7; i++) G.next.push(drawPiece());
   G.hold = null; G.canHold = true;
-  G.score = 0; G.lines = 0; G.level = 1; G.combo = -1; G.b2b = false;
+  G.score = 0; G.lines = 0; G.level = G.startLevel; G.combo = -1; G.b2b = false;
   G.dropT = 0; G.lockT = 0; G.lockResets = 0; G.dasDir = 0; G.soft = false;
   G.clearFx = [];
   spawn();
@@ -215,7 +218,7 @@ function lockPiece() {
     for (const y of full) G.grid.splice(y, 1);
     for (let i = 0; i < full.length; i++) G.grid.unshift(new Array(COLS).fill(0));
     G.lines += n;
-    const nl = Math.floor(G.lines / 10) + 1;
+    const nl = G.startLevel + Math.floor(G.lines / 10);
     if (nl !== G.level) { G.level = nl; sfx.level(); }
     G.clearFx.push({ rows: full, t: 0 });
     if (label) flash(label + ' +' + Math.round(gained));
@@ -465,10 +468,23 @@ function toggleMute() {
 $('btn-mute').onclick = toggleMute;
 $('btn-mute').textContent = muted ? '🔇' : '🔊';
 // i18n boot: static DOM + dynamic boot texts
+function buildLevelGrid() {
+  const box = $('level-select');
+  if (!box) return;
+  box.innerHTML = '';
+  for (let i = 1; i <= 9; i++) {
+    const b = document.createElement('button');
+    b.className = 'lvl-btn' + (i === G.startLevel ? ' active' : '');
+    b.innerHTML = 'LV ' + i;
+    b.onclick = () => { if (G.startLevel === i) return; G.startLevel = i; store.level = i; sfx.level(); buildLevelGrid(); };
+    box.appendChild(b);
+  }
+}
 window.__refreshLang = function () {
   AMG.apply(STR);
   $('btn-mute').title = T('muteTitle');
   $('menu-best').textContent = T('best', store.best);
+  buildLevelGrid();
 };
 AMG.mountBtn();
 window.__refreshLang();

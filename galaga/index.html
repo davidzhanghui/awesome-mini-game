@@ -3,10 +3,50 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="description" content="左右移动射击外星机群，被抓住的战机还能救回来！">
+<link rel="canonical" href="https://awesome-mini-game.vercel.app/galaga/">
+<link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/galaga/">
+<link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/galaga/?lang=en">
+<link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/galaga/?lang=ja">
+<link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/galaga/?lang=ko">
+<link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/galaga/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Awesome Mini Game">
+<meta property="og:title" content="小蜜蜂 Galaga · 经典空战">
+<meta property="og:description" content="左右移动射击外星机群，被抓住的战机还能救回来！">
+<meta property="og:url" content="https://awesome-mini-game.vercel.app/galaga/">
+<meta property="og:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="小蜜蜂 Galaga · 经典空战">
+<meta name="twitter:description" content="左右移动射击外星机群，被抓住的战机还能救回来！">
+<meta name="twitter:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "小蜜蜂 Galaga · 经典空战",
+  "description": "左右移动射击外星机群，被抓住的战机还能救回来！",
+  "url": "https://awesome-mini-game.vercel.app/galaga/",
+  "genre": "射击街机",
+  "gamePlatform": "Web Browser",
+  "inLanguage": [
+    "zh-CN",
+    "en",
+    "ja",
+    "ko"
+  ],
+  "isAccessibleForFree": true,
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "CNY"
+  }
+}
+</script>
 <link rel="icon" href="/favicon.svg" />
 <title>小蜜蜂 Galaga · 经典空战</title>
 <link rel="stylesheet" href="styles.css" />
-<link rel="stylesheet" href="../assets/ui.css?v=20260913" />
+<link rel="stylesheet" href="../assets/ui.css?v=20260915" />
 <script src="../assets/theme.js"></script>
 </head>
 <body>
@@ -113,9 +153,11 @@
       </div>
     </aside>
   </section>
+  <details class="card seo-about"><summary data-i18n="aboutTitle">📖 关于这款游戏</summary><p data-i18n="aboutBody">左右移动射击外星机群，被抓住的战机还能救回来！ 浏览器打开即玩，支持键盘和触屏，无需下载安装，完全免费。</p></details>
+
   <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏</footer>
 </main>
-<script src="../assets/i18n.js?v=20260913"></script>
+<script src="../assets/i18n.js?v=20260915"></script>
 <script src="../assets/touch.js?v=20260908"></script>
 <script>
 window.GAME_STR = {
@@ -147,7 +189,9 @@ window.GAME_STR = {
     dualKeep: '🚀🚀 双机合体保持！',
     hudChallLeft: n => '剩余 ' + n, hudFoes: n => '敌机 ' + n,
     hudDual: '🚀🚀 双机！', hudCaptured: '⚠ 战机被抓！击落俯冲Boss救回！',
-    introChall: '⭐ 奖励关 ⭐', introChallSub: '击落 40 只敌机！全歼 +10000', introGo: '- 出击！ -'
+    introChall: '⭐ 奖励关 ⭐', introChallSub: '击落 40 只敌机！全歼 +10000', introGo: '- 出击！ -',
+    aboutTitle: '📖 关于这款游戏',
+    aboutBody: '左右移动射击外星机群，被抓住的战机还能救回来！ 浏览器打开即玩，支持键盘和触屏，无需下载安装，完全免费。',
   },
   en: {
     title: 'Galaga · Classic Space Shooter', gameTitle: 'Galaga', galagaSub: 'GALAGA DOGFIGHT',
@@ -177,7 +221,9 @@ window.GAME_STR = {
     dualKeep: '🚀🚀 Dual fighter kept!',
     hudChallLeft: n => n + ' left', hudFoes: n => 'Foes ' + n,
     hudDual: '🚀🚀 DUAL!', hudCaptured: '⚠ Fighter captured! Down the diving Boss to rescue!',
-    introChall: '⭐ BONUS STAGE ⭐', introChallSub: 'Down all 40 fighters! Wipeout +10,000', introGo: '- Scramble! -'
+    introChall: '⭐ BONUS STAGE ⭐', introChallSub: 'Down all 40 fighters! Wipeout +10,000', introGo: '- Scramble! -',
+    aboutTitle: '📖 About this game',
+    aboutBody: 'Dodge and blast the alien swarm — rescue captured fighters to fly double! Play instantly in your browser — keyboard and touch supported, no download needed, completely free.',
   },
   ja: {
     title: 'ギャラガ · クラシックシューティング', gameTitle: 'ギャラガ', galagaSub: 'GALAGA 空戦',
@@ -207,7 +253,9 @@ window.GAME_STR = {
     dualKeep: '🚀🚀 ダブル合体を維持！',
     hudChallLeft: n => '残り ' + n, hudFoes: n => '敵機 ' + n,
     hudDual: '🚀🚀 ダブル！', hudCaptured: '⚠ 機体を捕獲された！急降下ボスを撃て！',
-    introChall: '⭐ ボーナスステージ ⭐', introChallSub: '敵40機を撃墜せよ！全滅で+10000', introGo: '- 出撃！ -'
+    introChall: '⭐ ボーナスステージ ⭐', introChallSub: '敵40機を撃墜せよ！全滅で+10000', introGo: '- 出撃！ -',
+    aboutTitle: '📖 このゲームについて',
+    aboutBody: '左右に動いてエイリアンを撃とう！捕まった戦闘機は救出できるよ ブラウザでそのまま遊べます。キーボード・タッチ操作対応、ダウンロード不要・完全無料。',
   },
   ko: {
     title: '갤러그 · 클래식 슈팅', gameTitle: '갤러그', galagaSub: 'GALAGA 공중전',
@@ -237,7 +285,9 @@ window.GAME_STR = {
     dualKeep: '🚀🚀 듀얼 합체 유지!',
     hudChallLeft: n => '남음 ' + n, hudFoes: n => '적기 ' + n,
     hudDual: '🚀🚀 듀얼!', hudCaptured: '⚠ 기체 포획됨! 급강하 보스를 격추하라!',
-    introChall: '⭐ 보너스 스테이지 ⭐', introChallSub: '적 40기를 격추하라! 전멸 +10000', introGo: '- 출격! -'
+    introChall: '⭐ 보너스 스테이지 ⭐', introChallSub: '적 40기를 격추하라! 전멸 +10000', introGo: '- 출격! -',
+    aboutTitle: '📖 게임 소개',
+    aboutBody: '좌우로 움직여 외계 함대를 격파! 잡힌 전투기는 구출할 수 있어요 브라우저에서 바로 플레이 — 키보드와 터치 지원, 다운로드 불필요, 완전 무료.',
   }
 };
 </script>

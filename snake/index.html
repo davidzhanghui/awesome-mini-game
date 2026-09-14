@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="description" content="吃豆豆变长，小心别咬到自己！">
+<link rel="canonical" href="https://awesome-mini-game.vercel.app/snake/">
+<link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/snake/">
+<link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/snake/?lang=en">
+<link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/snake/?lang=ja">
+<link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/snake/?lang=ko">
+<link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/snake/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Awesome Mini Game">
+<meta property="og:title" content="贪吃蛇 · 敏捷休闲">
+<meta property="og:description" content="吃豆豆变长，小心别咬到自己！">
+<meta property="og:url" content="https://awesome-mini-game.vercel.app/snake/">
+<meta property="og:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="贪吃蛇 · 敏捷休闲">
+<meta name="twitter:description" content="吃豆豆变长，小心别咬到自己！">
+<meta name="twitter:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "贪吃蛇 · 敏捷休闲",
+  "description": "吃豆豆变长，小心别咬到自己！",
+  "url": "https://awesome-mini-game.vercel.app/snake/",
+  "genre": "敏捷休闲",
+  "gamePlatform": "Web Browser",
+  "inLanguage": [
+    "zh-CN",
+    "en",
+    "ja",
+    "ko"
+  ],
+  "isAccessibleForFree": true,
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "CNY"
+  }
+}
+</script>
+<link rel="icon" href="/favicon.svg" />
+<title>贪吃蛇 · 敏捷休闲</title>
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="../assets/ui.css?v=20260915" />
+<script src="../assets/theme.js"></script>
+</head>
+<body>
+<div class="bg-orbs"><span></span><span></span><span></span></div>
+<main class="page">
+  <header class="brand">
+    <div class="logo">🐍</div>
+    <div>
+      <h1><span data-i18n="name">贪吃蛇</span> <em data-i18n="subtitle">敏捷休闲</em></h1>
+      <p data-i18n="intro">吃豆豆变长，小心别咬到自己！</p>
+    </div>
+    <div class="brand-btns">
+      <button id="btn-mute" class="icon-btn" title="声音开 / 关 (M)">🔊</button>
+    </div>
+  </header>
+  <section class="cabinet">
+    <div class="game-frame">
+      <canvas id="game" width="480" height="620"></canvas>
+      <div id="screen-menu" class="screen">
+        <div class="title-badge">SNAKE</div>
+        <h2 class="game-title" data-i18n="menuTitle">贪吃蛇</h2>
+        <div class="hero-row"><span class="hero">🐍</span><span class="hero f">🍎</span><span class="hero">⭐</span></div>
+        <button id="btn-start" class="btn primary" data-i18n="start">🚀 开始游戏</button>
+        <p class="hint"><kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> / <kbd>WASD</kbd> <span data-i18n="hintTurn">转向 · P 暂停</span></p>
+        <div id="menu-best" class="mini-board">🏆 历史最高：0</div>
+      </div>
+      <div id="screen-over" class="screen dim hidden">
+        <div class="panel pop">
+          <h3 id="over-title" class="over-title">游戏结束</h3>
+          <div id="over-sub" class="over-sub"></div>
+          <div class="row"><button id="btn-retry" class="btn primary" data-i18n="retry">🔄 再来一局 (R)</button><button id="btn-menu" class="btn ghost" data-i18n="menu">菜单</button></div>
+        </div>
+      </div>
+    </div>
+    <aside class="side">
+      <div class="card"><h4 data-i18n="opTitle">🎮 操作</h4><ul>
+        <li><kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> / <kbd>WASD</kbd> <span data-i18n="op1">转向</span></li><li data-i18n="op2">触屏滑动转向</li><li><kbd>P</kbd> <span data-i18n="pauseKw">暂停</span> · <kbd>M</kbd> <span data-i18n="muteKw">静音</span> · <kbd>R</kbd> <span data-i18n="restartKw">重开</span></li></ul></div>
+      <div class="card"><h4 data-i18n="goalTitle">🏆 目标</h4><ul class="medals">
+        <li data-i18n="goal1">🍎 吃到豆豆就长大，分数越高</li><li data-i18n="goal2">💥 撞墙或咬到自己就结束啦</li></ul></div>
+      <div class="card diff"><h4 data-i18n="tipTitle">🐍 生存口诀</h4>
+        <p data-i18n="tipBody">别追着自己的尾巴绕大圈！提前留好掉头空间，越长的蛇越怕钻小胡同。</p></div>
+    </aside>
+  </section>
+  <details class="card seo-about"><summary data-i18n="aboutTitle">📖 关于这款游戏</summary><p data-i18n="aboutBody">吃豆豆变长，小心别咬到自己！ 浏览器打开即玩，支持键盘和触屏，无需下载安装，完全免费。</p></details>
+
+  <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏</footer>
+</main>
+<script src="../assets/i18n.js?v=20260915"></script>
+<script>
+window.GAME_STR = {
+  zh: {
+    title: '贪吃蛇 · 敏捷休闲', name: '贪吃蛇', subtitle: '敏捷休闲', menuTitle: '贪吃蛇',
+    intro: '吃豆豆变长，小心别咬到自己！',
+    start: '🚀 开始游戏', hintTurn: '转向 · P 暂停',
+    retry: '🔄 再来一局 (R)', menu: '菜单',
+    opTitle: '🎮 操作', op1: '转向', op2: '触屏滑动转向', pauseKw: '暂停', muteKw: '静音', restartKw: '重开',
+    goalTitle: '🏆 目标', goal1: '🍎 吃到豆豆就长大，分数越高', goal2: '💥 撞墙或咬到自己就结束啦',
+    tipTitle: '🐍 生存口诀', tipBody: '别追着自己的尾巴绕大圈！提前留好掉头空间，越长的蛇越怕钻小胡同。',
+    footer: '🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏',
+    muteTitle: '声音开 / 关 (M)', paused: '⏸ 暂停', overTitle: '游戏结束',
+    best: v => '🏆 历史最高：' + v,
+    overSub: (s, l) => '得分 ' + s + ' · 蛇长 ' + l,
+    aboutTitle: '📖 关于这款游戏',
+    aboutBody: '吃豆豆变长，小心别咬到自己！ 浏览器打开即玩，支持键盘和触屏，无需下载安装，完全免费。',
+  },
+  en: {
+    title: 'Snake · Casual', name: 'Snake', subtitle: 'Casual', menuTitle: 'SNAKE',
+    intro: 'Eat to grow longer — don\'t bite yourself!',
+    start: '🚀 Start Game', hintTurn: 'steer · P pause',
+    retry: '🔄 Play Again (R)', menu: 'Menu',
+    opTitle: '🎮 Controls', op1: 'steer', op2: 'Swipe to turn on touch', pauseKw: 'pause', muteKw: 'mute', restartKw: 'restart',
+    goalTitle: '🏆 Goal', goal1: '🍎 Every snack makes you longer and faster', goal2: '💥 Hit a wall or yourself and it\'s over',
+    tipTitle: '🐍 Survival Tips', tipBody: 'Don\'t chase your own tail in circles! Leave room to turn around — long snakes hate narrow alleys.',
+    footer: '🕹️ Play instantly · Free · Keyboard & touch friendly',
+    muteTitle: 'Sound on/off (M)', paused: '⏸ Paused', overTitle: 'Game Over',
+    best: v => '🏆 Best: ' + v,
+    overSub: (s, l) => 'Score ' + s + ' · Length ' + l,
+    aboutTitle: '📖 About this game',
+    aboutBody: 'Eat to grow longer — don\'t bite yourself! Play instantly in your browser — keyboard and touch supported, no download needed, completely free.',
+  },
+  ja: {
+    title: 'スネーク · カジュアル', name: 'スネーク', subtitle: 'カジュアル', menuTitle: 'スネーク',
+    intro: 'エサを食べて伸びよう、自分に噛みつかないでね！',
+    start: '🚀 ゲームスタート', hintTurn: '方向転換 · P 一時停止',
+    retry: '🔄 もう一回 (R)', menu: 'メニュー',
+    opTitle: '🎮 操作', op1: '方向転換', op2: 'タッチでスワイプ操作', pauseKw: '一時停止', muteKw: 'ミュート', restartKw: 'リスタート',
+    goalTitle: '🏆 目標', goal1: '🍎 エサを食べるほど長く速くなる', goal2: '💥 壁か自分にぶつかると終了',
+    tipTitle: '🐍 生存のコツ', tipBody: '自分のしっぽを追いかけ回らないで！回転できる余白を残そう、長い蛇は細い路地が苦手。',
+    footer: '🕹️ すぐ遊べる · 完全無料 · キーボード＆タッチ対応',
+    muteTitle: 'サウンド ON/OFF (M)', paused: '⏸ 一時停止中', overTitle: 'ゲームオーバー',
+    best: v => '🏆 最高記録：' + v,
+    overSub: (s, l) => 'スコア ' + s + ' · 長さ ' + l,
+    aboutTitle: '📖 このゲームについて',
+    aboutBody: 'エサを食べて伸びよう、自分に噛みつかないでね！ ブラウザでそのまま遊べます。キーボード・タッチ操作対応、ダウンロード不要・完全無料。',
+  },
+  ko: {
+    title: '스네이크 · 캐주얼', name: '스네이크', subtitle: '캐주얼', menuTitle: '스네이크',
+    intro: '먹이를 먹고 길어지자, 몸을 물지 않게 조심!',
+    start: '🚀 게임 시작', hintTurn: '방향 전환 · P 일시정지',
+    retry: '🔄 다시 하기 (R)', menu: '메뉴',
+    opTitle: '🎮 조작', op1: '방향 전환', op2: '터치로 스와이프 조작', pauseKw: '일시정지', muteKw: '음소거', restartKw: '다시 시작',
+    goalTitle: '🏆 목표', goal1: '🍎 먹이를 먹을수록 길어지고 빨라져요', goal2: '💥 벽이나 몸에 부딪히면 끝!',
+    tipTitle: '🐍 생존 비결', tipBody: '자기 꼬리를 쫓아 빙빙 돌지 마세요! 방향 틀 공간을 남겨두세요 — 긴 뱀은 좁은 골목이 두렵습니다.',
+    footer: '🕹️ 바로 플레이 · 완전 무료 · 키보드 & 터치 지원',
+    muteTitle: '사운드 켜기/끄기 (M)', paused: '⏸ 일시정지', overTitle: '게임 오버',
+    best: v => '🏆 최고 기록: ' + v,
+    overSub: (s, l) => '점수 ' + s + ' · 길이 ' + l,
+    aboutTitle: '📖 게임 소개',
+    aboutBody: '먹이를 먹고 길어지자, 몸을 물지 않게 조심! 브라우저에서 바로 플레이 — 키보드와 터치 지원, 다운로드 불필요, 완전 무료.',
+  }
+};
+</script>
+<script src="game.js?v=20260914"></script>
+</body>
+</html>
