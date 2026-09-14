@@ -173,6 +173,8 @@ body {
   background: var(--ui-primary-soft) !important;
 }
 select.icon-btn option { background: var(--ui-card); color: var(--ui-text); }
+/* 语言下拉框：.icon-btn 在各游戏 styles.css 里是 20px 图标字号，这里压小 */
+select#amg-lang-btn { font-size: 13px; font-weight: 700; }
 
 /* ---------- 游戏框（画布外框统一暖色描边+暖阴影） ---------- */
 .game-frame {
