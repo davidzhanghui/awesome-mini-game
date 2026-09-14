@@ -6,7 +6,7 @@
 <link rel="icon" href="/favicon.svg" />
 <title>泡泡龙 · 经典益智</title>
 <link rel="stylesheet" href="styles.css" />
-<link rel="stylesheet" href="../assets/ui.css?v=20260913" />
+<link rel="stylesheet" href="../assets/ui.css?v=20260914" />
 <script src="../assets/theme.js"></script>
 </head>
 <body>
@@ -59,9 +59,11 @@
     </div>
     <aside class="side">
       <div class="card"><h4 data-i18n="opTitle">🎮 操作</h4><ul>
-        <li data-i18n="op1">鼠标移动瞄准，点击发射</li><li><kbd>←</kbd><kbd>→</kbd> <span data-i18n="fineTune">微调</span> · <kbd data-i18n="kbdSpace">空格</kbd> <span data-i18n="fireKw">发射</span></li><li data-i18n="op3">相同色 3 连即消除</li></ul></div>
-      <div class="card"><h4 data-i18n="ruleTitle">✨ 规则</h4><ul>
-        <li data-i18n="rule1">消除后无连接的孤块会掉落加分</li><li data-i18n="rule2">发射数达上限天花板下压一行</li><li data-i18n="rule3">泡泡压过底线即失败</li></ul></div>
+        <li data-i18n="op1">鼠标移动瞄准，点击发射</li><li><kbd>←</kbd><kbd>→</kbd> <span data-i18n="fineTune">微调</span> · <kbd data-i18n="kbdSpace">空格</kbd> <span data-i18n="fireKw">发射</span></li><li><kbd>P</kbd> <span data-i18n="pauseKw">暂停</span> · <kbd>M</kbd> <span data-i18n="muteKw">静音</span> · <kbd>R</kbd> <span data-i18n="restartKw">重开</span></li></ul></div>
+      <div class="card"><h4 data-i18n="ruleTitle">🫧 消除规则</h4><ul class="medals">
+        <li data-i18n="rule1">🎯 相同色 3 连即消除</li><li data-i18n="rule2">🧊 孤块失去连接会掉落，额外加分</li><li data-i18n="rule3">⬇️ 发射数达上限，天花板下压一行</li><li data-i18n="rule4">💀 泡泡压过底线即失败</li></ul></div>
+      <div class="card diff"><h4 data-i18n="tipTitle">💡 高分诀窍</h4>
+        <p data-i18n="tipBody">瞄准根部的大团泡泡打！打断一根就掉一片，比一颗颗消划算多了。</p></div>
     </aside>
   </section>
   <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏</footer>
@@ -78,8 +80,9 @@ window.GAME_STR = {
     score: '得分', stageReached: '到达关卡',
     retry: '🔄 再来一局 (R)', menu: '菜单', next: '下一关 →',
     clearPre: '🎉 第', clearSuf: '关通过！',
-    opTitle: '🎮 操作', op1: '鼠标移动瞄准，点击发射', fineTune: '微调', op3: '相同色 3 连即消除',
-    ruleTitle: '✨ 规则', rule1: '消除后无连接的孤块会掉落加分', rule2: '发射数达上限天花板下压一行', rule3: '泡泡压过底线即失败',
+    opTitle: '🎮 操作', op1: '鼠标移动瞄准，点击发射', fineTune: '微调', muteKw: '静音', restartKw: '重开',
+    ruleTitle: '🫧 消除规则', rule1: '🎯 相同色 3 连即消除', rule2: '🧊 孤块失去连接会掉落，额外加分', rule3: '⬇️ 发射数达上限，天花板下压一行', rule4: '💀 泡泡压过底线即失败',
+    tipTitle: '💡 高分诀窍', tipBody: '瞄准根部的大团泡泡打！打断一根就掉一片，比一颗颗消划算多了。',
     footer: '🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏',
     muteTitle: '声音开 / 关 (M)',
     best: v => '🏆 历史最高：' + v,
@@ -95,8 +98,9 @@ window.GAME_STR = {
     score: 'Score', stageReached: 'Stage reached',
     retry: '🔄 Play Again (R)', menu: 'Menu', next: 'Next Stage →',
     clearPre: '🎉 Stage', clearSuf: 'cleared!',
-    opTitle: '🎮 Controls', op1: 'Move the mouse to aim, click to shoot', fineTune: 'fine-tune', op3: '3+ same color pops',
-    ruleTitle: '✨ Rules', rule1: 'Orphaned bubbles drop for bonus points', rule2: 'The ceiling pushes down after enough shots', rule3: 'Game over if bubbles cross the bottom line',
+    opTitle: '🎮 Controls', op1: 'Move the mouse to aim, click to shoot', fineTune: 'fine-tune', muteKw: 'mute', restartKw: 'restart',
+    ruleTitle: '🫧 Clear Rules', rule1: '🎯 3+ same color pops', rule2: '🧊 Orphaned bubbles drop for bonus points', rule3: '⬇️ The ceiling pushes down after enough shots', rule4: '💀 Game over if bubbles cross the bottom line',
+    tipTitle: '💡 Scoring Trick', tipBody: 'Aim for big clusters at the root! Cut one link and a whole chunk falls — far better than popping one by one.',
     footer: '🕹️ Play instantly · Free · Keyboard & touch friendly',
     muteTitle: 'Sound on/off (M)',
     best: v => '🏆 Best: ' + v,
@@ -112,8 +116,9 @@ window.GAME_STR = {
     score: 'スコア', stageReached: '到達ステージ',
     retry: '🔄 もう一回 (R)', menu: 'メニュー', next: '次の面へ →',
     clearPre: '🎉 ステージ', clearSuf: 'クリア！',
-    opTitle: '🎮 操作', op1: 'マウスで狙ってクリックで発射', fineTune: '微調整', op3: '同色3つで消去',
-    ruleTitle: '✨ ルール', rule1: '消去後に孤立したバブルは落下ボーナス', rule2: '規定発射数で天井が一段下降', rule3: 'バブルが底線を超えたら終了',
+    opTitle: '🎮 操作', op1: 'マウスで狙ってクリックで発射', fineTune: '微調整', muteKw: 'ミュート', restartKw: 'リスタート',
+    ruleTitle: '🫧 消去ルール', rule1: '🎯 同色3つで消去', rule2: '🧊 消去後に孤立したバブルは落下ボーナス', rule3: '⬇️ 規定発射数で天井が一段下降', rule4: '💀 バブルが底線を超えたら終了',
+    tipTitle: '💡 高得点のコツ', tipBody: '根元の大きなかたまりを狙おう！ひとつ切ればまとめて落下、ひと粒ずつ消すよりずっとお得。',
     footer: '🕹️ すぐ遊べる · 完全無料 · キーボード＆タッチ対応',
     muteTitle: 'サウンド ON/OFF (M)',
     best: v => '🏆 最高記録：' + v,
@@ -129,8 +134,9 @@ window.GAME_STR = {
     score: '점수', stageReached: '도달 스테이지',
     retry: '🔄 다시 하기 (R)', menu: '메뉴', next: '다음 스테이지 →',
     clearPre: '🎉 스테이지', clearSuf: '클리어!',
-    opTitle: '🎮 조작', op1: '마우스로 조준하고 클릭해 발사', fineTune: '미세 조정', op3: '같은 색 3개면 제거',
-    ruleTitle: '✨ 규칙', rule1: '제거 후 연결 끊긴 버블은 낙하 보너스', rule2: '발사 수가 차면 천장이 한 줄 하강', rule3: '버블이 바닥선을 넘으면 종료',
+    opTitle: '🎮 조작', op1: '마우스로 조준하고 클릭해 발사', fineTune: '미세 조정', muteKw: '음소거', restartKw: '다시 시작',
+    ruleTitle: '🫧 제거 규칙', rule1: '🎯 같은 색 3개면 제거', rule2: '🧊 제거 후 연결 끊긴 버블은 낙하 보너스', rule3: '⬇️ 발사 수가 차면 천장이 한 줄 하강', rule4: '💀 버블이 바닥선을 넘으면 종료',
+    tipTitle: '💡 고득점 비결', tipBody: '뿌리 쪽 큰 덩어리를 노리세요! 한 연결만 끊어도 통째로 떨어져 한 알씩 지우는 것보다 훨씬 이득.',
     footer: '🕹️ 바로 플레이 · 완전 무료 · 키보드 & 터치 지원',
     muteTitle: '사운드 켜기/끄기 (M)',
     best: v => '🏆 최고 기록: ' + v,

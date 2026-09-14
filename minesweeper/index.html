@@ -6,7 +6,7 @@
 <link rel="icon" href="/favicon.svg" />
 <title>扫雷 · 经典益智</title>
 <link rel="stylesheet" href="styles.css" />
-<link rel="stylesheet" href="../assets/ui.css?v=20260913" />
+<link rel="stylesheet" href="../assets/ui.css?v=20260914" />
 <script src="../assets/theme.js"></script>
 </head>
 <body>
@@ -48,8 +48,10 @@
     <aside class="side">
       <div class="card"><h4 data-i18n="opTitle">🎮 操作</h4><ul>
         <li data-i18n="op1">左键揭开 · 右键标旗（触屏长按标旗）</li><li data-i18n="op2">双击数字：旗数够则展开周围</li>        <li><kbd>R</kbd> <span data-i18n="op3a">重开</span> · <kbd>P</kbd>/<kbd>Esc</kbd> <span data-i18n="op3b">暂停</span> · <kbd>M</kbd> <span data-i18n="op3c">静音</span></li></ul></div>
-      <div class="card"><h4 data-i18n="ruleTitle">📏 规则</h4><ul>
-        <li data-i18n="rule1">首次点击必定安全</li><li data-i18n="rule2">数字 = 周围 8 格地雷数</li><li data-i18n="rule3">全部安全格揭开即胜利</li></ul></div>
+      <div class="card"><h4 data-i18n="ruleTitle">📏 规则</h4><ul class="medals">
+        <li data-i18n="rule1">🛡 首次点击必定安全</li><li data-i18n="rule2">🔢 数字 = 周围 8 格地雷数</li><li data-i18n="rule3">🏁 全部安全格揭开即胜利</li></ul></div>
+      <div class="card diff"><h4 data-i18n="tipTitle">💡 排雷口诀</h4>
+        <p data-i18n="tipBody">先在边缘点出大片空白！数字周围旗子插够了就双击，一键展开最解压。</p></div>
     </aside>
   </section>
   <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏</footer>
@@ -63,7 +65,8 @@ window.GAME_STR = {
     mode0: '🌱 初级 9×9·10', mode1: '🌿 中级 16×16·40', mode2: '🌳 高级 30×16·99',
     retry: '🔄 再来一局 (R)', menu: '菜单',
     opTitle: '🎮 操作', op1: '左键揭开 · 右键标旗（触屏长按标旗）', op2: '双击数字：旗数够则展开周围',
-    ruleTitle: '📏 规则', rule1: '首次点击必定安全', rule2: '数字 = 周围 8 格地雷数', rule3: '全部安全格揭开即胜利',
+    ruleTitle: '📏 规则', rule1: '🛡 首次点击必定安全', rule2: '🔢 数字 = 周围 8 格地雷数', rule3: '🏁 全部安全格揭开即胜利',
+    tipTitle: '💡 排雷口诀', tipBody: '先在边缘点出大片空白！数字周围旗子插够了就双击，一键展开最解压。',
     footer: '🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏',
     muteTitle: '声音开 / 关 (M)', paused: '⏸ 暂停', op3a: '重开', op3b: '暂停', op3c: '静音',
     diffs: ['初级', '中级', '高级'], diffShort: ['初', '中', '高'],
@@ -79,7 +82,8 @@ window.GAME_STR = {
     mode0: '🌱 Beginner 9×9·10', mode1: '🌿 Intermediate 16×16·40', mode2: '🌳 Expert 30×16·99',
     retry: '🔄 Play Again (R)', menu: 'Menu',
     opTitle: '🎮 Controls', op1: 'Left-click to open · right-click to flag (long-press on touch)', op2: 'Double-click a number: chord when flags match',
-    ruleTitle: '📏 Rules', rule1: 'First click is always safe', rule2: 'Number = mines in the 8 neighbors', rule3: 'Open all safe cells to win',
+    ruleTitle: '📏 Rules', rule1: '🛡 First click is always safe', rule2: '🔢 Number = mines in the 8 neighbors', rule3: '🏁 Open all safe cells to win',
+    tipTitle: '💡 Sweep Tips', tipBody: 'Open a big blank area near the edge first! Once the flags around a number match, double-click to chord — so satisfying.',
     footer: '🕹️ Play instantly · Free · Keyboard & touch friendly',
     muteTitle: 'Sound on/off (M)', paused: '⏸ Paused', op3a: 'restart', op3b: 'pause', op3c: 'mute',
     diffs: ['Beginner', 'Intermediate', 'Expert'], diffShort: ['B', 'I', 'E'],
@@ -95,7 +99,8 @@ window.GAME_STR = {
     mode0: '🌱 初級 9×9·10', mode1: '🌿 中級 16×16·40', mode2: '🌳 上級 30×16·99',
     retry: '🔄 もう一回 (R)', menu: 'メニュー',
     opTitle: '🎮 操作', op1: '左クリックで開く · 右クリックで旗（長押し対応）', op2: '数字をダブルクリック：旗が揃えば周囲を展開',
-    ruleTitle: '📏 ルール', rule1: '初手は必ず安全', rule2: '数字 = 周囲8マスの地雷数', rule3: '安全マスをすべて開けば勝利',
+    ruleTitle: '📏 ルール', rule1: '🛡 初手は必ず安全', rule2: '🔢 数字 = 周囲8マスの地雷数', rule3: '🏁 安全マスをすべて開けば勝利',
+    tipTitle: '💡 掃海のコツ', tipBody: 'まず端で広い空白を開こう！数字の周りに旗が揃ったらダブルクリック、一気に展開して爽快。',
     footer: '🕹️ すぐ遊べる · 完全無料 · キーボード＆タッチ対応',
     muteTitle: 'サウンド ON/OFF (M)', paused: '⏸ 一時停止中', op3a: 'リスタート', op3b: '一時停止', op3c: 'ミュート',
     diffs: ['初級', '中級', '上級'], diffShort: ['初', '中', '上'],
@@ -111,7 +116,8 @@ window.GAME_STR = {
     mode0: '🌱 초급 9×9·10', mode1: '🌿 중급 16×16·40', mode2: '🌳 고급 30×16·99',
     retry: '🔄 다시 하기 (R)', menu: '메뉴',
     opTitle: '🎮 조작', op1: '좌클릭으로 열기 · 우클릭으로 깃발 (터치는 길게 누르기)', op2: '숫자 더블클릭: 깃발이 맞으면 주변 열기',
-    ruleTitle: '📏 규칙', rule1: '첫 클릭은 항상 안전', rule2: '숫자 = 주변 8칸의 지뢰 수', rule3: '모든 안전 칸을 열면 승리',
+    ruleTitle: '📏 규칙', rule1: '🛡 첫 클릭은 항상 안전', rule2: '🔢 숫자 = 주변 8칸의 지뢰 수', rule3: '🏁 모든 안전 칸을 열면 승리',
+    tipTitle: '💡 지뢰 제거 요령', tipBody: '먼저 가장자리에서 넓은 빈 공간을 여세요! 숫자 주변 깃발이 맞으면 더블클릭으로 한 번에 펼치기.',
     footer: '🕹️ 바로 플레이 · 완전 무료 · 키보드 & 터치 지원',
     muteTitle: '사운드 켜기/끄기 (M)', paused: '⏸ 일시정지', op3a: '다시 시작', op3b: '일시정지', op3c: '음소거',
     diffs: ['초급', '중급', '고급'], diffShort: ['초', '중', '고'],

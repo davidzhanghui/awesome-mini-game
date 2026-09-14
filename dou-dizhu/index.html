@@ -6,7 +6,7 @@
 <link rel="icon" href="/favicon.svg" />
 <title>斗地主 · 经典桌游</title>
 <link rel="stylesheet" href="styles.css" />
-<link rel="stylesheet" href="../assets/ui.css?v=20260913" />
+<link rel="stylesheet" href="../assets/ui.css?v=20260914" />
 <script src="../assets/theme.js"></script>
 </head>
 <body>
@@ -49,8 +49,10 @@
       <div class="card"><h4 data-i18n="counterTitle">🧾 记牌器</h4><div id="card-counter" class="counter">开局后显示剩余牌</div></div>
       <div class="card"><h4 data-i18n="opTitle">🎮 操作</h4><ul>
         <li data-i18n="op1">点击手牌选中 / 取消，再点出牌按钮</li><li><span data-i18n="op2a">轮到你时可</span> <kbd data-i18n="pass">不出</kbd> <span data-i18n="op2b">（有大过上家的牌除外首手）</span></li><li data-i18n="op3">叫分：叫 1/2/3 分或不叫</li></ul></div>
-      <div class="card"><h4 data-i18n="typeTitle">🃏 牌型</h4><ul>
-        <li data-i18n="type1">单张 / 对子 / 三张 / 三带一 / 三带二</li><li data-i18n="type2">顺子(5+)/连对(3+)/飞机(可带)</li><li data-i18n="type3">四带二 / 四带两对 / 炸弹 / 王炸</li></ul></div>
+      <div class="card"><h4 data-i18n="typeTitle">🃏 牌型</h4><ul class="medals">
+        <li data-i18n="type1">🃏 单张 / 对子 / 三张 / 三带一 / 三带二</li><li data-i18n="type2">🛫 顺子(5+) / 连对(3+) / 飞机(可带)</li><li data-i18n="type3">💣 四带二 / 四带两对 / 炸弹 / 王炸</li></ul></div>
+      <div class="card diff"><h4 data-i18n="tipTitle">💡 出牌心得</h4>
+        <p data-i18n="tipBody">记牌器盯紧王和 2！地主亮出底牌后就想想他多啥，小牌先溜，炸弹留到最后一口闷。</p></div>
     </aside>
   </section>
   <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏</footer>
@@ -68,7 +70,8 @@ window.GAME_STR = {
     retry: '🔄 再来一局 (R)', menu: '菜单',
     counterTitle: '🧾 记牌器', counterEmpty: '开局后显示剩余牌',
     opTitle: '🎮 操作', op1: '点击手牌选中 / 取消，再点出牌按钮', op2a: '轮到你时可', op2b: '（有大过上家的牌除外首手）', op3: '叫分：叫 1/2/3 分或不叫',
-    typeTitle: '🃏 牌型', type1: '单张 / 对子 / 三张 / 三带一 / 三带二', type2: '顺子(5+)/连对(3+)/飞机(可带)', type3: '四带二 / 四带两对 / 炸弹 / 王炸',
+    typeTitle: '🃏 牌型', type1: '🃏 单张 / 对子 / 三张 / 三带一 / 三带二', type2: '🛫 顺子(5+) / 连对(3+) / 飞机(可带)', type3: '💣 四带二 / 四带两对 / 炸弹 / 王炸',
+    tipTitle: '💡 出牌心得', tipBody: '记牌器盯紧王和 2！地主亮出底牌后就想想他多啥，小牌先溜，炸弹留到最后一口闷。',
     footer: '🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏',
     jokerS: '小王', jokerB: '大王', jokerMin: '小', jokerMax: '大',
     you: '你', aiR: 'AI·右', aiL: 'AI·左',
@@ -100,7 +103,8 @@ window.GAME_STR = {
     retry: '🔄 Play Again (R)', menu: 'Menu',
     counterTitle: '🧾 Card Counter', counterEmpty: 'Remaining cards show after the deal',
     opTitle: '🎮 Controls', op1: 'Tap hand cards to select / deselect, then press Play', op2a: 'You may', op2b: '(except leading trick when you can beat)', op3: 'Bid 1/2/3 points or pass',
-    typeTitle: '🃏 Hands', type1: 'Single / Pair / Trio / Trio+1 / Trio+2', type2: 'Straight (5+) / Pair sequence (3+) / Plane (with kickers)', type3: 'Four+2 / Four+2 pairs / Bomb / Rocket',
+    typeTitle: '🃏 Hands', type1: '🃏 Single / Pair / Trio / Trio+1 / Trio+2', type2: '🛫 Straight (5+) / Pair sequence (3+) / Plane (with kickers)', type3: '💣 Four+2 / Four+2 pairs / Bomb / Rocket',
+    tipTitle: '💡 Strategy', tipBody: "Watch the counter for jokers and 2s! Once the landlord's kitty is revealed, dump low cards early and save bombs for the finale.",
     footer: '🕹️ Play instantly · Free · Keyboard & touch friendly',
     jokerS: 'SJoker', jokerB: 'BJoker', jokerMin: 'S', jokerMax: 'B',
     you: 'You', aiR: 'AI·R', aiL: 'AI·L',
@@ -132,7 +136,8 @@ window.GAME_STR = {
     retry: '🔄 もう一度 (R)', menu: 'メニュー',
     counterTitle: '🧾 残り牌カウンター', counterEmpty: '配札後に残り牌を表示',
     opTitle: '🎮 操作', op1: '手札をタップで選択/解除、次に出すボタン', op2a: '自分の番に', op2b: '（先手を除き場より強い役限定）', op3: 'コール：1/2/3点またはパス',
-    typeTitle: '🃏 役', type1: 'シングル / ペア / トリオ / トリオ+1 / トリオ+2', type2: 'ストレート(5枚+)/連ペア(3組+)/飛行機(付き可)', type3: '四枚+2 / 四枚+2ペア / 爆弾 / ロケット',
+    typeTitle: '🃏 役', type1: '🃏 シングル / ペア / トリオ / トリオ+1 / トリオ+2', type2: '🛫 ストレート(5枚+) / 連ペア(3組+) / 飛行機(付き可)', type3: '💣 四枚+2 / 四枚+2ペア / 爆弾 / ロケット',
+    tipTitle: '💡 戦略メモ', tipBody: 'カウンターでジョーカーと2を要チェック！地主の伏せ札が見えたら相手の手を推測、小さい札から流して爆弾は最後に。',
     footer: '🕹️ すぐ遊べる · 完全無料 · キーボード＆タッチ対応',
     jokerS: '小王', jokerB: '大王', jokerMin: '小', jokerMax: '大',
     you: 'あなた', aiR: 'AI·右', aiL: 'AI·左',
@@ -164,7 +169,8 @@ window.GAME_STR = {
     retry: '🔄 다시 하기 (R)', menu: '메뉴',
     counterTitle: '🧾 남은 패 카운터', counterEmpty: '분배 후 남은 패 표시',
     opTitle: '🎮 조작', op1: '패를 탭해 선택/해제 후 내기 버튼', op2a: '자기 차례에', op2b: '(선공 제외, 앞 패보다 센 조합만)', op3: '콜: 1/2/3점 또는 패스',
-    typeTitle: '🃏 족보', type1: '싱글 / 페어 / 트리오 / 트리오+1 / 트리오+2', type2: '스트레이트(5장+)/연속 페어(3개+)/비행기(키커 가능)', type3: '포카드+2 / 포카드+2페어 / 폭탄 / 로켓',
+    typeTitle: '🃏 족보', type1: '🃏 싱글 / 페어 / 트리오 / 트리오+1 / 트리오+2', type2: '🛫 스트레이트(5장+) / 연속 페어(3개+) / 비행기(키커 가능)', type3: '💣 포카드+2 / 포카드+2페어 / 폭탄 / 로켓',
+    tipTitle: '💡 전략 메모', tipBody: '카운터로 조커와 2를 주시! 지주 히든 카드가 공개되면 상대 패를 추측하고, 낮은 패부터 흘리고 폭탄은 마지막에.',
     footer: '🕹️ 바로 플레이 · 완전 무료 · 키보드 & 터치 지원',
     jokerS: '소왕', jokerB: '대왕', jokerMin: '소', jokerMax: '대',
     you: '당신', aiR: 'AI·우', aiL: 'AI·좌',

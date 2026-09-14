@@ -6,7 +6,7 @@
 <link rel="icon" href="/favicon.svg" />
 <title>五子棋 · 经典桌游</title>
 <link rel="stylesheet" href="styles.css" />
-<link rel="stylesheet" href="../assets/ui.css?v=20260913" />
+<link rel="stylesheet" href="../assets/ui.css?v=20260914" />
 <script src="../assets/theme.js"></script>
 </head>
 <body>
@@ -64,10 +64,12 @@
       <div class="card"><h4 data-i18n="opTitle">🎮 操作</h4><ul>
         <li data-i18n="op1">点击棋盘交叉点落子</li><li><kbd>U</kbd> <span data-i18n="undoKw">悔棋</span> · <kbd>R</kbd> <span data-i18n="rematchKw">重开</span> · <kbd>M</kbd> <span data-i18n="muteKw">静音</span></li>
         <li data-i18n="op3">AI 对局中轮到你时再落子</li></ul></div>
-      <div class="card"><h4 data-i18n="ruleTitle">📏 规则</h4><ul>
-        <li data-i18n="rule1">黑先白后，横竖斜连成五即胜</li>
-        <li data-i18n="rule2">禁手仅判黑方，白方无禁手</li>
-        <li data-i18n="rule3">棋盘下满且无人连五则和棋</li></ul></div>
+      <div class="card"><h4 data-i18n="ruleTitle">📏 规则</h4><ul class="medals">
+        <li data-i18n="rule1">⚫ 黑先白后，横竖斜连成五即胜</li>
+        <li data-i18n="rule2">🚫 禁手仅判黑方，白方无禁手</li>
+        <li data-i18n="rule3">🤝 棋盘下满且无人连五则和棋</li></ul></div>
+      <div class="card diff"><h4 data-i18n="tipTitle">💡 取胜诀窍</h4>
+        <p data-i18n="tipBody">活三不慌，活四必赢！进攻时多造双三，AI 再聪明也堵不住两个口。</p></div>
     </aside>
   </section>
   <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏</footer>
@@ -87,7 +89,8 @@ window.GAME_STR = {
     undoTitle: '悔棋 (U)', resignTitle: '认输', tomenuTitle: '回菜单',
     opTitle: '🎮 操作', op1: '点击棋盘交叉点落子',
     undoKw: '悔棋', rematchKw: '重开', muteKw: '静音', op3: 'AI 对局中轮到你时再落子',
-    ruleTitle: '📏 规则', rule1: '黑先白后，横竖斜连成五即胜', rule2: '禁手仅判黑方，白方无禁手', rule3: '棋盘下满且无人连五则和棋',
+    ruleTitle: '📏 规则', rule1: '⚫ 黑先白后，横竖斜连成五即胜', rule2: '🚫 禁手仅判黑方，白方无禁手', rule3: '🤝 棋盘下满且无人连五则和棋',
+    tipTitle: '💡 取胜诀窍', tipBody: '活三不慌，活四必赢！进攻时多造双三，AI 再聪明也堵不住两个口。',
     footer: '🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏',
     muteTitle: '声音开 / 关 (M)',
     forbidLong: '长连禁手', forbid44: '四四禁手', forbid33: '三三禁手',
@@ -110,7 +113,8 @@ window.GAME_STR = {
     undoTitle: 'Undo (U)', resignTitle: 'Resign', tomenuTitle: 'Back to menu',
     opTitle: '🎮 Controls', op1: 'Click an intersection to place a stone',
     undoKw: 'Undo', rematchKw: 'Restart', muteKw: 'Mute', op3: 'In AI games, move when it is your turn',
-    ruleTitle: '📏 Rules', rule1: 'Black first, five in a row (any direction) wins', rule2: 'Forbidden moves apply to Black only', rule3: 'Full board with no five is a draw',
+    ruleTitle: '📏 Rules', rule1: '⚫ Black first, five in a row (any direction) wins', rule2: '🚫 Forbidden moves apply to Black only', rule3: '🤝 Full board with no five is a draw',
+    tipTitle: '💡 Winning Tips', tipBody: "A live three is fine, a live four is unstoppable! Build double-threes on attack — even the AI can't block both ends.",
     footer: '🕹️ Play instantly · Free · Keyboard & touch friendly',
     muteTitle: 'Sound on/off (M)',
     forbidLong: 'Overline forbidden', forbid44: 'Double-four forbidden', forbid33: 'Double-three forbidden',
@@ -133,7 +137,8 @@ window.GAME_STR = {
     undoTitle: '待った (U)', resignTitle: '投了', tomenuTitle: 'メニューへ戻る',
     opTitle: '🎮 操作', op1: '盤の交点をタップして着手',
     undoKw: '待った', rematchKw: '再戦', muteKw: 'ミュート', op3: 'AI戦では自分の番に打ってください',
-    ruleTitle: '📏 ルール', rule1: '黒先白後、縦横斜め5つ並べば勝ち', rule2: '禁手は黒のみ、白は対象外', rule3: '満杯で五連なしなら引き分け',
+    ruleTitle: '📏 ルール', rule1: '⚫ 黒先白後、縦横斜め5つ並べば勝ち', rule2: '🚫 禁手は黒のみ、白は対象外', rule3: '🤝 満杯で五連なしなら引き分け',
+    tipTitle: '💡 勝利のコツ', tipBody: '活三はまだ大丈夫、活四はほぼ必勝！攻めるときは三々を狙おう、AIでも両端は止められない。',
     footer: '🕹️ すぐ遊べる · 完全無料 · キーボード＆タッチ対応',
     muteTitle: 'サウンド ON/OFF (M)',
     forbidLong: '長連禁手', forbid44: '四四禁手', forbid33: '三三禁手',
@@ -156,7 +161,8 @@ window.GAME_STR = {
     undoTitle: '무르기 (U)', resignTitle: '기권', tomenuTitle: '메뉴로 돌아가기',
     opTitle: '🎮 조작', op1: '보드 교차점을 눌러 착수',
     undoKw: '무르기', rematchKw: '재대결', muteKw: '음소거', op3: 'AI 대국에서는 차례일 때 두세요',
-    ruleTitle: '📏 규칙', rule1: '흑 선공, 가로·세로·대각선 5목이면 승리', rule2: '금수는 흑에만 적용, 백은 해당 없음', rule3: '보드 가득 차고 5목 없으면 무승부',
+    ruleTitle: '📏 규칙', rule1: '⚫ 흑 선공, 가로·세로·대각선 5목이면 승리', rule2: '🚫 금수는 흑에만 적용, 백은 해당 없음', rule3: '🤝 보드 가득 차고 5목 없으면 무승부',
+    tipTitle: '💡 승리 비결', tipBody: '열린 3은 괜찮지만 열린 4는 필승! 공격할 때 3×3을 노리세요 — AI도 양쪽을 다 막진 못해요.',
     footer: '🕹️ 바로 플레이 · 완전 무료 · 키보드 & 터치 지원',
     muteTitle: '사운드 켜기/끄기 (M)',
     forbidLong: '장목 금수', forbid44: '사사 금수', forbid33: '삼삼 금수',
