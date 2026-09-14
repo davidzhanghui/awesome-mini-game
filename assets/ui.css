@@ -323,6 +323,8 @@ select#amg-lang-btn { font-size: 13px; font-weight: 700; }
 }
 .card h4, .card h3 { color: var(--ui-text); }
 .card ul, .card p, .card li { color: var(--ui-text-soft) !important; }
+/* 侧栏提示卡正文统一 13px（参考 mario 页 .card p） */
+.card p { font-size: 13px; line-height: 1.7; }
 .card.diff { border-color: var(--ui-primary) !important; }
 
 /* ---------- 屏内悬浮工具条/计数（扫雷/五子棋/象棋等，限游戏页 .page 内） ---------- */

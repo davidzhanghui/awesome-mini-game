@@ -6,7 +6,7 @@
 <link rel="icon" href="/favicon.svg" />
 <title>打砖块 · 经典益智</title>
 <link rel="stylesheet" href="styles.css" />
-<link rel="stylesheet" href="../assets/ui.css?v=20260913" />
+<link rel="stylesheet" href="../assets/ui.css?v=20260914" />
 <script src="../assets/theme.js"></script>
 </head>
 <body>
@@ -59,9 +59,11 @@
     </div>
     <aside class="side">
       <div class="card"><h4 data-i18n="opTitle">🎮 操作</h4><ul>
-        <li><span data-i18n="op1a">鼠标 /</span> <kbd>←</kbd><kbd>→</kbd> <span data-i18n="op1b">移动挡板</span></li><li><span data-i18n="op2a">点击 /</span> <kbd data-i18n="kbdSpace">空格</kbd> <span data-i18n="op2b">发射粘住的球</span></li><li data-i18n="op3">挡板不同落点反弹角不同</li></ul></div>
-      <div class="card"><h4 data-i18n="itemTitle">🎁 道具</h4><ul>
-        <li data-i18n="item1">↔️ 加长 · 🔫 激光 · 🌀 多球</li><li data-i18n="item2">💥 穿透 · 🧲 粘球 · ❤️ +命 · 🐢 减速</li></ul></div>
+        <li><span data-i18n="op1a">鼠标 /</span> <kbd>←</kbd><kbd>→</kbd> <span data-i18n="op1b">移动挡板</span></li><li><span data-i18n="op2a">点击 /</span> <kbd data-i18n="kbdSpace">空格</kbd> <span data-i18n="op2b">发射粘住的球</span></li><li data-i18n="op3">挡板不同落点反弹角不同</li><li><kbd>P</kbd> <span data-i18n="pauseKw">暂停</span> · <kbd>M</kbd> <span data-i18n="muteKw">静音</span> · <kbd>R</kbd> <span data-i18n="restartKw">重开</span></li></ul></div>
+      <div class="card"><h4 data-i18n="itemTitle">🎁 道具图鉴</h4><ul class="medals">
+        <li data-i18n="item1">↔️ 加长 — 挡板变宽更好接</li><li data-i18n="item2">🔫 激光 — 限时直接开火</li><li data-i18n="item3">🌀 多球 — 一球变三球</li><li data-i18n="item4">💥 穿透 — 一路碾碎砖块</li><li data-i18n="item5">🧲 粘球 — 接住再瞄准</li><li data-i18n="item6">❤️ 生命 +1 · 🐢 减速 — 球慢半拍</li></ul></div>
+      <div class="card diff"><h4 data-i18n="tipTitle">👹 通关秘籍</h4>
+        <p data-i18n="tipBody">33 关尽头有 Boss DOH 坐镇！把球往斜角打，钻到砖块顶上反复弹最划算。</p></div>
     </aside>
   </section>
   <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏</footer>
@@ -80,7 +82,10 @@ window.GAME_STR = {
     retry: '🔄 再来一局 (R)', menu: '菜单',
     clearTitle: '🎉 全部通关！', again: '再玩一次',
     opTitle: '🎮 操作', op1a: '鼠标 /', op1b: '移动挡板', op2a: '点击 /', op2b: '发射粘住的球', op3: '挡板不同落点反弹角不同',
-    itemTitle: '🎁 道具', item1: '↔️ 加长 · 🔫 激光 · 🌀 多球', item2: '💥 穿透 · 🧲 粘球 · ❤️ +命 · 🐢 减速',
+    pauseKw: '暂停', muteKw: '静音', restartKw: '重开',
+    itemTitle: '🎁 道具图鉴', item1: '↔️ 加长 — 挡板变宽更好接', item2: '🔫 激光 — 限时直接开火', item3: '🌀 多球 — 一球变三球',
+    item4: '💥 穿透 — 一路碾碎砖块', item5: '🧲 粘球 — 接住再瞄准', item6: '❤️ 生命 +1 · 🐢 减速 — 球慢半拍',
+    tipTitle: '👹 通关秘籍', tipBody: '33 关尽头有 Boss DOH 坐镇！把球往斜角打，钻到砖块顶上反复弹最划算。',
     footer: '🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏',
     best: v => '🏆 历史最高：' + v,
     stageMsg: s => '第 ' + s + ' 关',
@@ -99,7 +104,10 @@ window.GAME_STR = {
     retry: '🔄 Play Again (R)', menu: 'Menu',
     clearTitle: '🎉 All Clear!', again: 'Play Again',
     opTitle: '🎮 Controls', op1a: 'Mouse /', op1b: 'to move the paddle', op2a: 'Click /', op2b: 'to launch the stuck ball', op3: 'Bounce angle depends on hit position',
-    itemTitle: '🎁 Power-ups', item1: '↔️ Extend · 🔫 Laser · 🌀 Multi-ball', item2: '💥 Pierce · 🧲 Sticky · ❤️ +Life · 🐢 Slow',
+    pauseKw: 'pause', muteKw: 'mute', restartKw: 'restart',
+    itemTitle: '🎁 Power-up Guide', item1: '↔️ Extend — wider paddle, easier catches', item2: '🔫 Laser — fire away for a limited time', item3: '🌀 Multi-ball — one ball becomes three',
+    item4: '💥 Pierce — smash straight through', item5: '🧲 Sticky — catch, aim, relaunch', item6: '❤️ +1 Life · 🐢 Slow — ball slows down',
+    tipTitle: '👹 Boss Notes', tipBody: 'Boss DOH waits at stage 33! Aim sharp angles and park the ball on top of the bricks for free hits.',
     footer: '🕹️ Play instantly · Free · Keyboard & touch friendly',
     best: v => '🏆 Best: ' + v,
     stageMsg: s => 'Stage ' + s,
@@ -118,7 +126,10 @@ window.GAME_STR = {
     retry: '🔄 もう一度 (R)', menu: 'メニュー',
     clearTitle: '🎉 全クリ！', again: 'もう一度遊ぶ',
     opTitle: '🎮 操作', op1a: 'マウス /', op1b: 'でパドルを移動', op2a: 'クリック /', op2b: 'で吸着ボールを発射', op3: '当たる位置で反射角が変わる',
-    itemTitle: '🎁 アイテム', item1: '↔️ 拡張 · 🔫 レーザー · 🌀 マルチボール', item2: '💥 貫通 · 🧲 吸着 · ❤️ +ライフ · 🐢 スロー',
+    pauseKw: '一時停止', muteKw: 'ミュート', restartKw: 'リスタート',
+    itemTitle: '🎁 アイテム図鑑', item1: '↔️ 拡張 — パドルが長くなって拾いやすい', item2: '🔫 レーザー — 一定時間そのまま撃てる', item3: '🌀 マルチボール — 1つが3つに',
+    item4: '💥 貫通 — ブロックを突き抜ける', item5: '🧲 吸着 — キャッチして狙い直し', item6: '❤️ ライフ+1 · 🐢 スロー — 球がゆっくり',
+    tipTitle: '👹 攻略メモ', tipBody: '33面の果てにはボスDOHが待つ！斜めに打ってブロックの上で跳ね回らせるのが得策。',
     footer: '🕹️ すぐ遊べる · 完全無料 · キーボード＆タッチ対応',
     best: v => '🏆 ベスト：' + v,
     stageMsg: s => 'ステージ ' + s,
@@ -137,7 +148,10 @@ window.GAME_STR = {
     retry: '🔄 다시 하기 (R)', menu: '메뉴',
     clearTitle: '🎉 올클리어!', again: '다시 하기',
     opTitle: '🎮 조작', op1a: '마우스 /', op1b: '로 패들 이동', op2a: '클릭 /', op2b: '으로 붙은 공 발사', op3: '맞는 위치에 따라 반사각이 달라짐',
-    itemTitle: '🎁 파워업', item1: '↔️ 확장 · 🔫 레이저 · 🌀 멀티볼', item2: '💥 관통 · 🧲 스티키 · ❤️ +목숨 · 🐢 슬로우',
+    pauseKw: '일시정지', muteKw: '음소거', restartKw: '다시 시작',
+    itemTitle: '🎁 아이템 도감', item1: '↔️ 확장 — 패들이 길어져 받기 쉬움', item2: '🔫 레이저 — 제한 시간 동안 바로 발사', item3: '🌀 멀티볼 — 하나가 셋으로',
+    item4: '💥 관통 — 벽돌을 그대로 뚫음', item5: '🧲 스티키 — 받은 뒤 조준 발사', item6: '❤️ 목숨 +1 · 🐢 슬로우 — 공이 느려짐',
+    tipTitle: '👹 공략 비결', tipBody: '33스테이지 끝엔 보스 DOH! 날카로운 각도로 쏴서 벽돌 위에서 튕기게 하면 이득.',
     footer: '🕹️ 바로 플레이 · 완전 무료 · 키보드 & 터치 지원',
     best: v => '🏆 최고 기록: ' + v,
     stageMsg: s => '스테이지 ' + s,

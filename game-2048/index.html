@@ -6,7 +6,7 @@
 <link rel="icon" href="/favicon.svg" />
 <title>2048 · 经典益智</title>
 <link rel="stylesheet" href="styles.css" />
-<link rel="stylesheet" href="../assets/ui.css?v=20260913" />
+<link rel="stylesheet" href="../assets/ui.css?v=20260914" />
 <script src="../assets/theme.js"></script>
 </head>
 <body>
@@ -43,9 +43,11 @@
     </div>
     <aside class="side">
       <div class="card"><h4 data-i18n="opTitle">🎮 操作</h4><ul>
-        <li data-i18n="op1">方向键 / WASD 滑动</li><li data-i18n="op2">触屏滑动合并</li><li data-i18n="op3">相同数字相撞合并翻倍</li></ul></div>
-      <div class="card"><h4 data-i18n="goalTitle">🏆 目标</h4><ul>
-        <li data-i18n="goal1">合成 2048 即胜利，可继续冲击更高</li><li data-i18n="goal2">棋盘填满且无法合并则结束</li></ul></div>
+        <li><kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> / <kbd>WASD</kbd> <span data-i18n="op1">滑动</span></li><li data-i18n="op2">触屏滑动合并</li><li><kbd>P</kbd> <span data-i18n="pauseKw">暂停</span> · <kbd>M</kbd> <span data-i18n="muteKw">静音</span> · <kbd>R</kbd> <span data-i18n="restartKw">重开</span></li></ul></div>
+      <div class="card"><h4 data-i18n="goalTitle">🏆 目标</h4><ul class="medals">
+        <li data-i18n="goal1">🎯 合成 2048 即胜利，可继续冲击更高</li><li data-i18n="goal2">🧱 棋盘填满且无法合并则结束</li></ul></div>
+      <div class="card diff"><h4 data-i18n="tipTitle">💡 上分秘籍</h4>
+        <p data-i18n="tipBody">大数字钉在一个角落别乱动！让其他数字顺着方向排队喂过去，全程最多用三个方向。</p></div>
     </aside>
   </section>
   <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏</footer>
@@ -58,8 +60,9 @@ window.GAME_STR = {
     intro: '滑动合成相同数字，挑战 2048！',
     start: '🚀 开始游戏', hintMerge: '滑动合并',
     retry: '🔄 再来一局 (R)', menu: '菜单',
-    opTitle: '🎮 操作', op1: '方向键 / WASD 滑动', op2: '触屏滑动合并', op3: '相同数字相撞合并翻倍',
-    goalTitle: '🏆 目标', goal1: '合成 2048 即胜利，可继续冲击更高', goal2: '棋盘填满且无法合并则结束',
+    opTitle: '🎮 操作', op1: '滑动', op2: '触屏滑动合并', pauseKw: '暂停', muteKw: '静音', restartKw: '重开',
+    goalTitle: '🏆 目标', goal1: '🎯 合成 2048 即胜利，可继续冲击更高', goal2: '🧱 棋盘填满且无法合并则结束',
+    tipTitle: '💡 上分秘籍', tipBody: '大数字钉在一个角落别乱动！让其他数字顺着方向排队喂过去，全程最多用三个方向。',
     footer: '🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏',
     muteTitle: '声音开 / 关 (M)', goal: '合成 2048！', paused: '⏸ 暂停',
     overTitle: '游戏结束', winMsg: '🎉 2048！可继续挑战',
@@ -71,8 +74,9 @@ window.GAME_STR = {
     intro: 'Swipe to merge matching numbers — can you reach 2048?',
     start: '🚀 Start Game', hintMerge: 'slide to merge',
     retry: '🔄 Play Again (R)', menu: 'Menu',
-    opTitle: '🎮 Controls', op1: 'Arrow keys / WASD to slide', op2: 'Swipe on touch screens', op3: 'Equal tiles collide and double',
-    goalTitle: '🏆 Goal', goal1: 'Reach 2048 to win, then chase higher tiles', goal2: 'Game ends when the board is full and stuck',
+    opTitle: '🎮 Controls', op1: 'slide', op2: 'Swipe on touch screens', pauseKw: 'pause', muteKw: 'mute', restartKw: 'restart',
+    goalTitle: '🏆 Goal', goal1: '🎯 Reach 2048 to win, then chase higher tiles', goal2: '🧱 Game ends when the board is full and stuck',
+    tipTitle: '💡 Score Trick', tipBody: 'Pin your biggest tile in one corner and never let it drift! Feed smaller tiles toward it — use three directions at most.',
     footer: '🕹️ Play instantly · Free · Keyboard & touch friendly',
     muteTitle: 'Sound on/off (M)', goal: 'Merge to 2048!', paused: '⏸ Paused',
     overTitle: 'Game Over', winMsg: '🎉 2048! Keep going!',
@@ -84,8 +88,9 @@ window.GAME_STR = {
     intro: 'スワイプで同じ数字を合体、2048を目指そう！',
     start: '🚀 ゲームスタート', hintMerge: 'スワイプで合体',
     retry: '🔄 もう一回 (R)', menu: 'メニュー',
-    opTitle: '🎮 操作', op1: '矢印キー / WASD でスライド', op2: 'タッチでスワイプ合体', op3: '同じ数字がぶつかると倍に合体',
-    goalTitle: '🏆 目標', goal1: '2048を作ればクリア、さらに高みを目指そう', goal2: '盤面が埋まって動けなくなると終了',
+    opTitle: '🎮 操作', op1: 'スライド', op2: 'タッチでスワイプ合体', pauseKw: '一時停止', muteKw: 'ミュート', restartKw: 'リスタート',
+    goalTitle: '🏆 目標', goal1: '🎯 2048を作ればクリア、さらに高みを目指そう', goal2: '🧱 盤面が埋まって動けなくなると終了',
+    tipTitle: '💡 高得点のコツ', tipBody: '最大タイルは角に固定！ほかの数字を順番に流し込もう。使う方向は3つまでに。',
     footer: '🕹️ すぐ遊べる · 完全無料 · キーボード＆タッチ対応',
     muteTitle: 'サウンド ON/OFF (M)', goal: '2048を目指して合体！', paused: '⏸ 一時停止中',
     overTitle: 'ゲームオーバー', winMsg: '🎉 2048達成！まだまだいける！',
@@ -97,8 +102,9 @@ window.GAME_STR = {
     intro: '스와이프로 같은 숫자를 합쳐 2048에 도전!',
     start: '🚀 게임 시작', hintMerge: '밀어서 합치기',
     retry: '🔄 다시 하기 (R)', menu: '메뉴',
-    opTitle: '🎮 조작', op1: '방향키 / WASD로 밀기', op2: '터치로 스와이프 합치기', op3: '같은 숫자가 부딪히면 2배로 합쳐짐',
-    goalTitle: '🏆 목표', goal1: '2048을 만들면 승리, 더 높은 타일에 도전', goal2: '보드가 가득 차서 움직일 수 없으면 종료',
+    opTitle: '🎮 조작', op1: '밀기', op2: '터치로 스와이프 합치기', pauseKw: '일시정지', muteKw: '음소거', restartKw: '다시 시작',
+    goalTitle: '🏆 목표', goal1: '🎯 2048을 만들면 승리, 더 높은 타일에 도전', goal2: '🧱 보드가 가득 차서 움직일 수 없으면 종료',
+    tipTitle: '💡 고득점 비결', tipBody: '가장 큰 타일은 한쪽 모서리에 고정! 나머지 숫자를 차례로 밀어 넣고 방향은 세 가지만 쓰세요.',
     footer: '🕹️ 바로 플레이 · 완전 무료 · 키보드 & 터치 지원',
     muteTitle: '사운드 켜기/끄기 (M)', goal: '2048에 합치기!', paused: '⏸ 일시정지',
     overTitle: '게임 오버', winMsg: '🎉 2048 달성! 계속 도전!',
