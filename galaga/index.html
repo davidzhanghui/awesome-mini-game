@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<meta name="description" content="左右移动射击外星机群，被抓住的战机还能救回来！">
+<meta name="description" content="小蜜蜂 Galaga 网页版：蜂群编队俯冲、Boss 牵引光束俘虏战机、救回战机变双机、挑战关与变形敌机，命中率统计，支持手柄与触屏，打开即玩。">
 <link rel="canonical" href="https://awesome-mini-game.vercel.app/galaga/">
 <link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/galaga/">
 <link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/galaga/?lang=en">
@@ -12,41 +12,34 @@
 <link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/galaga/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Awesome Mini Game">
-<meta property="og:title" content="小蜜蜂 Galaga · 经典空战">
-<meta property="og:description" content="左右移动射击外星机群，被抓住的战机还能救回来！">
+<meta property="og:title" content="小蜜蜂 Galaga · 星际蜂群">
+<meta property="og:description" content="编队俯冲、牵引光束、双机合体、挑战关——经典街机 Galaga 网页重制。">
 <meta property="og:url" content="https://awesome-mini-game.vercel.app/galaga/">
 <meta property="og:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="小蜜蜂 Galaga · 经典空战">
-<meta name="twitter:description" content="左右移动射击外星机群，被抓住的战机还能救回来！">
+<meta name="twitter:title" content="小蜜蜂 Galaga · 星际蜂群">
+<meta name="twitter:description" content="编队俯冲、牵引光束、双机合体、挑战关——经典街机 Galaga 网页重制。">
 <meta name="twitter:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "VideoGame",
-  "name": "小蜜蜂 Galaga · 经典空战",
-  "description": "左右移动射击外星机群，被抓住的战机还能救回来！",
+  "name": "小蜜蜂 Galaga · 星际蜂群",
+  "description": "编队俯冲、牵引光束、双机合体、挑战关——经典街机 Galaga 网页重制。",
   "url": "https://awesome-mini-game.vercel.app/galaga/",
-  "genre": "射击街机",
+  "genre": "射击",
   "gamePlatform": "Web Browser",
-  "inLanguage": [
-    "zh-CN",
-    "en",
-    "ja",
-    "ko"
-  ],
+  "playMode": "SinglePlayer",
+  "inLanguage": ["zh-CN", "en", "ja", "ko"],
   "isAccessibleForFree": true,
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "CNY"
-  }
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CNY" }
 }
 </script>
 <link rel="icon" href="/favicon.svg" />
-<title>小蜜蜂 Galaga · 经典空战</title>
-<link rel="stylesheet" href="styles.css" />
-<link rel="stylesheet" href="../assets/ui.css?v=20260915" />
+<title>小蜜蜂 Galaga · 星际蜂群</title>
+<link rel="stylesheet" href="../assets/game-page.css?v=20261015" />
+<link rel="stylesheet" href="styles.css?v=20261015" />
+<link rel="stylesheet" href="../assets/ui.css?v=20261015" />
 <script src="../assets/theme.js"></script>
 </head>
 <body>
@@ -55,242 +48,146 @@
   <header class="brand">
     <div class="logo">🐝</div>
     <div>
-      <h1><span data-i18n="gameTitle">小蜜蜂</span> <em data-i18n="galagaSub">GALAGA 空战</em></h1>
-      <p data-i18n="intro">左右移动射击外星机群，被抓住的战机还能救回来！</p>
+      <h1><span data-i18n="name">小蜜蜂</span> <em data-i18n="subtitle">星际蜂群</em></h1>
+      <p data-i18n="intro">击退蜂群编队！小心 Boss 的牵引光束——把被俘的战机救回来，就能双机合体火力翻倍。</p>
     </div>
     <div class="brand-btns">
-      <button id="btn-mute" class="icon-btn" title="声音开 / 关 (M)">🔊</button>
+      <button id="btn-mute" class="icon-btn">🔊</button>
     </div>
   </header>
-  <section class="cabinet">
-    <div class="game-frame">
-      <canvas id="game" width="480" height="640"></canvas>
-      <button id="btn-pause" class="icon-btn pause-btn hidden" title="暂停 (P)">⏸</button>
 
-      <div id="screen-menu" class="screen">
+  <section class="cabinet">
+    <div class="game-frame" id="frame">
+      <canvas id="game" class="stage"></canvas>
+      <button id="t-pause" class="t-btn">⏸</button>
+
+      <div id="screen-menu" class="screen clear-bg">
         <div class="title-badge">GALAGA</div>
-        <h2 class="game-title" data-i18n="gameTitle">小蜜蜂</h2>
-        <div class="hero-row"><span class="hero">🚀</span><span class="hero f">🐝</span><span class="hero">👾</span><span class="hero f">⭐</span></div>
-        <div class="mode-grid">
-          <button class="btn primary" data-mode="solo" data-i18n="solo">🚀 单人出击</button>
-          <button class="btn duel" data-mode="coop" data-i18n="coop">👥 双人协作 (P2: JK)</button>
+        <h2 class="game-title" data-i18n="name">小蜜蜂</h2>
+        <div class="score-table">
+          <span data-i18n="sBee">🐝 蜜蜂</span><b>50 / 100</b>
+          <span data-i18n="sBfly">🦋 蝴蝶</span><b>80 / 160</b>
+          <span data-i18n="sBoss">👾 Boss</span><b>150 ~ 1600</b>
+          <span data-i18n="sCap">🚀 救回战机</span><b>2×</b>
         </div>
-        <p class="hint"><span data-i18n="hintPre">按 </span><kbd>Z</kbd> / <kbd data-i18n="keySpace">空格</kbd><span data-i18n="hintPost">开火 · 被抓住的战机可以救回来变双机！</span></p>
-        <div id="menu-best" class="mini-board">🏆 历史最高：0</div>
+        <div class="seg-label" data-i18n="pickDiff">难度</div>
+        <div class="seg" id="diff-seg"><button data-d="0" data-i18n="dEasy">🌱 简单</button><button data-d="1" data-i18n="dNormal">⚔️ 普通</button><button data-d="2" data-i18n="dHard">🔥 困难</button></div>
+        <button id="btn-start" class="btn primary" data-i18n="start">🚀 开始游戏</button>
+        <p class="hint"><kbd>←</kbd><kbd>→</kbd>/<kbd>A</kbd><kbd>D</kbd> <span data-i18n="hintMove">移动</span> · <kbd>Space</kbd>/<kbd>J</kbd> <span data-i18n="hintFire">开火</span> · <kbd>P</kbd> <span data-i18n="pauseKw">暂停</span></p>
+        <div id="menu-best" class="mini-board"></div>
       </div>
 
       <div id="screen-pause" class="screen dim hidden">
-        <div class="panel">
-          <h3 data-i18n="pauseTitle">⏸ 已暂停</h3>
-          <p data-i18n="pauseTip">敌机群正在待命…</p>
-          <div class="row">
-            <button id="btn-resume" class="btn primary" data-i18n="resume">继续</button>
-            <button id="btn-quit" class="btn ghost" data-i18n="quit">回菜单</button>
-          </div>
-        </div>
-      </div>
-
-      <div id="screen-clear" class="screen dim hidden">
         <div class="panel pop">
-          <h3 class="clear-title"><span data-i18n="clearPre">🏁 第 </span><b id="clear-stage">1</b><span data-i18n="clearPost"> 关通过！</span></h3>
-          <div id="clear-stats" class="stat-list"></div>
-          <div class="row">
-            <button id="btn-next" class="btn primary" data-i18n="nextLabel">下一关 →</button>
-            <button id="btn-replay" class="btn ghost" data-i18n="replay">重玩本关</button>
-          </div>
+          <h3 data-i18n="paused">⏸ 暂停中</h3>
+          <div class="row" style="margin-top:14px"><button id="btn-resume" class="btn primary" data-i18n="resume">▶ 继续</button><button id="btn-quit" class="btn ghost" data-i18n="menu">菜单</button></div>
         </div>
       </div>
 
       <div id="screen-over" class="screen dim hidden">
         <div class="panel pop">
+          <div class="medal-big">🛸</div>
           <h3 class="over-title">GAME OVER</h3>
-          <div class="medal">💥</div>
-          <div class="score-row">
-            <div><label data-i18n="scoreNow">本局得分</label><b id="final-score">0</b></div>
-            <div class="divider"></div>
-            <div><label data-i18n="bestRecord">历史最高</label><b id="final-best">0</b><span id="new-record" class="new-record hidden">NEW!</span></div>
-          </div>
-          <div class="row">
-            <button id="btn-retry" class="btn primary" data-i18n="retry">🔄 再来一局 (R)</button>
-            <button id="btn-menu" class="btn ghost" data-i18n="menu">菜单</button>
-          </div>
-        </div>
-      </div>
-
-      <div id="touch" class="touch hidden">
-        <div class="t-left">
-          <button id="t-left" class="t-btn">◀</button>
-          <button id="t-right" class="t-btn">▶</button>
-        </div>
-        <div class="t-right">
-          <button id="t-a" class="t-btn">🔥</button>
+          <div id="over-record" class="new-record hidden" data-i18n="newRecord">新纪录！</div>
+          <div class="stat-list" id="over-stats"></div>
+          <div class="row"><button id="btn-retry" class="btn primary" data-i18n="retry">🔄 再来一局</button><button id="btn-menu" class="btn ghost" data-i18n="menu">菜单</button></div>
         </div>
       </div>
     </div>
 
     <aside class="side">
-      <div class="card">
-        <h4 data-i18n="opTitle">🎮 操作</h4>
-        <ul>
-          <li><kbd>←</kbd><kbd>→</kbd> / <kbd>A</kbd><kbd>D</kbd><span data-i18n="movePost">移动</span></li>
-          <li><kbd>Z</kbd> / <kbd data-i18n="keySpace">空格</kbd><span data-i18n="firePost"> 开火</span></li>
-          <li><span data-i18n="coopPre">双人：P2 用 </span><kbd>J</kbd><kbd>K</kbd><span data-i18n="coopMid"> 移动 + </span><kbd>L</kbd><span data-i18n="coopPost"> 开火</span></li>
-          <li><kbd>P</kbd><span data-i18n="ctlPause"> 暂停 · </span><kbd>M</kbd><span data-i18n="ctlSound"> 音效 · </span><kbd>R</kbd><span data-i18n="ctlRestart"> 重开</span></li>
-        </ul>
+      <div class="card"><h4 data-i18n="opTitle">🎮 操作</h4><ul>
+        <li data-i18n="op1">← → 或 A D 左右移动</li>
+        <li data-i18n="op2">空格 / J 开火，按住可连射（屏幕上最多 2 发子弹）</li>
+        <li data-i18n="op3">👆 触屏：按住画面左右拖动战机，按住即自动开火</li>
+        <li><kbd>P</kbd> <span data-i18n="pauseKw">暂停</span> · <kbd>M</kbd> <span data-i18n="muteKw">静音</span> · <span data-i18n="op4">🎮 支持手柄</span></li>
+      </ul></div>
+      <div class="card"><h4 data-i18n="dexTitle">👾 敌机图鉴</h4>
+        <div class="dex">
+          <div class="ic">🐝</div><span data-i18n="i1">蜜蜂：数量最多，俯冲时会扫射；第 4 关起可能分裂成 3 只变形机</span>
+          <div class="ic">🦋</div><span data-i18n="i2">蝴蝶：飞行轨迹左右摇摆，常给 Boss 当护卫</span>
+          <div class="ic">👾</div><span data-i18n="i3">Boss：要打两下，第一下会变蓝；带着护卫俯冲时击落最高 1600 分</span>
+          <div class="ic">🌀</div><span data-i18n="i4">牵引光束：被吸走会损失一架战机，它会挂在 Boss 头顶</span>
+          <div class="ic">🚀</div><span data-i18n="i5">救援：在 Boss 俯冲时击落它，被俘战机会飞回来和你合体成双机</span>
+          <div class="ic">🏁</div><span data-i18n="i6">挑战关：每 4 关一次，敌机不开火，全部击落奖励 10000 分</span>
+        </div>
       </div>
-      <div class="card">
-        <h4 data-i18n="dexTitle">🐝 敌机图鉴</h4>
-        <ul class="medals">
-          <li data-i18n="dexZako">🔵 杂兵蜂 Zako — 50 分，俯冲 100 分</li>
-          <li data-i18n="dexGoei">🔴 红蝶 Goei — 80 分，俯冲 160 分</li>
-          <li data-i18n="dexBoss">🟢 Boss Galaga — 150 分，需 2 发，俯冲 300~400 分</li>
-          <li data-i18n="dexBonus">⚡ 奖励关：全歼 40 只 +10000 分</li>
-        </ul>
-      </div>
-      <div class="card diff">
-        <h4 data-i18n="dualTitle">🚀 双机合体</h4>
-        <p data-i18n="dualText">Boss 会放出牵引光束抓走你的战机！击落抓机的 Boss（俯冲时）即可救回，火力翻倍。双机时被击中只损失一架。</p>
-      </div>
+      <div class="card diff"><h4 data-i18n="tipTitle">🧠 王牌秘诀</h4>
+        <p data-i18n="tipBody">故意让 Boss 抓走一架战机，再趁它俯冲时把它打下来——双机火力能让后面的关卡轻松很多（但目标也变大了）。别打押送中的红色战机，打中就救不回来了。剩下最后几只敌机时它们会疯狂俯冲，贴边移动更安全。</p></div>
     </aside>
   </section>
-  <details class="card seo-about"><summary data-i18n="aboutTitle">📖 关于这款游戏</summary><p data-i18n="aboutBody">左右移动射击外星机群，被抓住的战机还能救回来！ 浏览器打开即玩，支持键盘和触屏，无需下载安装，完全免费。</p></details>
 
-  <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏</footer>
+  <details class="card seo-about"><summary data-i18n="aboutTitle">📖 关于这款游戏</summary><p data-i18n="aboutBody">小蜜蜂 Galaga 网页版是一款致敬 1981 年街机名作的固定画面射击游戏。蜜蜂、蝴蝶和 Boss Galaga 会沿着华丽的曲线飞入编队，编队先左右摇摆、再像呼吸一样伸缩，然后轮番俯冲攻击。Boss 会放出牵引光束俘虏你的战机，击落正在俯冲的 Boss 就能救回战机、双机合体火力翻倍。每 4 关一个挑战关，40 架敌机不开火只表演飞行，全部击落奖励 10000 分；第 4 关起蜜蜂还会分裂成变形机。游戏结束时会统计发射数、命中数和命中率。支持键盘、手柄与触屏，三档难度，完全免费。</p></details>
+  <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持手柄和触屏</footer>
 </main>
-<script src="../assets/i18n.js?v=20260915"></script>
-<script src="../assets/touch.js?v=20260908"></script>
+<script src="../assets/i18n.js?v=20261015"></script>
+<script src="../assets/touch.js?v=20261015"></script>
 <script>
 window.GAME_STR = {
   zh: {
-    title: '小蜜蜂 Galaga · 经典空战', gameTitle: '小蜜蜂', galagaSub: 'GALAGA 空战',
-    intro: '左右移动射击外星机群，被抓住的战机还能救回来！',
-    solo: '🚀 单人出击', coop: '👥 双人协作 (P2: JK)',
-    hintPre: '按 ', keySpace: '空格', hintPost: '开火 · 被抓住的战机可以救回来变双机！',
-    pauseTitle: '⏸ 已暂停', pauseTip: '敌机群正在待命…', resume: '继续', quit: '回菜单',
-    clearPre: '🏁 第 ', clearPost: ' 关通过！', nextLabel: '下一关 →', replay: '重玩本关',
-    scoreNow: '本局得分', bestRecord: '历史最高', retry: '🔄 再来一局 (R)', menu: '菜单',
-    opTitle: '🎮 操作', movePost: '移动', firePost: ' 开火',
-    coopPre: '双人：P2 用 ', coopMid: ' 移动 + ', coopPost: ' 开火',
-    ctlPause: ' 暂停 · ', ctlSound: ' 音效 · ', ctlRestart: ' 重开',
-    dexTitle: '🐝 敌机图鉴',
-    dexZako: '🔵 杂兵蜂 Zako — 50 分，俯冲 100 分',
-    dexGoei: '🔴 红蝶 Goei — 80 分，俯冲 160 分',
-    dexBoss: '🟢 Boss Galaga — 150 分，需 2 发，俯冲 300~400 分',
-    dexBonus: '⚡ 奖励关：全歼 40 只 +10000 分',
-    dualTitle: '🚀 双机合体', dualText: 'Boss 会放出牵引光束抓走你的战机！击落抓机的 Boss（俯冲时）即可救回，火力翻倍。双机时被击中只损失一架。',
-    footer: '🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏',
-    muteTitle: '声音开 / 关 (M)', musicTitle: '音乐开 / 关', pauseBtnTitle: '暂停 (P)',
-    best: v => '🏆 历史最高：' + v,
-    floatSolo: '单机！', floatLife: '🎉 奖励一命！', floatCaptured: '被抓走了！',
-    floatRescue: '救回！双机合体！', floatLost: '战机坠毁…',
-    clearScore: g => '🎯 本关得分 <b>+' + g + '</b>',
-    challLine: (l, b) => '⭐ 奖励关剩余 <b>' + l + '</b> · 全歼奖励 <b>+' + b + '</b>',
-    killsLine: (k, l) => '💥 击坠 <b>' + k + '</b> · 🚀 剩余 <b>×' + l + '</b>',
-    dualKeep: '🚀🚀 双机合体保持！',
-    hudChallLeft: n => '剩余 ' + n, hudFoes: n => '敌机 ' + n,
-    hudDual: '🚀🚀 双机！', hudCaptured: '⚠ 战机被抓！击落俯冲Boss救回！',
-    introChall: '⭐ 奖励关 ⭐', introChallSub: '击落 40 只敌机！全歼 +10000', introGo: '- 出击！ -',
+    title: '小蜜蜂 Galaga · 星际蜂群', name: '小蜜蜂', subtitle: '星际蜂群', intro: '击退蜂群编队！小心 Boss 的牵引光束——把被俘的战机救回来，就能双机合体火力翻倍。',
+    sBee: '🐝 蜜蜂', sBfly: '🦋 蝴蝶', sBoss: '👾 Boss', sCap: '🚀 救回战机', pickDiff: '难度', dEasy: '🌱 简单', dNormal: '⚔️ 普通', dHard: '🔥 困难',
+    start: '🚀 开始游戏', hintMove: '移动', hintFire: '开火', pauseKw: '暂停', muteKw: '静音',
+    paused: '⏸ 暂停中', resume: '▶ 继续', menu: '菜单', newRecord: '新纪录！', retry: '🔄 再来一局',
+    opTitle: '🎮 操作', op1: '← → 或 A D 左右移动', op2: '空格 / J 开火，按住可连射（屏幕上最多 2 发子弹）', op3: '👆 触屏：按住画面左右拖动战机，按住即自动开火', op4: '🎮 支持手柄',
+    dexTitle: '👾 敌机图鉴', i1: '蜜蜂：数量最多，俯冲时会扫射；第 4 关起可能分裂成 3 只变形机', i2: '蝴蝶：飞行轨迹左右摇摆，常给 Boss 当护卫', i3: 'Boss：要打两下，第一下会变蓝；带着护卫俯冲时击落最高 1600 分',
+    i4: '牵引光束：被吸走会损失一架战机，它会挂在 Boss 头顶', i5: '救援：在 Boss 俯冲时击落它，被俘战机会飞回来和你合体成双机', i6: '挑战关：每 4 关一次，敌机不开火，全部击落奖励 10000 分',
+    tipTitle: '🧠 王牌秘诀', tipBody: '故意让 Boss 抓走一架战机，再趁它俯冲时把它打下来——双机火力能让后面的关卡轻松很多（但目标也变大了）。别打押送中的红色战机，打中就救不回来了。剩下最后几只敌机时它们会疯狂俯冲，贴边移动更安全。',
     aboutTitle: '📖 关于这款游戏',
-    aboutBody: '左右移动射击外星机群，被抓住的战机还能救回来！ 浏览器打开即玩，支持键盘和触屏，无需下载安装，完全免费。',
+    aboutBody: '小蜜蜂 Galaga 网页版是一款致敬 1981 年街机名作的固定画面射击游戏。蜜蜂、蝴蝶和 Boss Galaga 会沿着华丽的曲线飞入编队，编队先左右摇摆、再像呼吸一样伸缩，然后轮番俯冲攻击。Boss 会放出牵引光束俘虏你的战机，击落正在俯冲的 Boss 就能救回战机、双机合体火力翻倍。每 4 关一个挑战关，40 架敌机不开火只表演飞行，全部击落奖励 10000 分；第 4 关起蜜蜂还会分裂成变形机。游戏结束时会统计发射数、命中数和命中率。支持键盘、手柄与触屏，三档难度，完全免费。',
+    footer: '🕹️ 打开即玩 · 完全免费 · 支持手柄和触屏', muteTitle: '声音开 / 关 (M)',
+    captured: '战机被俘虏了！', rescued: '战机救回！双机合体！', captiveLost: '被俘战机被击落了……', oneUp: '1UP！', ready: '准备迎战', chHint: '敌机不会开火，尽量全部击落！',
+    stScore: '得分', stStage: '到达关卡', stShots: '发射子弹', stHits: '命中次数', stRatio: '命中率', stBest: '最高分', bestLbl: v => '🏆 最高分 ' + v
   },
   en: {
-    title: 'Galaga · Classic Space Shooter', gameTitle: 'Galaga', galagaSub: 'GALAGA DOGFIGHT',
-    intro: 'Dodge and blast the alien swarm — rescue captured fighters to fly double!',
-    solo: '🚀 Solo', coop: '👥 Co-op (P2: JK)',
-    hintPre: 'Press ', keySpace: 'Space', hintPost: ' to fire · rescue captured fighters for dual mode!',
-    pauseTitle: '⏸ Paused', pauseTip: 'The swarm is standing by…', resume: 'Resume', quit: 'Menu',
-    clearPre: '🏁 Stage ', clearPost: ' cleared!', nextLabel: 'Next stage →', replay: 'Replay stage',
-    scoreNow: 'Score', bestRecord: 'Best', retry: '🔄 Play again (R)', menu: 'Menu',
-    opTitle: '🎮 Controls', movePost: 'to move', firePost: ' to fire',
-    coopPre: 'Co-op: P2 uses ', coopMid: ' to move + ', coopPost: ' to fire',
-    ctlPause: ' Pause · ', ctlSound: ' Sound · ', ctlRestart: ' Restart',
-    dexTitle: '🐝 Enemy Guide',
-    dexZako: '🔵 Zako — 50 pts, 100 diving',
-    dexGoei: '🔴 Goei (Red Butterfly) — 80 pts, 160 diving',
-    dexBoss: '🟢 Boss Galaga — 150 pts, takes 2 hits, 300–400 diving',
-    dexBonus: '⚡ Bonus stage: wipe out all 40 for +10,000',
-    dualTitle: '🚀 Dual Fighter', dualText: 'Bosses fire tractor beams to capture your fighter! Down the capturing Boss mid-dive to rescue it and double your firepower. While dual, a hit only costs one ship.',
-    footer: '🕹️ Play instantly · Free · Keyboard & touch friendly',
-    muteTitle: 'Sound on/off (M)', musicTitle: 'Music on/off', pauseBtnTitle: 'Pause (P)',
-    best: v => '🏆 Best: ' + v,
-    floatSolo: 'Solo ship!', floatLife: '🎉 Bonus life!', floatCaptured: 'Captured!',
-    floatRescue: 'Rescued! Dual fighter!', floatLost: 'Fighter lost…',
-    clearScore: g => '🎯 Stage score <b>+' + g + '</b>',
-    challLine: (l, b) => '⭐ Bonus: <b>' + l + '</b> left · wipeout bonus <b>+' + b + '</b>',
-    killsLine: (k, l) => '💥 Kills <b>' + k + '</b> · 🚀 Lives <b>×' + l + '</b>',
-    dualKeep: '🚀🚀 Dual fighter kept!',
-    hudChallLeft: n => n + ' left', hudFoes: n => 'Foes ' + n,
-    hudDual: '🚀🚀 DUAL!', hudCaptured: '⚠ Fighter captured! Down the diving Boss to rescue!',
-    introChall: '⭐ BONUS STAGE ⭐', introChallSub: 'Down all 40 fighters! Wipeout +10,000', introGo: '- Scramble! -',
+    title: 'Galaga · Star Swarm', name: 'GALAGA', subtitle: 'Star Swarm', intro: 'Repel the alien swarm! Beware the boss tractor beam — rescue a captured fighter to form a dual ship with double firepower.',
+    sBee: '🐝 Bee', sBfly: '🦋 Butterfly', sBoss: '👾 Boss', sCap: '🚀 Rescued fighter', pickDiff: 'DIFFICULTY', dEasy: '🌱 Easy', dNormal: '⚔️ Normal', dHard: '🔥 Hard',
+    start: '🚀 Start', hintMove: 'move', hintFire: 'fire', pauseKw: 'pause', muteKw: 'mute',
+    paused: '⏸ Paused', resume: '▶ Resume', menu: 'Menu', newRecord: 'NEW RECORD!', retry: '🔄 Play Again',
+    opTitle: '🎮 Controls', op1: '← → or A D to move', op2: 'Space / J to fire, hold for auto-fire (max 2 shots on screen)', op3: '👆 Touch: hold and drag to move — firing is automatic while held', op4: '🎮 Gamepad supported',
+    dexTitle: '👾 Enemy Guide', i1: 'Bee: the most numerous; fires while diving. From stage 4 it may split into 3 morphs', i2: 'Butterfly: weaves side to side, often escorts the boss', i3: 'Boss: takes two hits, turns blue after the first. Up to 1600 pts when shot diving with escorts',
+    i4: 'Tractor beam: get caught and you lose a fighter — it hangs above the boss', i5: 'Rescue: shoot the boss while it dives and your captured fighter docks with you as a dual ship', i6: 'Challenging stage: every 4th stage, enemies don\'t shoot. Hit all 40 for 10000 pts',
+    tipTitle: '🧠 Ace Tips', tipBody: 'Let a boss capture a fighter on purpose, then shoot it down while it dives — the dual ship makes later stages much easier (though you\'re a bigger target). Never shoot the red captured fighter or it\'s gone for good. The last few enemies dive like crazy — hug the edges.',
     aboutTitle: '📖 About this game',
-    aboutBody: 'Dodge and blast the alien swarm — rescue captured fighters to fly double! Play instantly in your browser — keyboard and touch supported, no download needed, completely free.',
+    aboutBody: 'Galaga · Star Swarm is a free browser fixed shooter inspired by the 1981 arcade classic. Bees, butterflies and Boss Galagas swoop into formation along elegant curves; the formation sways, then breathes in and out, and launches diving attacks. Bosses fire a tractor beam to capture your fighter — shoot a diving boss to rescue it and fight as a dual ship with double firepower. Every 4th stage is a Challenging Stage: 40 enemies fly showy patterns without shooting, and a perfect clear earns 10000 points. From stage 4, bees can split into morphing enemies. Your shots fired, hits and hit-miss ratio are shown at game over. Keyboard, gamepad and touch, three difficulties.',
+    footer: '🕹️ Play instantly · Free · Gamepad & touch', muteTitle: 'Sound on/off (M)',
+    captured: 'FIGHTER CAPTURED', rescued: 'FIGHTER RESCUED! DUAL SHIP!', captiveLost: 'Captured fighter destroyed…', oneUp: '1UP!', ready: 'GET READY', chHint: 'They won\'t shoot — take them all down!',
+    stScore: 'Score', stStage: 'Stage reached', stShots: 'Shots fired', stHits: 'Number of hits', stRatio: 'Hit-miss ratio', stBest: 'Best', bestLbl: v => '🏆 Best ' + v
   },
   ja: {
-    title: 'ギャラガ · クラシックシューティング', gameTitle: 'ギャラガ', galagaSub: 'GALAGA 空戦',
-    intro: '左右に動いてエイリアンを撃とう！捕まった戦闘機は救出できるよ',
-    solo: '🚀 ソロ出撃', coop: '👥 2P協力 (P2: JK)',
-    hintPre: '', keySpace: 'スペース', hintPost: 'で射撃 · 捕獲機を救出してダブル合体！',
-    pauseTitle: '⏸ 一時停止中', pauseTip: '敵の大群が待機中…', resume: '再開', quit: 'メニュー',
-    clearPre: '🏁 ステージ ', clearPost: ' クリア！', nextLabel: '次ステージ →', replay: 'この面を再戦',
-    scoreNow: '今回のスコア', bestRecord: 'ベスト', retry: '🔄 もう一戦 (R)', menu: 'メニュー',
-    opTitle: '🎮 操作', movePost: 'で移動', firePost: ' で射撃',
-    coopPre: '2P協力：P2は ', coopMid: ' で移動 + ', coopPost: ' で射撃',
-    ctlPause: ' 一時停止 · ', ctlSound: ' 効果音 · ', ctlRestart: ' リスタート',
-    dexTitle: '🐝 敵機図鑑',
-    dexZako: '🔵 ザコ — 50点、急降下で100点',
-    dexGoei: '🔴 ゴエイ（赤蝶） — 80点、急降下で160点',
-    dexBoss: '🟢 ボスギャラガ — 150点、2発必要、急降下で300〜400点',
-    dexBonus: '⚡ ボーナス面：40機全滅で+10000点',
-    dualTitle: '🚀 ダブル合体', dualText: 'ボスは牽引光線で自機を捕獲する！急降下中のボスを撃墜すれば救出でき、火力2倍。ダブル時は被弾しても1機のみ損失。',
-    footer: '🕹️ すぐ遊べる · 完全無料 · キーボード＆タッチ対応',
-    muteTitle: 'サウンド 切替 (M)', musicTitle: '音楽 切替', pauseBtnTitle: '一時停止 (P)',
-    best: v => '🏆 ベスト：' + v,
-    floatSolo: '単機！', floatLife: '🎉 1機追加！', floatCaptured: '捕獲された！',
-    floatRescue: '救出！ダブル合体！', floatLost: '機体を失った…',
-    clearScore: g => '🎯 面スコア <b>+' + g + '</b>',
-    challLine: (l, b) => '⭐ ボーナス残り <b>' + l + '</b> · 全滅ボーナス <b>+' + b + '</b>',
-    killsLine: (k, l) => '💥 撃墜 <b>' + k + '</b> · 🚀 残機 <b>×' + l + '</b>',
-    dualKeep: '🚀🚀 ダブル合体を維持！',
-    hudChallLeft: n => '残り ' + n, hudFoes: n => '敵機 ' + n,
-    hudDual: '🚀🚀 ダブル！', hudCaptured: '⚠ 機体を捕獲された！急降下ボスを撃て！',
-    introChall: '⭐ ボーナスステージ ⭐', introChallSub: '敵40機を撃墜せよ！全滅で+10000', introGo: '- 出撃！ -',
+    title: 'ギャラガ · スタースウォーム', name: 'ギャラガ', subtitle: 'スタースウォーム', intro: 'エイリアンの編隊を撃退せよ！ボスのトラクタービームに注意——捕まった戦闘機を救出すればデュアルファイターに。',
+    sBee: '🐝 ザコ', sBfly: '🦋 ゴエイ', sBoss: '👾 ボス', sCap: '🚀 救出', pickDiff: '難易度', dEasy: '🌱 やさしい', dNormal: '⚔️ ふつう', dHard: '🔥 むずかしい',
+    start: '🚀 スタート', hintMove: '移動', hintFire: '発射', pauseKw: '一時停止', muteKw: 'ミュート',
+    paused: '⏸ 一時停止中', resume: '▶ 再開', menu: 'メニュー', newRecord: '新記録！', retry: '🔄 もう一度',
+    opTitle: '🎮 操作', op1: '← → または A D で左右移動', op2: 'Space / J で発射、長押しで連射（画面上の弾は最大2発）', op3: '👆 タッチ：押したまま左右にドラッグで移動、押している間は自動発射', op4: '🎮 ゲームパッド対応',
+    dexTitle: '👾 敵キャラ図鑑', i1: 'ザコ：数が最も多く、急降下中に撃ってくる。4面以降は3機に分裂することも', i2: 'ゴエイ：左右に揺れながら飛ぶ。ボスの護衛役', i3: 'ボス：2発必要で1発目で青くなる。護衛付きの急降下中に倒すと最高1600点',
+    i4: 'トラクタービーム：捕まると戦闘機を1機失い、ボスの上に吊るされる', i5: '救出：急降下中のボスを倒すと、捕まった戦闘機が戻ってきて合体', i6: 'チャレンジングステージ：4面ごと。敵は撃ってこない。40機全滅で10000点',
+    tipTitle: '🧠 エースの心得', tipBody: 'わざとボスに1機捕まえさせて、急降下中に撃ち落とそう——デュアルファイターなら後半がぐっと楽になる（ただし当たり判定も大きくなる）。赤い捕獲機は撃たないこと、二度と戻らない。残り数機になると猛烈に急降下してくるので、端に寄ると安全。',
     aboutTitle: '📖 このゲームについて',
-    aboutBody: '左右に動いてエイリアンを撃とう！捕まった戦闘機は救出できるよ ブラウザでそのまま遊べます。キーボード・タッチ操作対応、ダウンロード不要・完全無料。',
+    aboutBody: 'ギャラガ · スタースウォームは1981年のアーケード名作に敬意を込めたブラウザ向け固定画面シューティング。ザコ・ゴエイ・ボスギャラガが美しい曲線を描いて編隊に入り、編隊は左右に揺れたあと呼吸するように伸縮し、次々と急降下攻撃を仕掛けてくる。ボスはトラクタービームで戦闘機を捕獲するが、急降下中のボスを倒せば救出でき、デュアルファイターで火力2倍。4面ごとのチャレンジングステージでは40機が撃たずに舞い、全滅で10000点。4面以降はザコが変形機に分裂することも。ゲームオーバー時に発射数・命中数・命中率を表示。キーボード・ゲームパッド・タッチ対応、3段階の難易度。完全無料。',
+    footer: '🕹️ すぐ遊べる · 完全無料 · ゲームパッド・タッチ対応', muteTitle: 'サウンド ON/OFF (M)',
+    captured: 'ファイター捕獲された！', rescued: '救出成功！デュアルファイター！', captiveLost: '捕獲機を撃墜してしまった……', oneUp: '1UP！', ready: 'READY', chHint: '敵は撃ってこない。全機撃墜を狙え！',
+    stScore: 'スコア', stStage: '到達ステージ', stShots: '発射数', stHits: '命中数', stRatio: '命中率', stBest: 'ベスト', bestLbl: v => '🏆 ベスト ' + v
   },
   ko: {
-    title: '갤러그 · 클래식 슈팅', gameTitle: '갤러그', galagaSub: 'GALAGA 공중전',
-    intro: '좌우로 움직여 외계 함대를 격파! 잡힌 전투기는 구출할 수 있어요',
-    solo: '🚀 솔로 출격', coop: '👥 2인 협동 (P2: JK)',
-    hintPre: '', keySpace: '스페이스', hintPost: '로 발사 · 잡힌 기체를 구출하면 듀얼 합체!',
-    pauseTitle: '⏸ 일시정지', pauseTip: '적 편대가 대기 중…', resume: '계속', quit: '메뉴',
-    clearPre: '🏁 스테이지 ', clearPost: ' 클리어!', nextLabel: '다음 스테이지 →', replay: '이 스테이지 다시 하기',
-    scoreNow: '이번 점수', bestRecord: '최고', retry: '🔄 한 판 더 (R)', menu: '메뉴',
-    opTitle: '🎮 조작', movePost: ' 이동', firePost: ' 발사',
-    coopPre: '협동: P2는 ', coopMid: ' 이동 + ', coopPost: ' 발사',
-    ctlPause: ' 일시정지 · ', ctlSound: ' 효과음 · ', ctlRestart: ' 재시작',
-    dexTitle: '🐝 적기 도감',
-    dexZako: '🔵 자코 — 50점, 급강하 100점',
-    dexGoei: '🔴 고에이(빨간 나비) — 80점, 급강하 160점',
-    dexBoss: '🟢 보스 갤러그 — 150점, 2발 필요, 급강하 300~400점',
-    dexBonus: '⚡ 보너스 스테이지: 40기 전멸 시 +10000점',
-    dualTitle: '🚀 듀얼 합체', dualText: '보스는 견인 빔으로 아군을 포획한다! 급강하 중인 보스를 격추해 구출하면 화력 2배. 듀얼 중 피탄 시 1기만 손실.',
-    footer: '🕹️ 바로 플레이 · 완전 무료 · 키보드 & 터치 지원',
-    muteTitle: '사운드 켜기/끄기 (M)', musicTitle: '음악 켜기/끄기', pauseBtnTitle: '일시정지 (P)',
-    best: v => '🏆 최고: ' + v,
-    floatSolo: '단독기!', floatLife: '🎉 보너스 1기!', floatCaptured: '잡혔다!',
-    floatRescue: '구출! 듀얼 합체!', floatLost: '기체 손실…',
-    clearScore: g => '🎯 스테이지 점수 <b>+' + g + '</b>',
-    challLine: (l, b) => '⭐ 보너스 남음 <b>' + l + '</b> · 전멸 보너스 <b>+' + b + '</b>',
-    killsLine: (k, l) => '💥 격추 <b>' + k + '</b> · 🚀 잔기 <b>×' + l + '</b>',
-    dualKeep: '🚀🚀 듀얼 합체 유지!',
-    hudChallLeft: n => '남음 ' + n, hudFoes: n => '적기 ' + n,
-    hudDual: '🚀🚀 듀얼!', hudCaptured: '⚠ 기체 포획됨! 급강하 보스를 격추하라!',
-    introChall: '⭐ 보너스 스테이지 ⭐', introChallSub: '적 40기를 격추하라! 전멸 +10000', introGo: '- 출격! -',
+    title: '갤러그 · 스타 스웜', name: '갤러그', subtitle: '스타 스웜', intro: '외계 편대를 물리쳐라! 보스의 견인 광선을 조심——붙잡힌 전투기를 구하면 듀얼 파이터로 화력 두 배.',
+    sBee: '🐝 벌', sBfly: '🦋 나비', sBoss: '👾 보스', sCap: '🚀 전투기 구출', pickDiff: '난이도', dEasy: '🌱 쉬움', dNormal: '⚔️ 보통', dHard: '🔥 어려움',
+    start: '🚀 게임 시작', hintMove: '이동', hintFire: '발사', pauseKw: '일시정지', muteKw: '음소거',
+    paused: '⏸ 일시정지', resume: '▶ 계속', menu: '메뉴', newRecord: '신기록!', retry: '🔄 다시 하기',
+    opTitle: '🎮 조작', op1: '← → 또는 A D로 좌우 이동', op2: 'Space / J 발사, 누르고 있으면 연사 (화면에 최대 2발)', op3: '👆 터치: 누른 채 좌우로 드래그해 이동, 누르는 동안 자동 발사', op4: '🎮 게임패드 지원',
+    dexTitle: '👾 적 도감', i1: '벌: 수가 가장 많고 급강하하며 사격. 4스테이지부터 3마리로 분열하기도', i2: '나비: 좌우로 흔들리며 날고, 보스의 호위를 맡는다', i3: '보스: 두 번 맞혀야 하고 첫 방에 파랗게 변한다. 호위와 급강하 중 격추 시 최대 1600점',
+    i4: '견인 광선: 붙잡히면 전투기 한 대를 잃고, 보스 머리 위에 매달린다', i5: '구출: 급강하 중인 보스를 격추하면 붙잡힌 전투기가 돌아와 합체', i6: '챌린지 스테이지: 4스테이지마다. 적이 쏘지 않으며 40기 전멸 시 10000점',
+    tipTitle: '🧠 에이스의 비결', tipBody: '일부러 보스에게 한 대를 붙잡히게 한 뒤 급강하할 때 격추하세요——듀얼 파이터면 후반이 훨씬 쉬워집니다(대신 피격 범위도 커져요). 빨간 포로 전투기는 절대 쏘지 마세요, 다시는 돌아오지 않습니다. 마지막 몇 기는 미친 듯이 급강하하니 가장자리로 피하세요.',
     aboutTitle: '📖 게임 소개',
-    aboutBody: '좌우로 움직여 외계 함대를 격파! 잡힌 전투기는 구출할 수 있어요 브라우저에서 바로 플레이 — 키보드와 터치 지원, 다운로드 불필요, 완전 무료.',
+    aboutBody: '갤러그 · 스타 스웜은 1981년 아케이드 명작에 경의를 담은 브라우저 고정 화면 슈팅입니다. 벌, 나비, 보스 갤러그가 화려한 곡선을 그리며 편대에 합류하고, 편대는 좌우로 흔들리다 숨 쉬듯 늘었다 줄었다 하며 차례로 급강하 공격을 해 옵니다. 보스는 견인 광선으로 전투기를 붙잡지만, 급강하 중인 보스를 격추하면 구출해 듀얼 파이터로 화력이 두 배가 됩니다. 4스테이지마다 오는 챌린지 스테이지에서는 40기가 쏘지 않고 비행만 하며, 전멸 시 10000점. 4스테이지부터는 벌이 변형기로 분열하기도 합니다. 게임 오버 시 발사 수·명중 수·명중률을 보여 줍니다. 키보드·게임패드·터치 지원, 3단계 난이도. 완전 무료.',
+    footer: '🕹️ 바로 플레이 · 완전 무료 · 게임패드·터치 지원', muteTitle: '사운드 켜기/끄기 (M)',
+    captured: '전투기가 붙잡혔다!', rescued: '구출 성공! 듀얼 파이터!', captiveLost: '포로 전투기를 격추해 버렸다……', oneUp: '1UP!', ready: 'READY', chHint: '적은 쏘지 않는다. 전부 격추하자!',
+    stScore: '점수', stStage: '도달 스테이지', stShots: '발사 수', stHits: '명중 수', stRatio: '명중률', stBest: '최고', bestLbl: v => '🏆 최고 ' + v
   }
 };
 </script>
-<script src="game.js?v=20260906"></script>
+<script src="../assets/bgm.js?v=20261015"></script>
+<script src="../assets/kit.js?v=20261015"></script>
+<script src="game.js?v=20261015"></script>
 </body>
 </html>

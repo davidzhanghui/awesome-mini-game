@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<meta name="description" content="让小鸟飞起来，一根根水管穿过去！单人闯关或和朋友对战">
+<meta name="description" content="Flappy Bird 网页版：点一下拍一下翅膀，穿过水管越飞越远！三档难度、会上下移动的水管、铜银金白金奖牌，白天黑夜跟随主题切换。">
 <link rel="canonical" href="https://awesome-mini-game.vercel.app/flappy-bird/">
 <link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/flappy-bird/">
 <link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/flappy-bird/?lang=en">
@@ -12,260 +12,165 @@
 <link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/flappy-bird/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Awesome Mini Game">
-<meta property="og:title" content="Flappy Bird · 像素天空">
-<meta property="og:description" content="让小鸟飞起来，一根根水管穿过去！单人闯关或和朋友对战">
+<meta property="og:title" content="Flappy Bird · 一指飞行">
+<meta property="og:description" content="Flappy Bird 网页版：点一下拍一下翅膀，穿过水管越飞越远！三档难度与奖牌系统。">
 <meta property="og:url" content="https://awesome-mini-game.vercel.app/flappy-bird/">
 <meta property="og:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Flappy Bird · 像素天空">
-<meta name="twitter:description" content="让小鸟飞起来，一根根水管穿过去！单人闯关或和朋友对战">
+<meta name="twitter:title" content="Flappy Bird · 一指飞行">
+<meta name="twitter:description" content="Flappy Bird 网页版：点一下拍一下翅膀，穿过水管越飞越远！三档难度与奖牌系统。">
 <meta name="twitter:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "VideoGame",
-  "name": "Flappy Bird · 像素天空",
-  "description": "让小鸟飞起来，一根根水管穿过去！单人闯关或和朋友对战",
+  "name": "Flappy Bird · 一指飞行",
+  "description": "Flappy Bird 网页版：点一下拍一下翅膀，穿过水管越飞越远！三档难度与奖牌系统。",
   "url": "https://awesome-mini-game.vercel.app/flappy-bird/",
-  "genre": "像素冒险",
+  "genre": "休闲",
   "gamePlatform": "Web Browser",
-  "inLanguage": [
-    "zh-CN",
-    "en",
-    "ja",
-    "ko"
-  ],
+  "inLanguage": ["zh-CN", "en", "ja", "ko"],
   "isAccessibleForFree": true,
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "CNY"
-  }
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CNY" }
 }
 </script>
 <link rel="icon" href="/favicon.svg" />
-<title>Flappy Bird · 像素天空</title>
-<link rel="stylesheet" href="styles.css" />
-<link rel="stylesheet" href="../assets/ui.css?v=20260915" />
+<title>Flappy Bird · 一指飞行</title>
+<link rel="stylesheet" href="../assets/game-page.css?v=20261015" />
+<link rel="stylesheet" href="styles.css?v=20261015" />
+<link rel="stylesheet" href="../assets/ui.css?v=20261015" />
 <script src="../assets/theme.js"></script>
 </head>
 <body>
-  <div class="bg-orbs"><span></span><span></span><span></span></div>
+<div class="bg-orbs"><span></span><span></span><span></span></div>
+<main class="page">
+  <header class="brand">
+    <div class="logo">🐤</div>
+    <div>
+      <h1><span data-i18n="name">Flappy Bird</span> <em data-i18n="subtitle">一指飞行</em></h1>
+      <p data-i18n="intro">点一下扑一下，穿过水管，看你能飞多远！</p>
+    </div>
+    <div class="brand-btns">
+      <button id="btn-mute" class="icon-btn">🔊</button>
+    </div>
+  </header>
 
-  <main class="page">
-    <header class="brand">
-      <div class="logo">🐤</div>
-      <div>
-        <h1>Flappy Bird <em data-i18n="subtitle">像素天空</em></h1>
-        <p data-i18n="intro">让小鸟飞起来，一根根水管穿过去！单人闯关或和朋友对战</p>
-      </div>
-      <div class="brand-btns">
-        <button id="btn-theme" class="icon-btn" title="切换白天 / 黑夜">🌙</button>
-        <button id="btn-mute" class="icon-btn" title="声音开 / 关 (M)">🔊</button>
-      </div>
-    </header>
+  <section class="cabinet">
+    <div class="game-frame" id="frame">
+      <canvas id="game" class="stage"></canvas>
 
-    <section class="cabinet">
-      <div class="game-frame">
-        <canvas id="game" width="420" height="640"></canvas>
-
-        <div id="hud" class="hud hidden">
-          <div id="hud-score">0</div>
-          <div id="hud-best">BEST 0</div>
-          <div id="hud-duo" class="hud-duo hidden">
-            <span class="p1">🐤 <b id="hud-p1">0</b></span>
-            <span class="vs">VS</span>
-            <span class="p2"><b id="hud-p2">0</b> 🐦</span>
-          </div>
+      <div id="screen-menu" class="screen clear">
+        <div class="title-badge">FLAPPY</div>
+        <h2 class="game-title" data-i18n="name">Flappy Bird</h2>
+        <div class="seg-label" data-i18n="pickLevel">选择难度</div>
+        <div class="seg" id="lv-seg">
+          <button data-lv="easy" data-i18n="lvEasy">🐣 轻松</button><button data-lv="normal" data-i18n="lvNormal">🐤 经典</button><button data-lv="hard" data-i18n="lvHard">🦅 疯狂</button>
         </div>
-
-        <button id="btn-pause" class="icon-btn pause-btn hidden" title="暂停 (P)">⏸</button>
-
-        <!-- 主菜单 -->
-        <div id="screen-menu" class="screen">
-          <div class="title-badge">FLAPPY</div>
-          <h2 class="game-title" data-i18n="gameName">像素天空</h2>
-          <div class="bird-preview"><span>🐤</span><span class="preview-p2">🐦</span></div>
-          <div class="row mode-row">
-            <button id="btn-start" class="btn primary" data-i18n="solo">🚀 单人闯关</button>
-            <button id="btn-duo" class="btn duel" data-i18n="duo">⚔️ 双人对战</button>
-          </div>
-          <p class="hint"><span data-i18n="hintSoloPre">单人：</span><kbd data-i18n="kbdSpace">空格</kbd><span data-i18n="hintSoloSuf"> / 点击起飞</span> · <span data-i18n="hintDuoPre">双人：</span><kbd data-i18n="kbdSpace">空格</kbd> P1 / <kbd>↑</kbd> P2</p>
-          <div id="menu-best" class="mini-board">🏆 历史最佳：0</div>
-        </div>
-
-        <!-- 准备 -->
-        <div id="screen-ready" class="screen hidden">
-          <div class="ready-card">
-            <div class="ready-tap">👆</div>
-            <h3 data-i18n="readyTitle">准备好了吗？</h3>
-            <p id="ready-tip">点击 / 空格 振翅，第一根水管在前方等你</p>
-          </div>
-        </div>
-
-        <!-- 暂停 -->
-        <div id="screen-pause" class="screen dim hidden">
-          <div class="panel">
-            <h3 data-i18n="pausedTitle">⏸ 已暂停</h3>
-            <p data-i18n="pauseHint">按 P 或点击继续</p>
-            <div class="row">
-              <button id="btn-resume" class="btn primary" data-i18n="resume">继续</button>
-              <button id="btn-quit" class="btn ghost" data-i18n="quit">回菜单</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 结束 -->
-        <div id="screen-over" class="screen dim hidden">
-          <div class="panel pop">
-            <h3 id="over-title" class="over-title">GAME OVER</h3>
-            <div id="medal" class="medal">🥉</div>
-            <div id="over-solo">
-              <div class="score-row">
-                <div><label data-i18n="curScore">本次得分</label><b id="final-score">0</b></div>
-                <div class="divider"></div>
-                <div><label data-i18n="histBest">历史最佳</label><b id="final-best">0</b><span id="new-record" class="new-record hidden">NEW!</span></div>
-              </div>
-            </div>
-            <div id="over-duo" class="hidden">
-              <div class="score-row duo-row">
-                <div class="duel-score p1"><label>🐤 P1</label><b id="final-p1">0</b></div>
-                <div id="duel-result" class="duel-result">🏆 P1 获胜！</div>
-                <div class="duel-score p2"><label>P2 🐦</label><b id="final-p2">0</b></div>
-              </div>
-            </div>
-            <div class="row">
-              <button id="btn-retry" class="btn primary" data-i18n="retry">🔄 再来一局 (R)</button>
-              <button id="btn-menu" class="btn ghost" data-i18n="menu">菜单</button>
-            </div>
-          </div>
-        </div>
+        <p class="hint" id="lv-desc"></p>
+        <button id="btn-start" class="btn primary" data-i18n="start">🚀 开始飞行</button>
+        <p class="hint"><kbd>Space</kbd> / <kbd>↑</kbd> / <span data-i18n="hintTap">点击屏幕</span> <span data-i18n="hintFlap">拍翅膀</span></p>
+        <div id="menu-best" class="mini-board"></div>
       </div>
 
-      <aside class="side">
-        <div class="card">
-          <h4 data-i18n="howTitle">🎮 玩法</h4>
-          <ul>
-            <li><span data-i18n="hintSoloPre">单人：</span><kbd data-i18n="kbdSpace">空格</kbd> / <kbd>↑</kbd> / <kbd>W</kbd> <span data-i18n="flapKw">振翅</span></li>
-            <li><span data-i18n="hintDuoPre">双人：</span>P1 <kbd data-i18n="kbdSpace">空格</kbd>/<span data-i18n="tapLeft">点左半屏</span> · P2 <kbd>↑</kbd>/<span data-i18n="tapRight">点右半屏</span></li>
-            <li><kbd>P</kbd> <span data-i18n="pauseKw">暂停</span> · <kbd>M</kbd> <span data-i18n="muteKw">静音</span> · <kbd>R</kbd> <span data-i18n="rematchKw">重开</span></li>
-            <li data-i18n="rulePass">穿过水管 +1 分，撞到即结束</li>
-          </ul>
+      <div id="screen-over" class="screen dim hidden">
+        <div class="panel pop">
+          <h3 class="over-title" data-i18n="overTitle">游戏结束</h3>
+          <div class="medal-row">
+            <div class="medal-slot" id="medal">🥚</div>
+            <div class="stat-list" id="over-stats"></div>
+          </div>
+          <div id="over-record" class="new-record hidden" data-i18n="newRecord">新纪录！</div>
+          <div id="medal-name" class="over-sub"></div>
+          <div class="row"><button id="btn-retry" class="btn primary" data-i18n="retry">🔄 再飞一次</button><button id="btn-menu" class="btn ghost" data-i18n="menu">菜单</button></div>
         </div>
-        <div class="card">
-          <h4 data-i18n="medalTitle">🏅 奖牌</h4>
-          <ul class="medals">
-            <li data-i18n="medalB">🥉 10+ 铜牌</li>
-            <li data-i18n="medalS">🥈 20+ 银牌</li>
-            <li data-i18n="medalG">🥇 30+ 金牌</li>
-            <li data-i18n="medalD">💎 40+ 钻石</li>
-          </ul>
+      </div>
+    </div>
+
+    <aside class="side">
+      <div class="card"><h4 data-i18n="opTitle">🎮 操作</h4><ul>
+        <li data-i18n="op1">👆 点击或轻触画面：小鸟向上扑一下</li>
+        <li><kbd>Space</kbd> / <kbd>↑</kbd> / <kbd>W</kbd> <span data-i18n="op2">拍翅膀</span> · <kbd>P</kbd> <span data-i18n="pauseKw">暂停</span> · <kbd>M</kbd> <span data-i18n="muteKw">静音</span></li>
+        <li data-i18n="op3">🌗 右上角切换白天 / 黑夜场景</li>
+      </ul></div>
+      <div class="card"><h4 data-i18n="dexTitle">🏅 奖牌图鉴</h4>
+        <div class="dex">
+          <div class="ic">🥉</div><span data-i18n="m1">铜牌：穿过 10 根水管</span>
+          <div class="ic">🥈</div><span data-i18n="m2">银牌：穿过 20 根水管</span>
+          <div class="ic">🥇</div><span data-i18n="m3">金牌：穿过 30 根水管</span>
+          <div class="ic">💎</div><span data-i18n="m4">白金：穿过 50 根水管，真正的飞行大师</span>
         </div>
-        <div class="card diff">
-          <h4 data-i18n="diffTitle">⚡ 难度会递增</h4>
-          <p data-i18n="diffBody">飞得越远，水管越快、缝隙越窄。坚持住！</p>
-        </div>
-      </aside>
-    </section>
-  <details class="card seo-about"><summary data-i18n="aboutTitle">📖 关于这款游戏</summary><p data-i18n="aboutBody">让小鸟飞起来，一根根水管穿过去！单人闯关或和朋友对战 浏览器打开即玩，支持键盘和触屏，无需下载安装，完全免费。</p></details>
+      </div>
+      <div class="card diff"><h4 data-i18n="tipTitle">🧠 飞行秘诀</h4>
+        <p data-i18n="tipBody">别一直狂点！小鸟快掉到缺口下沿时再点一下最稳。保持节奏，眼睛看下一根水管的缺口高度；20 分以后水管会开始上下移动，提前预判它的方向。</p></div>
+    </aside>
+  </section>
 
-
-    <footer><span data-i18n="footPre">🕹️ 打开即玩 · 免费 · 双击</span> <kbd>R</kbd> <span data-i18n="footSuf">马上再来一局</span></footer>
-  </main>
-
-<script src="../assets/i18n.js?v=20260915"></script>
+  <details class="card seo-about"><summary data-i18n="aboutTitle">📖 关于这款游戏</summary><p data-i18n="aboutBody">Flappy Bird 网页版：点击屏幕或按空格让小鸟拍翅膀，穿过一根根水管之间的缺口，撞到水管或地面就结束。提供轻松、经典、疯狂三档难度，分数越高水管越难，还会上下移动；按分数获得铜、银、金、白金奖牌，白天黑夜场景跟随网站主题。支持键盘、鼠标和触屏，完全免费。</p></details>
+  <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持键盘、鼠标和触屏</footer>
+</main>
+<script src="../assets/i18n.js?v=20261015"></script>
 <script>
 window.GAME_STR = {
   zh: {
-    title: 'Flappy Bird · 像素天空', subtitle: '像素天空', gameName: '像素天空',
-    intro: '让小鸟飞起来，一根根水管穿过去！单人闯关或和朋友对战',
-    solo: '🚀 单人闯关', duo: '⚔️ 双人对战',
-    hintSoloPre: '单人：', hintSoloSuf: ' / 点击起飞', hintDuoPre: '双人：', kbdSpace: '空格',
-    readyTitle: '准备好了吗？',
-    readySolo: '点击 / 空格 振翅，第一根水管在前方等你',
-    readyDuo: 'P1 按空格 / 点左半屏 · P2 按 ↑ / 点右半屏，一起起飞！',
-    pausedTitle: '⏸ 已暂停', pauseHint: '按 P 或点击继续', resume: '继续', quit: '回菜单',
-    curScore: '本次得分', histBest: '历史最佳',
-    retry: '🔄 再来一局 (R)', menu: '菜单',
-    duelOver: '对战结束', draw: '🤝 平局！', p1Win: '🏆 P1 获胜！', p2Win: '🏆 P2 获胜！',
-    howTitle: '🎮 玩法', flapKw: '振翅', tapLeft: '点左半屏', tapRight: '点右半屏',
-    pauseKw: '暂停', muteKw: '静音', rematchKw: '重开', rulePass: '穿过水管 +1 分，撞到即结束',
-    medalTitle: '🏅 奖牌', medalB: '🥉 10+ 铜牌', medalS: '🥈 20+ 银牌', medalG: '🥇 30+ 金牌', medalD: '💎 40+ 钻石',
-    diffTitle: '⚡ 难度会递增', diffBody: '飞得越远，水管越快、缝隙越窄。坚持住！',
-    footPre: '🕹️ 打开即玩 · 免费 · 双击', footSuf: '马上再来一局',
-    muteTitle: '声音开 / 关 (M)', pauseTitle: '暂停 (P)', themeTitle: '切换白天 / 黑夜',
-    bestLine: b => '🏆 历史最佳：' + b,
+    title: 'Flappy Bird · 一指飞行', name: 'Flappy Bird', subtitle: '一指飞行', intro: '点一下扑一下，穿过水管，看你能飞多远！',
+    pickLevel: '选择难度', lvEasy: '🐣 轻松', lvNormal: '🐤 经典', lvHard: '🦅 疯狂', start: '🚀 开始飞行', hintTap: '点击屏幕', hintFlap: '拍翅膀',
+    overTitle: '游戏结束', newRecord: '新纪录！', retry: '🔄 再飞一次', menu: '菜单',
+    opTitle: '🎮 操作', op1: '👆 点击或轻触画面：小鸟向上扑一下', op2: '拍翅膀', op3: '🌗 右上角切换白天 / 黑夜场景', pauseKw: '暂停', muteKw: '静音',
+    dexTitle: '🏅 奖牌图鉴', m1: '铜牌：穿过 10 根水管', m2: '银牌：穿过 20 根水管', m3: '金牌：穿过 30 根水管', m4: '白金：穿过 50 根水管，真正的飞行大师',
+    tipTitle: '🧠 飞行秘诀', tipBody: '别一直狂点！小鸟快掉到缺口下沿时再点一下最稳。保持节奏，眼睛看下一根水管的缺口高度；20 分以后水管会开始上下移动，提前预判它的方向。',
     aboutTitle: '📖 关于这款游戏',
-    aboutBody: '让小鸟飞起来，一根根水管穿过去！单人闯关或和朋友对战 浏览器打开即玩，支持键盘和触屏，无需下载安装，完全免费。',
+    aboutBody: 'Flappy Bird 网页版：点击屏幕或按空格让小鸟拍翅膀，穿过一根根水管之间的缺口，撞到水管或地面就结束。提供轻松、经典、疯狂三档难度，分数越高水管越难，还会上下移动；按分数获得铜、银、金、白金奖牌，白天黑夜场景跟随网站主题。支持键盘、鼠标和触屏，完全免费。',
+    footer: '🕹️ 打开即玩 · 完全免费 · 支持键盘、鼠标和触屏', muteTitle: '声音开 / 关 (M)',
+    lvDesc: { easy: '缺口超大、飞得慢，适合热身', normal: '原汁原味的经典手感', hard: '缺口窄、速度快，水管一开始就会动' },
+    best: v => '🏆 最高分：' + v, getReady: '准备好了吗？', tapToFlap: '点一下开始', paused: '⏸ 暂停 · 点击继续',
+    stScore: '分数', stBest: '最高', medals: { none: '再接再厉，10 分拿铜牌！', bronze: '🥉 铜牌！', silver: '🥈 银牌！', gold: '🥇 金牌！', plat: '💎 白金大师！' }
   },
   en: {
-    title: 'Flappy Bird · Pixel Sky', subtitle: 'Pixel Sky', gameName: 'Pixel Sky',
-    intro: 'Keep the bird flying through the pipes! Solo run or duel a friend',
-    solo: '🚀 Solo Run', duo: '⚔️ 2-Player Duel',
-    hintSoloPre: 'Solo: ', hintSoloSuf: ' / tap to flap', hintDuoPre: 'Duo: ', kbdSpace: 'Space',
-    readyTitle: 'Ready?',
-    readySolo: 'Click / Space to flap, the first pipe is waiting ahead',
-    readyDuo: 'P1: Space / tap left half · P2: ↑ / tap right half, take off together!',
-    pausedTitle: '⏸ Paused', pauseHint: 'Press P or click to resume', resume: 'Resume', quit: 'Menu',
-    curScore: 'Score', histBest: 'Best',
-    retry: '🔄 Play Again (R)', menu: 'Menu',
-    duelOver: 'Duel Over', draw: '🤝 Draw!', p1Win: '🏆 P1 wins!', p2Win: '🏆 P2 wins!',
-    howTitle: '🎮 How to Play', flapKw: 'to flap', tapLeft: 'tap left half', tapRight: 'tap right half',
-    pauseKw: 'Pause', muteKw: 'Mute', rematchKw: 'Restart', rulePass: '+1 per pipe passed, crash and it is over',
-    medalTitle: '🏅 Medals', medalB: '🥉 10+ Bronze', medalS: '🥈 20+ Silver', medalG: '🥇 30+ Gold', medalD: '💎 40+ Diamond',
-    diffTitle: '⚡ It gets harder', diffBody: 'The further you fly, the faster the pipes and the narrower the gaps. Hang in there!',
-    footPre: '🕹️ Play instantly · Free · hit', footSuf: 'for an instant rematch',
-    muteTitle: 'Sound on/off (M)', pauseTitle: 'Pause (P)', themeTitle: 'Toggle day / night',
-    bestLine: b => '🏆 Best: ' + b,
+    title: 'Flappy Bird · One Tap', name: 'Flappy Bird', subtitle: 'One-Tap Flight', intro: 'Tap to flap, slip through the pipes — how far can you fly?',
+    pickLevel: 'DIFFICULTY', lvEasy: '🐣 Easy', lvNormal: '🐤 Classic', lvHard: '🦅 Crazy', start: '🚀 Take Off', hintTap: 'tap', hintFlap: 'to flap',
+    overTitle: 'Game Over', newRecord: 'NEW RECORD!', retry: '🔄 Fly Again', menu: 'Menu',
+    opTitle: '🎮 Controls', op1: '👆 Click or tap the screen: the bird flaps up', op2: 'flap', op3: '🌗 Toggle day / night with the button at top right', pauseKw: 'pause', muteKw: 'mute',
+    dexTitle: '🏅 Medals', m1: 'Bronze: pass 10 pipes', m2: 'Silver: pass 20 pipes', m3: 'Gold: pass 30 pipes', m4: 'Platinum: pass 50 pipes — true flight master',
+    tipTitle: '🧠 Flight Tips', tipBody: 'Do not spam taps! Flap when the bird is about to drop to the bottom of the gap. Keep a rhythm and watch the next gap. After 20 points the pipes start moving — read their direction early.',
     aboutTitle: '📖 About this game',
-    aboutBody: 'Keep the bird flying through the pipes! Solo run or duel a friend Play instantly in your browser — keyboard and touch supported, no download needed, completely free.',
+    aboutBody: 'Flappy Bird in your browser: tap or press Space to flap through the gaps between pipes; hitting a pipe or the ground ends the run. Easy, Classic and Crazy difficulties, pipes that get tighter and start moving as you score, bronze to platinum medals and day/night scenes following the site theme. Keyboard, mouse and touch, completely free.',
+    footer: '🕹️ Play instantly · Free · Keyboard, mouse & touch', muteTitle: 'Sound on/off (M)',
+    lvDesc: { easy: 'Huge gaps, slow pace — a gentle warm-up', normal: 'The original classic feel', hard: 'Tight gaps, fast pace, moving pipes from the start' },
+    best: v => '🏆 Best: ' + v, getReady: 'Get Ready!', tapToFlap: 'Tap to start', paused: '⏸ Paused · tap to resume',
+    stScore: 'Score', stBest: 'Best', medals: { none: 'Keep going — 10 points for bronze!', bronze: '🥉 Bronze!', silver: '🥈 Silver!', gold: '🥇 Gold!', plat: '💎 Platinum master!' }
   },
   ja: {
-    title: 'フラッピーバード · ピクセルスカイ', subtitle: 'ピクセルスカイ', gameName: 'ピクセルスカイ',
-    intro: '鳥を羽ばたかせて土管をくぐり抜けよう！ソロ or 2人対戦',
-    solo: '🚀 ソロ挑戦', duo: '⚔️ 2人対戦',
-    hintSoloPre: 'ソロ：', hintSoloSuf: ' / タップで羽ばたき', hintDuoPre: '2人：', kbdSpace: 'スペース',
-    readyTitle: '準備はいい？',
-    readySolo: 'クリック / スペースで羽ばたき、最初の土管が待ってるよ',
-    readyDuo: 'P1はスペース / 左半分タップ · P2は↑ / 右半分タップ、せーので発進！',
-    pausedTitle: '⏸ 一時停止中', pauseHint: 'Pキーかタップで再開', resume: '再開', quit: 'メニューへ',
-    curScore: '今回のスコア', histBest: '最高記録',
-    retry: '🔄 もう一回 (R)', menu: 'メニュー',
-    duelOver: '対戦終了', draw: '🤝 引き分け！', p1Win: '🏆 P1の勝利！', p2Win: '🏆 P2の勝利！',
-    howTitle: '🎮 遊び方', flapKw: 'で羽ばたき', tapLeft: '左半分タップ', tapRight: '右半分タップ',
-    pauseKw: '一時停止', muteKw: 'ミュート', rematchKw: '再戦', rulePass: '土管通過で+1、ぶつかったら終了',
-    medalTitle: '🏅 メダル', medalB: '🥉 10+ ブロンズ', medalS: '🥈 20+ シルバー', medalG: '🥇 30+ ゴールド', medalD: '💎 40+ ダイヤ',
-    diffTitle: '⚡ どんどん難しくなる', diffBody: '遠くへ進むほど土管が速く、隙間が狭くなる。粘れ！',
-    footPre: '🕹️ すぐ遊べる · 無料 ·', footSuf: '連打で即リマッチ',
-    muteTitle: 'サウンド ON/OFF (M)', pauseTitle: '一時停止 (P)', themeTitle: '昼 / 夜 切替',
-    bestLine: b => '🏆 最高記録：' + b,
+    title: 'Flappy Bird · ワンタップ', name: 'Flappy Bird', subtitle: 'ワンタップ飛行', intro: 'タップで羽ばたいて土管をすり抜けよう、どこまで飛べる？',
+    pickLevel: '難易度', lvEasy: '🐣 かんたん', lvNormal: '🐤 クラシック', lvHard: '🦅 クレイジー', start: '🚀 飛び立つ', hintTap: 'タップ', hintFlap: 'で羽ばたく',
+    overTitle: 'ゲームオーバー', newRecord: '新記録！', retry: '🔄 もう一回', menu: 'メニュー',
+    opTitle: '🎮 操作', op1: '👆 画面をクリック・タップで羽ばたく', op2: '羽ばたく', op3: '🌗 右上ボタンで昼／夜を切り替え', pauseKw: '一時停止', muteKw: 'ミュート',
+    dexTitle: '🏅 メダル図鑑', m1: '銅：土管 10 本通過', m2: '銀：土管 20 本通過', m3: '金：土管 30 本通過', m4: 'プラチナ：土管 50 本通過、飛行マスター',
+    tipTitle: '🧠 飛行のコツ', tipBody: '連打は禁物！隙間の下端に落ちそうになったら1回タップが一番安定。リズムを保ち、次の土管の隙間の高さを見よう。20点を超えると土管が上下に動き出すので早めに読もう。',
     aboutTitle: '📖 このゲームについて',
-    aboutBody: '鳥を羽ばたかせて土管をくぐり抜けよう！ソロ or 2人対戦 ブラウザでそのまま遊べます。キーボード・タッチ操作対応、ダウンロード不要・完全無料。',
+    aboutBody: 'ブラウザで遊べるFlappy Bird：タップかスペースで羽ばたき、土管の隙間を通り抜けよう。土管や地面に当たると終了。かんたん・クラシック・クレイジーの3難易度、スコアが上がると隙間が狭く土管が動き出す。銅〜プラチナのメダル、サイトのテーマに合わせた昼夜の背景。キーボード・マウス・タッチ対応、完全無料。',
+    footer: '🕹️ すぐ遊べる · 完全無料 · キーボード・マウス・タッチ対応', muteTitle: 'サウンド ON/OFF (M)',
+    lvDesc: { easy: '隙間が広くゆっくり、ウォームアップに', normal: 'オリジナルそのままの手触り', hard: '隙間が狭く高速、最初から土管が動く' },
+    best: v => '🏆 ベスト：' + v, getReady: '準備はいい？', tapToFlap: 'タップでスタート', paused: '⏸ 一時停止 · タップで再開',
+    stScore: 'スコア', stBest: 'ベスト', medals: { none: '10点で銅メダル、がんばろう！', bronze: '🥉 銅メダル！', silver: '🥈 銀メダル！', gold: '🥇 金メダル！', plat: '💎 プラチナマスター！' }
   },
   ko: {
-    title: '플래피 버드 · 픽셀 스카이', subtitle: '픽셀 스카이', gameName: '픽셀 스카이',
-    intro: '새를 날려 파이프를 통과하세요! 솔로 또는 친구와 대결',
-    solo: '🚀 솔로 도전', duo: '⚔️ 2인 대결',
-    hintSoloPre: '솔로: ', hintSoloSuf: ' / 탭해서 날기', hintDuoPre: '2인: ', kbdSpace: '스페이스',
-    readyTitle: '준비됐나요?',
-    readySolo: '클릭 / 스페이스로 날기, 첫 파이프가 앞에서 기다려요',
-    readyDuo: 'P1은 스페이스 / 왼쪽 탭 · P2는 ↑ / 오른쪽 탭, 함께 출발!',
-    pausedTitle: '⏸ 일시정지', pauseHint: 'P를 누르거나 눌러서 계속', resume: '계속', quit: '메뉴로',
-    curScore: '이번 점수', histBest: '최고 기록',
-    retry: '🔄 다시 하기 (R)', menu: '메뉴',
-    duelOver: '대결 종료', draw: '🤝 무승부!', p1Win: '🏆 P1 승리!', p2Win: '🏆 P2 승리!',
-    howTitle: '🎮 방법', flapKw: '날기', tapLeft: '왼쪽 탭', tapRight: '오른쪽 탭',
-    pauseKw: '일시정지', muteKw: '음소거', rematchKw: '재시작', rulePass: '파이프 통과 +1점, 부딪히면 종료',
-    medalTitle: '🏅 메달', medalB: '🥉 10+ 동메달', medalS: '🥈 20+ 은메달', medalG: '🥇 30+ 금메달', medalD: '💎 40+ 다이아',
-    diffTitle: '⚡ 점점 어려워져요', diffBody: '멀리 날수록 파이프는 빨라지고 틈은 좁아져요. 버텨보세요!',
-    footPre: '🕹️ 바로 플레이 · 무료 ·', footSuf: '연타로 바로 재시작',
-    muteTitle: '사운드 켜기/끄기 (M)', pauseTitle: '일시정지 (P)', themeTitle: '낮 / 밤 전환',
-    bestLine: b => '🏆 최고 기록: ' + b,
+    title: 'Flappy Bird · 원탭', name: 'Flappy Bird', subtitle: '원탭 비행', intro: '탭해서 날갯짓, 파이프 사이를 통과해 얼마나 멀리 갈까요?',
+    pickLevel: '난이도', lvEasy: '🐣 쉬움', lvNormal: '🐤 클래식', lvHard: '🦅 크레이지', start: '🚀 이륙', hintTap: '탭', hintFlap: '으로 날갯짓',
+    overTitle: '게임 오버', newRecord: '신기록!', retry: '🔄 다시 날기', menu: '메뉴',
+    opTitle: '🎮 조작', op1: '👆 화면을 클릭·탭하면 새가 위로 퍼덕', op2: '날갯짓', op3: '🌗 오른쪽 위 버튼으로 낮/밤 전환', pauseKw: '일시정지', muteKw: '음소거',
+    dexTitle: '🏅 메달 도감', m1: '동메달: 파이프 10개 통과', m2: '은메달: 파이프 20개 통과', m3: '금메달: 파이프 30개 통과', m4: '플래티넘: 파이프 50개 통과, 진정한 비행 마스터',
+    tipTitle: '🧠 비행 비결', tipBody: '연타는 금물! 틈 아래쪽에 닿기 직전에 한 번 탭하는 게 가장 안정적이에요. 리듬을 지키며 다음 파이프 틈 높이를 보세요. 20점 이후엔 파이프가 위아래로 움직이니 미리 예측하세요.',
     aboutTitle: '📖 게임 소개',
-    aboutBody: '새를 날려 파이프를 통과하세요! 솔로 또는 친구와 대결 브라우저에서 바로 플레이 — 키보드와 터치 지원, 다운로드 불필요, 완전 무료.',
+    aboutBody: '브라우저에서 즐기는 Flappy Bird: 탭하거나 스페이스를 눌러 날갯짓하며 파이프 사이 틈을 통과하세요. 파이프나 땅에 부딪히면 끝. 쉬움·클래식·크레이지 3단계 난이도, 점수가 오를수록 틈이 좁아지고 파이프가 움직입니다. 동~플래티넘 메달, 사이트 테마를 따르는 낮/밤 배경. 키보드·마우스·터치 지원, 완전 무료.',
+    footer: '🕹️ 바로 플레이 · 완전 무료 · 키보드·마우스·터치 지원', muteTitle: '사운드 켜기/끄기 (M)',
+    lvDesc: { easy: '틈이 넓고 느려서 몸풀기에 딱', normal: '오리지널 그대로의 손맛', hard: '좁은 틈, 빠른 속도, 처음부터 움직이는 파이프' },
+    best: v => '🏆 최고: ' + v, getReady: '준비됐나요?', tapToFlap: '탭해서 시작', paused: '⏸ 일시정지 · 탭해서 계속',
+    stScore: '점수', stBest: '최고', medals: { none: '10점이면 동메달, 힘내요!', bronze: '🥉 동메달!', silver: '🥈 은메달!', gold: '🥇 금메달!', plat: '💎 플래티넘 마스터!' }
   }
 };
 </script>
-<script src="game.js?v=20260906"></script>
+<script src="../assets/bgm.js?v=20261015"></script>
+<script src="../assets/kit.js?v=20261015"></script>
+<script src="game.js?v=20261015"></script>
 </body>
 </html>

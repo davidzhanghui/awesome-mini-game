@@ -20,20 +20,20 @@ Press `/` on the home page to search games.
 
 | Game | Folder | Highlights |
 |---|---|---|
-| 🚀 Raiden | `raiden/` | Co-op 2P shmup, 8 stages + 8 bosses, power-up system |
-| 🍄 Super Mario Bros | `super-mario-bros/` | Side-scrolling platformer, pixel physics |
-| 🪖 Tank Battle | `tank-battle/` | Base defense, destructible terrain |
-| 🐝 Galaga | `galaga/` | Dive patterns, dual-fighter merge |
-| ♞ Chinese Chess | `chinese-chess/` | Full rules + AI engine (Web Worker, non-blocking UI) |
-| 🃏 Dou Dizhu | `dou-dizhu/` | 3-player, complete hand-type detection |
-| ⚫ Gomoku | `gomoku/` | PvP + AI with 3 difficulty levels |
-| 🧱 Tetris | `tetris/` | Guideline rules, SRS rotation, T-Spin |
-| 🔢 2048 | `game-2048/` | Smooth slide-and-merge animations |
-| 💣 Minesweeper | `minesweeper/` | 3 difficulties, first-click safe |
-| 🎯 Breakout | `breakout/` | Power-ups: multi-ball, laser, pierce |
-| 🫧 Bubble Dragon | `bubble-dragon/` | Aiming + bounce + chain clears |
-| 💎 Match 3 | `match3/` | Swap-to-match, combo multiplier |
-| 🐤 Flappy Bird | `flappy-bird/` | 1P / versus 2P, day-night themes |
+| 🚀 Raiden | `raiden/` | 6 war zones + 6 multi-phase bosses, 3 switchable weapons, thunder bombs, 2P co-op |
+| 🍄 Super Mario Bros | `super-mario-bros/` | 8 levels, power-ups, secret pipe rooms, flagpole & castle bosses |
+| 🪖 Tank Battle | `tank-battle/` | 12 battlefields incl. night ops, 2P co-op, 6 power-ups, map workshop |
+| 🐝 Galaga | `galaga/` | Formation dives, tractor beam capture & dual-fighter rescue, challenging stages |
+| ♞ Chinese Chess | `chinese-chess/` | Full rules, 3-level Web Worker AI, hints/undo, 12 endgame puzzles |
+| 🃏 Dou Dizhu | `dou-dizhu/` | Bid & steal, all combos, teamwork AI, card counter, bomb/rocket effects |
+| ⚫ Gomoku | `gomoku/` | 3-level AI, PvP, optional Renju forbidden moves, hints/undo |
+| 🧱 Tetris | `tetris/` | SRS, hold, T-Spin/B2B/Perfect Clear, Marathon / Sprint 40L / Ultra |
+| 🔢 2048 | `game-2048/` | 4 board sizes, undo, auto-save |
+| 💣 Minesweeper | `minesweeper/` | 3 difficulties, safe first click, chording, hints |
+| 🎯 Breakout | `breakout/` | 10 levels, steel/TNT bricks, 8 power-ups |
+| 🫧 Bubble Dragon | `bubble-dragon/` | Bounce aiming, drops, 12 levels + endless |
+| 💎 Match 3 | `match3/` | Striped/bomb/rainbow gems, 15 levels + blitz |
+| 🐤 Flappy Bird | `flappy-bird/` | 3 difficulties, moving pipes, medals, day/night |
 
 ## Tech
 

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<meta name="description" content="五颗棋子连成一条线就赢！双人对战或挑战电脑">
+<meta name="description" content="五子棋网页版：15×15 标准棋盘，三档电脑 AI、双人对弈，可选连珠禁手（三三、四四、长连），支持悔棋、提示、显示手数，连成五子发光庆祝，打开即玩。">
 <link rel="canonical" href="https://awesome-mini-game.vercel.app/gomoku/">
 <link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/gomoku/">
 <link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/gomoku/?lang=en">
@@ -12,41 +12,34 @@
 <link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/gomoku/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Awesome Mini Game">
-<meta property="og:title" content="五子棋 · 经典桌游">
-<meta property="og:description" content="五颗棋子连成一条线就赢！双人对战或挑战电脑">
+<meta property="og:title" content="五子棋 · 黑白对弈">
+<meta property="og:description" content="三档 AI、双人对弈、连珠禁手、悔棋与提示的网页五子棋。">
 <meta property="og:url" content="https://awesome-mini-game.vercel.app/gomoku/">
 <meta property="og:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="五子棋 · 经典桌游">
-<meta name="twitter:description" content="五颗棋子连成一条线就赢！双人对战或挑战电脑">
+<meta name="twitter:title" content="五子棋 · 黑白对弈">
+<meta name="twitter:description" content="三档 AI、双人对弈、连珠禁手、悔棋与提示的网页五子棋。">
 <meta name="twitter:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "VideoGame",
-  "name": "五子棋 · 经典桌游",
-  "description": "五颗棋子连成一条线就赢！双人对战或挑战电脑",
+  "name": "五子棋 · 黑白对弈",
+  "description": "三档 AI、双人对弈、连珠禁手、悔棋与提示的网页五子棋。",
   "url": "https://awesome-mini-game.vercel.app/gomoku/",
-  "genre": "棋牌桌游",
+  "genre": "棋类",
   "gamePlatform": "Web Browser",
-  "inLanguage": [
-    "zh-CN",
-    "en",
-    "ja",
-    "ko"
-  ],
+  "playMode": ["SinglePlayer", "MultiPlayer"],
+  "inLanguage": ["zh-CN", "en", "ja", "ko"],
   "isAccessibleForFree": true,
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "CNY"
-  }
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CNY" }
 }
 </script>
 <link rel="icon" href="/favicon.svg" />
-<title>五子棋 · 经典桌游</title>
-<link rel="stylesheet" href="styles.css" />
-<link rel="stylesheet" href="../assets/ui.css?v=20260915" />
+<title>五子棋 · 黑白对弈</title>
+<link rel="stylesheet" href="../assets/game-page.css?v=20261015" />
+<link rel="stylesheet" href="styles.css?v=20261015" />
+<link rel="stylesheet" href="../assets/ui.css?v=20261015" />
 <script src="../assets/theme.js"></script>
 </head>
 <body>
@@ -55,176 +48,149 @@
   <header class="brand">
     <div class="logo">⚫</div>
     <div>
-      <h1><span data-i18n="name">五子棋</span> <em data-i18n="subtitle">经典桌游</em></h1>
-      <p data-i18n="intro">五颗棋子连成一条线就赢！双人对战或挑战电脑</p>
+      <h1><span data-i18n="name">五子棋</span> <em data-i18n="subtitle">黑白对弈</em></h1>
+      <p data-i18n="intro">横、竖、斜任意方向连成五子即获胜。挑战三档电脑，或和朋友同屏对弈。</p>
     </div>
     <div class="brand-btns">
-      <button id="btn-mute" class="icon-btn" title="声音开 / 关 (M)">🔊</button>
+      <button id="btn-mute" class="icon-btn">🔊</button>
     </div>
   </header>
+
   <section class="cabinet">
-    <div class="game-frame">
-      <canvas id="game" width="600" height="600"></canvas>
-      <div id="hud" class="hud hidden">
-        <span id="hud-turn" class="turn black">⚫ 黑方行棋</span>
-        <span id="hud-moves">第 0 手</span>
-      </div>
-      <div id="screen-menu" class="screen">
-        <div class="title-badge">GOMOKU</div>
-        <h2 class="game-title" data-i18n="name">五子棋</h2>
-        <div class="mode-grid">
-          <button class="btn primary" data-mode="pvp" data-i18n="modePvp">👥 双人对战</button>
-          <button class="btn duel" data-mode="ai0" data-i18n="modeAi0">🤖 AI 简单</button>
-          <button class="btn duel" data-mode="ai1" data-i18n="modeAi1">🧠 AI 普通</button>
-          <button class="btn duel" data-mode="ai2" data-i18n="modeAi2">👹 AI 困难</button>
+    <div class="col">
+      <div class="game-frame" id="frame">
+        <canvas id="game" class="stage"></canvas>
+        <div id="toast" class="toast"></div>
+
+        <div id="screen-menu" class="screen clear-bg">
+          <div class="title-badge">GOMOKU</div>
+          <h2 class="game-title" data-i18n="name">五子棋</h2>
+          <div class="stones-deco">⚫⚪⚫⚪⚫</div>
+          <div class="seg" id="mode-seg"><button data-m="ai" data-i18n="mAi">🤖 人机对战</button><button data-m="pvp" data-i18n="mPvp">👥 双人对弈</button></div>
+          <div class="opts" id="ai-opts">
+            <div class="seg" id="side-seg"><button data-s="1" data-i18n="sBlack">⚫ 执黑先手</button><button data-s="2" data-i18n="sWhite">⚪ 执白后手</button></div>
+            <div class="seg" id="lv-seg"><button data-l="0" data-i18n="lv0">🌱 入门</button><button data-l="1" data-i18n="lv1">⚔️ 进阶</button><button data-l="2" data-i18n="lv2">🔥 大师</button></div>
+          </div>
+          <div class="seg-label" data-i18n="pickRule">规则</div>
+          <div class="seg" id="rule-seg"><button data-r="0" data-i18n="rFree">自由五子</button><button data-r="1" data-i18n="rRenju">🚫 连珠禁手</button></div>
+          <button id="btn-start" class="btn primary" data-i18n="start">▶ 开始对局</button>
+          <div id="menu-best" class="mini-board"></div>
         </div>
-        <div class="opt-row">
-          <label><span data-i18n="me">我方</span> <select id="sel-color"><option value="1" data-i18n="optBlack">⚫ 执黑先行</option><option value="2" data-i18n="optWhite">⚪ 执白后行</option></select></label>
-          <label><input type="checkbox" id="ck-forbid" /> <span data-i18n="forbidLabel">黑棋禁手（三三/四四/长连）</span></label>
-        </div>
-        <div class="mini-board"><span data-i18n="stB">🏆 黑胜</span> <b id="st-b">0</b> · <span data-i18n="stW">白胜</span> <b id="st-w">0</b> · <span data-i18n="stD">和</span> <b id="st-d">0</b></div>
-      </div>
-      <div id="screen-over" class="screen dim hidden">
-        <div class="panel pop">
-          <h3 id="over-title" class="over-title">⚫ 黑方获胜！</h3>
-          <div id="over-sub" class="over-sub">共 37 手</div>
-          <div class="row">
-            <button id="btn-retry" class="btn primary" data-i18n="retry">🔄 再来一局 (R)</button>
-            <button id="btn-menu" class="btn ghost" data-i18n="menu">菜单</button>
+
+        <div id="screen-over" class="screen dim hidden">
+          <div class="panel pop">
+            <div class="medal-big" id="over-emo">🏆</div>
+            <h3 class="clear-title" id="over-title"></h3>
+            <p class="over-sub" id="over-sub"></p>
+            <div class="stat-list" id="over-stats"></div>
+            <div class="row"><button id="btn-again" class="btn primary" data-i18n="again">🔄 再来一局</button></div>
+            <div class="row" style="margin-top:10px"><button id="btn-view" class="btn ghost" data-i18n="view">👀 看棋盘</button><button id="btn-menu" class="btn ghost" data-i18n="menu">菜单</button></div>
           </div>
         </div>
       </div>
-      <div class="toolbar hidden" id="toolbar">
-        <button id="btn-undo" class="t-btn" title="悔棋 (U)" data-i18n="undo">↩ 悔棋</button>
-        <button id="btn-resign" class="t-btn" title="认输" data-i18n="resign">🏳 认输</button>
-        <button id="btn-tomenu" class="t-btn" title="回菜单" data-i18n="tomenu">📋 菜单</button>
+      <div class="toolbar">
+        <div class="status" id="status"></div>
+        <div class="tools">
+          <button id="btn-undo" data-i18n="undo">↶ 悔棋</button>
+          <button id="btn-hint" data-i18n="hint">💡 提示</button>
+          <button id="btn-num" data-i18n="nums">🔢 手数</button>
+          <button id="btn-resign" data-i18n="resign">🏳️ 认输</button>
+          <button id="btn-home" data-i18n="home">☰</button>
+        </div>
       </div>
     </div>
+
     <aside class="side">
       <div class="card"><h4 data-i18n="opTitle">🎮 操作</h4><ul>
-        <li data-i18n="op1">点击棋盘交叉点落子</li><li><kbd>U</kbd> <span data-i18n="undoKw">悔棋</span> · <kbd>R</kbd> <span data-i18n="rematchKw">重开</span> · <kbd>M</kbd> <span data-i18n="muteKw">静音</span></li>
-        <li data-i18n="op3">AI 对局中轮到你时再落子</li></ul></div>
-      <div class="card"><h4 data-i18n="ruleTitle">📏 规则</h4><ul class="medals">
-        <li data-i18n="rule1">⚫ 黑先白后，横竖斜连成五即胜</li>
-        <li data-i18n="rule2">🚫 禁手仅判黑方，白方无禁手</li>
-        <li data-i18n="rule3">🤝 棋盘下满且无人连五则和棋</li></ul></div>
-      <div class="card diff"><h4 data-i18n="tipTitle">💡 取胜诀窍</h4>
-        <p data-i18n="tipBody">活三不慌，活四必赢！进攻时多造双三，AI 再聪明也堵不住两个口。</p></div>
+        <li data-i18n="op1">点击棋盘交叉点落子，鼠标悬停会显示落点预览</li>
+        <li data-i18n="op2">悔棋 U / Ctrl+Z · 提示 H · 显示手数 N</li>
+        <li data-i18n="op3">💡 提示会用绿色光圈标出推荐落点</li>
+        <li><kbd>M</kbd> <span data-i18n="muteKw">静音</span> · <span data-i18n="op4">红点标记最后一手</span></li>
+      </ul></div>
+      <div class="card"><h4 data-i18n="dexTitle">📖 棋形图鉴</h4>
+        <div class="dex">
+          <div class="ic">5️⃣</div><span data-i18n="i1">连五：同色五子连成一线，立即获胜</span>
+          <div class="ic">🔥</div><span data-i18n="i2">活四：两端都空的四子，对方再也堵不住</span>
+          <div class="ic">⚡</div><span data-i18n="i3">冲四：只差一子成五，对方必须马上堵</span>
+          <div class="ic">🌱</div><span data-i18n="i4">活三：两端开放的三子，下一步可成活四</span>
+          <div class="ic">🚫</div><span data-i18n="i5">禁手（仅黑方）：三三、四四、长连（六子以上）都算犯规</span>
+        </div>
+      </div>
+      <div class="card diff"><h4 data-i18n="tipTitle">🧠 对弈秘诀</h4>
+        <p data-i18n="tipBody">黑棋先手有优势，所以连珠规则给黑方加了禁手。进攻时制造“四三”——一步同时形成冲四和活三，对方只能堵一个。防守时先堵对方的活三，再看冲四。开局别离天元太远，棋子越集中，连线机会越多。</p></div>
     </aside>
   </section>
-  <details class="card seo-about"><summary data-i18n="aboutTitle">📖 关于这款游戏</summary><p data-i18n="aboutBody">五颗棋子连成一条线就赢！双人对战或挑战电脑 浏览器打开即玩，支持键盘和触屏，无需下载安装，完全免费。</p></details>
 
-  <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏</footer>
+  <details class="card seo-about"><summary data-i18n="aboutTitle">📖 关于这款游戏</summary><p data-i18n="aboutBody">五子棋网页版使用 15×15 标准棋盘，黑先白后，横、竖、斜任一方向先连成五子者获胜。人机模式提供入门、进阶、大师三档 AI，采用五元组评估与 Alpha-Beta 迭代加深搜索，会进攻也会防守；双人模式可以和朋友同屏对弈。可选连珠禁手规则（黑方三三、四四、长连判负手），界面会标出禁手点。支持执黑或执白、悔棋、落点提示、显示手数、落子动画和五连发光庆祝，完全免费。</p></details>
+  <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 人机 / 双人</footer>
 </main>
-<script src="../assets/i18n.js?v=20260915"></script>
+<script src="../assets/i18n.js?v=20261015"></script>
 <script>
 window.GAME_STR = {
   zh: {
-    title: '五子棋 · 经典桌游', name: '五子棋', subtitle: '经典桌游',
-    intro: '五颗棋子连成一条线就赢！双人对战或挑战电脑',
-    modePvp: '👥 双人对战', modeAi0: '🤖 AI 简单', modeAi1: '🧠 AI 普通', modeAi2: '👹 AI 困难',
-    me: '我方', optBlack: '⚫ 执黑先行', optWhite: '⚪ 执白后行',
-    forbidLabel: '黑棋禁手（三三/四四/长连）',
-    stB: '🏆 黑胜', stW: '白胜', stD: '和',
-    retry: '🔄 再来一局 (R)', menu: '菜单',
-    undo: '↩ 悔棋', resign: '🏳 认输', tomenu: '📋 菜单',
-    undoTitle: '悔棋 (U)', resignTitle: '认输', tomenuTitle: '回菜单',
-    opTitle: '🎮 操作', op1: '点击棋盘交叉点落子',
-    undoKw: '悔棋', rematchKw: '重开', muteKw: '静音', op3: 'AI 对局中轮到你时再落子',
-    ruleTitle: '📏 规则', rule1: '⚫ 黑先白后，横竖斜连成五即胜', rule2: '🚫 禁手仅判黑方，白方无禁手', rule3: '🤝 棋盘下满且无人连五则和棋',
-    tipTitle: '💡 取胜诀窍', tipBody: '活三不慌，活四必赢！进攻时多造双三，AI 再聪明也堵不住两个口。',
-    footer: '🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏',
-    muteTitle: '声音开 / 关 (M)',
-    forbidLong: '长连禁手', forbid44: '四四禁手', forbid33: '三三禁手',
-    forbidHint: f => f + '，换个位置吧',
-    drawTitle: '🤝 和棋！', winBlack: '⚫ 黑方获胜！', winWhite: '⚪ 白方获胜！',
-    overSub: (n, extra) => '共 ' + n + ' 手' + extra,
-    extraYou: ' · 你赢了 🎉', extraAi: ' · AI 获胜，再接再厉！',
-    hudBlack: '⚫ 黑方', hudWhite: '⚪ 白方', hudMove: '行棋', hudThinking: '（AI 思考中…）',
-    hudMoves: n => '第 ' + n + ' 手',
+    title: '五子棋 · 黑白对弈', name: '五子棋', subtitle: '黑白对弈', intro: '横、竖、斜任意方向连成五子即获胜。挑战三档电脑，或和朋友同屏对弈。',
+    mAi: '🤖 人机对战', mPvp: '👥 双人对弈', sBlack: '⚫ 执黑先手', sWhite: '⚪ 执白后手', lv0: '🌱 入门', lv1: '⚔️ 进阶', lv2: '🔥 大师', lvNames: ['入门', '进阶', '大师'], pickRule: '规则', rFree: '自由五子', rRenju: '🚫 连珠禁手',
+    start: '▶ 开始对局', again: '🔄 再来一局', view: '👀 看棋盘', menu: '菜单', undo: '↶ 悔棋', hint: '💡 提示', nums: '🔢 手数', resign: '🏳️ 认输', home: '☰', muteKw: '静音',
+    opTitle: '🎮 操作', op1: '点击棋盘交叉点落子，鼠标悬停会显示落点预览', op2: '悔棋 U / Ctrl+Z · 提示 H · 显示手数 N', op3: '💡 提示会用绿色光圈标出推荐落点', op4: '红点标记最后一手',
+    dexTitle: '📖 棋形图鉴', i1: '连五：同色五子连成一线，立即获胜', i2: '活四：两端都空的四子，对方再也堵不住', i3: '冲四：只差一子成五，对方必须马上堵', i4: '活三：两端开放的三子，下一步可成活四', i5: '禁手（仅黑方）：三三、四四、长连（六子以上）都算犯规',
+    tipTitle: '🧠 对弈秘诀', tipBody: '黑棋先手有优势，所以连珠规则给黑方加了禁手。进攻时制造“四三”——一步同时形成冲四和活三，对方只能堵一个。防守时先堵对方的活三，再看冲四。开局别离天元太远，棋子越集中，连线机会越多。',
     aboutTitle: '📖 关于这款游戏',
-    aboutBody: '五颗棋子连成一条线就赢！双人对战或挑战电脑 浏览器打开即玩，支持键盘和触屏，无需下载安装，完全免费。',
+    aboutBody: '五子棋网页版使用 15×15 标准棋盘，黑先白后，横、竖、斜任一方向先连成五子者获胜。人机模式提供入门、进阶、大师三档 AI，采用五元组评估与 Alpha-Beta 迭代加深搜索，会进攻也会防守；双人模式可以和朋友同屏对弈。可选连珠禁手规则（黑方三三、四四、长连判负手），界面会标出禁手点。支持执黑或执白、悔棋、落点提示、显示手数、落子动画和五连发光庆祝，完全免费。',
+    footer: '🕹️ 打开即玩 · 完全免费 · 人机 / 双人', muteTitle: '声音开 / 关 (M)',
+    stMenu: '选择模式开始对局', blackTurn: '黑方落子', whiteTurn: '白方落子', yourTurn: '轮到你了', thinking: '电脑思考中',
+    youWin: '你赢了！', aiWin: '电脑获胜', blackWin: '黑方胜', whiteWin: '白方胜', draw: '和棋',
+    whyFive: '五子连珠！', whyResign: '一方认输', whyFull: '棋盘已满', forbidden: '🚫 这是禁手点（三三 / 四四 / 长连）',
+    stMoves: '总手数', stTime: '用时', stRec: lv => lv + '战绩（胜 / 负）', menuRec: w => '🏆 累计胜局 ' + w, resignAsk: '确定认输吗？'
   },
   en: {
-    title: 'Gomoku · Classic Board Game', name: 'Gomoku', subtitle: 'Classic Board Game',
-    intro: 'Get 5 in a row to win — play a friend or the computer',
-    modePvp: '👥 2 Players', modeAi0: '🤖 AI Easy', modeAi1: '🧠 AI Normal', modeAi2: '👹 AI Hard',
-    me: 'Play as', optBlack: '⚫ Black (first)', optWhite: '⚪ White (second)',
-    forbidLabel: 'Black forbidden moves (3×3 / 4×4 / overline)',
-    stB: '🏆 Black', stW: 'White', stD: 'Draw',
-    retry: '🔄 Play Again (R)', menu: 'Menu',
-    undo: '↩ Undo', resign: '🏳 Resign', tomenu: '📋 Menu',
-    undoTitle: 'Undo (U)', resignTitle: 'Resign', tomenuTitle: 'Back to menu',
-    opTitle: '🎮 Controls', op1: 'Click an intersection to place a stone',
-    undoKw: 'Undo', rematchKw: 'Restart', muteKw: 'Mute', op3: 'In AI games, move when it is your turn',
-    ruleTitle: '📏 Rules', rule1: '⚫ Black first, five in a row (any direction) wins', rule2: '🚫 Forbidden moves apply to Black only', rule3: '🤝 Full board with no five is a draw',
-    tipTitle: '💡 Winning Tips', tipBody: "A live three is fine, a live four is unstoppable! Build double-threes on attack — even the AI can't block both ends.",
-    footer: '🕹️ Play instantly · Free · Keyboard & touch friendly',
-    muteTitle: 'Sound on/off (M)',
-    forbidLong: 'Overline forbidden', forbid44: 'Double-four forbidden', forbid33: 'Double-three forbidden',
-    forbidHint: f => f + ', try another spot',
-    drawTitle: '🤝 Draw!', winBlack: '⚫ Black wins!', winWhite: '⚪ White wins!',
-    overSub: (n, extra) => n + ' moves' + extra,
-    extraYou: ' · You win! 🎉', extraAi: ' · AI wins, try again!',
-    hudBlack: '⚫ Black', hudWhite: '⚪ White', hudMove: ' to move', hudThinking: ' (AI thinking…)',
-    hudMoves: n => 'Move ' + n,
+    title: 'Gomoku · Five in a Row', name: 'GOMOKU', subtitle: 'Five in a Row', intro: 'Get five in a row — horizontally, vertically or diagonally. Challenge three AI levels or play a friend.',
+    mAi: '🤖 vs Computer', mPvp: '👥 2 Players', sBlack: '⚫ Black (first)', sWhite: '⚪ White', lv0: '🌱 Beginner', lv1: '⚔️ Advanced', lv2: '🔥 Master', lvNames: ['Beginner', 'Advanced', 'Master'], pickRule: 'RULES', rFree: 'Freestyle', rRenju: '🚫 Renju',
+    start: '▶ Start Game', again: '🔄 Play Again', view: '👀 View Board', menu: 'Menu', undo: '↶ Undo', hint: '💡 Hint', nums: '🔢 Numbers', resign: '🏳️ Resign', home: '☰', muteKw: 'mute',
+    opTitle: '🎮 Controls', op1: 'Click an intersection to place a stone; hovering shows a preview', op2: 'Undo U / Ctrl+Z · Hint H · Move numbers N', op3: '💡 Hints mark the suggested point with a green ring', op4: 'The red dot marks the last move',
+    dexTitle: '📖 Shapes', i1: 'Five: five in a line — instant win', i2: 'Open four: four with both ends open — unstoppable', i3: 'Four: one move from five — must be blocked now', i4: 'Open three: three with open ends, becomes an open four next move', i5: 'Forbidden (Black only): double-three, double-four and overlines (6+)',
+    tipTitle: '🧠 Strategy Tips', tipBody: 'Black moves first and has the edge, which is why Renju gives Black forbidden moves. Attack with a "four-three": one move making a four and an open three at once — your opponent can only block one. On defense, stop open threes before they grow. Stay near the center early: the closer your stones, the more lines you threaten.',
     aboutTitle: '📖 About this game',
-    aboutBody: 'Get 5 in a row to win — play a friend or the computer Play instantly in your browser — keyboard and touch supported, no download needed, completely free.',
+    aboutBody: 'Gomoku online on a standard 15×15 board: Black moves first, and the first to get five in a row horizontally, vertically or diagonally wins. Play the computer at Beginner, Advanced or Master — the AI uses five-tuple evaluation with iterative-deepening alpha-beta search and both attacks and defends — or play a friend on the same screen. Optional Renju rules forbid Black\'s double-threes, double-fours and overlines, with forbidden points marked on the board. Play Black or White, undo, ask for hints, show move numbers, and enjoy stone-drop animations and a glowing five-in-a-row celebration.',
+    footer: '🕹️ Play instantly · Free · vs AI / 2P', muteTitle: 'Sound on/off (M)',
+    stMenu: 'Pick a mode to start', blackTurn: 'Black to move', whiteTurn: 'White to move', yourTurn: 'your turn', thinking: 'Computer is thinking',
+    youWin: 'You win!', aiWin: 'Computer wins', blackWin: 'Black wins', whiteWin: 'White wins', draw: 'Draw',
+    whyFive: 'Five in a row!', whyResign: 'Resignation', whyFull: 'The board is full', forbidden: '🚫 Forbidden point (double-three / double-four / overline)',
+    stMoves: 'Moves', stTime: 'Time', stRec: lv => lv + ' record (W / L)', menuRec: w => '🏆 Total wins ' + w, resignAsk: 'Resign this game?'
   },
   ja: {
-    title: '五目並べ · 定番ボードゲーム', name: '五目並べ', subtitle: '定番ボードゲーム',
-    intro: '石を5つ並べたら勝ち！2人対戦 or コンピュータに挑戦',
-    modePvp: '👥 2人対戦', modeAi0: '🤖 AI やさしい', modeAi1: '🧠 AI ふつう', modeAi2: '👹 AI つよい',
-    me: '自分', optBlack: '⚫ 黒（先手）', optWhite: '⚪ 白（後手）',
-    forbidLabel: '黒の禁手あり（三三/四四/長連）',
-    stB: '🏆 黒勝ち', stW: '白勝ち', stD: '引き分け',
-    retry: '🔄 もう一局 (R)', menu: 'メニュー',
-    undo: '↩ 待った', resign: '🏳 投了', tomenu: '📋 メニュー',
-    undoTitle: '待った (U)', resignTitle: '投了', tomenuTitle: 'メニューへ戻る',
-    opTitle: '🎮 操作', op1: '盤の交点をタップして着手',
-    undoKw: '待った', rematchKw: '再戦', muteKw: 'ミュート', op3: 'AI戦では自分の番に打ってください',
-    ruleTitle: '📏 ルール', rule1: '⚫ 黒先白後、縦横斜め5つ並べば勝ち', rule2: '🚫 禁手は黒のみ、白は対象外', rule3: '🤝 満杯で五連なしなら引き分け',
-    tipTitle: '💡 勝利のコツ', tipBody: '活三はまだ大丈夫、活四はほぼ必勝！攻めるときは三々を狙おう、AIでも両端は止められない。',
-    footer: '🕹️ すぐ遊べる · 完全無料 · キーボード＆タッチ対応',
-    muteTitle: 'サウンド ON/OFF (M)',
-    forbidLong: '長連禁手', forbid44: '四四禁手', forbid33: '三三禁手',
-    forbidHint: f => f + '、別の場所に打ってね',
-    drawTitle: '🤝 引き分け！', winBlack: '⚫ 黒の勝ち！', winWhite: '⚪ 白の勝ち！',
-    overSub: (n, extra) => n + '手' + extra,
-    extraYou: ' · あなたの勝ち 🎉', extraAi: ' · AIの勝ち、次こそ！',
-    hudBlack: '⚫ 黒', hudWhite: '⚪ 白', hudMove: 'の番', hudThinking: '（AI思考中…）',
-    hudMoves: n => n + '手目',
+    title: '五目並べ · 連珠', name: '五目並べ', subtitle: '連珠', intro: '縦・横・斜めのどれかで5つ並べたら勝ち。3段階のAIに挑むか、友達と同じ画面で対局。',
+    mAi: '🤖 AI対戦', mPvp: '👥 2人対局', sBlack: '⚫ 黒（先手）', sWhite: '⚪ 白（後手）', lv0: '🌱 入門', lv1: '⚔️ 中級', lv2: '🔥 名人', lvNames: ['入門', '中級', '名人'], pickRule: 'ルール', rFree: '自由ルール', rRenju: '🚫 連珠（禁手あり）',
+    start: '▶ 対局開始', again: '🔄 もう一局', view: '👀 盤面を見る', menu: 'メニュー', undo: '↶ 待った', hint: '💡 ヒント', nums: '🔢 手数', resign: '🏳️ 投了', home: '☰', muteKw: 'ミュート',
+    opTitle: '🎮 操作', op1: '交点をクリックして石を置く。マウスを乗せるとプレビュー表示', op2: '待った U / Ctrl+Z · ヒント H · 手数表示 N', op3: '💡 ヒントは緑の輪でおすすめの点を表示', op4: '赤い点は最後の一手',
+    dexTitle: '📖 形の図鑑', i1: '五連：同じ色が5つ並べば即勝利', i2: '四（活四）：両端が空いた四。もう止められない', i3: '四（止め四）：あと1手で五。すぐ止める必要あり', i4: '三（活三）：両端が開いた三。次に活四になる', i5: '禁手（黒のみ）：三三・四四・長連（6つ以上）は反則',
+    tipTitle: '🧠 必勝のコツ', tipBody: '先手の黒が有利なので、連珠ルールでは黒に禁手がある。攻めは「四三」——一手で四と活三を同時に作れば相手は片方しか止められない。守りは相手の活三を先に止めよう。序盤は天元の近くで。石が集まるほどラインのチャンスが増える。',
     aboutTitle: '📖 このゲームについて',
-    aboutBody: '石を5つ並べたら勝ち！2人対戦 or コンピュータに挑戦 ブラウザでそのまま遊べます。キーボード・タッチ操作対応、ダウンロード不要・完全無料。',
+    aboutBody: '五目並べのブラウザ版。15×15の標準盤で黒が先手、縦・横・斜めのいずれかに先に5つ並べた方が勝ち。AI対戦は入門・中級・名人の3段階で、五連タプル評価と反復深化アルファベータ探索により攻守ともにこなす。2人対局で友達と同じ画面でも遊べる。連珠ルール（黒の三三・四四・長連を禁手）を選べ、禁手点は盤上に表示。黒・白の選択、待った、ヒント、手数表示、石を置くアニメーションと五連の光る演出つき。完全無料。',
+    footer: '🕹️ すぐ遊べる · 完全無料 · AI / 2人', muteTitle: 'サウンド ON/OFF (M)',
+    stMenu: 'モードを選んで開始', blackTurn: '黒の手番', whiteTurn: '白の手番', yourTurn: 'あなたの番', thinking: 'AI思考中',
+    youWin: 'あなたの勝ち！', aiWin: 'AIの勝ち', blackWin: '黒の勝ち', whiteWin: '白の勝ち', draw: '引き分け',
+    whyFive: '五連完成！', whyResign: '投了', whyFull: '盤が埋まった', forbidden: '🚫 禁手点です（三三 / 四四 / 長連）',
+    stMoves: '総手数', stTime: '時間', stRec: lv => lv + ' 戦績（勝 / 負）', menuRec: w => '🏆 通算勝利 ' + w, resignAsk: '投了しますか？'
   },
   ko: {
-    title: '오목 · 클래식 보드게임', name: '오목', subtitle: '클래식 보드게임',
-    intro: '돌 5개를 연결하면 승리! 친구 또는 컴퓨터와 대결',
-    modePvp: '👥 2인 대결', modeAi0: '🤖 AI 쉬움', modeAi1: '🧠 AI 보통', modeAi2: '👹 AI 어려움',
-    me: '내 돌', optBlack: '⚫ 흑 (선공)', optWhite: '⚪ 백 (후공)',
-    forbidLabel: '흑 금수 있음 (3×3 / 4×4 / 장목)',
-    stB: '🏆 흑승', stW: '백승', stD: '무승부',
-    retry: '🔄 다시 두기 (R)', menu: '메뉴',
-    undo: '↩ 무르기', resign: '🏳 기권', tomenu: '📋 메뉴',
-    undoTitle: '무르기 (U)', resignTitle: '기권', tomenuTitle: '메뉴로 돌아가기',
-    opTitle: '🎮 조작', op1: '보드 교차점을 눌러 착수',
-    undoKw: '무르기', rematchKw: '재대결', muteKw: '음소거', op3: 'AI 대국에서는 차례일 때 두세요',
-    ruleTitle: '📏 규칙', rule1: '⚫ 흑 선공, 가로·세로·대각선 5목이면 승리', rule2: '🚫 금수는 흑에만 적용, 백은 해당 없음', rule3: '🤝 보드 가득 차고 5목 없으면 무승부',
-    tipTitle: '💡 승리 비결', tipBody: '열린 3은 괜찮지만 열린 4는 필승! 공격할 때 3×3을 노리세요 — AI도 양쪽을 다 막진 못해요.',
-    footer: '🕹️ 바로 플레이 · 완전 무료 · 키보드 & 터치 지원',
-    muteTitle: '사운드 켜기/끄기 (M)',
-    forbidLong: '장목 금수', forbid44: '사사 금수', forbid33: '삼삼 금수',
-    forbidHint: f => f + ', 다른 곳에 두세요',
-    drawTitle: '🤝 무승부!', winBlack: '⚫ 흑 승리!', winWhite: '⚪ 백 승리!',
-    overSub: (n, extra) => n + '수' + extra,
-    extraYou: ' · 당신이 이겼어요 🎉', extraAi: ' · AI 승리, 다시 도전!',
-    hudBlack: '⚫ 흑', hudWhite: '⚪ 백', hudMove: ' 차례', hudThinking: ' (AI 생각 중…)',
-    hudMoves: n => n + '수째',
+    title: '오목 · 흑백 대국', name: '오목', subtitle: '흑백 대국', intro: '가로, 세로, 대각선 어느 방향이든 다섯 개를 먼저 이으면 승리. 3단계 AI에 도전하거나 친구와 한 화면에서 대국하세요.',
+    mAi: '🤖 AI 대전', mPvp: '👥 2인 대국', sBlack: '⚫ 흑(선수)', sWhite: '⚪ 백(후수)', lv0: '🌱 입문', lv1: '⚔️ 중급', lv2: '🔥 고수', lvNames: ['입문', '중급', '고수'], pickRule: '규칙', rFree: '자유 오목', rRenju: '🚫 렌주(금수)',
+    start: '▶ 대국 시작', again: '🔄 한 판 더', view: '👀 판 보기', menu: '메뉴', undo: '↶ 무르기', hint: '💡 힌트', nums: '🔢 수순', resign: '🏳️ 기권', home: '☰', muteKw: '음소거',
+    opTitle: '🎮 조작', op1: '교차점을 눌러 돌을 놓고, 마우스를 올리면 미리보기가 보입니다', op2: '무르기 U / Ctrl+Z · 힌트 H · 수순 표시 N', op3: '💡 힌트는 초록 고리로 추천 자리를 표시', op4: '빨간 점은 마지막 수',
+    dexTitle: '📖 모양 도감', i1: '오목: 같은 색 다섯 개가 한 줄이면 즉시 승리', i2: '열린 4: 양끝이 빈 넷, 더는 막을 수 없음', i3: '닫힌 4: 한 수면 다섯, 바로 막아야 함', i4: '열린 3: 양끝이 열린 셋, 다음 수에 열린 4가 됨', i5: '금수(흑만): 삼삼, 사사, 장목(여섯 이상)은 반칙',
+    tipTitle: '🧠 대국 팁', tipBody: '흑이 선수라 유리해서 렌주 규칙은 흑에게 금수를 둡니다. 공격은 "사삼"——한 수로 4와 열린 3을 동시에 만들면 상대는 하나만 막을 수 있어요. 수비는 상대의 열린 3부터 막으세요. 초반엔 천원 근처에 두세요. 돌이 모일수록 줄을 만들 기회가 늘어납니다.',
     aboutTitle: '📖 게임 소개',
-    aboutBody: '돌 5개를 연결하면 승리! 친구 또는 컴퓨터와 대결 브라우저에서 바로 플레이 — 키보드와 터치 지원, 다운로드 불필요, 완전 무료.',
+    aboutBody: '오목 브라우저판. 15×15 표준 판에서 흑이 먼저 두고, 가로·세로·대각선 중 먼저 다섯 개를 이은 쪽이 이깁니다. AI 대전은 입문·중급·고수 3단계로, 오목 5칸 평가와 반복 심화 알파베타 탐색으로 공격과 수비를 모두 합니다. 2인 대국으로 친구와 한 화면에서도 즐길 수 있습니다. 렌주 규칙(흑의 삼삼·사사·장목 금수)을 선택할 수 있고 금수 자리는 판에 표시됩니다. 흑/백 선택, 무르기, 힌트, 수순 표시, 착수 애니메이션과 오목 완성 빛 연출. 완전 무료.',
+    footer: '🕹️ 바로 플레이 · 완전 무료 · AI / 2인', muteTitle: '사운드 켜기/끄기 (M)',
+    stMenu: '모드를 골라 시작하세요', blackTurn: '흑 차례', whiteTurn: '백 차례', yourTurn: '당신 차례', thinking: 'AI 생각 중',
+    youWin: '승리!', aiWin: 'AI 승리', blackWin: '흑 승리', whiteWin: '백 승리', draw: '무승부',
+    whyFive: '오목 완성!', whyResign: '기권', whyFull: '판이 가득 찼습니다', forbidden: '🚫 금수 자리입니다 (삼삼 / 사사 / 장목)',
+    stMoves: '총 수', stTime: '시간', stRec: lv => lv + ' 전적 (승 / 패)', menuRec: w => '🏆 누적 승리 ' + w, resignAsk: '기권하시겠습니까?'
   }
 };
 </script>
-<script src="game.js?v=20260906"></script>
+<script src="../assets/bgm.js?v=20261015"></script>
+<script src="../assets/kit.js?v=20261015"></script>
+<script src="game.js?v=20261015"></script>
 </body>
 </html>

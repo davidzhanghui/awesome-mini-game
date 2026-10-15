@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="description" content="合成大西瓜：投下水果，两个相同的碰在一起就会合成更大的，一路合成大西瓜！别让水果堆过红线。">
+<link rel="canonical" href="https://awesome-mini-game.vercel.app/suika/">
+<link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/suika/">
+<link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/suika/?lang=en">
+<link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/suika/?lang=ja">
+<link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/suika/?lang=ko">
+<link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/suika/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Awesome Mini Game">
+<meta property="og:title" content="合成大西瓜 · 物理合成">
+<meta property="og:description" content="合成大西瓜：投下水果，两个相同的碰在一起就会合成更大的，一路合成大西瓜！别让水果堆过红线。">
+<meta property="og:url" content="https://awesome-mini-game.vercel.app/suika/">
+<meta property="og:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="合成大西瓜 · 物理合成">
+<meta name="twitter:description" content="合成大西瓜：投下水果，两个相同的碰在一起就会合成更大的，一路合成大西瓜！别让水果堆过红线。">
+<meta name="twitter:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "合成大西瓜 · 物理合成",
+  "description": "合成大西瓜：投下水果，两个相同的碰在一起就会合成更大的，一路合成大西瓜！别让水果堆过红线。",
+  "url": "https://awesome-mini-game.vercel.app/suika/",
+  "genre": "物理合成",
+  "gamePlatform": "Web Browser",
+  "inLanguage": ["zh-CN", "en", "ja", "ko"],
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CNY" }
+}
+</script>
+<link rel="icon" href="/favicon.svg" />
+<title>合成大西瓜 · 物理合成</title>
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="../assets/ui.css?v=20260915" />
+<script src="../assets/theme.js"></script>
+</head>
+<body>
+<div class="bg-orbs"><span></span><span></span><span></span></div>
+<main class="page">
+  <header class="brand">
+    <div class="logo">🍉</div>
+    <div>
+      <h1><span data-i18n="name">合成大西瓜</span> <em data-i18n="subtitle">物理合成</em></h1>
+      <p data-i18n="intro">相同水果碰一碰就合成，一路合出大西瓜！</p>
+    </div>
+    <div class="brand-btns">
+      <button id="btn-mute" class="icon-btn" title="声音开 / 关 (M)">🔊</button>
+    </div>
+  </header>
+  <section class="cabinet">
+    <div class="game-frame">
+      <canvas id="game" width="480" height="620"></canvas>
+      <div id="screen-menu" class="screen">
+        <div class="title-badge">WATERMELON</div>
+        <h2 class="game-title" data-i18n="menuTitle">合成大西瓜</h2>
+        <div class="hero-row"><span class="hero">🍇</span><span class="hero f">🍊</span><span class="hero">🍉</span></div>
+        <button id="btn-start" class="btn primary" data-i18n="start">🚀 开始游戏</button>
+        <p class="hint"><kbd>←</kbd><kbd>→</kbd> <span data-i18n="hintMove">移动</span> · <kbd>Space</kbd> <span data-i18n="hintDrop">投放</span></p>
+        <div id="menu-best" class="mini-board">🏆 历史最高：0</div>
+      </div>
+      <div id="screen-over" class="screen dim hidden">
+        <div class="panel pop">
+          <h3 id="over-title" class="over-title">游戏结束</h3>
+          <div id="over-sub" class="over-sub"></div>
+          <div class="row"><button id="btn-retry" class="btn primary" data-i18n="retry">🔄 再来一局 (R)</button><button id="btn-menu" class="btn ghost" data-i18n="menu">菜单</button></div>
+        </div>
+      </div>
+    </div>
+    <aside class="side">
+      <div class="card"><h4 data-i18n="opTitle">🎮 操作</h4><ul>
+        <li data-i18n="op1">🖱️ 鼠标移动瞄准，点击投放</li><li data-i18n="op2">👆 触屏按住拖动，松手投放</li><li><kbd>←</kbd><kbd>→</kbd> <span data-i18n="op3">移动</span> · <kbd>Space</kbd> <span data-i18n="hintDrop">投放</span></li><li><kbd>P</kbd> <span data-i18n="pauseKw">暂停</span> · <kbd>M</kbd> <span data-i18n="muteKw">静音</span></li></ul></div>
+      <div class="card"><h4 data-i18n="goalTitle">🍉 合成图鉴</h4>
+        <p class="chain">🍇 → 🍒 → 🍊 → 🍋 → 🥝 → 🍅 → 🍑 → 🍍 → 🥥 → 🍈 → 🍉</p>
+        <ul class="medals"><li data-i18n="goal1">🍉 两个大西瓜相撞会消失，送你 132 分</li><li data-i18n="goal2">🚨 水果越过红色虚线 2.5 秒即失败</li></ul></div>
+      <div class="card diff"><h4 data-i18n="tipTitle">🧠 合成秘诀</h4>
+        <p data-i18n="tipBody">把大水果堆在一侧角落，小水果往另一边放，按从大到小的顺序排成一排，连锁合成会一路滚下去！</p></div>
+    </aside>
+  </section>
+  <details class="card seo-about"><summary data-i18n="aboutTitle">📖 关于这款游戏</summary><p data-i18n="aboutBody">合成大西瓜网页版：投下水果，两个相同的水果碰在一起会合成更大的水果，从葡萄一路合成大西瓜。真实物理碰撞，浏览器打开即玩，支持鼠标、键盘和触屏，完全免费。</p></details>
+
+  <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持鼠标、键盘和触屏</footer>
+</main>
+<script src="../assets/i18n.js?v=20260915"></script>
+<script>
+window.GAME_STR = {
+  zh: {
+    title: '合成大西瓜 · 物理合成', name: '合成大西瓜', subtitle: '物理合成', menuTitle: '合成大西瓜',
+    intro: '相同水果碰一碰就合成，一路合出大西瓜！',
+    start: '🚀 开始游戏', hintMove: '移动', hintDrop: '投放',
+    retry: '🔄 再来一局 (R)', menu: '菜单',
+    opTitle: '🎮 操作', op1: '🖱️ 鼠标移动瞄准，点击投放', op2: '👆 触屏按住拖动，松手投放', op3: '移动', pauseKw: '暂停', muteKw: '静音',
+    goalTitle: '🍉 合成图鉴', goal1: '🍉 两个大西瓜相撞会消失，送你 132 分', goal2: '🚨 水果越过红色虚线 2.5 秒即失败',
+    tipTitle: '🧠 合成秘诀', tipBody: '把大水果堆在一侧角落，小水果往另一边放，按从大到小的顺序排成一排，连锁合成会一路滚下去！',
+    footer: '🕹️ 打开即玩 · 完全免费 · 支持鼠标、键盘和触屏',
+    muteTitle: '声音开 / 关 (M)', paused: '⏸ 暂停', overTitle: '游戏结束', melon: '🍉 大西瓜！',
+    hudScore: '得分', hudBest: '最高', hudNext: '下一个',
+    best: v => '🏆 历史最高：' + v,
+    overSub: (s, e) => '得分 ' + s + ' · 最大合成 ' + e,
+    aboutTitle: '📖 关于这款游戏',
+    aboutBody: '合成大西瓜网页版：投下水果，两个相同的水果碰在一起会合成更大的水果，从葡萄一路合成大西瓜。真实物理碰撞，浏览器打开即玩，支持鼠标、键盘和触屏，完全免费。',
+  },
+  en: {
+    title: 'Watermelon Merge · Physics', name: 'Watermelon Merge', subtitle: 'Physics Merge', menuTitle: 'MERGE!',
+    intro: 'Bump two matching fruits to merge them — all the way to a watermelon!',
+    start: '🚀 Start Game', hintMove: 'move', hintDrop: 'drop',
+    retry: '🔄 Play Again (R)', menu: 'Menu',
+    opTitle: '🎮 Controls', op1: '🖱️ Move the mouse to aim, click to drop', op2: '👆 Touch & drag to aim, release to drop', op3: 'move', pauseKw: 'pause', muteKw: 'mute',
+    goalTitle: '🍉 Merge Chain', goal1: '🍉 Two watermelons vanish for a 132-point bonus', goal2: '🚨 Fruit above the red line for 2.5s ends the game',
+    tipTitle: '🧠 Merge Tips', tipBody: 'Park big fruits in one corner and small ones on the other side. Line them up from big to small and chain merges will roll down the row!',
+    footer: '🕹️ Play instantly · Free · Mouse, keyboard & touch',
+    muteTitle: 'Sound on/off (M)', paused: '⏸ Paused', overTitle: 'Game Over', melon: '🍉 WATERMELON!',
+    hudScore: 'SCORE', hudBest: 'BEST', hudNext: 'NEXT',
+    best: v => '🏆 Best: ' + v,
+    overSub: (s, e) => 'Score ' + s + ' · Biggest fruit ' + e,
+    aboutTitle: '📖 About this game',
+    aboutBody: 'Watermelon Merge (Suika-style) in your browser: drop fruits, and when two identical fruits touch they merge into a bigger one — from grape all the way to watermelon. Real physics, mouse, keyboard and touch supported, completely free.',
+  },
+  ja: {
+    title: 'スイカゲーム · 物理合体', name: 'スイカゲーム', subtitle: '物理合体', menuTitle: 'スイカゲーム',
+    intro: '同じフルーツをくっつけて合体、目指せスイカ！',
+    start: '🚀 ゲームスタート', hintMove: '移動', hintDrop: '落とす',
+    retry: '🔄 もう一回 (R)', menu: 'メニュー',
+    opTitle: '🎮 操作', op1: '🖱️ マウスで狙ってクリックで落とす', op2: '👆 タッチでドラッグ、離して落とす', op3: '移動', pauseKw: '一時停止', muteKw: 'ミュート',
+    goalTitle: '🍉 合体図鑑', goal1: '🍉 スイカ同士がぶつかると消えて 132 点ボーナス', goal2: '🚨 赤い点線を 2.5 秒超えるとゲームオーバー',
+    tipTitle: '🧠 合体のコツ', tipBody: '大きいフルーツは片隅に、小さいものは反対側へ。大きい順に並べれば連鎖合体が転がっていく！',
+    footer: '🕹️ すぐ遊べる · 完全無料 · マウス・キーボード・タッチ対応',
+    muteTitle: 'サウンド ON/OFF (M)', paused: '⏸ 一時停止中', overTitle: 'ゲームオーバー', melon: '🍉 スイカ！',
+    hudScore: 'スコア', hudBest: '最高', hudNext: 'ネクスト',
+    best: v => '🏆 最高記録：' + v,
+    overSub: (s, e) => 'スコア ' + s + ' · 最大フルーツ ' + e,
+    aboutTitle: '📖 このゲームについて',
+    aboutBody: 'ブラウザで遊べるスイカゲーム風パズル：フルーツを落とし、同じもの同士がくっつくと大きく合体。ブドウからスイカを目指そう。リアルな物理挙動、マウス・キーボード・タッチ対応、完全無料。',
+  },
+  ko: {
+    title: '수박 게임 · 물리 합성', name: '수박 게임', subtitle: '물리 합성', menuTitle: '수박 게임',
+    intro: '같은 과일끼리 부딪히면 합체, 수박까지 가보자!',
+    start: '🚀 게임 시작', hintMove: '이동', hintDrop: '떨어뜨리기',
+    retry: '🔄 다시 하기 (R)', menu: '메뉴',
+    opTitle: '🎮 조작', op1: '🖱️ 마우스로 조준, 클릭해서 떨어뜨리기', op2: '👆 터치로 끌어서 조준, 손 떼면 떨어뜨리기', op3: '이동', pauseKw: '일시정지', muteKw: '음소거',
+    goalTitle: '🍉 합성 도감', goal1: '🍉 수박 두 개가 부딪히면 사라지며 132점 보너스', goal2: '🚨 과일이 빨간 점선을 2.5초 넘으면 게임 오버',
+    tipTitle: '🧠 합성 비결', tipBody: '큰 과일은 한쪽 구석에, 작은 과일은 반대쪽에. 큰 순서대로 줄 세우면 연쇄 합성이 굴러갑니다!',
+    footer: '🕹️ 바로 플레이 · 완전 무료 · 마우스·키보드·터치 지원',
+    muteTitle: '사운드 켜기/끄기 (M)', paused: '⏸ 일시정지', overTitle: '게임 오버', melon: '🍉 수박!',
+    hudScore: '점수', hudBest: '최고', hudNext: '다음',
+    best: v => '🏆 최고 기록: ' + v,
+    overSub: (s, e) => '점수 ' + s + ' · 최대 과일 ' + e,
+    aboutTitle: '📖 게임 소개',
+    aboutBody: '브라우저에서 즐기는 수박 게임: 과일을 떨어뜨리고 같은 과일끼리 닿으면 더 큰 과일로 합체, 포도부터 수박까지! 실제 물리 충돌, 마우스·키보드·터치 지원, 완전 무료.',
+  }
+};
+</script>
+<script src="game.js?v=20261015"></script>
+</body>
+</html>

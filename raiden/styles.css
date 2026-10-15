@@ -1,0 +1,19 @@
+/* ---------- 雷电 ---------- */
+.game-frame { width: min(480px, 94vw, calc((100vh - 120px) * 0.6667)); min-width: 300px; aspect-ratio: 480 / 720; background: #0b1a2c; }
+.game-frame .screen.clear-bg { background: linear-gradient(180deg, rgba(10, 18, 36, .25), rgba(10, 18, 36, .78)) !important; color: #fff; }
+.screen.clear-bg .hint, .screen.clear-bg .seg-label { color: rgba(255, 255, 255, .85) !important; }
+.screen.clear-bg .game-title { color: #fff !important; -webkit-text-fill-color: #fff !important; text-shadow: 0 4px 0 #c0392b, 0 0 30px rgba(255, 120, 60, .6) !important; font-size: 56px; }
+.screen.clear-bg .title-badge { letter-spacing: 9px; }
+.screen.clear-bg .mini-board { background: rgba(0, 0, 0, .35) !important; border-color: rgba(255, 255, 255, .25) !important; color: #ffd84a !important; }
+.screen.clear-bg kbd { background: rgba(255, 255, 255, .15) !important; color: #fff !important; border-color: rgba(255, 255, 255, .35) !important; }
+.game-frame .screen.clear-bg { gap: 10px; justify-content: safe center; }
+.game-frame .level-select { max-width: 420px !important; grid-template-columns: repeat(6, minmax(0, 1fr)) !important; gap: 5px !important; }
+.game-frame .lvl-btn { padding: 5px 2px !important; font-size: 12px !important; }
+.game-frame .lvl-btn small { font-size: 9px !important; }
+.medal-big { font-size: 54px; animation: amg-bob 1.6s ease-in-out infinite; }
+.t-btn { position: absolute; z-index: 12; display: none; border-radius: 50%; border: 2px solid rgba(255, 255, 255, .6); color: #fff; font-weight: 900; font-family: inherit; touch-action: none; }
+body.is-touch .t-btn { display: grid; place-items: center; }
+#t-bomb { right: 14px; bottom: 74px; width: 66px; height: 66px; font-size: 26px; background: rgba(224, 160, 32, .55); }
+#t-pause { right: 14px; top: 40px; width: 40px; height: 40px; font-size: 16px; background: rgba(0, 0, 0, .35); }
+.keys-2p { display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; font-size: 13px; text-align: left; }
+@media (max-width: 520px) { .screen.clear-bg .game-title { font-size: 48px; } }

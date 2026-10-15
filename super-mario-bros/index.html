@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<meta name="description" content="顶砖块吃蘑菇，踩扁乌龟，冲到旗杆就过关！">
+<meta name="description" content="超级马里奥 · 像素大冒险网页版：8 个关卡横跨草原、地下、云端、雪原、夜林与熔岩城堡，吃蘑菇变大、火花发射火球、无敌星、踩乌龟踢龟壳、钻水管进秘密房间，旗杆结算与吊桥 Boss 战，键盘、手柄、触屏都能玩。">
 <link rel="canonical" href="https://awesome-mini-game.vercel.app/super-mario-bros/">
 <link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/super-mario-bros/">
 <link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/super-mario-bros/?lang=en">
@@ -13,356 +13,191 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Awesome Mini Game">
 <meta property="og:title" content="超级马里奥 · 像素大冒险">
-<meta property="og:description" content="顶砖块吃蘑菇，踩扁乌龟，冲到旗杆就过关！">
+<meta property="og:description" content="8 个关卡的像素横版冒险：蘑菇、火花、无敌星、水管暗道、旗杆与城堡 Boss。">
 <meta property="og:url" content="https://awesome-mini-game.vercel.app/super-mario-bros/">
 <meta property="og:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="超级马里奥 · 像素大冒险">
-<meta name="twitter:description" content="顶砖块吃蘑菇，踩扁乌龟，冲到旗杆就过关！">
+<meta name="twitter:description" content="8 个关卡的像素横版冒险：蘑菇、火花、无敌星、水管暗道、旗杆与城堡 Boss。">
 <meta name="twitter:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "VideoGame",
   "name": "超级马里奥 · 像素大冒险",
-  "description": "顶砖块吃蘑菇，踩扁乌龟，冲到旗杆就过关！",
+  "description": "8 个关卡的像素横版冒险：蘑菇、火花、无敌星、水管暗道、旗杆与城堡 Boss。",
   "url": "https://awesome-mini-game.vercel.app/super-mario-bros/",
-  "genre": "像素冒险",
+  "genre": "平台跳跃",
   "gamePlatform": "Web Browser",
-  "inLanguage": [
-    "zh-CN",
-    "en",
-    "ja",
-    "ko"
-  ],
+  "inLanguage": ["zh-CN", "en", "ja", "ko"],
   "isAccessibleForFree": true,
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "CNY"
-  }
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CNY" }
 }
 </script>
 <link rel="icon" href="/favicon.svg" />
 <title>超级马里奥 · 像素大冒险</title>
-<link rel="stylesheet" href="styles.css" />
-<link rel="stylesheet" href="../assets/ui.css?v=20260915" />
+<link rel="stylesheet" href="../assets/game-page.css?v=20261015" />
+<link rel="stylesheet" href="styles.css?v=20261015" />
+<link rel="stylesheet" href="../assets/ui.css?v=20261015" />
 <script src="../assets/theme.js"></script>
 </head>
 <body>
-  <div class="bg-orbs"><span></span><span></span><span></span></div>
+<div class="bg-orbs"><span></span><span></span><span></span></div>
+<main class="page">
+  <header class="brand">
+    <div class="logo">🍄</div>
+    <div>
+      <h1><span data-i18n="name">超级马里奥</span> <em data-i18n="subtitle">像素大冒险</em></h1>
+      <p data-i18n="intro">跑、跳、踩、顶！8 个关卡，从青青草原一路冲进魔王城。</p>
+    </div>
+    <div class="brand-btns">
+      <button id="btn-mute" class="icon-btn">🔊</button>
+    </div>
+  </header>
 
-  <main class="page">
-    <header class="brand">
-      <div class="logo">🍄</div>
-      <div>
-        <h1><span data-i18n="gameTitle">超级马里奥</span> <em data-i18n="subtitle">像素大冒险</em></h1>
-        <p data-i18n="intro">顶砖块吃蘑菇，踩扁乌龟，冲到旗杆就过关！</p>
-      </div>
-      <div class="brand-btns">
-        <button id="btn-theme" class="icon-btn" title="切换白天 / 黑夜">🌙</button>
-        <button id="btn-mute" class="icon-btn" title="声音开 / 关 (M)">🔊</button>
-      </div>
-    </header>
+  <section class="cabinet wide">
+    <div class="col">
+      <div class="game-frame" id="frame">
+        <canvas id="game" class="stage"></canvas>
 
-    <section class="cabinet">
-      <div class="game-frame">
-        <canvas id="game" width="640" height="480"></canvas>
-
-        <button id="btn-pause" class="icon-btn pause-btn hidden" title="暂停 (P)">⏸</button>
-
-        <!-- 主菜单 -->
-        <div id="screen-menu" class="screen">
-          <div class="menu-stack">
-            <div class="title-badge">SUPER</div>
-            <h2 class="game-title" data-i18n="gameTitle">超级马里奥</h2>
-            <p class="pick-hint" data-i18n="pickWorld">选择世界</p>
-            <div id="world-select" class="world-select"></div>
-            <div id="stage-panel" class="stage-panel hidden">
-              <p id="stage-label" class="stage-label"></p>
-              <div id="level-select" class="level-select"></div>
-            </div>
-            <button id="btn-start" class="btn primary" data-i18n="start">🚀 开始冒险</button>
-            <div class="menu-foot">
-              <p class="hint"><span data-i18n="hintA">按</span> <kbd>Z</kbd> / <kbd data-i18n="spc">空格</kbd> <span data-i18n="hintB">跳跃 · 按住</span> <kbd>X</kbd> <span data-i18n="hintC">加速跑</span></p>
-              <div id="menu-best" class="mini-board">🏆 历史最高：0</div>
-            </div>
-          </div>
+        <div id="screen-menu" class="screen clear-bg">
+          <div class="title-badge">PIXEL QUEST</div>
+          <h2 class="game-title" data-i18n="name">超级马里奥</h2>
+          <div class="seg-label" data-i18n="pickWorld">选择关卡</div>
+          <div class="level-select" id="world-pick"></div>
+          <button id="btn-start" class="btn primary" data-i18n="start">▶ 开始冒险</button>
+          <p class="hint"><kbd>←</kbd><kbd>→</kbd> <span data-i18n="hMove">移动</span> · <kbd>Space</kbd>/<kbd>Z</kbd> <span data-i18n="hJump">跳</span> · <kbd>Shift</kbd>/<kbd>X</kbd> <span data-i18n="hRun">冲刺 / 火球</span> · <kbd>↓</kbd> <span data-i18n="hPipe">钻水管</span></p>
+          <div id="menu-best" class="mini-board"></div>
         </div>
 
-        <!-- 暂停 -->
         <div id="screen-pause" class="screen dim hidden">
-          <div class="panel">
-            <h3 data-i18n="paused">⏸ 已暂停</h3>
-            <p data-i18n="pauseTip">喝口水，蘑菇不会跑掉</p>
-            <div class="row">
-              <button id="btn-resume" class="btn primary" data-i18n="resume">继续</button>
-              <button id="btn-quit" class="btn ghost" data-i18n="quitMenu">回菜单</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 过关 -->
-        <div id="screen-clear" class="screen dim hidden">
           <div class="panel pop">
-            <h3 class="clear-title" data-i18n="clearTitle">🏁 过关啦！</h3>
-            <div id="clear-stats" class="stat-list"></div>
-            <div class="row">
-              <button id="btn-next" class="btn primary" data-i18n="nextBtnD">下一关 →</button>
-              <button id="btn-replay" class="btn ghost" data-i18n="replay">重玩本关</button>
-            </div>
+            <h3 data-i18n="paused">⏸ 暂停中</h3>
+            <div class="row" style="margin-top:14px"><button id="btn-resume" class="btn primary" data-i18n="resume">▶ 继续</button><button id="btn-quit" class="btn ghost" data-i18n="menu">菜单</button></div>
           </div>
         </div>
 
-        <!-- 结束 -->
         <div id="screen-over" class="screen dim hidden">
           <div class="panel pop">
+            <div class="medal-big">🍄</div>
             <h3 class="over-title">GAME OVER</h3>
-            <div class="medal">💀</div>
-            <div class="score-row">
-              <div><label data-i18n="scoreLbl">本局得分</label><b id="final-score">0</b></div>
-              <div class="divider"></div>
-              <div><label data-i18n="bestLbl">历史最高</label><b id="final-best">0</b><span id="new-record" class="new-record hidden">NEW!</span></div>
-            </div>
-            <div class="row">
-              <button id="btn-retry" class="btn primary" data-i18n="retry">🔄 再来一局 (R)</button>
-              <button id="btn-menu" class="btn ghost" data-i18n="menu">菜单</button>
-            </div>
+            <div class="stat-list" id="over-stats"></div>
+            <div class="row"><button id="btn-retry" class="btn primary" data-i18n="retry">🔄 从本关再来</button><button id="btn-menu" class="btn ghost" data-i18n="menu">菜单</button></div>
           </div>
         </div>
 
-        <!-- 通关 -->
         <div id="screen-win" class="screen dim hidden">
-          <div class="panel pop win-panel">
-            <h3 class="win-title" data-i18n="winTitle">👑 通关！公主得救啦！</h3>
-            <div class="medal">👸💖🧑‍🔧</div>
-            <div class="score-row">
-              <div><label data-i18n="totalLbl">总分</label><b id="win-score">0</b></div>
-              <div class="divider"></div>
-              <div><label data-i18n="livesLbl">剩余生命</label><b id="win-lives">×3</b></div>
-            </div>
-            <div class="row">
-              <button id="btn-again" class="btn primary" data-i18n="again">🎮 再玩一次</button>
-              <button id="btn-menu2" class="btn ghost" data-i18n="menu">菜单</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 触屏按键 -->
-        <div id="touch" class="touch hidden">
-          <div class="t-left">
-            <button id="t-left" class="t-btn">◀</button>
-            <button id="t-right" class="t-btn">▶</button>
-          </div>
-          <div class="t-right">
-            <button id="t-b" class="t-btn sm">B</button>
-            <button id="t-a" class="t-btn">A</button>
+          <div class="panel pop">
+            <div class="medal-big">👑</div>
+            <h3 class="clear-title" data-i18n="winTitle">冒险完成！</h3>
+            <p class="over-sub" data-i18n="winSub">魔王城已攻陷，蘑菇王国重归和平！</p>
+            <div class="stat-list" id="win-stats"></div>
+            <div class="row"><button id="btn-again" class="btn primary" data-i18n="again">🔄 再玩一遍</button><button id="btn-menu2" class="btn ghost" data-i18n="menu">菜单</button></div>
           </div>
         </div>
       </div>
 
-      <aside class="side">
-        <div class="card">
-          <h4 data-i18n="opTitle">🎮 操作</h4>
-          <ul>
-            <li><kbd>←</kbd><kbd>→</kbd> / <kbd>A</kbd><kbd>D</kbd> <span data-i18n="opMove">移动</span></li>
-            <li><kbd>Z</kbd> / <kbd data-i18n="spc">空格</kbd> / <kbd>↑</kbd> <span data-i18n="opJump">跳跃（按住更高）</span></li>
-            <li><kbd>X</kbd> / <kbd>Shift</kbd> <span data-i18n="opRun">跑步＋火焰射击</span></li>
-            <li><kbd>P</kbd> <span data-i18n="opPause">暂停</span> · <kbd>M</kbd> <span data-i18n="opSound">音效</span> · <kbd>R</kbd> <span data-i18n="opRestart">重开</span></li>
-          </ul>
-        </div>
-        <div class="card">
-          <h4 data-i18n="itemTitle">🍄 道具图鉴</h4>
-          <ul class="medals">
-            <li data-i18n="item1">🍄 蘑菇 — 长大，可顶碎砖块</li>
-            <li data-i18n="item2">🌸 火焰花 — 按 X 发射火球</li>
-            <li data-i18n="item3">⭐ 无敌星 — 10 秒横冲直撞</li>
-            <li data-i18n="item4">💚 绿蘑菇 — 生命 +1</li>
-            <li data-i18n="item5">🪙 金币 — 100 枚=1 条命？不，纯爽</li>
-          </ul>
-        </div>
-        <div class="card diff">
-          <h4 data-i18n="enemyTitle">🐢 敌人手册</h4>
-          <p data-i18n="enemyBody">踩头是王道！乌龟踩一下变壳，再碰踢飞，壳能连撞一片。食人花只能烧，千万别脸接。</p>
-        </div>
-      </aside>
-    </section>
-  <details class="card seo-about"><summary data-i18n="aboutTitle">📖 关于这款游戏</summary><p data-i18n="aboutBody">顶砖块吃蘑菇，踩扁乌龟，冲到旗杆就过关！ 浏览器打开即玩，支持键盘和触屏，无需下载安装，完全免费。</p></details>
+      <div class="pad" id="pad">
+        <div class="grp"><button data-k="l">◀</button><button data-k="d" class="small">▼</button><button data-k="r">▶</button></div>
+        <button id="pad-pause" class="small">⏸</button>
+        <div class="grp"><button data-k="run" class="ab b">B</button><button data-k="jump" class="ab">A</button></div>
+      </div>
+    </div>
 
+    <aside class="side">
+      <div class="card"><h4 data-i18n="opTitle">🎮 操作</h4><ul>
+        <li><kbd>←</kbd><kbd>→</kbd> / <kbd>A</kbd><kbd>D</kbd> <span data-i18n="op1">左右移动</span></li>
+        <li><kbd>Space</kbd> / <kbd>Z</kbd> / <kbd>↑</kbd> <span data-i18n="op2">跳跃（按得越久跳得越高）</span></li>
+        <li><kbd>Shift</kbd> / <kbd>X</kbd> <span data-i18n="op3">按住冲刺，火焰状态下发射火球</span></li>
+        <li><kbd>↓</kbd> <span data-i18n="op4">蹲下 / 钻进水管</span> · <kbd>P</kbd> <span data-i18n="pauseKw">暂停</span></li>
+        <li data-i18n="op5">👆 触屏用下方手柄，🎮 也支持实体手柄</li>
+      </ul></div>
+      <div class="card"><h4 data-i18n="dexTitle">📖 冒险图鉴</h4>
+        <div class="dex">
+          <div class="ic">🍄</div><span data-i18n="d1">超级蘑菇：变大，能顶碎砖块，被碰一下也不会死</span>
+          <div class="ic">🌺</div><span data-i18n="d2">火焰花：按冲刺键发射弹跳火球</span>
+          <div class="ic">⭐</div><span data-i18n="d3">无敌星：10 秒无敌，碰谁谁倒</span>
+          <div class="ic">🐢</div><span data-i18n="d4">乌龟：踩一下缩进壳里，再踢出去横扫一片</span>
+          <div class="ic">🌱</div><span data-i18n="d5">食人花：从水管里冒出，站在管口旁它就不敢出来</span>
+          <div class="ic">🐉</div><span data-i18n="d6">熔岩龙王：碰不得！绕到身后砍断吊桥的斧头</span>
+        </div>
+      </div>
+      <div class="card diff"><h4 data-i18n="tipTitle">🧠 冒险秘诀</h4>
+        <p data-i18n="tipBody">按住冲刺再起跳能跳得更远更高。连续踩敌人不落地，分数会一路翻倍直到 1UP！有些水管按 ↓ 能钻进藏满金币的秘密房间；看似普通的地方也许藏着隐形砖块。跳上旗杆越高，奖励越多。</p></div>
+    </aside>
+  </section>
 
-    <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏</footer>
-  </main>
-
-<script src="../assets/i18n.js?v=20260915"></script>
-<script src="../assets/touch.js?v=20260908"></script>
+  <details class="card seo-about"><summary data-i18n="aboutTitle">📖 关于这款游戏</summary><p data-i18n="aboutBody">超级马里奥 · 像素大冒险是一款致敬经典的网页横版平台跳跃游戏。8 个关卡分为两个世界：青青草原、地下迷宫、云端之路、熔岩城堡、冰雪原野、夜之森林、黄昏飞空和最终的魔王城。吃超级蘑菇变大、火焰花发射火球、无敌星横冲直撞，踩栗子怪、踢龟壳连杀、躲开食人花、炮弹和火棒，钻水管进入秘密金币房间，最后在旗杆和吊桥上结算。手感细致（冲刺加速、长按高跳、土狼时间、顶头修正），支持键盘、手柄和触屏，完全免费。</p></details>
+  <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持键盘、手柄和触屏</footer>
+</main>
+<script src="../assets/i18n.js?v=20261015"></script>
+<script src="../assets/touch.js?v=20261015"></script>
 <script>
 window.GAME_STR = {
   zh: {
-    title: '超级马里奥 · 像素大冒险', subtitle: '像素大冒险', gameTitle: '超级马里奥',
-    intro: '顶砖块吃蘑菇，踩扁乌龟，冲到旗杆就过关！',
-    themeTitle: '切换白天 / 黑夜', musicTitle: '音乐开 / 关', muteTitle: '声音开 / 关 (M)', pauseTitle: '暂停 (P)',
-    pickWorld: '选择世界', start: '🚀 开始冒险',
-    hintA: '按', hintB: '跳跃 · 按住', hintC: '加速跑', spc: '空格',
-    paused: '⏸ 已暂停', pauseTip: '喝口水，蘑菇不会跑掉', resume: '继续', quitMenu: '回菜单',
-    clearTitle: '🏁 过关啦！', nextBtnD: '下一关 →', replay: '重玩本关',
-    scoreLbl: '本局得分', bestLbl: '历史最高', retry: '🔄 再来一局 (R)', menu: '菜单',
-    winTitle: '👑 通关！公主得救啦！', totalLbl: '总分', livesLbl: '剩余生命', again: '🎮 再玩一次',
-    opTitle: '🎮 操作', opMove: '移动', opJump: '跳跃（按住更高）', opRun: '跑步＋火焰射击', opPause: '暂停', opSound: '音效', opRestart: '重开',
-    itemTitle: '🍄 道具图鉴',
-    item1: '🍄 蘑菇 — 长大，可顶碎砖块', item2: '🌸 火焰花 — 按 X 发射火球', item3: '⭐ 无敌星 — 10 秒横冲直撞',
-    item4: '💚 绿蘑菇 — 生命 +1', item5: '🪙 金币 — 100 枚=1 条命？不，纯爽',
-    enemyTitle: '🐢 敌人手册', enemyBody: '踩头是王道！乌龟踩一下变壳，再碰踢飞，壳能连撞一片。食人花只能烧，千万别脸接。',
-    footer: '🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏',
-    worldSubs: ['青青草原', '黄沙荒漠', '落日峡谷', '星空夜路', '冰雪极地', '熔岩火山', '云端天空', '库巴魔城'],
-    worldLevels: [
-      ['晨曦原野', '绿荫小径', '蘑菇丘陵', '城堡前哨'],
-      ['流沙之漠', '仙人掌谷', '烈日险道', '荒漠城堡'],
-      ['彩霞山道', '断崖峡谷', '暮色高桥', '峡谷城堡'],
-      ['萤火小径', '银河高原', '午夜迷道', '暗夜城堡'],
-      ['雪花平原', '冰棱滑道', '暴风雪山', '冰封城堡'],
-      ['火山口径', '熔岩洞窟', '灰烬荒原', '烈焰城堡'],
-      ['棉花云梯', '苍穹浮岛', '旋风气流', '天空城堡'],
-      ['魔城外围', '陷阱回廊', '熔岩大厅', '库巴决战']
-    ],
-    worldTag: n => '世界 ' + n,
-    worldTitle: (n, sub) => '世界 ' + n + ' · ' + sub,
-    stageLabel: (emo, n, sub) => emo + ' 世界 ' + n + ' · ' + sub,
-    levelTitle: (w, name, sub) => w + ' · ' + name + ' ' + sub,
-    best: v => '🏆 历史最高：' + v,
-    clearStats: (name, sub, gained, bonus, coins, lives) =>
-      '<div>🌍 关卡 <b>' + name + ' ' + sub + '</b></div>' +
-      '<div>✨ 本关得分 <b>+' + gained + '</b> · ⏱ 时间奖励 <b>+' + bonus + '</b></div>' +
-      '<div>🪙 金币 <b>+' + coins + '</b> · 💔 剩余生命 <b>×' + lives + '</b></div>',
-    nextBtn: n => '下一关 → ' + n,
-    introSub: (sub, lives) => sub + ' · ❤×' + lives,
+    title: '超级马里奥 · 像素大冒险', name: '超级马里奥', subtitle: '像素大冒险', intro: '跑、跳、踩、顶！8 个关卡，从青青草原一路冲进魔王城。',
+    pickWorld: '选择关卡', start: '▶ 开始冒险', hMove: '移动', hJump: '跳', hRun: '冲刺 / 火球', hPipe: '钻水管', pauseKw: '暂停',
+    paused: '⏸ 暂停中', resume: '▶ 继续', menu: '菜单', retry: '🔄 从本关再来', winTitle: '冒险完成！', winSub: '魔王城已攻陷，蘑菇王国重归和平！', again: '🔄 再玩一遍',
+    opTitle: '🎮 操作', op1: '左右移动', op2: '跳跃（按得越久跳得越高）', op3: '按住冲刺，火焰状态下发射火球', op4: '蹲下 / 钻进水管', op5: '👆 触屏用下方手柄，🎮 也支持实体手柄',
+    dexTitle: '📖 冒险图鉴', d1: '超级蘑菇：变大，能顶碎砖块，被碰一下也不会死', d2: '火焰花：按冲刺键发射弹跳火球', d3: '无敌星：10 秒无敌，碰谁谁倒',
+    d4: '乌龟：踩一下缩进壳里，再踢出去横扫一片', d5: '食人花：从水管里冒出，站在管口旁它就不敢出来', d6: '熔岩龙王：碰不得！绕到身后砍断吊桥的斧头',
+    tipTitle: '🧠 冒险秘诀', tipBody: '按住冲刺再起跳能跳得更远更高。连续踩敌人不落地，分数会一路翻倍直到 1UP！有些水管按 ↓ 能钻进藏满金币的秘密房间；看似普通的地方也许藏着隐形砖块。跳上旗杆越高，奖励越多。',
     aboutTitle: '📖 关于这款游戏',
-    aboutBody: '顶砖块吃蘑菇，踩扁乌龟，冲到旗杆就过关！ 浏览器打开即玩，支持键盘和触屏，无需下载安装，完全免费。',
+    aboutBody: '超级马里奥 · 像素大冒险是一款致敬经典的网页横版平台跳跃游戏。8 个关卡分为两个世界：青青草原、地下迷宫、云端之路、熔岩城堡、冰雪原野、夜之森林、黄昏飞空和最终的魔王城。吃超级蘑菇变大、火焰花发射火球、无敌星横冲直撞，踩栗子怪、踢龟壳连杀、躲开食人花、炮弹和火棒，钻水管进入秘密金币房间，最后在旗杆和吊桥上结算。手感细致（冲刺加速、长按高跳、土狼时间、顶头修正），支持键盘、手柄和触屏，完全免费。',
+    footer: '🕹️ 打开即玩 · 完全免费 · 支持键盘、手柄和触屏', muteTitle: '声音开 / 关 (M)',
+    lvNames: ['青青草原', '地下迷宫', '云端之路', '熔岩城堡', '冰雪原野', '夜之森林', '黄昏飞空', '魔王城'],
+    npcThanks: '谢谢你救了我！\n不过公主在下一座城堡里…', npcFinal: '你打败了熔岩龙王！\n蘑菇王国得救啦！',
+    fromMid: '从中途点继续', stScore: '得分', stWorld: '关卡', stBest: '最高分', stCoins: '金币', stLives: '剩余生命', bestLbl: v => '🏆 最高分 ' + v
   },
   en: {
-    title: 'Super Mario · Pixel Adventure', subtitle: 'Pixel Adventure', gameTitle: 'Super Mario',
-    intro: 'Bump blocks, grab mushrooms, stomp koopas, and reach the flag!',
-    themeTitle: 'Toggle day / night', musicTitle: 'Music on/off', muteTitle: 'Sound on/off (M)', pauseTitle: 'Pause (P)',
-    pickWorld: 'Pick a world', start: '🚀 Start Adventure',
-    hintA: 'Press', hintB: 'to jump · hold', hintC: 'to dash', spc: 'Space',
-    paused: '⏸ Paused', pauseTip: 'Take a sip — the mushrooms will wait', resume: 'Resume', quitMenu: 'Menu',
-    clearTitle: '🏁 Stage Clear!', nextBtnD: 'Next →', replay: 'Replay Stage',
-    scoreLbl: 'Score', bestLbl: 'Best', retry: '🔄 Play Again (R)', menu: 'Menu',
-    winTitle: '👑 You did it! The princess is saved!', totalLbl: 'Score', livesLbl: 'Lives', again: '🎮 Play Again',
-    opTitle: '🎮 Controls', opMove: 'move', opJump: 'jump (hold for higher)', opRun: 'run + fire shots', opPause: 'pause', opSound: 'sound', opRestart: 'restart',
-    itemTitle: '🍄 Item Guide',
-    item1: '🍄 Mushroom — grow big, smash bricks', item2: '🌸 Fire Flower — press X to shoot fireballs', item3: '⭐ Super Star — 10s of mayhem',
-    item4: '💚 1-Up Mushroom — +1 life', item5: '🪙 Coins — 100 for a life? Nah, just fun',
-    enemyTitle: '🐢 Enemy Guide', enemyBody: 'Stomp heads to win! A koopa becomes a shell, kick it to bowl through enemies. Piranha plants only die by fire — never face-tank them.',
-    footer: '🕹️ Play instantly · Free · Keyboard & touch friendly',
-    worldSubs: ['Green Meadow', 'Golden Desert', 'Sunset Canyon', 'Starry Night', 'Frosty Peaks', 'Lava Volcano', 'Cloud Realm', "Bowser's Castle"],
-    worldLevels: [
-      ['Dawn Field', 'Shady Trail', 'Mushroom Hills', 'Castle Outpost'],
-      ['Quicksand Dunes', 'Cactus Valley', 'Scorching Pass', 'Desert Castle'],
-      ['Rosy Ridge', 'Cliff Canyon', 'Twilight Bridge', 'Canyon Castle'],
-      ['Firefly Trail', 'Galaxy Plateau', 'Midnight Maze', 'Night Castle'],
-      ['Snowflake Plains', 'Icicle Slide', 'Blizzard Mount', 'Frozen Castle'],
-      ['Crater Rim', 'Magma Cavern', 'Ash Wastes', 'Inferno Castle'],
-      ['Cotton Cloud Stairs', 'Sky Isles', 'Cyclone Currents', 'Sky Castle'],
-      ['Castle Grounds', 'Trap Corridor', 'Magma Hall', 'Bowser Showdown']
-    ],
-    worldTag: n => 'World ' + n,
-    worldTitle: (n, sub) => 'World ' + n + ' · ' + sub,
-    stageLabel: (emo, n, sub) => emo + ' World ' + n + ' · ' + sub,
-    levelTitle: (w, name, sub) => w + ' · ' + name + ' ' + sub,
-    best: v => '🏆 Best: ' + v,
-    clearStats: (name, sub, gained, bonus, coins, lives) =>
-      '<div>🌍 Stage <b>' + name + ' ' + sub + '</b></div>' +
-      '<div>✨ Stage score <b>+' + gained + '</b> · ⏱ Time bonus <b>+' + bonus + '</b></div>' +
-      '<div>🪙 Coins <b>+' + coins + '</b> · 💔 Lives <b>×' + lives + '</b></div>',
-    nextBtn: n => 'Next → ' + n,
-    introSub: (sub, lives) => sub + ' · ❤×' + lives,
+    title: 'Super Mario · Pixel Adventure', name: 'Super Mario', subtitle: 'Pixel Adventure', intro: 'Run, jump, stomp and bonk! Eight levels from green meadows to the demon castle.',
+    pickWorld: 'CHOOSE A LEVEL', start: '▶ Start Adventure', hMove: 'move', hJump: 'jump', hRun: 'dash / fireball', hPipe: 'enter pipe', pauseKw: 'pause',
+    paused: '⏸ Paused', resume: '▶ Resume', menu: 'Menu', retry: '🔄 Retry Level', winTitle: 'ADVENTURE COMPLETE!', winSub: 'The demon castle has fallen — peace returns to the Mushroom Kingdom!', again: '🔄 Play Again',
+    opTitle: '🎮 Controls', op1: 'move left / right', op2: 'jump (hold for higher)', op3: 'hold to dash; shoots fireballs when fiery', op4: 'crouch / enter pipes', op5: '👆 Touch: use the pad below · 🎮 gamepads work too',
+    dexTitle: '📖 Field Guide', d1: 'Super Mushroom: grow big, smash bricks, survive one hit', d2: 'Fire Flower: press dash to throw bouncing fireballs', d3: 'Starman: 10 seconds of invincibility',
+    d4: 'Koopa: stomp into its shell, then kick it to bowl over enemies', d5: 'Piranha Plant: pops out of pipes — it stays hidden while you stand beside it', d6: 'Lava Dragon King: don’t touch! Get past him and hit the axe',
+    tipTitle: '🧠 Adventure Tips', tipBody: 'Hold dash before jumping to go further and higher. Chain stomps without landing and the points double all the way to a 1UP! Press ↓ on some pipes to find secret coin rooms, and look out for invisible blocks. The higher you grab the flagpole, the bigger the bonus.',
     aboutTitle: '📖 About this game',
-    aboutBody: 'Bump blocks, grab mushrooms, stomp koopas, and reach the flag! Play instantly in your browser — keyboard and touch supported, no download needed, completely free.',
+    aboutBody: 'Super Mario · Pixel Adventure is a free browser platformer inspired by the classics. Eight levels across two worlds — green meadows, underground maze, sky road, lava castle, snowfield, night forest, sunset skyway and the final demon castle. Grow with Super Mushrooms, throw fireballs, go wild with the Starman, stomp Goombas, bowl with Koopa shells and dodge piranha plants, bullets and fire bars. Discover secret pipe rooms and finish on the flagpole or the castle bridge. Tight controls (dash acceleration, variable jump, coyote time, head-bump correction) with keyboard, gamepad and touch support.',
+    footer: '🕹️ Play instantly · Free · Keyboard, gamepad & touch', muteTitle: 'Sound on/off (M)',
+    lvNames: ['Green Meadow', 'Underground', 'Sky Road', 'Lava Castle', 'Snowfield', 'Night Forest', 'Sunset Skyway', 'Demon Castle'],
+    npcThanks: 'Thank you for saving me!\nBut the princess is in another castle…', npcFinal: 'You beat the Lava Dragon King!\nThe kingdom is saved!',
+    fromMid: 'Resuming from checkpoint', stScore: 'Score', stWorld: 'Level', stBest: 'Best', stCoins: 'Coins', stLives: 'Lives left', bestLbl: v => '🏆 Best ' + v
   },
   ja: {
-    title: 'スーパーマリオ · ピクセル冒険', subtitle: 'ピクセル冒険', gameTitle: 'スーパーマリオ',
-    intro: 'ブロックを叩いてキノコを取り、カメを踏んでゴールの旗へ！',
-    themeTitle: '昼 / 夜 切替', musicTitle: '音楽 ON/OFF', muteTitle: 'サウンド ON/OFF (M)', pauseTitle: '一時停止 (P)',
-    pickWorld: 'ワールド選択', start: '🚀 冒険スタート',
-    hintA: '押して', hintB: 'でジャンプ · 長押しで', hintC: 'ダッシュ', spc: 'スペース',
-    paused: '⏸ 一時停止中', pauseTip: 'ひと休み — キノコは逃げない', resume: '再開', quitMenu: 'メニュー',
-    clearTitle: '🏁 クリア！', nextBtnD: '次へ →', replay: 'やり直す',
-    scoreLbl: 'スコア', bestLbl: 'ベスト', retry: '🔄 もう一度 (R)', menu: 'メニュー',
-    winTitle: '👑 クリア！姫を救った！', totalLbl: '合計スコア', livesLbl: '残りライフ', again: '🎮 もう一度遊ぶ',
-    opTitle: '🎮 操作', opMove: '移動', opJump: 'ジャンプ（長押しで高く）', opRun: 'ダッシュ＋ファイア', opPause: '一時停止', opSound: '効果音', opRestart: 'リスタート',
-    itemTitle: '🍄 アイテム図鑑',
-    item1: '🍄 キノコ — 巨大化、レンガ破壊', item2: '🌸 ファイアフラワー — Xで火球発射', item3: '⭐ スーパースター — 10秒無敵',
-    item4: '💚 1UPキノコ — ライフ+1', item5: '🪙 コイン — 100枚で1UP？いや、爽快感',
-    enemyTitle: '🐢 敵図鑑', enemyBody: '頭踏みが基本！カメは甲羅になり、蹴れば一掃できる。パックンフラワーはファイアのみ — 体当たり禁止。',
-    footer: '🕹️ すぐ遊べる · 完全無料 · キーボード＆タッチ対応',
-    worldSubs: ['緑の草原', '黄金砂漠', '夕日渓谷', '星空の夜道', '氷雪極地', '溶岩火山', '雲の天空', 'クッパ魔城'],
-    worldLevels: [
-      ['夜明けの野原', '緑陰の小径', 'キノコの丘', '城前哨'],
-      ['流砂の砂漠', 'サボテン谷', '灼熱の道', '砂漠の城'],
-      ['夕焼け山道', '断崖渓谷', '黄昏の高橋', '渓谷の城'],
-      ['ホタルの小道', '銀河高原', '真夜中の迷路', '暗夜の城'],
-      ['雪の平原', '氷の滑走路', '吹雪の山', '氷結の城'],
-      ['火口の縁', '溶岩洞窟', '灰の荒野', '烈火の城'],
-      ['綿雲の階段', '天空の浮島', '旋風の気流', '天空の城'],
-      ['魔城の外郭', '罠の回廊', '溶岩の大広間', 'クッパ決戦']
-    ],
-    worldTag: n => 'ワールド ' + n,
-    worldTitle: (n, sub) => 'ワールド ' + n + ' · ' + sub,
-    stageLabel: (emo, n, sub) => emo + ' ワールド ' + n + ' · ' + sub,
-    levelTitle: (w, name, sub) => w + ' · ' + name + ' ' + sub,
-    best: v => '🏆 ベスト：' + v,
-    clearStats: (name, sub, gained, bonus, coins, lives) =>
-      '<div>🌍 ステージ <b>' + name + ' ' + sub + '</b></div>' +
-      '<div>✨ ステージ得点 <b>+' + gained + '</b> · ⏱ タイムボーナス <b>+' + bonus + '</b></div>' +
-      '<div>🪙 コイン <b>+' + coins + '</b> · 💔 残りライフ <b>×' + lives + '</b></div>',
-    nextBtn: n => '次へ → ' + n,
-    introSub: (sub, lives) => sub + ' · ❤×' + lives,
+    title: 'スーパーマリオ · ピクセルアドベンチャー', name: 'スーパーマリオ', subtitle: 'ピクセルアドベンチャー', intro: '走って跳んで踏んで叩け！草原から魔王城まで8つのステージ。',
+    pickWorld: 'ステージ選択', start: '▶ 冒険スタート', hMove: '移動', hJump: 'ジャンプ', hRun: 'ダッシュ / ファイア', hPipe: '土管に入る', pauseKw: '一時停止',
+    paused: '⏸ 一時停止中', resume: '▶ 再開', menu: 'メニュー', retry: '🔄 このステージから', winTitle: '冒険クリア！', winSub: '魔王城は陥落、キノコ王国に平和が戻った！', again: '🔄 もう一度',
+    opTitle: '🎮 操作', op1: '左右に移動', op2: 'ジャンプ（長押しで高く）', op3: '押しっぱなしでダッシュ、ファイア状態で火の玉', op4: 'しゃがむ / 土管に入る', op5: '👆 タッチは下のパッド、🎮 ゲームパッド対応',
+    dexTitle: '📖 冒険図鑑', d1: 'スーパーキノコ：大きくなりレンガを壊せる、1回ならやられない', d2: 'ファイアフラワー：ダッシュキーで跳ねる火の玉', d3: 'スター：10秒間無敵、触れた敵を倒す',
+    d4: 'カメ：踏むと甲羅に、蹴れば敵をまとめてなぎ倒す', d5: 'パックンフラワー：土管から出現、横に立つと出てこない', d6: '溶岩竜王：触れたら危険！背後の斧で吊り橋を落とせ',
+    tipTitle: '🧠 冒険のコツ', tipBody: 'ダッシュしながら跳ぶと遠く高く跳べる。着地せずに敵を連続で踏むと得点がどんどん倍に、最後は1UP！一部の土管は↓で金貨だらけの隠し部屋へ。見えないブロックにも注意。旗ポールは高い位置ほど高得点。',
     aboutTitle: '📖 このゲームについて',
-    aboutBody: 'ブロックを叩いてキノコを取り、カメを踏んでゴールの旗へ！ ブラウザでそのまま遊べます。キーボード・タッチ操作対応、ダウンロード不要・完全無料。',
+    aboutBody: 'スーパーマリオ · ピクセルアドベンチャーは名作に敬意を込めたブラウザ向け横スクロールアクション。草原・地下迷宮・雲の道・溶岩城・雪原・夜の森・夕焼けの空・魔王城の8ステージ。キノコで大きく、ファイアフラワーで火の玉、スターで無敵、クリボーを踏みカメの甲羅で連続撃破、パックンフラワーや砲弾やファイアバーをかわし、土管の隠し部屋を探して旗ポールや吊り橋でゴール。ダッシュ加速・長押しジャンプ・コヨーテタイム・頭突き補正など手触りにこだわり、キーボード・ゲームパッド・タッチ対応。完全無料。',
+    footer: '🕹️ すぐ遊べる · 完全無料 · キーボード・パッド・タッチ対応', muteTitle: 'サウンド ON/OFF (M)',
+    lvNames: ['みどりの草原', '地下迷宮', '雲の道', '溶岩城', '雪の原野', '夜の森', '夕焼け空路', '魔王城'],
+    npcThanks: '助けてくれてありがとう！\nでも姫は別の城にいるんだ…', npcFinal: '溶岩竜王を倒した！\nキノコ王国は救われた！',
+    fromMid: '中間地点から再開', stScore: 'スコア', stWorld: 'ステージ', stBest: 'ベスト', stCoins: 'コイン', stLives: '残り人数', bestLbl: v => '🏆 ベスト ' + v
   },
   ko: {
-    title: '슈퍼 마리오 · 픽셀 대모험', subtitle: '픽셀 대모험', gameTitle: '슈퍼 마리오',
-    intro: '블록을 치고 버섯을 먹고 거북이를 밟아 깃발에 도달하세요!',
-    themeTitle: '낮 / 밤 전환', musicTitle: '음악 켜기/끄기', muteTitle: '사운드 켜기/끄기 (M)', pauseTitle: '일시정지 (P)',
-    pickWorld: '월드 선택', start: '🚀 모험 시작',
-    hintA: '누르고', hintB: '로 점프 · 길게 누르면', hintC: '로 대시', spc: '스페이스',
-    paused: '⏸ 일시정지', pauseTip: '잠시 쉬어가세요 — 버섯은 도망가지 않아요', resume: '계속', quitMenu: '메뉴',
-    clearTitle: '🏁 클리어!', nextBtnD: '다음 →', replay: '다시 하기',
-    scoreLbl: '점수', bestLbl: '최고 기록', retry: '🔄 다시 하기 (R)', menu: '메뉴',
-    winTitle: '👑 클리어! 공주를 구했다!', totalLbl: '총점', livesLbl: '남은 목숨', again: '🎮 다시 하기',
-    opTitle: '🎮 조작', opMove: '이동', opJump: '점프(길게 누르면 높이)', opRun: '대시+파이어 사격', opPause: '일시정지', opSound: '효과음', opRestart: '재시작',
-    itemTitle: '🍄 아이템 도감',
-    item1: '🍄 버섯 — 거대화, 벽돌 파괴', item2: '🌸 파이어플라워 — X로 화염탄 발사', item3: '⭐ 슈퍼스타 — 10초 무적',
-    item4: '💚 1UP 버섯 — 목숨 +1', item5: '🪙 코인 — 100개면 1UP? 아니, 그냥 재미',
-    enemyTitle: '🐢 적 도감', enemyBody: '머리 밟기가 정석! 거북이는 등껍질이 되고, 차면 일망타진. 식인꽃은 파이어로만 — 몸으로 받지 마세요.',
-    footer: '🕹️ 바로 플레이 · 완전 무료 · 키보드 & 터치 지원',
-    worldSubs: ['초록 초원', '황금 사막', '석양 협곡', '별빛 밤길', '빙설 극지', '용암 화산', '구름 하늘', '쿠파 마성'],
-    worldLevels: [
-      ['새벽 들판', '그늘 오솔길', '버섯 언덕', '성 앞 전초'],
-      ['유사 사막', '선인장 계곡', '작열의 길', '사막 성'],
-      ['노을 산길', '단애 협곡', '황혼 고가교', '협곡 성'],
-      ['반딧불 오솔길', '은하 고원', '한밤 미로', '암야 성'],
-      ['눈꽃 평원', '고드름 슬라이드', '눈보라 산', '얼음 성'],
-      ['화구 가장자리', '용암 동굴', '잿더미 황야', '화염 성'],
-      ['솜구름 계단', '하늘 부유섬', '회오리 기류', '하늘 성'],
-      ['마성 외곽', '함정 회랑', '용암 대전', '쿠파 결전']
-    ],
-    worldTag: n => '월드 ' + n,
-    worldTitle: (n, sub) => '월드 ' + n + ' · ' + sub,
-    stageLabel: (emo, n, sub) => emo + ' 월드 ' + n + ' · ' + sub,
-    levelTitle: (w, name, sub) => w + ' · ' + name + ' ' + sub,
-    best: v => '🏆 최고 기록: ' + v,
-    clearStats: (name, sub, gained, bonus, coins, lives) =>
-      '<div>🌍 스테이지 <b>' + name + ' ' + sub + '</b></div>' +
-      '<div>✨ 스테이지 점수 <b>+' + gained + '</b> · ⏱ 시간 보너스 <b>+' + bonus + '</b></div>' +
-      '<div>🪙 코인 <b>+' + coins + '</b> · 💔 남은 목숨 <b>×' + lives + '</b></div>',
-    nextBtn: n => '다음 → ' + n,
-    introSub: (sub, lives) => sub + ' · ❤×' + lives,
+    title: '슈퍼 마리오 · 픽셀 어드벤처', name: '슈퍼 마리오', subtitle: '픽셀 어드벤처', intro: '달리고 뛰고 밟고 박치기! 초원에서 마왕성까지 8개 스테이지.',
+    pickWorld: '스테이지 선택', start: '▶ 모험 시작', hMove: '이동', hJump: '점프', hRun: '대시 / 파이어볼', hPipe: '파이프 진입', pauseKw: '일시정지',
+    paused: '⏸ 일시정지', resume: '▶ 계속', menu: '메뉴', retry: '🔄 이 스테이지부터', winTitle: '모험 완료!', winSub: '마왕성이 함락되고 버섯 왕국에 평화가 찾아왔다!', again: '🔄 다시 하기',
+    opTitle: '🎮 조작', op1: '좌우 이동', op2: '점프 (길게 누를수록 높이)', op3: '누른 채 대시, 파이어 상태에서 파이어볼', op4: '앉기 / 파이프 들어가기', op5: '👆 터치는 아래 패드, 🎮 게임패드도 지원',
+    dexTitle: '📖 모험 도감', d1: '슈퍼 버섯: 커져서 벽돌을 깨고, 한 번 맞아도 버틴다', d2: '파이어 플라워: 대시 키로 튕기는 파이어볼', d3: '스타: 10초 무적, 닿는 적은 모두 쓰러진다',
+    d4: '거북이: 밟으면 등껍질로, 차면 적들을 쓸어버린다', d5: '뻐끔플라워: 파이프에서 등장, 옆에 서 있으면 나오지 않는다', d6: '용암 용왕: 닿으면 위험! 뒤쪽 도끼로 다리를 끊어라',
+    tipTitle: '🧠 모험 비결', tipBody: '대시한 채 점프하면 더 멀리, 더 높이 뛴다. 착지하지 않고 연속으로 밟으면 점수가 계속 두 배, 결국 1UP! 일부 파이프는 ↓로 동전 가득한 비밀 방으로. 보이지 않는 블록도 숨어 있다. 깃대는 높이 잡을수록 보너스가 크다.',
     aboutTitle: '📖 게임 소개',
-    aboutBody: '블록을 치고 버섯을 먹고 거북이를 밟아 깃발에 도달하세요! 브라우저에서 바로 플레이 — 키보드와 터치 지원, 다운로드 불필요, 완전 무료.',
+    aboutBody: '슈퍼 마리오 · 픽셀 어드벤처는 명작에 경의를 담은 브라우저 횡스크롤 플랫포머입니다. 초원, 지하 미로, 구름 길, 용암 성, 설원, 밤의 숲, 노을 하늘길, 마왕성까지 8개 스테이지. 슈퍼 버섯으로 커지고 파이어볼을 던지고 스타로 무적 질주, 굼바를 밟고 거북이 등껍질로 연속 처치, 뻐끔플라워·포탄·파이어바를 피하고 파이프 속 비밀 방을 찾아 깃대와 다리에서 골인! 대시 가속, 가변 점프, 코요테 타임, 머리 충돌 보정까지 손맛을 살렸고 키보드·게임패드·터치를 지원합니다. 완전 무료.',
+    footer: '🕹️ 바로 플레이 · 완전 무료 · 키보드·게임패드·터치 지원', muteTitle: '사운드 켜기/끄기 (M)',
+    lvNames: ['푸른 초원', '지하 미로', '구름 길', '용암 성', '설원', '밤의 숲', '노을 하늘길', '마왕성'],
+    npcThanks: '구해 줘서 고마워!\n하지만 공주는 다른 성에 있어…', npcFinal: '용암 용왕을 물리쳤어!\n왕국이 구원받았어!',
+    fromMid: '중간 지점부터 재개', stScore: '점수', stWorld: '스테이지', stBest: '최고', stCoins: '코인', stLives: '남은 목숨', bestLbl: v => '🏆 최고 ' + v
   }
 };
 </script>
-<script src="game.js?v=20260906"></script>
+<script src="../assets/bgm.js?v=20261015"></script>
+<script src="../assets/kit.js?v=20261015"></script>
+<script src="game.js?v=20261015"></script>
 </body>
 </html>

@@ -1,23 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://awesome-mini-game.vercel.app/</loc><lastmod>2026-09-14</lastmod><priority>1.0</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/raiden/</loc><lastmod>2026-09-14</lastmod><priority>0.8</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/tetris/</loc><lastmod>2026-09-14</lastmod><priority>0.8</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/super-mario-bros/</loc><lastmod>2026-09-14</lastmod><priority>0.8</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/tank-battle/</loc><lastmod>2026-09-14</lastmod><priority>0.8</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/chinese-chess/</loc><lastmod>2026-09-14</lastmod><priority>0.7</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/dou-dizhu/</loc><lastmod>2026-09-14</lastmod><priority>0.7</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/gomoku/</loc><lastmod>2026-09-14</lastmod><priority>0.7</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/game-2048/</loc><lastmod>2026-09-14</lastmod><priority>0.8</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/minesweeper/</loc><lastmod>2026-09-14</lastmod><priority>0.8</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/breakout/</loc><lastmod>2026-09-14</lastmod><priority>0.7</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/bubble-dragon/</loc><lastmod>2026-09-14</lastmod><priority>0.7</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/galaga/</loc><lastmod>2026-09-14</lastmod><priority>0.7</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/match3/</loc><lastmod>2026-09-14</lastmod><priority>0.7</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/snake/</loc><lastmod>2026-09-14</lastmod><priority>0.8</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/memory/</loc><lastmod>2026-09-14</lastmod><priority>0.7</priority></url>
+  <url><loc>https://awesome-mini-game.vercel.app/</loc><lastmod>2026-10-15</lastmod><priority>1.0</priority></url>
+  <url><loc>https://awesome-mini-game.vercel.app/raiden/</loc><lastmod>2026-10-15</lastmod><priority>0.8</priority></url>
+  <url><loc>https://awesome-mini-game.vercel.app/tetris/</loc><lastmod>2026-10-15</lastmod><priority>0.8</priority></url>
+  <url><loc>https://awesome-mini-game.vercel.app/super-mario-bros/</loc><lastmod>2026-10-15</lastmod><priority>0.8</priority></url>
+  <url><loc>https://awesome-mini-game.vercel.app/tank-battle/</loc><lastmod>2026-10-15</lastmod><priority>0.8</priority></url>
+  <url><loc>https://awesome-mini-game.vercel.app/chinese-chess/</loc><lastmod>2026-10-15</lastmod><priority>0.7</priority></url>
+  <url><loc>https://awesome-mini-game.vercel.app/dou-dizhu/</loc><lastmod>2026-10-15</lastmod><priority>0.7</priority></url>
+  <url><loc>https://awesome-mini-game.vercel.app/gomoku/</loc><lastmod>2026-10-15</lastmod><priority>0.7</priority></url>
+  <url><loc>https://awesome-mini-game.vercel.app/game-2048/</loc><lastmod>2026-10-15</lastmod><priority>0.8</priority></url>
+  <url><loc>https://awesome-mini-game.vercel.app/minesweeper/</loc><lastmod>2026-10-15</lastmod><priority>0.8</priority></url>
+  <url><loc>https://awesome-mini-game.vercel.app/breakout/</loc><lastmod>2026-10-15</lastmod><priority>0.7</priority></url>
+  <url><loc>https://awesome-mini-game.vercel.app/bubble-dragon/</loc><lastmod>2026-10-15</lastmod><priority>0.7</priority></url>
+  <url><loc>https://awesome-mini-game.vercel.app/galaga/</loc><lastmod>2026-10-15</lastmod><priority>0.7</priority></url>
+  <url><loc>https://awesome-mini-game.vercel.app/match3/</loc><lastmod>2026-10-15</lastmod><priority>0.7</priority></url>
+  <url><loc>https://awesome-mini-game.vercel.app/snake/</loc><lastmod>2026-10-15</lastmod><priority>0.8</priority></url>
+  <url><loc>https://awesome-mini-game.vercel.app/memory/</loc><lastmod>2026-10-15</lastmod><priority>0.7</priority></url>
   <url><loc>https://awesome-mini-game.vercel.app/talking-cat/</loc><lastmod>2026-09-29</lastmod><priority>0.8</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/flappy-bird/</loc><lastmod>2026-09-14</lastmod><priority>0.7</priority></url>
+  <url><loc>https://awesome-mini-game.vercel.app/flappy-bird/</loc><lastmod>2026-10-15</lastmod><priority>0.7</priority></url>
   <url><loc>https://awesome-mini-game.vercel.app/pvz/</loc><lastmod>2026-10-14</lastmod><priority>0.8</priority></url>
   <url><loc>https://awesome-mini-game.vercel.app/tower-defense/</loc><lastmod>2026-10-14</lastmod><priority>0.8</priority></url>
+  <url><loc>https://awesome-mini-game.vercel.app/pacman/</loc><lastmod>2026-10-15</lastmod><priority>0.8</priority></url>
+  <url><loc>https://awesome-mini-game.vercel.app/suika/</loc><lastmod>2026-10-15</lastmod><priority>0.8</priority></url>
+  <url><loc>https://awesome-mini-game.vercel.app/idiom-guess/</loc><lastmod>2026-10-15</lastmod><priority>0.8</priority></url>
+  <url><loc>https://awesome-mini-game.vercel.app/fruit-ninja/</loc><lastmod>2026-10-15</lastmod><priority>0.8</priority></url>
+  <url><loc>https://awesome-mini-game.vercel.app/sokoban/</loc><lastmod>2026-10-15</lastmod><priority>0.8</priority></url>
 </urlset>

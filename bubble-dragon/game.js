@@ -1,471 +1,676 @@
 (() => {
-// 泡泡龙：六角网格 + 瞄准发射 + 边墙反弹 + 3连消 + 孤块掉落 + 天花板下压 + 多关卡
-const STR = window.GAME_STR || { zh: {}, en: {} };
-const T = (k, ...a) => AMG.tf(STR, k, ...a);
-const W = 480, H = 640, R = 17, TOP = 64, BOT = 560, SHOOT_Y = 596;
-const COLS = 13;
-const canvas = document.getElementById('game');
-const ctx = canvas.getContext('2d');
-const $ = id => document.getElementById(id);
-const dpr = Math.min(window.devicePixelRatio || 1, 2);
-canvas.width = W * dpr; canvas.height = H * dpr;
-ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+'use strict';
+// 泡泡龙：偶数行 12 / 奇数行 11 的六边形错位网格；吸附到最近空位；同色洪泛消除 + 悬空检测掉落
+const { $, T } = KIT;
+const store = KIT.store('amg-bubble');
+const W = 480, H = 700, R = 20, D = R * 2, RH = R * Math.sqrt(3), HUD = 48;
+const SX = W / 2, SY = 638, DEADLINE = 588, SPEED = 1150;
+const cv = $('game'), frame = $('frame');
+const ctx = KIT.canvas(cv, W, H);
 
-const COLORS = ['#ff5d5d', '#ffd93d', '#3a8dde', '#5ee66e', '#c86bff', '#ff8c42'];
-const store = {
-  get best() { return +(localStorage.getItem('bubble-best') || 0); },
-  set best(v) { localStorage.setItem('bubble-best', v); },
-  get muted() { return localStorage.getItem('bubble-muted') === '1'; },
-  set muted(v) { localStorage.setItem('bubble-muted', v ? '1' : '0'); }
-};
-let actx = null, muted = store.muted;
-function tone(f, dur, type, vol, slide) {
-  if (muted) return;
-  try {
-    if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
-    if (actx.state === 'suspended') actx.resume();
-    const o = actx.createOscillator(), g = actx.createGain();
-    o.type = type || 'sine'; o.frequency.setValueAtTime(f, actx.currentTime);
-    if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(30, f + slide), actx.currentTime + dur);
-    g.gain.setValueAtTime(vol || .09, actx.currentTime);
-    g.gain.exponentialRampToValueAtTime(.001, actx.currentTime + dur);
-    o.connect(g); g.connect(actx.destination); o.start(); o.stop(actx.currentTime + dur);
-  } catch (e) {}
-}
-const sfx = {
-  shoot: () => tone(600, .1, 'square', .07, 300),
-  bounce: () => tone(400, .06, 'square', .05),
-  stick: () => tone(300, .07, 'triangle', .08),
-  pop: n => { tone(700 + Math.min(n, 8) * 80, .12, 'sine', .1); },
-  drop: () => tone(250, .2, 'sine', .08, -120),
-  win: () => [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => tone(f, .14, 'sine', .09), i * 100)),
-  over: () => [400, 300, 200].forEach((f, i) => setTimeout(() => tone(f, .2, 'sine', .09), i * 140))
-};
-
-const G = {
-  state: 'menu', stage: 1, score: 0, grid: [], rows: 0,
-  angle: -Math.PI / 2, cur: 0, next: 1, flying: null,
-  shots: 0, dropEvery: 6, parts: [], floats: [], msg: '', msgT: 0, aimX: W / 2, aimY: 200
-};
-const rowY = r => TOP + r * R * 1.72 + G.dropOff;
-const colX = (r, c) => R + 4 + c * (R * 2 + 2) + (r % 2 ? R + 1 : 0);
-
-// 30 张手写固定关卡（致敬原版：教学 → 经典造型 → 高密度）
-// 字符：. 空，R红 Y黄 B蓝 G绿 P紫 O橙；偶数行13列，奇数行12列
-const FIXED_STAGES = [
-  ['RRRRRRRRRRRRR', 'RRRRRRRRRRRR', 'RRRRRRRRRRRRR'], // 1 全红教学
-  ['YYYYYYYYYYYYY', 'YYYYYYYYYYYY', 'RRRRRRRRRRRRR', 'RRRRRRRRRRRR'], // 2 双色分层
-  ['RBRBRBRBRBRBR', 'BRBRBRBRBRBR', 'RBRBRBRBRBRBR'], // 3 红蓝相间
-  ['GGGGGGGGGGGGG', 'GYYYYYYYYYYG', 'GYRRRRRRRRYG', 'GYRBBBBBRYG'], // 4 同心框
-  ['..RRRRRRR..', '.RYYYYYYYR.', 'RYBBBBBBBYR', 'RYBGGGGGYBR'], // 5 彩虹山
-  ['BBBBBBBBBBBBB', 'BGGGGGGGGGB', 'BGPPPPPPPGB', 'BGPGOOOGPGB'], // 6 城堡外墙
-  ['.....R.....', '....RRR....', '...RRRRR...', '..RRRRRRR..', '.RRRRRRRRR.'], // 7 箭头向下
-  ['PPPPPPPPPPPPP', 'POOOOOOOOOOP', 'POYYYYYYYOP', 'POYBBBBBYOP', 'POYBGGBGYOP'], // 8 嵌套菱形
-  ['RBYGPRBYGPRBY', 'YGPBRYYGPBR', 'BRYGPBRYGPBR', 'GPBRYGPBRYG'], // 9 彩虹杂烩
-  ['.....GGG.....', '....GGGGG...', '...GGGGGGG..', '..GGGBBBGGG.', '.GGGBBBBBBGG'], // 10 圣诞树
-  ['BBBBB...BBBBB', 'BBBB.....BBB', 'BBB..RRR..BB', 'BB..RRRRR..B'], // 11 双峰夹红
-  ['OOOOOOOOOOOOO', 'ORRRRRRRRRRO', 'ORYBBBBBYRO', 'ORYBGGGBYRO', 'ORYBGPGGBYR'], // 12 火焰纹章
-  ['G.G.G.G.G.G.G', '.P.P.P.P.P.P', 'G.G.G.G.G.G.G', '.P.P.P.P.P.P', 'G.G.G.G.G.G.G'], // 13 棋盘点阵
-  ['....BBBBB....', '...BBYYYBB..', '..BBYYYYYBB.', '..BYYRRRYYB.', '..BYYRRRYYB'], // 14 笑脸
-  ['RRRBBBBBRRRR', 'RRBBBBBBBRBR', 'RBBBBBBBBBR', 'RBBBGGGBBBR', 'RBBBGGGBBBR'], // 15 蓝宝石
-  ['PPPPPPPPPPPPP', 'PBBBBBBBBBBP', 'PBBBBBBBRBBP', 'PBRBGGGBRBP'], // 16 紫框迷宫
-  ['..OOO...OOO..', '.OOOOO.OOOOO', 'OOOOOOOOOOOOO', '.OOOOOOOOOOO', '..OOOOOOO..'], // 17 双环
-  ['YBYBYBYBYBYBY', 'BYBYBYBYBYBY', 'YBYBYBYBYBYBY', 'BYBYBYBYBYBY', 'RBBBBBBBBRBR'], // 18 黄蓝潮+红底
-  ['.....P.....', '....PPP....', '...PPPPP...', '..PPPPPPP..', '.PPPPPPPPP.', 'PPPPPPPPPPP'], // 19 紫三角
-  ['GGGGGGGGGGGGG', 'GRRRRRRRRRRG', 'GRYBBBBBYRR', 'GRYBGGGBYRG', 'GRYBGGGBYRG'], // 20 绿野迷宫
-  ['R............', 'RR..........', 'RRRBBBBBBBBB', 'RRBBBBBBBBBB', 'RBBBBBBBBBBB'], // 21 红色闪电
-  ['PPPPPPPPPPPPP', 'PGGGGGGGGGGP', 'PGYYYYYYYGGP', 'PGYRRRRRYGP', 'PGYRBBBRYGP'], // 22 螺旋（简化）
-  ['OOOOO...OOOOO', 'OOOO.....OOO', 'OOO..GGG..OO', 'OO..GGGGG..O', 'O...GGGGG...'], // 23 橙色峡谷
-  ['BBRBBBRBBBRBB', 'BRBBBRBBBRB', 'RBBBRBBBRBBR', 'BBBRBBBRBBBR'], // 24 红蓝编织
-  ['.....Y.....', '....YYY....', '...YYYYY...', '..YYYBYYY..', '.YYYBBBYYY.', 'YYBBBBBBYY'], // 25 王冠
-  ['GGGGGGGGGGGGG', 'GPPPPPPPPPPG', 'GPORRRRROPOG', 'GPORYBBYROPG', 'GPORYBBYROP'], // 26 终极徽章
-  ['R.Y.B.G.P.O.R', '.O.R.Y.B.G.P', 'P.O.R.Y.B.G.', '.G.P.O.R.Y.B', 'B.G.P.O.R.Y.'], // 27 六色彩虹斜
-  ['.....BBB.....', '....BBBBB...', '...BBRRRBB..', '..BBRRRRRBB.', '..BBRRRRRBB'], // 28 蓝宝石II
-  ['PPPPPPPPPPPPP', 'POOOOOOOOOOP', 'POYGGGGGYOP', 'POYGBBBGYOP', 'POYGBBBGYOP'], // 29 皇冠II
-  ['RRRRRRRRRRRRR', 'RYYYYYYYYYYR', 'RYBBBBBBBYRR', 'RYBGGGGGBYR', 'RYBGPGGPGBY'], // 30 最终堡垒
+const COLORS = ['#ef5b5b', '#f6c445', '#5fbf6a', '#4f9be8', '#a979e0', '#f08a3a'];
+const DARKS = ['#b83a3a', '#c4921d', '#3b8d46', '#2f6fb8', '#7650ad', '#c2621a'];
+// 关卡：颜色数 / 行数 / 形状（是否放泡泡）/ 下压前允许的失误数
+const LV = [
+  { c: 3, rows: 6, s: () => true },
+  { c: 3, rows: 7, s: (r, x) => Math.abs(x - W / 2) < W / 2 - r * 26 + 10 },
+  { c: 4, rows: 6, s: () => true },
+  { c: 4, rows: 8, s: (r, x) => r < 3 || x < 170 || x > 310 },
+  { c: 4, rows: 8, s: (r, x) => Math.abs(x - W / 2) + Math.abs(r - 4) * 38 > 120 || r < 1 },
+  { c: 5, rows: 7, s: () => true },
+  { c: 5, rows: 8, s: (r, x, c) => r < 2 || c % 3 !== 1 },
+  { c: 5, rows: 9, s: (r, x) => r < 2 || ((Math.floor(x / 40) + r) % 4) < 3 },
+  { c: 5, rows: 9, s: () => true },
+  { c: 6, rows: 9, s: (r, x) => Math.abs(x - W / 2) < 70 + Math.abs(r - 4) * 46 },
+  { c: 6, rows: 8, s: () => true },
+  { c: 6, rows: 10, s: (r, x) => r < 3 || x < 130 || x > 350 || (r > 6) }
 ];
-const COLORMAP = { R: 0, Y: 1, B: 2, G: 3, P: 4, O: 5 };
-function genStage(stage) {
-  const fixed = FIXED_STAGES[(stage - 1) % FIXED_STAGES.length];
-  const loop = Math.floor((stage - 1) / FIXED_STAGES.length); // 30关后循环，颜色数+1
-  G.grid = [];
-  G.dropOff = 0;
-  fixed.forEach((line, r) => {
-    const n = r % 2 ? COLS - 1 : COLS;
-    const pad = n - line.length;
-    const left = pad > 0 ? Math.floor(pad / 2) : 0;
-    const aligned = pad > 0 ? ('.'.repeat(left) + line + '.'.repeat(pad - left)) : line.slice(0, n);
-    const row = [];
-    for (let c = 0; c < n; c++) {
-      const ch = aligned[c] || '.';
-      if (ch === '.') { row.push(-1); continue; }
-      let v = COLORMAP[ch];
-      if (v === undefined) v = 0;
-      // 循环轮次：颜色轮转，增加变化
-      if (loop > 0) v = (v + loop) % 6;
-      row.push(v);
-    }
-    G.grid.push(row);
-  });
-  const present = new Set();
-  G.grid.flat().forEach(v => { if (v >= 0) present.add(v); });
-  const arr = [...present];
-  G.cur = arr[Math.random() * arr.length | 0] ?? 0;
-  G.next = arr[Math.random() * arr.length | 0] ?? 0;
-  G.shots = 0;
-  G.dropEvery = Math.max(4, 7 - Math.floor(stage / 4));
+const LV_EMO = ['🌱', '🔻', '🍬', '🏛️', '💠', '🌈', '🧩', '〰️', '🎪', '⏳', '🌋', '👑'];
+
+let mode = 'menu', endless = false, level = 0, pick = 0;
+let grid = [], shift = 0, ceil = 0, topY = HUD, nColors = 3;
+let cur = null, next = null, shot = null, aim = -Math.PI / 2;
+let score = 0, shots = 0, popped = 0, dropped = 0, misses = 0, missLimit = 6, streak = 0, startCount = 0, sinceRow = 0;
+let pops = [], falls = [], texts = [], bestAtStart = 0, warnShown = false;
+const keys = {};
+const parts = new KIT.Particles();
+
+// ---------------- 网格工具 ----------------
+const odd = r => ((r + shift) & 1) === 1;
+const cols = r => (odd(r) ? 11 : 12);
+const cx = (r, c) => R + c * D + (odd(r) ? R : 0);
+const cy = r => topY + R + r * RH;
+function cell(r, c) { return grid[r] && c >= 0 && c < cols(r) ? grid[r][c] : null; }
+function ensureRow(r) { while (grid.length <= r) grid.push(Array(12).fill(null)); }
+function nbrs(r, c) {
+  const o = odd(r) ? 1 : 0;
+  const L = [[r, c - 1], [r, c + 1], [r - 1, c - 1 + o], [r - 1, c + o], [r + 1, c - 1 + o], [r + 1, c + o]];
+  return L.filter(([a, b]) => a >= 0 && b >= 0 && b < cols(a));
 }
-function reset() {
-  G.score = 0; G.stage = 1;
-  G.parts = []; G.floats = []; G.flying = null;
-  G.angle = -Math.PI / 2;
-  genStage(1);
-}
-function neighbors(r, c) {
-  const odd = r % 2 === 1;
-  const d = odd
-    ? [[0, 1], [0, -1], [-1, 0], [-1, 1], [1, 0], [1, 1]]
-    : [[0, 1], [0, -1], [-1, -1], [-1, 0], [1, -1], [1, 0]];
-  const out = [];
-  for (const [dr, dc] of d) {
-    const nr = r + dr, nc = c + dc;
-    if (nr < 0 || nr >= G.grid.length) continue;
-    if (nc < 0 || nc >= G.grid[nr].length) continue;
-    out.push([nr, nc]);
-  }
-  return out;
-}
-function findCluster(r, c) {
-  const color = G.grid[r][c];
-  if (color < 0) return [];
-  const seen = new Set([r + ',' + c]), q = [[r, c]];
-  while (q.length) {
-    const [cr, cc] = q.pop();
-    for (const [nr, nc] of neighbors(cr, cc)) {
-      const k = nr + ',' + nc;
-      if (!seen.has(k) && G.grid[nr][nc] === color) { seen.add(k); q.push([nr, nc]); }
-    }
-  }
-  return [...seen].map(k => k.split(',').map(Number));
-}
-function findFloating() {
-  const connected = new Set(), q = [];
-  if (G.grid.length) {
-    for (let c = 0; c < G.grid[0].length; c++) {
-      if (G.grid[0][c] >= 0) { connected.add('0,' + c); q.push([0, c]); }
-    }
-  }
-  while (q.length) {
-    const [cr, cc] = q.pop();
-    for (const [nr, nc] of neighbors(cr, cc)) {
-      const k = nr + ',' + nc;
-      if (!connected.has(k) && G.grid[nr][nc] >= 0) { connected.add(k); q.push([nr, nc]); }
-    }
-  }
-  const floating = [];
-  G.grid.forEach((row, r) => row.forEach((v, c) => {
-    if (v >= 0 && !connected.has(r + ',' + c)) floating.push([r, c]);
-  }));
-  return floating;
-}
-function attach(r, c, color) {
-  while (G.grid.length <= r) {
-    const nr = G.grid.length;
-    const n = nr % 2 ? COLS - 1 : COLS;
-    G.grid.push(new Array(n).fill(-1));
-  }
-  if (c >= G.grid[r].length) c = G.grid[r].length - 1;
-  if (c < 0) c = 0;
-  G.grid[r][c] = color;
-  sfx.stick();
-  // 消除
-  const cluster = findCluster(r, c);
-  if (cluster.length >= 3) {
-    for (const [cr, cc] of cluster) {
-      burst(colX(cr, cc), rowY(cr), color);
-      G.grid[cr][cc] = -1;
-    }
-    const pts = cluster.length * 10 * G.stage;
-    G.score += pts;
-    float(colX(r, c), rowY(r) - 10, '+' + pts);
-    sfx.pop(cluster.length);
-    // 孤块掉落
-    const floating = findFloating();
-    if (floating.length) {
-      for (const [fr, fc] of floating) {
-        drop(colX(fr, fc), rowY(fr), G.grid[fr][fc]);
-        G.grid[fr][fc] = -1;
+function each(fn) { for (let r = 0; r < grid.length; r++) for (let c = 0; c < cols(r); c++) if (grid[r][c]) fn(grid[r][c], r, c); }
+function count() { let n = 0; each(() => n++); return n; }
+function colorsOnBoard() { const s = new Set(); each(b => { if (b.k === 'n') s.add(b.c); }); return [...s]; }
+
+// 种子随机：同一关每次布局一致；约 1/3 概率沿用左/上邻居颜色，形成成块的色团
+function rng(seed) { let s = seed >>> 0; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); }
+function buildLevel(i) {
+  const L = LV[i], rnd = rng(1000 + i * 7919);
+  grid = []; shift = 0; ceil = 0;
+  for (let r = 0; r < L.rows; r++) {
+    ensureRow(r);
+    for (let c = 0; c < cols(r); c++) {
+      if (!L.s(r, cx(r, c), c)) continue;
+      let col = (rnd() * L.c) | 0;
+      if (rnd() < 0.34) {
+        const left = cell(r, c - 1), up = nbrs(r, c).map(([a, b]) => a < r ? cell(a, b) : null).find(Boolean);
+        const src = rnd() < 0.5 ? left || up : up || left;
+        if (src) col = src.c;
       }
-      const dp = floating.length * 20 * G.stage;
-      G.score += dp;
-      sfx.drop();
+      grid[r][c] = { k: 'n', c: col };
     }
   }
-  // 空行裁剪
-  while (G.grid.length && G.grid[G.grid.length - 1].every(v => v < 0)) G.grid.pop();
-  G.shots++;
-  if (G.shots >= G.dropEvery) {
-    G.shots = 0;
-    G.dropOff += R * 1.72;
-    // 下压后检查失败
-    if (G.grid.length && rowY(G.grid.length - 1) + R >= BOT) { gameOver(); return; }
-  }
-  // 选下一发（只选场上存在的颜色）
-  const present = new Set();
-  G.grid.flat().forEach(v => { if (v >= 0) present.add(v); });
-  if (!present.size) { stageClear(); return; }
-  const arr = [...present];
-  G.cur = G.next !== undefined && present.has(G.next) ? G.next : arr[Math.random() * arr.length | 0];
-  G.next = arr[Math.random() * arr.length | 0];
-  // 失败检查：最低泡泡过线
-  if (G.grid.length && rowY(G.grid.length - 1) + R >= BOT) gameOver();
+  removeFloating(true);
 }
-function burst(x, y, color) {
-  for (let i = 0; i < 8; i++) {
-    const a = Math.random() * 6.28, sp = 60 + Math.random() * 160;
-    G.parts.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, age: 0, life: .5, c: COLORS[color] });
+function randomRow(r) {
+  ensureRow(r);
+  for (let c = 0; c < cols(r); c++) {
+    const prev = cell(r, c - 1);
+    grid[r][c] = { k: 'n', c: prev && Math.random() < 0.45 ? prev.c : (Math.random() * nColors) | 0 };
   }
 }
-function drop(x, y, color) {
-  G.parts.push({ x, y, vx: (Math.random() - .5) * 60, vy: 40, age: 0, life: 1.2, c: COLORS[color], fall: true, r: R - 2 });
+
+// ---------------- 音效 ----------------
+const sfx = {
+  shoot: () => KIT.tone(520, 0.1, { type: 'triangle', vol: 0.06, to: 780 }),
+  bounce: () => KIT.tone(300, 0.04, { type: 'triangle', vol: 0.03 }),
+  stick: () => KIT.tone(180, 0.07, { type: 'sine', vol: 0.06 }),
+  pop: (i, n) => KIT.tone(600 + i * 70 + Math.min(n, 8) * 20, 0.07, { type: 'sine', vol: 0.06, to: 900 + i * 70, delay: i * 0.035 }),
+  drop: () => KIT.arp([880, 740, 620, 520], 0.05, { type: 'triangle', vol: 0.05, dur: 0.12 }),
+  bomb: () => { KIT.noise(0.4, { vol: 0.18, lp: 1300 }); KIT.tone(120, 0.3, { vol: 0.14, to: 50 }); },
+  ceil: () => { KIT.tone(110, 0.25, { type: 'sawtooth', vol: 0.05, to: 70 }); KIT.noise(0.2, { vol: 0.06, lp: 500 }); },
+  swap: () => KIT.tone(700, 0.06, { type: 'sine', vol: 0.05, to: 500 }),
+  clear: () => KIT.arp([523, 659, 784, 1047, 1319], 0.09, { vol: 0.08, dur: 0.22 }),
+  lose: () => KIT.arp([392, 330, 262, 196], 0.15, { type: 'triangle', vol: 0.08, dur: 0.28 })
+};
+
+// ---------------- 泡泡生成 ----------------
+function makeBubble() {
+  const pool = colorsOnBoard();
+  const special = level >= 2 || endless;
+  const r = Math.random();
+  if (special && r < 0.035) return { k: 'bomb', c: -1 };
+  if (special && r < 0.07) return { k: 'rainbow', c: -1 };
+  const list = pool.length ? pool : [...Array(nColors).keys()];
+  return { k: 'n', c: list[(Math.random() * list.length) | 0] };
 }
-function float(x, y, text) { G.floats.push({ x, y, text, age: 0 }); }
-function shoot() {
-  if (G.state !== 'play' || G.flying) return;
-  const sx = W / 2, sy = SHOOT_Y;
-  G.flying = { x: sx, y: sy, vx: Math.cos(G.angle) * 620, vy: Math.sin(G.angle) * 620, color: G.cur };
+// 场上已消失的颜色不再出现在发射器里
+function refreshQueue() {
+  const pool = colorsOnBoard();
+  for (const b of [cur, next]) if (b && b.k === 'n' && pool.length && !pool.includes(b.c)) b.c = pool[(Math.random() * pool.length) | 0];
+}
+
+// ---------------- 开局 ----------------
+function start(i, isEndless) {
+  endless = !!isEndless; level = i;
+  score = shots = popped = dropped = misses = streak = sinceRow = 0;
+  pops = []; falls = []; texts = []; parts.clear(); shot = null; warnShown = false;
+  if (endless) {
+    nColors = 4; grid = []; shift = 0; ceil = 0;
+    for (let r = 0; r < 6; r++) randomRow(r);
+    missLimit = 5;
+    bestAtStart = store.get('best', 0);
+  } else {
+    nColors = LV[i].c;
+    buildLevel(i);
+    missLimit = Math.max(4, 9 - nColors);
+  }
+  topY = HUD + ceil * RH;
+  startCount = count();
+  cur = makeBubble(); next = makeBubble();
+  mode = 'play';
+  hideScreens();
+  KIT.music('jewel-glow');
+}
+
+// ---------------- 发射与吸附 ----------------
+function fire() {
+  if (mode !== 'play' || shot) return;
+  shot = { x: SX, y: SY, vx: Math.cos(aim) * SPEED, vy: Math.sin(aim) * SPEED, b: cur };
+  cur = next; next = makeBubble();
+  shots++;
   sfx.shoot();
 }
-function snapToGrid(x, y) {
-  // 找最近的空格子
-  let best = null, bd = 1e9;
-  for (let r = 0; r < G.grid.length + 1; r++) {
-    const n = r % 2 ? COLS - 1 : COLS;
-    for (let c = 0; c < n; c++) {
-      if (r < G.grid.length && G.grid[r][c] >= 0) continue;
-      const dx = x - colX(r, c), dy = y - rowY(r);
-      const d = dx * dx + dy * dy;
+function swap() {
+  if (mode !== 'play' || shot) return;
+  [cur, next] = [next, cur];
+  sfx.swap();
+}
+
+function collides(x, y) {
+  if (y - R <= topY) return true;
+  const rr = Math.round((y - topY - R) / RH);
+  for (let r = Math.max(0, rr - 1); r <= Math.min(grid.length - 1, rr + 1); r++) {
+    for (let c = 0; c < cols(r); c++) {
+      if (!grid[r][c]) continue;
+      const dx = x - cx(r, c), dy = y - cy(r);
+      if (dx * dx + dy * dy < (D - 6) * (D - 6)) return true;
+    }
+  }
+  return false;
+}
+
+function snap(x, y) {
+  const rr = Math.max(0, Math.round((y - topY - R) / RH));
+  let best = null, bd = Infinity;
+  for (let r = Math.max(0, rr - 1); r <= rr + 1; r++) {
+    for (let c = 0; c < cols(r); c++) {
+      if (cell(r, c)) continue;
+      const supported = r === 0 || nbrs(r, c).some(([a, b]) => cell(a, b));
+      if (!supported) continue;
+      const d = Math.hypot(x - cx(r, c), y - cy(r));
       if (d < bd) { bd = d; best = [r, c]; }
     }
   }
-  return best || [0, 0];
+  return best || [Math.max(0, rr), KIT.clamp(Math.round((x - R) / D), 0, 10)];
 }
-function update(dt) {
-  if (G.state !== 'play') return;
-  for (let i = G.parts.length - 1; i >= 0; i--) {
-    const p = G.parts[i];
-    p.age += dt;
-    if (p.age > p.life) { G.parts.splice(i, 1); continue; }
-    p.x += p.vx * dt; p.y += p.vy * dt;
-    p.vy += (p.fall ? 900 : 300) * dt;
+
+function updateShot(dt) {
+  const n = Math.ceil(SPEED * dt / 6);
+  for (let i = 0; i < n; i++) {
+    shot.x += shot.vx * dt / n; shot.y += shot.vy * dt / n;
+    if (shot.x < R) { shot.x = R; shot.vx = Math.abs(shot.vx); sfx.bounce(); }
+    if (shot.x > W - R) { shot.x = W - R; shot.vx = -Math.abs(shot.vx); sfx.bounce(); }
+    if (collides(shot.x, shot.y)) { land(); return; }
   }
-  for (let i = G.floats.length - 1; i >= 0; i--) {
-    const f = G.floats[i];
-    f.age += dt; f.y -= 50 * dt;
-    if (f.age > 1) G.floats.splice(i, 1);
+}
+
+function land() {
+  const [r, c] = snap(shot.x, shot.y);
+  ensureRow(r);
+  const b = shot.b;
+  shot = null;
+  if (b.k === 'rainbow') {
+    const tally = {};
+    nbrs(r, c).forEach(([a, d]) => { const o = cell(a, d); if (o && o.k === 'n') tally[o.c] = (tally[o.c] || 0) + 1; });
+    const keysT = Object.keys(tally);
+    b.c = keysT.length ? +keysT.sort((p, q) => tally[q] - tally[p])[0] : 0;
+    b.k = 'n';
   }
-  const f = G.flying;
-  if (!f) return;
-  f.x += f.vx * dt; f.y += f.vy * dt;
-  if (f.x < R + 2) { f.x = R + 2; f.vx = -f.vx; sfx.bounce(); }
-  if (f.x > W - R - 2) { f.x = W - R - 2; f.vx = -f.vx; sfx.bounce(); }
-  if (f.y <= rowY(0) + R * .8) {
-    const [r, c] = snapToGrid(f.x, f.y);
-    G.flying = null;
-    attach(Math.max(0, r), c, f.color);
-    return;
+  grid[r][c] = b;
+  b.squish = 1;
+
+  let removed = 0;
+  if (b.k === 'bomb') {
+    sfx.bomb();
+    const x0 = cx(r, c), y0 = cy(r);
+    parts.burst(x0, y0, { n: 36, color: ['#f2b84b', '#e0603a', '#fff2c8'], speed: 320, size: 6, life: 0.7, gravity: 150 });
+    const hit = [];
+    each((o, a, d) => { if (Math.hypot(cx(a, d) - x0, cy(a) - y0) < D * 2.05) hit.push([a, d]); });
+    removed = popCells(hit, x0, y0);
+  } else {
+    const group = flood(r, c);
+    if (group.length >= 3) removed = popCells(group, cx(r, c), cy(r));
+    else sfx.stick();
   }
-  // 碰撞场上泡泡
-  for (let r = 0; r < G.grid.length; r++) {
-    for (let c = 0; c < G.grid[r].length; c++) {
-      if (G.grid[r][c] < 0) continue;
-      const dx = f.x - colX(r, c), dy = f.y - rowY(r);
-      if (dx * dx + dy * dy < (R * 2 - 3) * (R * 2 - 3)) {
-        const [nr, nc] = snapToGrid(f.x, f.y);
-        G.flying = null;
-        attach(nr, nc, f.color);
-        return;
-      }
+
+  if (removed) {
+    streak++;
+    const fell = removeFloating(false);
+    if (streak >= 2) floatText(SX, SY - 120, T('combo', Math.min(streak, 5)), '#f2b84b', 22);
+    const total = removed + fell;
+    if (total >= 8) KIT.toast($('toast'), T('nice')[Math.min(3, Math.floor((total - 8) / 6))]);
+  } else {
+    streak = 0;
+    misses++;
+  }
+
+  if (endless) {
+    sinceRow++;
+    if (misses >= missLimit || sinceRow >= 9) pushRow();
+  } else if (misses >= missLimit) {
+    lowerCeiling();
+  } else if (misses === missLimit - 1 && !warnShown) {
+    warnShown = true;
+    KIT.toast($('toast'), T('warn'));
+  }
+  refreshQueue();
+  checkEnd();
+}
+
+function flood(r, c) {
+  const color = grid[r][c].c, seen = new Set([r + ',' + c]), out = [[r, c]], q = [[r, c]];
+  while (q.length) {
+    const [a, b] = q.pop();
+    for (const [x, y] of nbrs(a, b)) {
+      const o = cell(x, y), key = x + ',' + y;
+      if (!o || seen.has(key) || o.k !== 'n' || o.c !== color) continue;
+      seen.add(key); out.push([x, y]); q.push([x, y]);
     }
   }
-  if (f.y > H - 8) {
-    const [r, c] = snapToGrid(f.x, Math.min(f.y, BOT - R));
-    G.flying = null;
-    attach(r, c, f.color);
+  return out;
+}
+
+function popCells(list, ox, oy) {
+  const mult = 1 + Math.min(streak, 4) * 0.5;
+  list.sort((p, q) => Math.hypot(cx(p[0], p[1]) - ox, cy(p[0]) - oy) - Math.hypot(cx(q[0], q[1]) - ox, cy(q[0]) - oy));
+  list.forEach(([r, c], i) => {
+    const b = grid[r][c];
+    if (!b) return;
+    pops.push({ x: cx(r, c), y: cy(r), b, t: -i * 0.035 });
+    grid[r][c] = null;
+    if (i < 10) sfx.pop(i, list.length);
+  });
+  const n = list.length;
+  popped += n;
+  score += Math.round(n * 10 * mult);
+  return n;
+}
+
+function removeFloating(silent) {
+  const seen = new Set(), q = [];
+  if (grid[0]) for (let c = 0; c < cols(0); c++) if (grid[0][c]) { seen.add('0,' + c); q.push([0, c]); }
+  while (q.length) {
+    const [a, b] = q.pop();
+    for (const [x, y] of nbrs(a, b)) {
+      const key = x + ',' + y;
+      if (!cell(x, y) || seen.has(key)) continue;
+      seen.add(key); q.push([x, y]);
+    }
+  }
+  let n = 0;
+  each((b, r, c) => {
+    if (seen.has(r + ',' + c)) return;
+    if (!silent) falls.push({ x: cx(r, c), y: cy(r), vx: KIT.rand(-60, 60), vy: KIT.rand(-160, -40), b, rot: 0 });
+    grid[r][c] = null; n++;
+  });
+  if (n && !silent) {
+    dropped += n;
+    const pts = n * 20 * (n >= 6 ? 2 : 1);
+    score += pts;
+    floatText(SX, SY - 160, T('drop', pts), '#5fbf6a', 20);
+    setTimeout(sfx.drop, 150);
+  }
+  while (grid.length && grid[grid.length - 1].every(x => !x)) grid.pop();
+  return n;
+}
+
+function lowerCeiling() {
+  misses = 0; warnShown = false;
+  ceil++;
+  sfx.ceil();
+  KIT.toast($('toast'), '⬇️');
+}
+function pushRow() {
+  misses = 0; sinceRow = 0;
+  shift ^= 1;
+  grid.unshift(Array(12).fill(null));
+  randomRow(0);
+  topY -= RH; // 新行从上方滑入
+  nColors = Math.min(6, 4 + Math.floor(shots / 40));
+  sfx.ceil();
+}
+
+function lowestY() {
+  let m = 0;
+  each((b, r) => { m = Math.max(m, HUD + ceil * RH + R + r * RH + R); });
+  return m;
+}
+function checkEnd() {
+  if (mode !== 'play') return;
+  if (!count()) {
+    mode = 'clear';
+    score += 1000 + Math.max(0, startCount - shots) * 15;
+    sfx.clear();
+    for (let k = 0; k < 5; k++) setTimeout(() => parts.burst(KIT.rand(60, W - 60), KIT.rand(140, 340), {
+      n: 24, color: COLORS, shape: 'square', speed: 240, life: 1.2, size: 6, gravity: 300
+    }), k * 130);
+    if (!endless) {
+      const un = store.get('unlocked', 0);
+      if (level + 1 > un && level + 1 < LV.length) store.set('unlocked', level + 1);
+      const stars = shots <= startCount / 2.4 ? 3 : shots <= startCount / 1.6 ? 2 : 1;
+      const sv = store.get('stars', {});
+      if (!sv[level] || sv[level] < stars) { sv[level] = stars; store.set('stars', sv); }
+      setTimeout(() => showPanel(level === LV.length - 1 ? 'win' : 'clear', stars), 900);
+    } else {
+      // 无尽模式清空了：直接再来 6 行
+      setTimeout(() => { for (let r = 0; r < 6; r++) randomRow(r); mode = 'play'; }, 800);
+    }
+    return;
+  }
+  if (lowestY() > DEADLINE) {
+    mode = 'over';
+    sfx.lose();
+    KIT.stopMusic();
+    each((b, r, c) => falls.push({ x: cx(r, c), y: cy(r), vx: KIT.rand(-80, 80), vy: KIT.rand(-200, 0), b, rot: 0, slow: true }));
+    grid = [];
+    if (endless && score > store.get('best', 0)) store.set('best', score);
+    setTimeout(() => showPanel('over'), 1200);
   }
 }
-function stageClear() {
-  G.state = 'clear';
-  const bonus = 500 * G.stage;
-  G.score += bonus;
-  if (G.score > store.best) store.best = G.score;
-  sfx.win();
-  $('clear-lv').textContent = G.stage;
-  $('clear-stats').innerHTML = T('clearStats', bonus, G.score);
-  setTimeout(() => showScreen('clear'), 400);
-}
-function gameOver() {
-  if (G.state !== 'play') return;
-  G.state = 'over';
-  if (G.score > store.best) store.best = G.score;
-  sfx.over();
-  $('over-title').textContent = 'GAME OVER';
-  $('final-score').textContent = G.score;
-  $('final-stage').textContent = G.stage;
-  setTimeout(() => showScreen('over'), 400);
-}
-function showScreen(name) {
-  for (const k of ['screen-menu', 'screen-pause', 'screen-over', 'screen-clear'])
-    $(k).classList.toggle('hidden', k !== 'screen-' + name);
-  if (!name) for (const k of ['screen-menu', 'screen-pause', 'screen-over', 'screen-clear']) $(k).classList.add('hidden');
-}
-function startGame() {
-  reset();
-  G.state = 'play';
-  showScreen(null);
-  $('menu-best').textContent = T('best', Math.max(store.best, G.score));
-}
-function togglePause() {
-  if (G.state === 'play') { G.state = 'pause'; showScreen('pause'); }
-  else if (G.state === 'pause') { G.state = 'play'; showScreen(null); }
-}
 
-canvas.addEventListener('pointermove', e => {
-  const r = canvas.getBoundingClientRect();
-  const px = (e.clientX - r.left) / r.width * W, py = (e.clientY - r.top) / r.height * H;
-  G.aimX = px; G.aimY = py;
-  const a = Math.atan2(py - SHOOT_Y, px - W / 2);
-  G.angle = Math.max(-Math.PI + .15, Math.min(-.15, a));
-});
-canvas.addEventListener('pointerdown', e => {
-  const r = canvas.getBoundingClientRect();
-  const px = (e.clientX - r.left) / r.width * W, py = (e.clientY - r.top) / r.height * H;
-  const a = Math.atan2(py - SHOOT_Y, px - W / 2);
-  G.angle = Math.max(-Math.PI + .15, Math.min(-.15, a));
-  if (G.state === 'play') shoot();
-  else if (G.state === 'pause') togglePause();
-});
-window.addEventListener('keydown', e => {
-  if (e.code === 'ArrowLeft') { e.preventDefault(); G.angle = Math.max(-Math.PI + .15, G.angle - .09); }
-  else if (e.code === 'ArrowRight') { e.preventDefault(); G.angle = Math.min(-.15, G.angle + .09); }
-  else if (e.code === 'Space') { e.preventDefault(); if (G.state === 'play') shoot(); else if (G.state === 'menu') startGame(); }
-  else if (e.code === 'KeyP' || e.code === 'Escape') togglePause();
-  else if (e.code === 'KeyM') toggleMute();
-  else if (e.code === 'KeyR' || e.code === 'Enter') { if (G.state === 'over') startGame(); else if (G.state === 'menu') startGame(); }
-});
-$('btn-start').onclick = () => startGame();
-$('btn-retry').onclick = () => startGame();
-$('btn-next').onclick = () => { G.stage++; genStage(G.stage); G.state = 'play'; showScreen(null); };
-$('btn-menu').onclick = () => { G.state = 'menu'; showScreen('menu'); };
-$('btn-menu2').onclick = () => { G.state = 'menu'; showScreen('menu'); };
-$('btn-resume').onclick = () => togglePause();
-$('btn-quit').onclick = () => { G.state = 'menu'; showScreen('menu'); };
-function toggleMute() {
-  muted = !muted; store.muted = muted;
-  $('btn-mute').textContent = muted ? '🔇' : '🔊';
-}
-$('btn-mute').onclick = toggleMute;
-$('btn-mute').textContent = muted ? '🔇' : '🔊';
-// i18n boot: static DOM + dynamic boot texts
-window.__refreshLang = function () {
-  AMG.apply(STR);
-  $('btn-mute').title = T('muteTitle');
-  $('menu-best').textContent = T('best', store.best);
-};
-AMG.mountBtn();
-window.__refreshLang();
+function floatText(x, y, s, color, size) { texts.push({ x, y, s, color, size: size || 18, age: 0, life: 1.1 }); }
 
-function drawBall(x, y, color, ghost) {
-  const g = ctx.createRadialGradient(x - 5, y - 6, 2, x, y, R);
-  g.addColorStop(0, '#fff');
-  g.addColorStop(.35, COLORS[color]);
-  g.addColorStop(1, ghost ? '#555' : COLORS[color]);
-  ctx.fillStyle = g;
-  ctx.globalAlpha = ghost ? .5 : 1;
-  ctx.beginPath(); ctx.arc(x, y, R - 1, 0, 7); ctx.fill();
+// ---------------- 绘制 ----------------
+const sprite = {};
+function bubbleSprite(key, draw) {
+  if (sprite[key]) return sprite[key];
+  const dpr = Math.min(window.devicePixelRatio || 1, 2), s = Math.ceil((D + 4) * dpr);
+  const c = document.createElement('canvas'); c.width = c.height = s;
+  const g = c.getContext('2d'); g.scale(dpr, dpr); g.translate(R + 2, R + 2);
+  draw(g);
+  return (sprite[key] = c);
+}
+const GLYPH = [
+  g => { g.beginPath(); g.arc(0, 0, 5, 0, 7); g.fill(); },
+  g => { star(g, 6.5, 2.8); },
+  g => { g.beginPath(); g.moveTo(0, -6); g.lineTo(6, 4); g.lineTo(-6, 4); g.closePath(); g.fill(); },
+  g => { g.fillRect(-5, -5, 10, 10); },
+  g => { g.beginPath(); g.moveTo(0, -6.5); g.lineTo(6, 0); g.lineTo(0, 6.5); g.lineTo(-6, 0); g.closePath(); g.fill(); },
+  g => { g.beginPath(); g.arc(-2.5, -1, 3.2, 0, 7); g.arc(2.5, -1, 3.2, 0, 7); g.moveTo(-5.6, 0); g.lineTo(0, 6); g.lineTo(5.6, 0); g.fill(); }
+];
+function star(g, ro, ri) {
+  g.beginPath();
+  for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? ri : ro; g.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); }
+  g.closePath(); g.fill();
+}
+function getSprite(b) {
+  if (b.k === 'bomb') return bubbleSprite('bomb', g => {
+    const gr = g.createRadialGradient(-6, -6, 2, 0, 0, R);
+    gr.addColorStop(0, '#6b625a'); gr.addColorStop(1, '#2a241f');
+    g.fillStyle = gr; g.beginPath(); g.arc(0, 0, R - 1, 0, 7); g.fill();
+    g.fillStyle = '#f2b84b'; g.font = 'bold 15px system-ui'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('💣', 0, 1);
+  });
+  if (b.k === 'rainbow') return bubbleSprite('rainbow', g => {
+    COLORS.forEach((col, i) => { g.fillStyle = col; g.beginPath(); g.moveTo(0, 0); g.arc(0, 0, R - 1, i * Math.PI / 3, (i + 1) * Math.PI / 3); g.fill(); });
+    g.fillStyle = 'rgba(255,255,255,.55)'; g.beginPath(); g.arc(0, 0, R * 0.45, 0, 7); g.fill();
+    g.fillStyle = 'rgba(255,255,255,.7)'; g.beginPath(); g.ellipse(-7, -8, 6, 3.5, -0.6, 0, 7); g.fill();
+  });
+  return bubbleSprite('n' + b.c, g => {
+    const gr = g.createRadialGradient(-6, -7, 2, 0, 0, R);
+    gr.addColorStop(0, '#ffffff'); gr.addColorStop(0.25, COLORS[b.c]); gr.addColorStop(1, DARKS[b.c]);
+    g.fillStyle = gr; g.beginPath(); g.arc(0, 0, R - 1, 0, 7); g.fill();
+    g.fillStyle = 'rgba(255,255,255,.28)'; GLYPH[b.c](g);
+    g.fillStyle = 'rgba(255,255,255,.75)'; g.beginPath(); g.ellipse(-7, -9, 5.5, 3, -0.6, 0, 7); g.fill();
+  });
+}
+function drawBubble(b, x, y, scale, alpha) {
+  const s = getSprite(b), size = D + 4;
+  ctx.globalAlpha = alpha == null ? 1 : alpha;
+  const k = scale || 1;
+  ctx.drawImage(s, x - size / 2 * k, y - size / 2 * k, size * k, size * k);
   ctx.globalAlpha = 1;
-  ctx.fillStyle = 'rgba(255,255,255,.75)';
-  ctx.beginPath(); ctx.arc(x - 5, y - 6, 3.5, 0, 7); ctx.fill();
 }
-function render() {
+
+function pal() {
+  return KIT.dark()
+    ? { bg1: '#2b2118', bg2: '#1b140d', grid: 'rgba(242,231,212,.04)', ink: '#f2e7d4', soft: '#bfa98a', hud: 'rgba(20,14,8,.55)', line: 'rgba(240,120,90,.55)', ceil: '#4a3826', base: '#5c4731', guide: 'rgba(255,240,215,.75)' }
+    : { bg1: '#fdf7ec', bg2: '#eedfc5', grid: 'rgba(120,90,50,.06)', ink: '#3a2e24', soft: '#8a7660', hud: 'rgba(255,250,240,.78)', line: 'rgba(224,80,60,.5)', ceil: '#d9c4a2', base: '#c9a982', guide: 'rgba(90,60,30,.55)' };
+}
+
+// 瞄准线：模拟最多 3 次墙面反弹，停在第一次碰撞点
+function guidePath() {
+  let x = SX, y = SY, vx = Math.cos(aim), vy = Math.sin(aim);
+  const pts = [];
+  for (let i = 0; i < 900; i++) {
+    x += vx * 5; y += vy * 5;
+    if (x < R) { x = R; vx = Math.abs(vx); }
+    if (x > W - R) { x = W - R; vx = -Math.abs(vx); }
+    if (i % 4 === 0) pts.push([x, y]);
+    if (collides(x, y)) return { pts, end: snap(x, y) };
+  }
+  return { pts, end: null };
+}
+
+function draw(now) {
+  const P = pal();
   const g = ctx.createLinearGradient(0, 0, 0, H);
-  g.addColorStop(0, '#1a2450'); g.addColorStop(1, '#0a1030');
+  g.addColorStop(0, P.bg1); g.addColorStop(1, P.bg2);
   ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-  // 侧墙
-  ctx.fillStyle = 'rgba(255,255,255,.12)';
-  ctx.fillRect(0, TOP - 20, 3, BOT - TOP + 20);
-  ctx.fillRect(W - 3, TOP - 20, 3, BOT - TOP + 20);
-  ctx.strokeStyle = 'rgba(255,93,93,.6)'; ctx.lineWidth = 2; ctx.setLineDash([8, 6]);
-  ctx.beginPath(); ctx.moveTo(0, BOT); ctx.lineTo(W, BOT); ctx.stroke();
-  ctx.setLineDash([]);
-  if (G.state === 'menu') return;
-  // 天花板
-  ctx.fillStyle = '#3a4a6e';
-  ctx.fillRect(0, 0, W, TOP - 20 + G.dropOff);
-  // 场上泡泡
-  G.grid.forEach((row, r) => row.forEach((v, c) => {
-    if (v >= 0) drawBall(colX(r, c), rowY(r), v);
-  }));
+  ctx.fillStyle = P.grid;
+  for (let y = HUD; y < H; y += 26) for (let x = (y / 26 % 2) * 13; x < W; x += 26) { ctx.beginPath(); ctx.arc(x, y, 2, 0, 7); ctx.fill(); }
+
+  // 天花板（压下来的部分）
+  if (topY > HUD + 1) {
+    ctx.fillStyle = P.ceil; ctx.fillRect(0, HUD, W, topY - HUD);
+    ctx.fillStyle = 'rgba(0,0,0,.12)';
+    for (let x = 0; x < W; x += 24) ctx.fillRect(x, HUD, 2, topY - HUD);
+    ctx.fillStyle = 'rgba(0,0,0,.18)'; ctx.fillRect(0, topY - 4, W, 4);
+  }
+
+  // 底线
+  ctx.strokeStyle = P.line; ctx.lineWidth = 2; ctx.setLineDash([10, 8]);
+  ctx.beginPath(); ctx.moveTo(0, DEADLINE); ctx.lineTo(W, DEADLINE); ctx.stroke(); ctx.setLineDash([]);
+
+  // 网格泡泡
+  const danger = lowestY() > DEADLINE - RH * 1.5;
+  each((b, r, c) => {
+    let k = 1;
+    if (b.squish) { b.squish = Math.max(0, b.squish - 0.08); k = 1 + Math.sin(b.squish * Math.PI) * 0.12; }
+    const wob = danger && mode === 'play' ? Math.sin(now / 60 + r + c) * 1.2 : 0;
+    drawBubble(b, cx(r, c) + wob, cy(r), k);
+  });
+
   // 瞄准线
-  if (G.state === 'play' && !G.flying) {
-    ctx.strokeStyle = 'rgba(255,255,255,.3)'; ctx.lineWidth = 2; ctx.setLineDash([6, 8]);
-    ctx.beginPath();
-    ctx.moveTo(W / 2, SHOOT_Y);
-    ctx.lineTo(W / 2 + Math.cos(G.angle) * 220, SHOOT_Y + Math.sin(G.angle) * 220);
-    ctx.stroke();
-    ctx.setLineDash([]);
+  if (mode === 'play' && !shot) {
+    const gp = guidePath();
+    ctx.fillStyle = P.guide;
+    const off = (now / 40) % 4;
+    gp.pts.forEach(([x, y], i) => {
+      if (i < 2) return;
+      ctx.globalAlpha = Math.max(0.15, 1 - i / 90);
+      ctx.beginPath(); ctx.arc(x, y, i % 2 === Math.floor(off / 2) % 2 ? 3 : 2.2, 0, 7); ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+    if (gp.end) {
+      const [r, c] = gp.end;
+      ctx.strokeStyle = P.guide; ctx.lineWidth = 2; ctx.setLineDash([4, 4]);
+      ctx.beginPath(); ctx.arc(cx(r, c), cy(r), R - 2, 0, 7); ctx.stroke(); ctx.setLineDash([]);
+    }
   }
-  // 飞行泡泡
-  if (G.flying) drawBall(G.flying.x, G.flying.y, G.flying.color);
+
+  // 消除 & 掉落动画
+  for (const p of pops) {
+    if (p.t < 0) { drawBubble(p.b, p.x, p.y); continue; }
+    const k = p.t / 0.22;
+    drawBubble(p.b, p.x, p.y, 1 + k * 0.5, 1 - k);
+  }
+  for (const f of falls) drawBubble(f.b, f.x, f.y, 1, Math.max(0, Math.min(1, (H + 20 - f.y) / 120)));
+
+  if (shot) drawBubble(shot.b, shot.x, shot.y);
+
   // 发射器
-  ctx.fillStyle = 'rgba(255,255,255,.15)';
-  ctx.beginPath(); ctx.arc(W / 2, SHOOT_Y + 6, 30, 0, 7); ctx.fill();
-  if (G.state === 'play') {
-    drawBall(W / 2, SHOOT_Y, G.cur);
-    ctx.fillStyle = '#fff'; ctx.font = '900 12px system-ui'; ctx.textAlign = 'left';
-    ctx.fillText(T('nextLabel'), 20, SHOOT_Y + 5);
-    drawBall(80, SHOOT_Y, G.next);
+  ctx.save(); ctx.translate(SX, SY);
+  ctx.fillStyle = P.base;
+  ctx.beginPath(); ctx.arc(0, 26, 46, Math.PI, 0); ctx.fill();
+  ctx.rotate(aim + Math.PI / 2);
+  ctx.fillStyle = P.soft;
+  KIT.roundRect(ctx, -9, -58, 18, 40, 8); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.fillRect(-5, -54, 4, 30);
+  ctx.restore();
+  if (cur && !(mode === 'over')) drawBubble(cur, SX, SY);
+  if (next) {
+    ctx.fillStyle = P.soft; ctx.globalAlpha = 0.25;
+    ctx.beginPath(); ctx.arc(SX + 78, SY + 18, R * 0.85, 0, 7); ctx.fill(); ctx.globalAlpha = 1;
+    drawBubble(next, SX + 78, SY + 18, 0.72);
+    ctx.font = '14px system-ui'; ctx.fillStyle = P.soft; ctx.textAlign = 'center';
+    ctx.fillText('⇄', SX + 78, SY + 48);
   }
-  // HUD
-  ctx.fillStyle = 'rgba(0,0,0,.4)';
-  ctx.fillRect(0, 0, W, 30);
-  ctx.fillStyle = '#fff'; ctx.font = '900 14px system-ui'; ctx.textAlign = 'left';
-  ctx.fillText('SCORE ' + G.score, 10, 20);
-  ctx.textAlign = 'center';
-  ctx.fillText('STAGE ' + G.stage, W / 2, 20);
-  ctx.textAlign = 'right';
-  ctx.fillText('BEST ' + Math.max(store.best, G.score), W - 10, 20);
-  for (const p of G.parts) {
-    ctx.globalAlpha = Math.max(0, 1 - p.age / p.life);
-    if (p.fall) drawBall(p.x, p.y, COLORS.indexOf(p.c) >= 0 ? COLORS.indexOf(p.c) : 0);
-    else { ctx.fillStyle = p.c; ctx.fillRect(p.x - 2, p.y - 2, 4, 4); }
-  }
-  ctx.globalAlpha = 1;
-  ctx.textAlign = 'center';
-  for (const fl of G.floats) {
-    ctx.globalAlpha = Math.max(0, 1 - fl.age);
-    ctx.font = '900 20px system-ui';
-    ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(0,0,0,.6)';
-    ctx.strokeText(fl.text, fl.x, fl.y);
-    ctx.fillStyle = '#ffd93d';
-    ctx.fillText(fl.text, fl.x, fl.y);
+  ctx.font = '34px system-ui, "Apple Color Emoji", sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('🐲', SX - 86, SY + 16 + Math.sin(now / 300) * 3);
+
+  parts.draw(ctx);
+  for (const t of texts) {
+    const k = t.age / t.life;
+    ctx.globalAlpha = Math.min(1, (1 - k) * 2);
+    ctx.font = `400 ${t.size}px "AMG Display", "PingFang SC", system-ui, sans-serif`;
+    ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(40,28,16,.5)';
+    ctx.strokeText(t.s, t.x, t.y - k * 34);
+    ctx.fillStyle = t.color; ctx.fillText(t.s, t.x, t.y - k * 34);
   }
   ctx.globalAlpha = 1;
+  drawHud(P);
 }
+
+function drawHud(P) {
+  ctx.fillStyle = P.hud; ctx.fillRect(0, 0, W, HUD);
+  ctx.fillStyle = 'rgba(0,0,0,.08)'; ctx.fillRect(0, HUD - 1, W, 1);
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'left'; ctx.fillStyle = P.soft; ctx.font = '800 10px system-ui, sans-serif';
+  ctx.fillText(T('hudScore'), 14, 14);
+  ctx.fillStyle = P.ink; ctx.font = '400 21px "AMG Display", system-ui, sans-serif';
+  ctx.fillText(score, 14, 33);
+  ctx.textAlign = 'center'; ctx.fillStyle = P.soft; ctx.font = '800 10px system-ui, sans-serif';
+  ctx.fillText(endless ? T('hudEndless') : T('hudLevel'), W / 2, 14);
+  ctx.fillStyle = P.ink; ctx.font = '400 19px "AMG Display", system-ui, sans-serif';
+  ctx.fillText(endless ? '♾️' : LV_EMO[level] + ' ' + (level + 1), W / 2, 33);
+  // 下压倒计时圆点
+  ctx.textAlign = 'right'; ctx.fillStyle = P.soft; ctx.font = '800 10px system-ui, sans-serif';
+  ctx.fillText(T('hudDrop'), W - 54, 14);
+  for (let i = 0; i < missLimit; i++) {
+    ctx.fillStyle = i < missLimit - misses ? '#5fbf6a' : 'rgba(224,80,60,.75)';
+    ctx.beginPath(); ctx.arc(W - 54 - i * 11, 33, 4, 0, 7); ctx.fill();
+  }
+}
+
+// ---------------- 主循环 ----------------
 let last = performance.now();
 function loop(now) {
-  const dt = Math.min(((now || performance.now()) - last) / 1000, .05);
-  last = now || performance.now();
-  update(dt);
-  render();
+  const dt = Math.min(0.033, (now - last) / 1000); last = now;
+  if (mode !== 'pause') {
+    if (keys.left) aim -= 1.6 * dt;
+    if (keys.right) aim += 1.6 * dt;
+    aim = KIT.clamp(aim, -Math.PI + 0.13, -0.13);
+    if (shot && mode === 'play') updateShot(dt);
+    const target = HUD + ceil * RH;
+    topY += (target - topY) * Math.min(1, dt * 8);
+    if (Math.abs(target - topY) < 0.3) topY = target;
+    for (let i = pops.length - 1; i >= 0; i--) {
+      const p = pops[i];
+      const was = p.t;
+      p.t += dt;
+      if (was < 0 && p.t >= 0) parts.burst(p.x, p.y, { n: 8, color: [COLORS[p.b.c] || '#fff', '#fff'], speed: 140, size: 4, life: 0.5 });
+      if (p.t > 0.22) pops.splice(i, 1);
+    }
+    for (let i = falls.length - 1; i >= 0; i--) {
+      const f = falls[i];
+      f.vy += (f.slow ? 700 : 1300) * dt; f.x += f.vx * dt; f.y += f.vy * dt;
+      if (f.y > H + 40) falls.splice(i, 1);
+    }
+    for (let i = texts.length - 1; i >= 0; i--) { texts[i].age += dt; if (texts[i].age > texts[i].life) texts.splice(i, 1); }
+    parts.update(dt);
+    if (mode === 'play' && topY === HUD + ceil * RH && lowestY() > DEADLINE) checkEnd();
+  }
+  draw(now);
   requestAnimationFrame(loop);
 }
-reset();
-requestAnimationFrame(t => { last = t; requestAnimationFrame(loop); });
-window.__game = G;
-window.__gameErrors = [];
-window.addEventListener('error', e => window.__gameErrors.push(String(e.message)));
-G._attach = attach; G._gen = genStage; G._shoot = shoot; G._start = startGame;
-G._cluster = findCluster; G._floating = findFloating; G._snap = snapToGrid;
-G._next = () => { G.stage++; genStage(G.stage); G.state = 'play'; G.flying = null; showScreen(null); };
+
+// ---------------- 界面 ----------------
+function hideScreens() { ['screen-menu', 'screen-pause', 'screen-over'].forEach(id => $(id).classList.add('hidden')); }
+function showMenu() {
+  mode = 'menu';
+  KIT.stopMusic();
+  hideScreens();
+  endless = false; level = pick; nColors = LV[pick].c; buildLevel(pick); topY = HUD;
+  cur = next = null; shot = null; pops = []; falls = []; texts = [];
+  renderMenu();
+  $('screen-menu').classList.remove('hidden');
+}
+function renderMenu() {
+  const un = store.get('unlocked', 0), sv = store.get('stars', {}), box = $('levels');
+  box.innerHTML = '';
+  LV.forEach((_, i) => {
+    const b = document.createElement('button');
+    b.className = 'lvl-btn' + (i === pick ? ' active' : '') + (i > un ? ' locked' : '');
+    const st = sv[i] ? '★'.repeat(sv[i]) + '☆'.repeat(3 - sv[i]) : '';
+    b.innerHTML = `<span class="lv-emo">${i > un ? '🔒' : LV_EMO[i]}</span>${i + 1}<small>${st || '&nbsp;'}</small>`;
+    b.onclick = () => {
+      if (i > un) { KIT.tone(150, 0.1, { vol: 0.05 }); return; }
+      pick = i; KIT.tone(500 + i * 30, 0.06, { type: 'triangle', vol: 0.05 });
+      showMenu();
+    };
+    box.appendChild(b);
+  });
+  $('menu-best').textContent = T('best', store.get('best', 0));
+}
+function showPanel(kind, stars) {
+  const clear = kind === 'clear', win = kind === 'win';
+  $('over-icon').textContent = win ? '👑' : clear ? '🎉' : '😵';
+  const t = $('over-title');
+  t.textContent = win ? T('winTitle') : clear ? T('clearTitle', level + 1) : T('overTitle');
+  t.className = clear || win ? 'clear-title' : 'over-title';
+  $('over-stars').innerHTML = stars ? [1, 2, 3].map(i => `<span class="${i <= stars ? '' : 'off'}" style="animation-delay:${i * 0.15}s">⭐</span>`).join('') : '';
+  $('over-record').classList.toggle('hidden', !(endless && score > bestAtStart));
+  const rows = [[T('stScore'), score], [T('stShots'), shots], [T('stPopped'), popped], [T('stDropped'), dropped]];
+  if (endless) rows.push([T('stBest'), Math.max(score, store.get('best', 0))]);
+  else rows.push([T('stLevel'), (level + 1) + ' / ' + LV.length]);
+  $('over-stats').innerHTML = rows.map(([a, b]) => `<span>${a}</span><b>${b}</b>`).join('');
+  const btn = $('btn-retry');
+  btn.textContent = clear ? T('next') : win ? T('again') : T('retry');
+  btn.dataset.kind = kind;
+  $('screen-over').classList.remove('hidden');
+}
+function pause(on) {
+  if (on && mode === 'play') { mode = 'pause'; $('screen-pause').classList.remove('hidden'); KIT.stopMusic(); }
+  else if (!on && mode === 'pause') { mode = 'play'; $('screen-pause').classList.add('hidden'); KIT.music('jewel-glow'); }
+}
+
+// ---------------- 输入 ----------------
+$('btn-start').onclick = () => start(pick, false);
+$('btn-endless').onclick = () => start(0, true);
+$('btn-retry').onclick = () => {
+  const k = $('btn-retry').dataset.kind;
+  if (endless) start(0, true);
+  else if (k === 'clear') { pick = level + 1; start(level + 1, false); }
+  else if (k === 'win') { pick = 0; start(0, false); }
+  else start(level, false);
+};
+$('btn-menu').onclick = showMenu;
+$('btn-quit').onclick = showMenu;
+$('btn-resume').onclick = () => pause(false);
+$('btn-pause').onclick = e => { e.stopPropagation(); pause(mode !== 'pause'); };
+
+function aimAt(p) {
+  if (p.y > SY - 8) return;
+  aim = KIT.clamp(Math.atan2(p.y - SY, p.x - SX), -Math.PI + 0.13, -0.13);
+}
+const nearNext = p => Math.hypot(p.x - (SX + 78), p.y - (SY + 18)) < 30;
+let touchAim = false;
+frame.addEventListener('pointerdown', e => {
+  if (e.target.closest('.screen, button') || mode !== 'play') return;
+  const p = KIT.point(cv, e, W, H);
+  if (nearNext(p)) { swap(); return; }
+  if (e.pointerType === 'mouse') { aimAt(p); fire(); }
+  else { touchAim = true; aimAt(p); }
+});
+frame.addEventListener('pointermove', e => {
+  if (mode !== 'play') return;
+  if (e.pointerType === 'mouse' || touchAim) aimAt(KIT.point(cv, e, W, H));
+});
+window.addEventListener('pointerup', e => {
+  if (touchAim && e.pointerType !== 'mouse') { touchAim = false; fire(); }
+});
+
+document.addEventListener('keydown', e => {
+  if (e.target && /INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return;
+  const k = e.key;
+  if (k === 'ArrowLeft' || k === 'a' || k === 'A') { keys.left = true; e.preventDefault(); }
+  else if (k === 'ArrowRight' || k === 'd' || k === 'D') { keys.right = true; e.preventDefault(); }
+  else if (k === 'ArrowUp' || k === 'w' || k === 'W' || k === 'Enter') {
+    e.preventDefault();
+    if (mode === 'menu') start(pick, false); else fire();
+  } else if (k === ' ') { e.preventDefault(); swap(); }
+  else if (k === 'p' || k === 'P' || k === 'Escape') pause(mode !== 'pause');
+});
+document.addEventListener('keyup', e => {
+  const k = e.key;
+  if (k === 'ArrowLeft' || k === 'a' || k === 'A') keys.left = false;
+  if (k === 'ArrowRight' || k === 'd' || k === 'D') keys.right = false;
+});
+document.addEventListener('visibilitychange', () => { if (document.hidden) pause(true); });
+
+const syncMute = KIT.mountMute($('btn-mute'));
+KIT.boot(() => { syncMute(); if (mode === 'menu') renderMenu(); });
+pick = Math.min(store.get('unlocked', 0), LV.length - 1);
+showMenu();
+requestAnimationFrame(loop);
 })();

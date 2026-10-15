@@ -117,21 +117,6 @@
   --txt: #f2e7d4;
 }
 
-/* flappy / mario 的「昼夜主题」玩法特性：夜晚时页面同步切暖黑 */
-body.night {
-  --bg1: #271e14; --bg2: #241a10; --bg3: #20170e;
-  --card: #312618; --card-border: #4a3a26;
-  --text: #f2e7d4; --muted: #a08b6e; --accent: #e09a52; --accent2: #d08039;
-  --ui-text: #f2e7d4; --ui-text-soft: #d3c0a4; --ui-muted-text: #a08b6e;
-  --ui-card: #312618; --ui-card-border: #4a3a26;
-  --ui-chip: #403325; --ui-chip-text: #cbb691;
-  --ui-inner: #3a2c1c; --ui-inner-border: #4d3c27;
-  --ui-kbd-bg: #41332a; --ui-kbd-border: #5a4732;
-  --ui-scrim: rgba(10, 7, 4, .6);
-  --ui-menu-a: rgba(46, 36, 25, .97); --ui-menu-b: rgba(34, 26, 17, .97);
-  --ui-orb-1: #6b4a26; --ui-orb-2: #3d5228; --ui-orb-3: #5f3a26;
-}
-
 /* ---------- 页面骨架 ---------- */
 body {
   background: linear-gradient(160deg, var(--bg1), var(--bg2) 55%, var(--bg3)) !important;
@@ -363,63 +348,6 @@ footer { color: var(--ui-muted-text) !important; }
   .brand-btns { margin-left: auto; }
 }
 
-/* ==========================================================================
-   Raiden（结构特殊，单独适配同一套 token）
-   ========================================================================== */
-#menu-screen .title-block {
-  background: none !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-#menu-screen .game-title .thunder {
-  background: linear-gradient(180deg, #e8a763, var(--ui-primary) 60%, #9c5518) !important;
-  -webkit-background-clip: text !important;
-  background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  text-shadow: none !important;
-}
-#menu-screen .game-title .cn {
-  color: var(--acc2) !important;
-  -webkit-text-fill-color: var(--acc2) !important;
-  text-shadow: none !important;
-}
-#menu-screen .subtitle { color: var(--ui-text-soft) !important; }
-#menu-screen .menu-card {
-  background: var(--ui-card) !important;
-  border-color: var(--ui-card-border) !important;
-  box-shadow: var(--ui-shadow-card);
-}
-#menu-screen .menu-card h2 { color: var(--ui-text) !important; }
-#menu-screen .big-btn {
-  font-family: "AMG Display", "PingFang SC", system-ui, sans-serif;
-  letter-spacing: 1px;
-}
-#menu-screen .big-btn.primary {
-  background: var(--ui-primary) !important;
-  color: var(--ui-primary-fg) !important;
-  box-shadow: 0 4px 0 var(--ui-primary-edge), 0 10px 22px rgba(208, 128, 57, .3) !important;
-}
-#menu-screen .big-btn.secondary {
-  background: var(--ui-secondary) !important;
-  color: #fff !important;
-  box-shadow: 0 4px 0 var(--ui-secondary-edge), 0 10px 22px rgba(90, 158, 99, .3) !important;
-}
-#menu-screen .row label { color: var(--ui-text-soft) !important; }
-#menu-screen select, #menu-screen input {
-  background: var(--ui-inner) !important;
-  color: var(--ui-text) !important;
-  border-color: var(--ui-inner-border) !important;
-}
-#menu-screen select { accent-color: var(--ui-primary); }
-#menu-screen input[type=checkbox] { accent-color: var(--ui-primary); }
-#menu-screen .menu-card.weapons ul { color: var(--ui-text-soft) !important; }
-#menu-screen .tag {
-  background: var(--ui-primary-soft) !important;
-  color: var(--ui-primary) !important;
-  border-color: var(--ui-inner-border) !important;
-}
-#menu-screen .hint { color: var(--ui-muted-text) !important; }
-#menu-screen .stages-strip .stage-chip { border-width: 1px !important; }
 .modal { background: var(--ui-scrim) !important; }
 #hi-score-top { color: var(--ui-primary) !important; }
 .p-row { color: var(--ui-text-soft) !important; }
