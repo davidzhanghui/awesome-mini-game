@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="description" content="推箱子：把所有箱子推到目标点，30 道由易到难的烧脑关卡，无限撤销、点击自动寻路、三星评定。">
+<link rel="canonical" href="https://awesome-mini-game.vercel.app/sokoban/">
+<link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/sokoban/">
+<link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/sokoban/?lang=en">
+<link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/sokoban/?lang=ja">
+<link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/sokoban/?lang=ko">
+<link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/sokoban/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Awesome Mini Game">
+<meta property="og:title" content="推箱子 · 烧脑解谜">
+<meta property="og:description" content="推箱子：把所有箱子推到目标点，30 道由易到难的烧脑关卡，无限撤销、点击自动寻路、三星评定。">
+<meta property="og:url" content="https://awesome-mini-game.vercel.app/sokoban/">
+<meta property="og:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="推箱子 · 烧脑解谜">
+<meta name="twitter:description" content="推箱子：把所有箱子推到目标点，30 道由易到难的烧脑关卡，无限撤销、点击自动寻路、三星评定。">
+<meta name="twitter:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "推箱子 · 烧脑解谜",
+  "description": "推箱子：把所有箱子推到目标点，30 道由易到难的烧脑关卡，无限撤销、点击自动寻路、三星评定。",
+  "url": "https://awesome-mini-game.vercel.app/sokoban/",
+  "genre": "益智解谜",
+  "gamePlatform": "Web Browser",
+  "inLanguage": ["zh-CN", "en", "ja", "ko"],
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CNY" }
+}
+</script>
+<link rel="icon" href="/favicon.svg" />
+<title>推箱子 · 烧脑解谜</title>
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="../assets/ui.css?v=20260915" />
+<script src="../assets/theme.js"></script>
+</head>
+<body>
+<div class="bg-orbs"><span></span><span></span><span></span></div>
+<main class="page">
+  <header class="brand">
+    <div class="logo">📦</div>
+    <div>
+      <h1><span data-i18n="name">推箱子</span> <em data-i18n="subtitle">烧脑解谜</em></h1>
+      <p data-i18n="intro">把所有箱子推到目标点，只能推不能拉！</p>
+    </div>
+    <div class="brand-btns">
+      <button id="btn-mute" class="icon-btn" title="声音开 / 关 (M)">🔊</button>
+    </div>
+  </header>
+  <section class="cabinet">
+    <div class="game-frame">
+      <canvas id="game" width="480" height="620"></canvas>
+      <div id="soko-bar" class="soko-bar hidden">
+        <button id="btn-undo" class="soko-btn" data-i18n="undo">↶ 撤销</button>
+        <button id="btn-restart" class="soko-btn" data-i18n="restart">⟲ 重来</button>
+        <button id="btn-levels" class="soko-btn" data-i18n="levels">☰ 选关</button>
+      </div>
+      <div id="soko-toast" class="soko-toast"></div>
+      <div id="screen-menu" class="screen soko-menu">
+        <div class="title-badge">SOKOBAN</div>
+        <h2 class="game-title" data-i18n="menuTitle">推箱子</h2>
+        <div id="menu-stars" class="mini-board">⭐</div>
+        <button id="btn-continue" class="btn primary" data-i18n="continue">▶ 继续闯关</button>
+        <div id="lvl-list" class="lvl-list"></div>
+      </div>
+      <div id="screen-win" class="screen dim hidden">
+        <div class="panel pop">
+          <h3 id="win-title" class="clear-title">过关！</h3>
+          <div id="win-stars" class="win-stars"></div>
+          <div id="win-sub" class="over-sub"></div>
+          <div class="row"><button id="btn-next" class="btn primary" data-i18n="next">下一关 ▶</button><button id="btn-replay" class="btn ghost" data-i18n="replay">⟲ 重玩</button><button id="btn-tolevels" class="btn ghost" data-i18n="levels">☰ 选关</button></div>
+        </div>
+      </div>
+    </div>
+    <aside class="side">
+      <div class="card"><h4 data-i18n="opTitle">🎮 操作</h4><ul>
+        <li><kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> / <kbd>WASD</kbd> <span data-i18n="op1">移动 / 推箱</span></li><li><kbd>Z</kbd> <span data-i18n="op2">撤销</span> · <kbd>R</kbd> <span data-i18n="op3">重来</span> · <kbd>Esc</kbd> <span data-i18n="op4">选关</span></li><li data-i18n="op5">👆 滑动走一步，点空地自动寻路，点相邻箱子推它</li></ul></div>
+      <div class="card"><h4 data-i18n="goalTitle">⭐ 三星评定</h4><ul class="medals">
+        <li data-i18n="goal1">⭐⭐⭐ 步数不超过最优解的 115%</li><li data-i18n="goal2">⭐⭐ 步数不超过最优解的 160%</li><li data-i18n="goal3">⭐ 推完就算过关，可反复刷星</li></ul></div>
+      <div class="card diff"><h4 data-i18n="tipTitle">🧠 推箱秘诀</h4>
+        <p data-i18n="tipBody">箱子一旦被推进墙角就再也拉不出来（会变红提示）。动手前先想清楚每个箱子的去向，先推离墙远的箱子，给自己留出绕路的空间。</p></div>
+    </aside>
+  </section>
+  <details class="card seo-about"><summary data-i18n="aboutTitle">📖 关于这款游戏</summary><p data-i18n="aboutBody">经典推箱子（Sokoban）网页版：把所有箱子推到目标点即可过关。30 道关卡由易到难，每关都经过求解器验证可解，并以最优步数作为三星标准。支持无限撤销、点击自动寻路、键盘与触屏，浏览器打开即玩，完全免费。</p></details>
+
+  <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏</footer>
+</main>
+<script src="../assets/i18n.js?v=20260915"></script>
+<script>
+window.GAME_STR = {
+  zh: {
+    title: '推箱子 · 烧脑解谜', name: '推箱子', subtitle: '烧脑解谜', menuTitle: '推箱子',
+    intro: '把所有箱子推到目标点，只能推不能拉！',
+    continue: '▶ 继续闯关', undo: '↶ 撤销', restart: '⟲ 重来', levels: '☰ 选关', next: '下一关 ▶', replay: '⟲ 重玩',
+    opTitle: '🎮 操作', op1: '移动 / 推箱', op2: '撤销', op3: '重来', op4: '选关', op5: '👆 滑动走一步，点空地自动寻路，点相邻箱子推它',
+    goalTitle: '⭐ 三星评定', goal1: '⭐⭐⭐ 步数不超过最优解的 115%', goal2: '⭐⭐ 步数不超过最优解的 160%', goal3: '⭐ 推完就算过关，可反复刷星',
+    tipTitle: '🧠 推箱秘诀', tipBody: '箱子一旦被推进墙角就再也拉不出来（会变红提示）。动手前先想清楚每个箱子的去向，先推离墙远的箱子，给自己留出绕路的空间。',
+    footer: '🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏',
+    muteTitle: '声音开 / 关 (M)',
+    chap1: '🌱 入门 · 1-10', chap2: '🔥 进阶 · 11-20', chap3: '💀 烧脑 · 21-30',
+    totalStars: (a, b) => '⭐ 已获得 ' + a + ' / ' + b,
+    levelN: n => '第 ' + n + ' 关', bestLine: (b, o) => '最佳 ' + b + ' · 最优 ' + o,
+    hudMoves: n => '步数 ' + n, hudPushes: n => '推动 ' + n,
+    deadHint: '箱子卡死了！按 Z 撤销',
+    winTitle: n => '🎉 第 ' + n + ' 关通过！', allClear: '🏆 全部通关！',
+    winSub: (m, p, o) => '步数 ' + m + ' · 推动 ' + p + ' · 最优解 ' + o + ' 步',
+    aboutTitle: '📖 关于这款游戏',
+    aboutBody: '经典推箱子（Sokoban）网页版：把所有箱子推到目标点即可过关。30 道关卡由易到难，每关都经过求解器验证可解，并以最优步数作为三星标准。支持无限撤销、点击自动寻路、键盘与触屏，浏览器打开即玩，完全免费。',
+  },
+  en: {
+    title: 'Sokoban · Box Pusher', name: 'Sokoban', subtitle: 'Brain Puzzle', menuTitle: 'SOKOBAN',
+    intro: 'Push every box onto a target — you can push, but never pull!',
+    continue: '▶ Continue', undo: '↶ Undo', restart: '⟲ Restart', levels: '☰ Levels', next: 'Next ▶', replay: '⟲ Replay',
+    opTitle: '🎮 Controls', op1: 'move / push', op2: 'undo', op3: 'restart', op4: 'levels', op5: '👆 Swipe to step, tap floor to auto-walk, tap an adjacent box to push',
+    goalTitle: '⭐ Star Rating', goal1: '⭐⭐⭐ Within 115% of the optimal moves', goal2: '⭐⭐ Within 160% of the optimal moves', goal3: '⭐ Just solve it — replay anytime for more stars',
+    tipTitle: '🧠 Pusher Tips', tipBody: 'A box pushed into a corner can never come out (it turns red). Plan where each box goes before moving, and push the boxes far from walls first to keep room to walk around.',
+    footer: '🕹️ Play instantly · Free · Keyboard & touch friendly',
+    muteTitle: 'Sound on/off (M)',
+    chap1: '🌱 Starter · 1-10', chap2: '🔥 Advanced · 11-20', chap3: '💀 Brain Burner · 21-30',
+    totalStars: (a, b) => '⭐ ' + a + ' / ' + b + ' stars',
+    levelN: n => 'Level ' + n, bestLine: (b, o) => 'Best ' + b + ' · Optimal ' + o,
+    hudMoves: n => 'Moves ' + n, hudPushes: n => 'Pushes ' + n,
+    deadHint: 'Box is stuck! Press Z to undo',
+    winTitle: n => '🎉 Level ' + n + ' clear!', allClear: '🏆 All levels clear!',
+    winSub: (m, p, o) => m + ' moves · ' + p + ' pushes · optimal ' + o,
+    aboutTitle: '📖 About this game',
+    aboutBody: 'Classic Sokoban in your browser: push every box onto a target to clear the level. 30 levels from easy to hard, each verified solvable by a solver, with the optimal move count as the 3-star target. Unlimited undo, tap-to-walk pathfinding, keyboard and touch — completely free.',
+  },
+  ja: {
+    title: '倉庫番 · 頭脳パズル', name: '倉庫番', subtitle: '頭脳パズル', menuTitle: '倉庫番',
+    intro: 'すべての箱をゴールへ。押せるけど引けない！',
+    continue: '▶ 続きから', undo: '↶ 戻す', restart: '⟲ やり直し', levels: '☰ ステージ', next: '次へ ▶', replay: '⟲ もう一度',
+    opTitle: '🎮 操作', op1: '移動 / 押す', op2: '戻す', op3: 'やり直し', op4: 'ステージ選択', op5: '👆 スワイプで1歩、床をタップで自動移動、隣の箱をタップで押す',
+    goalTitle: '⭐ 星の評価', goal1: '⭐⭐⭐ 最短手数の 115% 以内', goal2: '⭐⭐ 最短手数の 160% 以内', goal3: '⭐ クリアすれば獲得、何度でも挑戦可',
+    tipTitle: '🧠 攻略のコツ', tipBody: '角に押し込んだ箱は二度と出せない（赤くなる）。動かす前に各箱の行き先を考え、壁から遠い箱から押して通り道を確保しよう。',
+    footer: '🕹️ すぐ遊べる · 完全無料 · キーボード＆タッチ対応',
+    muteTitle: 'サウンド ON/OFF (M)',
+    chap1: '🌱 入門 · 1-10', chap2: '🔥 中級 · 11-20', chap3: '💀 上級 · 21-30',
+    totalStars: (a, b) => '⭐ 獲得 ' + a + ' / ' + b,
+    levelN: n => 'ステージ ' + n, bestLine: (b, o) => 'ベスト ' + b + ' · 最短 ' + o,
+    hudMoves: n => '手数 ' + n, hudPushes: n => '押した数 ' + n,
+    deadHint: '箱が動かせない！Z で戻す',
+    winTitle: n => '🎉 ステージ ' + n + ' クリア！', allClear: '🏆 全ステージクリア！',
+    winSub: (m, p, o) => '手数 ' + m + ' · 押し ' + p + ' · 最短 ' + o,
+    aboutTitle: '📖 このゲームについて',
+    aboutBody: 'ブラウザで遊べる倉庫番：すべての箱をゴールに押し込めばクリア。易しい順に30ステージ、すべてソルバーで解けることを確認済みで、最短手数が星3つの基準。無制限アンドゥ、タップで自動移動、キーボード・タッチ対応、完全無料。',
+  },
+  ko: {
+    title: '소코반 · 두뇌 퍼즐', name: '소코반', subtitle: '두뇌 퍼즐', menuTitle: '소코반',
+    intro: '모든 상자를 목표 지점으로! 밀 수는 있지만 당길 수는 없어요!',
+    continue: '▶ 이어하기', undo: '↶ 되돌리기', restart: '⟲ 다시', levels: '☰ 스테이지', next: '다음 ▶', replay: '⟲ 다시 하기',
+    opTitle: '🎮 조작', op1: '이동 / 밀기', op2: '되돌리기', op3: '다시', op4: '스테이지', op5: '👆 스와이프로 한 칸, 바닥을 탭하면 자동 이동, 옆 상자를 탭하면 밀기',
+    goalTitle: '⭐ 별 평가', goal1: '⭐⭐⭐ 최단 이동의 115% 이내', goal2: '⭐⭐ 최단 이동의 160% 이내', goal3: '⭐ 클리어만 해도 획득, 언제든 재도전',
+    tipTitle: '🧠 공략 비결', tipBody: '구석에 밀어 넣은 상자는 다시 꺼낼 수 없어요(빨갛게 표시). 움직이기 전에 상자마다 갈 곳을 정하고, 벽에서 먼 상자부터 밀어 길을 확보하세요.',
+    footer: '🕹️ 바로 플레이 · 완전 무료 · 키보드 & 터치 지원',
+    muteTitle: '사운드 켜기/끄기 (M)',
+    chap1: '🌱 입문 · 1-10', chap2: '🔥 중급 · 11-20', chap3: '💀 고급 · 21-30',
+    totalStars: (a, b) => '⭐ 획득 ' + a + ' / ' + b,
+    levelN: n => n + '스테이지', bestLine: (b, o) => '최고 ' + b + ' · 최단 ' + o,
+    hudMoves: n => '이동 ' + n, hudPushes: n => '밀기 ' + n,
+    deadHint: '상자가 갇혔어요! Z로 되돌리기',
+    winTitle: n => '🎉 ' + n + '스테이지 클리어!', allClear: '🏆 전체 클리어!',
+    winSub: (m, p, o) => '이동 ' + m + ' · 밀기 ' + p + ' · 최단 ' + o,
+    aboutTitle: '📖 게임 소개',
+    aboutBody: '브라우저에서 즐기는 소코반: 모든 상자를 목표 지점에 밀어 넣으면 클리어. 쉬운 순서로 30스테이지, 모두 솔버로 풀 수 있음을 검증했고 최단 이동 수가 별 3개 기준입니다. 무제한 되돌리기, 탭 자동 이동, 키보드·터치 지원, 완전 무료.',
+  }
+};
+</script>
+<script src="levels.js?v=20261015"></script>
+<script src="game.js?v=20261015"></script>
+</body>
+</html>
