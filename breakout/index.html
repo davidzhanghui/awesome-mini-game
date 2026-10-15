@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<meta name="description" content="移动挡板接住小球，打碎所有砖块！">
+<meta name="description" content="打砖块网页版：10 个精心设计的关卡，硬砖、钢砖、爆炸砖，加长、多球、激光、火球、磁吸等 8 种道具，连击加分，鼠标、键盘、触屏都能玩。">
 <link rel="canonical" href="https://awesome-mini-game.vercel.app/breakout/">
 <link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/breakout/">
 <link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/breakout/?lang=en">
@@ -12,205 +12,190 @@
 <link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/breakout/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Awesome Mini Game">
-<meta property="og:title" content="打砖块 · 经典益智">
-<meta property="og:description" content="移动挡板接住小球，打碎所有砖块！">
+<meta property="og:title" content="打砖块 · 弹射街机">
+<meta property="og:description" content="打砖块网页版：10 个关卡，硬砖、钢砖、爆炸砖，8 种道具，连击加分。">
 <meta property="og:url" content="https://awesome-mini-game.vercel.app/breakout/">
 <meta property="og:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="打砖块 · 经典益智">
-<meta name="twitter:description" content="移动挡板接住小球，打碎所有砖块！">
+<meta name="twitter:title" content="打砖块 · 弹射街机">
+<meta name="twitter:description" content="打砖块网页版：10 个关卡，硬砖、钢砖、爆炸砖，8 种道具，连击加分。">
 <meta name="twitter:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "VideoGame",
-  "name": "打砖块 · 经典益智",
-  "description": "移动挡板接住小球，打碎所有砖块！",
+  "name": "打砖块 · 弹射街机",
+  "description": "打砖块网页版：10 个关卡，硬砖、钢砖、爆炸砖，8 种道具，连击加分。",
   "url": "https://awesome-mini-game.vercel.app/breakout/",
-  "genre": "益智解谜",
+  "genre": "街机",
   "gamePlatform": "Web Browser",
-  "inLanguage": [
-    "zh-CN",
-    "en",
-    "ja",
-    "ko"
-  ],
+  "inLanguage": ["zh-CN", "en", "ja", "ko"],
   "isAccessibleForFree": true,
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "CNY"
-  }
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CNY" }
 }
 </script>
 <link rel="icon" href="/favicon.svg" />
-<title>打砖块 · 经典益智</title>
-<link rel="stylesheet" href="styles.css" />
-<link rel="stylesheet" href="../assets/ui.css?v=20260915" />
+<title>打砖块 · 弹射街机</title>
+<link rel="stylesheet" href="../assets/game-page.css?v=20261015" />
+<link rel="stylesheet" href="styles.css?v=20261015" />
+<link rel="stylesheet" href="../assets/ui.css?v=20261015" />
 <script src="../assets/theme.js"></script>
 </head>
 <body>
 <div class="bg-orbs"><span></span><span></span><span></span></div>
 <main class="page">
   <header class="brand">
-    <div class="logo">🧱</div>
+    <div class="logo">🎯</div>
     <div>
-      <h1><span data-i18n="gameTitle">打砖块</span> <em data-i18n="subtitle">经典益智</em></h1>
-      <p data-i18n="intro">移动挡板接住小球，打碎所有砖块！</p>
+      <h1><span data-i18n="name">打砖块</span> <em data-i18n="subtitle">弹射街机</em></h1>
+      <p data-i18n="intro">接住小球，把砖墙一块块敲碎！</p>
     </div>
     <div class="brand-btns">
-      <button id="btn-mute" class="icon-btn" title="声音开 / 关 (M)">🔊</button>
+      <button id="btn-mute" class="icon-btn">🔊</button>
     </div>
   </header>
+
   <section class="cabinet">
-    <div class="game-frame">
-      <canvas id="game" width="480" height="640"></canvas>
+    <div class="game-frame" id="frame">
+      <canvas id="game" class="stage"></canvas>
+      <button id="btn-pause" class="pause-btn" title="P">⏸</button>
+
       <div id="screen-menu" class="screen">
         <div class="title-badge">BREAKOUT</div>
-        <h2 class="game-title" data-i18n="gameTitle">打砖块</h2>
-        <div class="hero-row"><span class="hero">🧱</span><span class="hero f">⚾</span><span class="hero">🎾</span></div>
+        <h2 class="game-title" data-i18n="name">打砖块</h2>
+        <div class="hero-row"><span class="hero">🧱</span><span class="hero">⚪</span><span class="hero">🏓</span></div>
+        <div class="pick-hint" data-i18n="pickLevel">选择关卡</div>
+        <div class="level-select" id="levels"></div>
         <button id="btn-start" class="btn primary" data-i18n="start">🚀 开始游戏</button>
-        <p class="hint"><span data-i18n="hintA">鼠标 /</span> <kbd>←</kbd><kbd>→</kbd> <span data-i18n="hintB">移动挡板 · 点击 /</span> <kbd data-i18n="kbdSpace">空格</kbd> <span data-i18n="hintC">发球 ·</span> <kbd>P</kbd> <span data-i18n="hintD">暂停</span></p>
-        <div id="menu-best" class="mini-board">🏆 历史最高：0</div>
+        <p class="hint"><kbd>←</kbd><kbd>→</kbd> <span data-i18n="hintMove">移动</span> · <kbd>Space</kbd> <span data-i18n="hintLaunch">发球 / 射击</span> · <kbd>P</kbd> <span data-i18n="pauseKw">暂停</span></p>
+        <div id="menu-best" class="mini-board"></div>
       </div>
+
       <div id="screen-pause" class="screen dim hidden">
-        <div class="panel"><h3 data-i18n="paused">⏸ 已暂停</h3><p data-i18n="pressP">按 P 继续</p>
-          <div class="row"><button id="btn-resume" class="btn primary" data-i18n="resume">继续</button><button id="btn-quit" class="btn ghost" data-i18n="quitMenu">回菜单</button></div>
+        <div class="panel pop">
+          <h3 data-i18n="paused">⏸ 暂停中</h3>
+          <div class="row" style="margin-top:14px"><button id="btn-resume" class="btn primary" data-i18n="resume">▶ 继续</button><button id="btn-quit" class="btn ghost" data-i18n="menu">菜单</button></div>
         </div>
       </div>
+
       <div id="screen-over" class="screen dim hidden">
         <div class="panel pop">
-          <h3 class="over-title">GAME OVER</h3>
-          <div class="score-row">
-            <div><label data-i18n="scoreLbl">得分</label><b id="final-score">0</b></div>
-            <div class="divider"></div>
-            <div><label data-i18n="stageLbl">到达关卡</label><b id="final-stage">1</b></div>
-          </div>
-          <div class="row"><button id="btn-retry" class="btn primary" data-i18n="retry">🔄 再来一局 (R)</button><button id="btn-menu" class="btn ghost" data-i18n="menu">菜单</button></div>
-        </div>
-      </div>
-      <div id="screen-clear" class="screen dim hidden">
-        <div class="panel pop">
-          <h3 class="clear-title" data-i18n="clearTitle">🎉 全部通关！</h3>
-          <div id="clear-stats" class="stat-list"></div>
-          <div class="row"><button id="btn-again" class="btn primary" data-i18n="again">再玩一次</button><button id="btn-menu2" class="btn ghost" data-i18n="menu">菜单</button></div>
+          <div class="medal-big" id="over-icon">💥</div>
+          <h3 id="over-title"></h3>
+          <div id="over-record" class="new-record hidden" data-i18n="newRecord">新纪录！</div>
+          <div class="stat-list" id="over-stats"></div>
+          <div class="row"><button id="btn-retry" class="btn primary"></button><button id="btn-menu" class="btn ghost" data-i18n="menu">菜单</button></div>
         </div>
       </div>
     </div>
+
     <aside class="side">
       <div class="card"><h4 data-i18n="opTitle">🎮 操作</h4><ul>
-        <li><span data-i18n="op1a">鼠标 /</span> <kbd>←</kbd><kbd>→</kbd> <span data-i18n="op1b">移动挡板</span></li><li><span data-i18n="op2a">点击 /</span> <kbd data-i18n="kbdSpace">空格</kbd> <span data-i18n="op2b">发射粘住的球</span></li><li data-i18n="op3">挡板不同落点反弹角不同</li><li><kbd>P</kbd> <span data-i18n="pauseKw">暂停</span> · <kbd>M</kbd> <span data-i18n="muteKw">静音</span> · <kbd>R</kbd> <span data-i18n="restartKw">重开</span></li></ul></div>
-      <div class="card"><h4 data-i18n="itemTitle">🎁 道具图鉴</h4><ul class="medals">
-        <li data-i18n="item1">↔️ 加长 — 挡板变宽更好接</li><li data-i18n="item2">🔫 激光 — 限时直接开火</li><li data-i18n="item3">🌀 多球 — 一球变三球</li><li data-i18n="item4">💥 穿透 — 一路碾碎砖块</li><li data-i18n="item5">🧲 粘球 — 接住再瞄准</li><li data-i18n="item6">❤️ 生命 +1 · 🐢 减速 — 球慢半拍</li></ul></div>
-      <div class="card diff"><h4 data-i18n="tipTitle">👹 通关秘籍</h4>
-        <p data-i18n="tipBody">33 关尽头有 Boss DOH 坐镇！把球往斜角打，钻到砖块顶上反复弹最划算。</p></div>
+        <li data-i18n="op1">🖱️ 鼠标左右移动球拍，点击发球</li>
+        <li data-i18n="op2">👆 触屏：手指在画面上左右拖动，轻点发球</li>
+        <li><kbd>←</kbd><kbd>→</kbd> <span data-i18n="hintMove">移动</span> · <kbd>Space</kbd> <span data-i18n="hintLaunch">发球 / 射击</span> · <kbd>P</kbd> <span data-i18n="pauseKw">暂停</span></li>
+        <li data-i18n="op3">🎯 打在球拍边缘角度更斜，中间更直</li>
+      </ul></div>
+      <div class="card"><h4 data-i18n="dexTitle">🎁 道具图鉴</h4>
+        <div class="dex">
+          <div class="ic">↔️</div><span data-i18n="pw1"><b>加长</b> 球拍变宽 · <b>⚪ 多球</b> 一变三</span>
+          <div class="ic">🔫</div><span data-i18n="pw2"><b>激光</b> 点击发射子弹 · <b>🔥 火球</b> 穿透砖块</span>
+          <div class="ic">🧲</div><span data-i18n="pw3"><b>磁吸</b> 接住球再瞄准 · <b>🐢 慢速</b> 球变慢</span>
+          <div class="ic">❤️</div><span data-i18n="pw4"><b>加命</b> 多一条命 · <b>💀 缩短</b> 小心别接！</span>
+        </div>
+      </div>
+      <div class="card diff"><h4 data-i18n="tipTitle">🧠 闯关秘诀</h4>
+        <p data-i18n="tipBody">想办法把球送进砖墙上方的空隙，它会在顶上来回弹，一口气清掉一大片！灰色钢砖打不碎，红色爆炸砖能炸开周围一圈，连续击砖不碰球拍会叠加连击倍率。</p></div>
     </aside>
   </section>
-  <details class="card seo-about"><summary data-i18n="aboutTitle">📖 关于这款游戏</summary><p data-i18n="aboutBody">移动挡板接住小球，打碎所有砖块！ 浏览器打开即玩，支持键盘和触屏，无需下载安装，完全免费。</p></details>
 
-  <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏</footer>
+  <details class="card seo-about"><summary data-i18n="aboutTitle">📖 关于这款游戏</summary><p data-i18n="aboutBody">打砖块（Breakout / Arkanoid）网页版：移动球拍把小球弹回去，敲碎所有砖块即可过关。共 10 个关卡，包含普通砖、硬砖、钢砖、爆炸砖和问号砖，掉落加长、多球、激光、火球、磁吸、慢速、加命、缩短 8 种道具，连续击砖还有连击倍率。支持鼠标、键盘和触屏，完全免费。</p></details>
+  <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持鼠标、键盘和触屏</footer>
 </main>
-<script src="../assets/i18n.js?v=20260915"></script>
+<script src="../assets/i18n.js?v=20261015"></script>
+<script src="../assets/touch.js?v=20261015"></script>
 <script>
 window.GAME_STR = {
   zh: {
-    title: '打砖块 · 经典益智', subtitle: '经典益智', gameTitle: '打砖块',
-    intro: '移动挡板接住小球，打碎所有砖块！',
-    muteTitle: '声音开 / 关 (M)',
-    start: '🚀 开始游戏',
-    hintA: '鼠标 /', hintB: '移动挡板 · 点击 /', hintC: '发球 ·', hintD: '暂停', kbdSpace: '空格',
-    paused: '⏸ 已暂停', pressP: '按 P 继续', resume: '继续', quitMenu: '回菜单',
-    scoreLbl: '得分', stageLbl: '到达关卡',
-    retry: '🔄 再来一局 (R)', menu: '菜单',
-    clearTitle: '🎉 全部通关！', again: '再玩一次',
-    opTitle: '🎮 操作', op1a: '鼠标 /', op1b: '移动挡板', op2a: '点击 /', op2b: '发射粘住的球', op3: '挡板不同落点反弹角不同',
-    pauseKw: '暂停', muteKw: '静音', restartKw: '重开',
-    itemTitle: '🎁 道具图鉴', item1: '↔️ 加长 — 挡板变宽更好接', item2: '🔫 激光 — 限时直接开火', item3: '🌀 多球 — 一球变三球',
-    item4: '💥 穿透 — 一路碾碎砖块', item5: '🧲 粘球 — 接住再瞄准', item6: '❤️ 生命 +1 · 🐢 减速 — 球慢半拍',
-    tipTitle: '👹 通关秘籍', tipBody: '33 关尽头有 Boss DOH 坐镇！把球往斜角打，钻到砖块顶上反复弹最划算。',
-    footer: '🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏',
-    best: v => '🏆 历史最高：' + v,
-    stageMsg: s => '第 ' + s + ' 关',
-    finalMsg: '最终决战 · DOH',
-    itemWide: '加长！', itemLaser: '激光！', itemMulti: '多球！', itemPierce: '穿透！', itemSticky: '粘球！', itemLife: '+1 命！', itemSlow: '减速！',
-    clearStats: (s, l) => '<div>👹 DOH 已击败！33 关全部通关！</div><div>🏆 总分 <b>' + s + '</b></div><div>❤️ 剩余生命 <b>×' + l + '</b></div>',
+    title: '打砖块 · 弹射街机', name: '打砖块', subtitle: '弹射街机', intro: '接住小球，把砖墙一块块敲碎！',
+    pickLevel: '选择关卡', start: '🚀 开始游戏', hintMove: '移动', hintLaunch: '发球 / 射击', pauseKw: '暂停',
+    paused: '⏸ 暂停中', resume: '▶ 继续', menu: '菜单', newRecord: '新纪录！',
+    opTitle: '🎮 操作', op1: '🖱️ 鼠标左右移动球拍，点击发球', op2: '👆 触屏：手指在画面上左右拖动，轻点发球', op3: '🎯 打在球拍边缘角度更斜，中间更直',
+    dexTitle: '🎁 道具图鉴', pw1: '加长：球拍变宽 · 多球：一变三', pw2: '激光：点击发射子弹 · 火球：穿透砖块', pw3: '磁吸：接住球再瞄准 · 慢速：球变慢', pw4: '加命：多一条命 · 缩短：小心别接！',
+    tipTitle: '🧠 闯关秘诀', tipBody: '想办法把球送进砖墙上方的空隙，它会在顶上来回弹，一口气清掉一大片！灰色钢砖打不碎，红色爆炸砖能炸开周围一圈，连续击砖不碰球拍会叠加连击倍率。',
     aboutTitle: '📖 关于这款游戏',
-    aboutBody: '移动挡板接住小球，打碎所有砖块！ 浏览器打开即玩，支持键盘和触屏，无需下载安装，完全免费。',
+    aboutBody: '打砖块（Breakout / Arkanoid）网页版：移动球拍把小球弹回去，敲碎所有砖块即可过关。共 10 个关卡，包含普通砖、硬砖、钢砖、爆炸砖和问号砖，掉落加长、多球、激光、火球、磁吸、慢速、加命、缩短 8 种道具，连续击砖还有连击倍率。支持鼠标、键盘和触屏，完全免费。',
+    footer: '🕹️ 打开即玩 · 完全免费 · 支持鼠标、键盘和触屏', muteTitle: '声音开 / 关 (M)',
+    lv: n => '第 ' + n + ' 关', lvShort: n => n, best: v => '🏆 最高分：' + v,
+    hudScore: '分数', hudLevel: '关卡', launch: '点击 / 空格 发球',
+    overTitle: '球拍失守', winTitle: '全部通关！', clearTitle: n => '第 ' + n + ' 关完成！',
+    retry: '🔄 再来一次', next: '▶ 下一关', again: '🔄 从头再来',
+    stScore: '分数', stLevel: '关卡', stBricks: '击碎砖块', stCombo: '最高连击', stBest: '最高分',
+    combo: n => '连击 ×' + n,
+    pw: { E: '加长！', M: '多球！', L: '激光！', F: '火球！', C: '磁吸！', S: '慢速', H: '+1 命', X: '缩短…' },
+    names: ['热身', '金字塔', '棋盘', '堡垒', '爱心', '条纹', '入侵者', '迷宫', '钻石', '终极']
   },
   en: {
-    title: 'Breakout · Classic Arcade', subtitle: 'Classic Arcade', gameTitle: 'Breakout',
-    intro: 'Move the paddle, bounce the ball, smash all the bricks!',
-    muteTitle: 'Sound on/off (M)',
-    start: '🚀 Start Game',
-    hintA: 'Mouse /', hintB: 'to move · click /', hintC: 'to launch ·', hintD: 'to pause', kbdSpace: 'Space',
-    paused: '⏸ Paused', pressP: 'Press P to resume', resume: 'Resume', quitMenu: 'Menu',
-    scoreLbl: 'Score', stageLbl: 'Stage',
-    retry: '🔄 Play Again (R)', menu: 'Menu',
-    clearTitle: '🎉 All Clear!', again: 'Play Again',
-    opTitle: '🎮 Controls', op1a: 'Mouse /', op1b: 'to move the paddle', op2a: 'Click /', op2b: 'to launch the stuck ball', op3: 'Bounce angle depends on hit position',
-    pauseKw: 'pause', muteKw: 'mute', restartKw: 'restart',
-    itemTitle: '🎁 Power-up Guide', item1: '↔️ Extend — wider paddle, easier catches', item2: '🔫 Laser — fire away for a limited time', item3: '🌀 Multi-ball — one ball becomes three',
-    item4: '💥 Pierce — smash straight through', item5: '🧲 Sticky — catch, aim, relaunch', item6: '❤️ +1 Life · 🐢 Slow — ball slows down',
-    tipTitle: '👹 Boss Notes', tipBody: 'Boss DOH waits at stage 33! Aim sharp angles and park the ball on top of the bricks for free hits.',
-    footer: '🕹️ Play instantly · Free · Keyboard & touch friendly',
-    best: v => '🏆 Best: ' + v,
-    stageMsg: s => 'Stage ' + s,
-    finalMsg: 'Final Battle · DOH',
-    itemWide: 'Extend!', itemLaser: 'Laser!', itemMulti: 'Multi-ball!', itemPierce: 'Pierce!', itemSticky: 'Sticky!', itemLife: '+1 Life!', itemSlow: 'Slow!',
-    clearStats: (s, l) => '<div>👹 DOH defeated! All 33 stages cleared!</div><div>🏆 Score <b>' + s + '</b></div><div>❤️ Lives left <b>×' + l + '</b></div>',
+    title: 'Breakout · Arcade', name: 'Breakout', subtitle: 'Arcade Bounce', intro: 'Keep the ball alive and smash the wall brick by brick!',
+    pickLevel: 'SELECT LEVEL', start: '🚀 Start Game', hintMove: 'move', hintLaunch: 'launch / fire', pauseKw: 'pause',
+    paused: '⏸ Paused', resume: '▶ Resume', menu: 'Menu', newRecord: 'NEW RECORD!',
+    opTitle: '🎮 Controls', op1: '🖱️ Move the mouse to steer, click to launch', op2: '👆 Touch: drag left/right, tap to launch', op3: '🎯 Edge hits bounce wide, center hits go straight',
+    dexTitle: '🎁 Power-ups', pw1: 'Expand: wider paddle · Multi: one ball becomes three', pw2: 'Laser: click to shoot · Fireball: pierces bricks', pw3: 'Catch: hold the ball and aim · Slow: calmer ball', pw4: 'Life: +1 life · Shrink: avoid this one!',
+    tipTitle: '🧠 Pro Tips', tipBody: 'Sneak the ball above the wall and it will rattle around the top clearing tons of bricks! Grey steel bricks are unbreakable, red TNT bricks blast their neighbors, and chaining hits without touching the paddle stacks a combo multiplier.',
     aboutTitle: '📖 About this game',
-    aboutBody: 'Move the paddle, bounce the ball, smash all the bricks! Play instantly in your browser — keyboard and touch supported, no download needed, completely free.',
+    aboutBody: 'Breakout / Arkanoid in your browser: bounce the ball with your paddle and break every brick to clear the level. 10 handcrafted levels with normal, hard, steel, TNT and mystery bricks, plus 8 power-ups — expand, multi-ball, laser, fireball, catch, slow, extra life and shrink — and a combo multiplier. Mouse, keyboard and touch, completely free.',
+    footer: '🕹️ Play instantly · Free · Mouse, keyboard & touch', muteTitle: 'Sound on/off (M)',
+    lv: n => 'Level ' + n, lvShort: n => n, best: v => '🏆 Best: ' + v,
+    hudScore: 'SCORE', hudLevel: 'LEVEL', launch: 'Click / Space to launch',
+    overTitle: 'Game Over', winTitle: 'All Levels Cleared!', clearTitle: n => 'Level ' + n + ' cleared!',
+    retry: '🔄 Try Again', next: '▶ Next Level', again: '🔄 Play Again',
+    stScore: 'Score', stLevel: 'Level', stBricks: 'Bricks', stCombo: 'Best combo', stBest: 'Best',
+    combo: n => 'COMBO ×' + n,
+    pw: { E: 'Expand!', M: 'Multi-ball!', L: 'Laser!', F: 'Fireball!', C: 'Catch!', S: 'Slow', H: '+1 Life', X: 'Shrink…' },
+    names: ['Warm-up', 'Pyramid', 'Checker', 'Fortress', 'Heart', 'Stripes', 'Invader', 'Maze', 'Diamond', 'Finale']
   },
   ja: {
-    title: 'ブロック崩し · クラシックアーケード', subtitle: 'クラシックアーケード', gameTitle: 'ブロック崩し',
-    intro: 'パドルを動かしてボールを跳ね返し、全部のブロックを壊そう！',
-    muteTitle: 'サウンド ON/OFF (M)',
-    start: '🚀 ゲームスタート',
-    hintA: 'マウス /', hintB: 'で移動 · クリック /', hintC: 'で発射 ·', hintD: 'で一時停止', kbdSpace: 'スペース',
-    paused: '⏸ 一時停止中', pressP: 'Pキーで再開', resume: '再開', quitMenu: 'メニュー',
-    scoreLbl: 'スコア', stageLbl: 'ステージ',
-    retry: '🔄 もう一度 (R)', menu: 'メニュー',
-    clearTitle: '🎉 全クリ！', again: 'もう一度遊ぶ',
-    opTitle: '🎮 操作', op1a: 'マウス /', op1b: 'でパドルを移動', op2a: 'クリック /', op2b: 'で吸着ボールを発射', op3: '当たる位置で反射角が変わる',
-    pauseKw: '一時停止', muteKw: 'ミュート', restartKw: 'リスタート',
-    itemTitle: '🎁 アイテム図鑑', item1: '↔️ 拡張 — パドルが長くなって拾いやすい', item2: '🔫 レーザー — 一定時間そのまま撃てる', item3: '🌀 マルチボール — 1つが3つに',
-    item4: '💥 貫通 — ブロックを突き抜ける', item5: '🧲 吸着 — キャッチして狙い直し', item6: '❤️ ライフ+1 · 🐢 スロー — 球がゆっくり',
-    tipTitle: '👹 攻略メモ', tipBody: '33面の果てにはボスDOHが待つ！斜めに打ってブロックの上で跳ね回らせるのが得策。',
-    footer: '🕹️ すぐ遊べる · 完全無料 · キーボード＆タッチ対応',
-    best: v => '🏆 ベスト：' + v,
-    stageMsg: s => 'ステージ ' + s,
-    finalMsg: '最終決戦 · DOH',
-    itemWide: '拡張！', itemLaser: 'レーザー！', itemMulti: 'マルチボール！', itemPierce: '貫通！', itemSticky: '吸着！', itemLife: '+1 ライフ！', itemSlow: 'スロー！',
-    clearStats: (s, l) => '<div>👹 DOH撃破！全33面クリア！</div><div>🏆 スコア <b>' + s + '</b></div><div>❤️ 残りライフ <b>×' + l + '</b></div>',
+    title: 'ブロック崩し · アーケード', name: 'ブロック崩し', subtitle: 'アーケード', intro: 'ボールを打ち返して、ブロックを全部壊そう！',
+    pickLevel: 'ステージ選択', start: '🚀 ゲームスタート', hintMove: '移動', hintLaunch: '発射 / ショット', pauseKw: '一時停止',
+    paused: '⏸ 一時停止中', resume: '▶ 再開', menu: 'メニュー', newRecord: '新記録！',
+    opTitle: '🎮 操作', op1: '🖱️ マウスでパドル移動、クリックで発射', op2: '👆 タッチ：左右にドラッグ、タップで発射', op3: '🎯 端で打つと斜めに、中央だとまっすぐ飛ぶ',
+    dexTitle: '🎁 アイテム図鑑', pw1: 'ロング：パドル拡大 · マルチ：ボールが3つに', pw2: 'レーザー：クリックで発射 · ファイア：ブロック貫通', pw3: 'キャッチ：ボールを止めて狙う · スロー：ボール減速', pw4: 'ライフ：残機+1 · ショート：取らないで！',
+    tipTitle: '🧠 攻略のコツ', tipBody: 'ボールを壁の上の隙間に送り込めば、上で跳ね回って一気に壊せる！灰色の鋼鉄ブロックは壊れず、赤いTNTは周りごと爆破。パドルに触れず連続ヒットするとコンボ倍率アップ。',
     aboutTitle: '📖 このゲームについて',
-    aboutBody: 'パドルを動かしてボールを跳ね返し、全部のブロックを壊そう！ ブラウザでそのまま遊べます。キーボード・タッチ操作対応、ダウンロード不要・完全無料。',
+    aboutBody: 'ブラウザで遊べるブロック崩し：パドルでボールを打ち返し、全ブロックを壊せばクリア。10ステージ、通常・硬い・鋼鉄・TNT・？ブロック、ロング・マルチ・レーザー・ファイア・キャッチ・スロー・ライフ・ショートの8種アイテム、コンボ倍率。マウス・キーボード・タッチ対応、完全無料。',
+    footer: '🕹️ すぐ遊べる · 完全無料 · マウス・キーボード・タッチ対応', muteTitle: 'サウンド ON/OFF (M)',
+    lv: n => 'ステージ ' + n, lvShort: n => n, best: v => '🏆 ハイスコア：' + v,
+    hudScore: 'スコア', hudLevel: 'ステージ', launch: 'クリック / スペースで発射',
+    overTitle: 'ゲームオーバー', winTitle: '全ステージクリア！', clearTitle: n => 'ステージ ' + n + ' クリア！',
+    retry: '🔄 もう一回', next: '▶ 次のステージ', again: '🔄 最初から',
+    stScore: 'スコア', stLevel: 'ステージ', stBricks: '破壊数', stCombo: '最大コンボ', stBest: 'ハイスコア',
+    combo: n => 'コンボ ×' + n,
+    pw: { E: 'ロング！', M: 'マルチ！', L: 'レーザー！', F: 'ファイア！', C: 'キャッチ！', S: 'スロー', H: '残機+1', X: 'ショート…' },
+    names: ['ウォームアップ', 'ピラミッド', 'チェッカー', '要塞', 'ハート', 'ストライプ', 'インベーダー', '迷路', 'ダイヤ', 'フィナーレ']
   },
   ko: {
-    title: '벽돌깨기 · 클래식 아케이드', subtitle: '클래식 아케이드', gameTitle: '벽돌깨기',
-    intro: '패들을 움직여 공을 튕겨 모든 벽돌을 깨보세요!',
-    muteTitle: '사운드 켜기/끄기 (M)',
-    start: '🚀 게임 시작',
-    hintA: '마우스 /', hintB: '로 이동 · 클릭 /', hintC: '으로 발사 ·', hintD: '로 일시정지', kbdSpace: '스페이스',
-    paused: '⏸ 일시정지', pressP: 'P를 눌러 계속', resume: '계속', quitMenu: '메뉴',
-    scoreLbl: '점수', stageLbl: '스테이지',
-    retry: '🔄 다시 하기 (R)', menu: '메뉴',
-    clearTitle: '🎉 올클리어!', again: '다시 하기',
-    opTitle: '🎮 조작', op1a: '마우스 /', op1b: '로 패들 이동', op2a: '클릭 /', op2b: '으로 붙은 공 발사', op3: '맞는 위치에 따라 반사각이 달라짐',
-    pauseKw: '일시정지', muteKw: '음소거', restartKw: '다시 시작',
-    itemTitle: '🎁 아이템 도감', item1: '↔️ 확장 — 패들이 길어져 받기 쉬움', item2: '🔫 레이저 — 제한 시간 동안 바로 발사', item3: '🌀 멀티볼 — 하나가 셋으로',
-    item4: '💥 관통 — 벽돌을 그대로 뚫음', item5: '🧲 스티키 — 받은 뒤 조준 발사', item6: '❤️ 목숨 +1 · 🐢 슬로우 — 공이 느려짐',
-    tipTitle: '👹 공략 비결', tipBody: '33스테이지 끝엔 보스 DOH! 날카로운 각도로 쏴서 벽돌 위에서 튕기게 하면 이득.',
-    footer: '🕹️ 바로 플레이 · 완전 무료 · 키보드 & 터치 지원',
-    best: v => '🏆 최고 기록: ' + v,
-    stageMsg: s => '스테이지 ' + s,
-    finalMsg: '최종 결전 · DOH',
-    itemWide: '확장!', itemLaser: '레이저!', itemMulti: '멀티볼!', itemPierce: '관통!', itemSticky: '스티키!', itemLife: '+1 목숨!', itemSlow: '슬로우!',
-    clearStats: (s, l) => '<div>👹 DOH 격파! 33스테이지 올클리어!</div><div>🏆 점수 <b>' + s + '</b></div><div>❤️ 남은 목숨 <b>×' + l + '</b></div>',
+    title: '벽돌깨기 · 아케이드', name: '벽돌깨기', subtitle: '아케이드', intro: '공을 받아쳐서 벽돌을 하나씩 깨부수세요!',
+    pickLevel: '스테이지 선택', start: '🚀 게임 시작', hintMove: '이동', hintLaunch: '발사 / 사격', pauseKw: '일시정지',
+    paused: '⏸ 일시정지', resume: '▶ 계속', menu: '메뉴', newRecord: '신기록!',
+    opTitle: '🎮 조작', op1: '🖱️ 마우스로 패들 이동, 클릭해서 발사', op2: '👆 터치: 좌우로 드래그, 탭해서 발사', op3: '🎯 가장자리에 맞으면 비스듬히, 가운데면 곧게',
+    dexTitle: '🎁 아이템 도감', pw1: '확장: 패들이 넓어짐 · 멀티: 공이 셋으로', pw2: '레이저: 클릭으로 발사 · 파이어: 벽돌 관통', pw3: '캐치: 공을 잡고 조준 · 슬로: 공 감속', pw4: '라이프: 목숨 +1 · 축소: 피하세요!',
+    tipTitle: '🧠 공략 비결', tipBody: '공을 벽 위 빈틈으로 보내면 위에서 튕기며 한꺼번에 많이 깹니다! 회색 강철 벽돌은 깨지지 않고, 빨간 TNT는 주변까지 폭파. 패들에 닿지 않고 연속으로 맞히면 콤보 배율이 올라가요.',
     aboutTitle: '📖 게임 소개',
-    aboutBody: '패들을 움직여 공을 튕겨 모든 벽돌을 깨보세요! 브라우저에서 바로 플레이 — 키보드와 터치 지원, 다운로드 불필요, 완전 무료.',
+    aboutBody: '브라우저에서 즐기는 벽돌깨기: 패들로 공을 받아쳐 모든 벽돌을 깨면 클리어. 10개 스테이지, 일반·단단한·강철·TNT·물음표 벽돌, 확장·멀티·레이저·파이어·캐치·슬로·라이프·축소 8가지 아이템과 콤보 배율. 마우스·키보드·터치 지원, 완전 무료.',
+    footer: '🕹️ 바로 플레이 · 완전 무료 · 마우스·키보드·터치 지원', muteTitle: '사운드 켜기/끄기 (M)',
+    lv: n => '스테이지 ' + n, lvShort: n => n, best: v => '🏆 최고 점수: ' + v,
+    hudScore: '점수', hudLevel: '스테이지', launch: '클릭 / 스페이스로 발사',
+    overTitle: '게임 오버', winTitle: '전 스테이지 클리어!', clearTitle: n => '스테이지 ' + n + ' 클리어!',
+    retry: '🔄 다시 하기', next: '▶ 다음 스테이지', again: '🔄 처음부터',
+    stScore: '점수', stLevel: '스테이지', stBricks: '깬 벽돌', stCombo: '최고 콤보', stBest: '최고 점수',
+    combo: n => '콤보 ×' + n,
+    pw: { E: '확장!', M: '멀티볼!', L: '레이저!', F: '파이어볼!', C: '캐치!', S: '슬로', H: '목숨 +1', X: '축소…' },
+    names: ['워밍업', '피라미드', '체커', '요새', '하트', '줄무늬', '인베이더', '미로', '다이아', '피날레']
   }
 };
 </script>
-<script src="game.js?v=20260906"></script>
+<script src="../assets/bgm.js?v=20261015"></script>
+<script src="../assets/kit.js?v=20261015"></script>
+<script src="game.js?v=20261015"></script>
 </body>
 </html>

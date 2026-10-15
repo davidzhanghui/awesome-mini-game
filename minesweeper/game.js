@@ -1,334 +1,491 @@
 (() => {
-// 扫雷：经典三档 + 首击安全 + 双击展开 + 计时
-const STR = window.GAME_STR || { zh: {}, en: {} };
-const T = (k, ...a) => AMG.tf(STR, k, ...a);
-const diffName = d => (T('diffs') || [])[d] || DIFFS[d].name;
-const W = 520, H = 620;
-const canvas = document.getElementById('game');
-const ctx = canvas.getContext('2d');
-const $ = id => document.getElementById(id);
-const dpr = Math.min(window.devicePixelRatio || 1, 2);
-canvas.width = W * dpr; canvas.height = H * dpr;
-ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-const DIFFS = [
-  { name: '初级', w: 9, h: 9, mines: 10 },
-  { name: '中级', w: 16, h: 16, mines: 40 },
-  { name: '高级', w: 30, h: 16, mines: 99 }
-];
-const store = {
-  get muted() { return localStorage.getItem('ms-muted') === '1'; },
-  set muted(v) { localStorage.setItem('ms-muted', v ? '1' : '0'); },
-  get best() { try { return JSON.parse(localStorage.getItem('ms-best') || '[0,0,0]'); } catch (e) { return [0, 0, 0]; } },
-  set best(v) { localStorage.setItem('ms-best', JSON.stringify(v)); }
+'use strict';
+// 扫雷：Canvas 绘制；首击安全区布雷；BFS 涟漪展开（按深度错峰翻开）；失败时地雷按距离连环引爆
+const { $, T } = KIT;
+const store = KIT.store('amg-mines');
+const LV = {
+  easy: { c: 9, r: 9, m: 10, cs: 40 },
+  mid: { c: 16, r: 16, m: 40, cs: 32 },
+  hard: { c: 30, r: 16, m: 99, cs: 30 }
 };
-let actx = null, muted = store.muted;
-function tone(f, dur, type, vol) {
-  if (muted) return;
-  try {
-    if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
-    if (actx.state === 'suspended') actx.resume();
-    const o = actx.createOscillator(), g = actx.createGain();
-    o.type = type || 'square'; o.frequency.value = f;
-    g.gain.setValueAtTime(vol || .07, actx.currentTime);
-    g.gain.exponentialRampToValueAtTime(.001, actx.currentTime + dur);
-    o.connect(g); g.connect(actx.destination); o.start(); o.stop(actx.currentTime + dur);
-  } catch (e) {}
+const HINTS = 3, PENALTY = 10;
+
+const cv = $('game'), field = $('field');
+let ctx, W = 0, H = 0;
+let lvKey = LV[store.get('lv', 'easy')] ? store.get('lv', 'easy') : 'easy';
+let C = 9, R = 9, M = 10, cs = 40;
+let cells = [], state = 'menu'; // menu | ready | play | win | lose
+let flagMode = false, opened = 0, flags = 0, t0 = 0, endTime = 0, penalty = 0;
+let hintsLeft = HINTS, hintsUsed = 0, clicks = 0, bestAtStart = 0;
+let hover = -1, press = null, longTimer = 0, hintCell = -1, hintAt = 0;
+let loseUntil = 0;
+const parts = new KIT.Particles();
+
+// ---------------- 布局 ----------------
+function setup(keepDims) {
+  const L = LV[lvKey];
+  if (!keepDims) {
+    C = L.c; R = L.r; M = L.m;
+    if (lvKey === 'hard' && window.innerWidth < 640) { C = 16; R = 30; } // 竖屏手机把高级盘竖过来
+  }
+  document.getElementById('cabinet').classList.toggle('wide', C >= 30);
+  const avail = Math.min(window.innerWidth * 0.94, C >= 30 ? 980 : 640) - 32;
+  cs = Math.max(18, Math.min(L.cs, Math.floor(avail / C)));
+  W = C * cs; H = R * cs;
+  ctx = KIT.canvas(cv, W, H);
+  cv.style.width = W + 'px'; cv.style.height = H + 'px';
 }
+
+const idx = (x, y) => y * C + x;
+function nbrs(i) {
+  const x = i % C, y = (i / C) | 0, out = [];
+  for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+    if (!dx && !dy) continue;
+    const nx = x + dx, ny = y + dy;
+    if (nx >= 0 && nx < C && ny >= 0 && ny < R) out.push(idx(nx, ny));
+  }
+  return out;
+}
+
+// ---------------- 音效 ----------------
 const sfx = {
-  open: () => tone(500, .05, 'square', .05),
-  flag: () => tone(700, .06, 'sine', .07),
-  boom: () => tone(120, .4, 'sawtooth', .14, -60),
-  win: () => [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => tone(f, .14, 'sine', .09), i * 100))
+  click: () => KIT.tone(620, 0.05, { type: 'triangle', vol: 0.05, to: 520 }),
+  sweep: n => {
+    KIT.noise(0.18 + Math.min(n, 60) * 0.004, { vol: 0.05, hp: 2500 });
+    KIT.arp([523, 659, 784], 0.04, { vol: 0.04, dur: 0.1 });
+  },
+  flag: on => KIT.tone(on ? 880 : 520, 0.08, { type: 'square', vol: 0.03, to: on ? 1180 : 360 }),
+  deny: () => KIT.tone(150, 0.1, { type: 'sine', vol: 0.06 }),
+  boom: big => {
+    KIT.noise(big ? 0.7 : 0.35, { vol: big ? 0.3 : 0.12, lp: big ? 900 : 1500 });
+    KIT.tone(big ? 90 : 120, big ? 0.5 : 0.25, { type: 'sine', vol: big ? 0.25 : 0.1, to: 40 });
+  },
+  win: () => KIT.arp([523, 659, 784, 1047, 784, 1047, 1319], 0.09, { vol: 0.08, dur: 0.22 }),
+  hint: () => KIT.arp([880, 1175], 0.07, { type: 'sine', vol: 0.06 })
 };
 
-const G = {
-  state: 'menu', diff: 0, w: 9, h: 9, mines: 10,
-  board: [], opened: 0, flags: 0, started: false, over: false, win: false,
-  t0: 0, elapsed: 0, boomAt: null, ox: 0, oy: 0, cell: 0
-};
-const NCOL = ['#3a8dde', '#5ee66e', '#ff5d5d', '#2b5fd9', '#a03a2a', '#3aa0a0', '#222', '#888'];
-function reset(d) {
-  G.diff = d;
-  const D = DIFFS[d];
-  G.w = D.w; G.h = D.h; G.mines = D.mines;
-  G.board = Array.from({ length: G.h }, () => Array.from({ length: G.w }, () => ({ mine: false, open: false, flag: false, n: 0 })));
-  G.opened = 0; G.flags = 0; G.started = false; G.over = false; G.win = false;
-  G.elapsed = 0; G.boomAt = null;
-  layout();
+// ---------------- 规则 ----------------
+function newGame() {
+  setup(false);
+  cells = Array.from({ length: C * R }, () => ({ mine: false, n: 0, open: false, flag: false, at: 0, boom: 0, blown: false, flagAt: 0 }));
+  state = 'ready';
+  opened = flags = clicks = penalty = hintsUsed = 0;
+  hintsLeft = HINTS; endTime = 0; t0 = 0; hover = -1; press = null; hintCell = -1;
+  bestAtStart = store.get('best-' + lvKey, 0);
+  parts.clear();
+  hideScreens();
+  setFace('🙂');
+  renderBar();
+  KIT.music('puzzle-calm');
 }
-function layout() {
-  const maxCellW = (W - 30) / G.w, maxCellH = (H - 120) / G.h;
-  G.cell = Math.floor(Math.min(maxCellW, maxCellH, 34));
-  G.ox = (W - G.cell * G.w) / 2;
-  G.oy = 96 + (H - 120 - G.cell * G.h) / 2;
+
+function placeMines(safe) {
+  const ban = new Set([safe]);
+  if (C * R - M >= 9) nbrs(safe).forEach(n => ban.add(n));
+  const pool = [];
+  for (let i = 0; i < C * R; i++) if (!ban.has(i)) pool.push(i);
+  for (let k = 0; k < M; k++) {
+    const j = k + ((Math.random() * (pool.length - k)) | 0);
+    [pool[k], pool[j]] = [pool[j], pool[k]];
+    cells[pool[k]].mine = true;
+  }
+  cells.forEach((c, i) => { c.n = nbrs(i).filter(n => cells[n].mine).length; });
 }
-function placeMines(sx, sy) {
-  let placed = 0, guard = 0;
-  while (placed < G.mines && guard++ < 10000) {
-    const x = Math.random() * G.w | 0, y = Math.random() * G.h | 0;
-    if (G.board[y][x].mine) continue;
-    if (Math.abs(x - sx) <= 1 && Math.abs(y - sy) <= 1) continue; // 首击 3x3 安全
-    G.board[y][x].mine = true;
-    placed++;
-  }
-  for (let y = 0; y < G.h; y++) for (let x = 0; x < G.w; x++) {
-    if (G.board[y][x].mine) continue;
-    let n = 0;
-    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
-      if (!dx && !dy) continue;
-      const nx = x + dx, ny = y + dy;
-      if (nx >= 0 && ny >= 0 && nx < G.w && ny < G.h && G.board[ny][nx].mine) n++;
-    }
-    G.board[y][x].n = n;
-  }
-}
-function open(x, y) {
-  if (G.over || G.win) return;
-  const c = G.board[y] && G.board[y][x];
-  if (!c || c.open || c.flag) return;
-  if (!G.started) {
-    G.started = true;
-    G.t0 = Date.now();
-    placeMines(x, y);
-  }
-  if (c.mine) {
-    c.open = true;
-    G.boomAt = [x, y];
-    return gameOver(false);
-  }
-  flood(x, y);
-  sfx.open();
-  checkWin();
-}
-function flood(x, y) {
-  const q = [[x, y]];
+
+function reveal(i, silent) {
+  const c = cells[i];
+  if (c.open || c.flag) return 0;
+  if (state === 'ready') { placeMines(i); state = 'play'; t0 = performance.now(); }
+  if (c.mine) { lose(i); return -1; }
+  const now = performance.now();
+  const q = [[i, 0]];
+  c.open = true; c.at = now; opened++;
+  let count = 1;
   while (q.length) {
-    const [cx, cy] = q.pop();
-    const c = G.board[cy] && G.board[cy][cx];
-    if (!c || c.open || c.flag) continue;
-    c.open = true;
-    G.opened++;
-    if (c.n === 0 && !c.mine) {
-      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
-        if (!dx && !dy) continue;
-        const nx = cx + dx, ny = cy + dy;
-        if (nx >= 0 && ny >= 0 && nx < G.w && ny < G.h) {
-          const n = G.board[ny][nx];
-          if (!n.open && !n.flag) q.push([nx, ny]);
+    const [j, d] = q.shift();
+    if (cells[j].n) continue;
+    for (const n of nbrs(j)) {
+      const o = cells[n];
+      if (o.open || o.flag || o.mine) continue;
+      o.open = true; o.at = now + Math.min(900, (d + 1) * 24); opened++; count++;
+      q.push([n, d + 1]);
+    }
+  }
+  if (!silent) count > 1 ? sfx.sweep(count) : sfx.click();
+  checkWin();
+  return count;
+}
+
+function chord(i) {
+  const c = cells[i];
+  if (!c.open || !c.n || state !== 'play') return;
+  const around = nbrs(i);
+  const f = around.filter(n => cells[n].flag).length;
+  const closed = around.filter(n => !cells[n].open && !cells[n].flag);
+  if (!closed.length) return;
+  if (f !== c.n) { sfx.deny(); flashNbrs = { i, at: performance.now() }; return; }
+  let total = 0;
+  for (const n of closed) {
+    const r = reveal(n, true);
+    if (r < 0) return;
+    total += r;
+  }
+  total > 1 ? sfx.sweep(total) : sfx.click();
+}
+let flashNbrs = null;
+
+function toggleFlag(i) {
+  const c = cells[i];
+  if (c.open || (state !== 'play' && state !== 'ready')) return;
+  c.flag = !c.flag; c.flagAt = performance.now();
+  flags += c.flag ? 1 : -1;
+  sfx.flag(c.flag);
+  renderBar();
+}
+
+function elapsed() {
+  if (state === 'ready' || state === 'menu') return 0;
+  const end = endTime || performance.now();
+  return (end - t0) / 1000 + penalty;
+}
+const fmt = s => (Math.round(s * 10) / 10).toFixed(1);
+
+function checkWin() {
+  if (state !== 'play' || opened !== C * R - M) return;
+  state = 'win';
+  endTime = performance.now();
+  const now = endTime;
+  cells.forEach(c => { if (c.mine && !c.flag) { c.flag = true; c.flagAt = now + Math.random() * 400; } });
+  flags = M;
+  const t = +fmt(elapsed());
+  const best = store.get('best-' + lvKey, 0);
+  if (!best || t < best) store.set('best-' + lvKey, t);
+  setFace('😎');
+  sfx.win();
+  KIT.stopMusic();
+  for (let k = 0; k < 6; k++) setTimeout(() => parts.burst(Math.random() * W, Math.random() * H * 0.6, {
+    n: 26, color: ['#f2b84b', '#e0703a', '#5a9e63', '#4f8fe0', '#d9539a'], shape: 'square', speed: 260, life: 1.3, size: 7, gravity: 380
+  }), k * 160);
+  renderBar();
+  setTimeout(() => showOver(true, t, !bestAtStart || t < bestAtStart), 1100);
+}
+
+function lose(i) {
+  state = 'lose';
+  endTime = performance.now();
+  const now = endTime;
+  const x0 = i % C, y0 = (i / C) | 0;
+  cells[i].boom = now; cells[i].first = true;
+  let last = now;
+  cells.forEach((c, j) => {
+    if (!c.mine || j === i || c.flag) return;
+    const d = Math.hypot(j % C - x0, ((j / C) | 0) - y0);
+    c.boom = now + 260 + d * 70 + Math.random() * 60;
+    last = Math.max(last, c.boom);
+  });
+  loseUntil = Math.min(last, now + 2400);
+  // 太远的雷压缩到 2.4 秒内一起爆
+  cells.forEach(c => { if (c.boom > loseUntil) c.boom = loseUntil - Math.random() * 200; });
+  setFace('😵');
+  sfx.boom(true);
+  field.classList.remove('shake'); void field.offsetWidth; field.classList.add('shake');
+  KIT.stopMusic();
+  renderBar();
+  setTimeout(() => showOver(false, elapsed(), false), loseUntil - now + 700);
+}
+
+function useHint() {
+  if (state === 'ready') { KIT.toast($('toast'), T('noSafe')); sfx.deny(); return; }
+  if (state !== 'play') return;
+  if (hintsLeft <= 0) { KIT.toast($('toast'), T('noHint')); sfx.deny(); return; }
+  const safe = [], edge = [];
+  cells.forEach((c, i) => {
+    if (c.open || c.mine || c.flag) return;
+    safe.push(i);
+    if (nbrs(i).some(n => cells[n].open)) edge.push(i);
+  });
+  const pool = edge.length ? edge : safe;
+  if (!pool.length) return;
+  const pick = pool[(Math.random() * pool.length) | 0];
+  hintsLeft--; hintsUsed++; penalty += PENALTY;
+  hintCell = pick; hintAt = performance.now();
+  sfx.hint();
+  KIT.toast($('toast'), T('hintPenalty'));
+  reveal(pick, true);
+  renderBar();
+}
+
+// ---------------- 界面 ----------------
+function setFace(f) { $('btn-face').textContent = f; }
+function renderBar() {
+  $('mines-left').textContent = M - flags;
+  $('hint-left').textContent = hintsLeft;
+  $('btn-hint').disabled = hintsLeft <= 0;
+  $('btn-flag').classList.toggle('on', flagMode);
+}
+function hideScreens() {
+  $('screen-menu').classList.add('hidden');
+  $('screen-over').classList.add('hidden');
+  $('screen-over').classList.remove('peek');
+}
+function showMenu() {
+  state = 'menu';
+  KIT.stopMusic();
+  hideScreens();
+  setup(false);
+  cells = Array.from({ length: C * R }, () => ({ mine: false, n: 0, open: false, flag: false, at: 0, boom: 0 }));
+  renderMenu();
+  $('screen-menu').classList.remove('hidden');
+}
+function renderMenu() {
+  document.querySelectorAll('#lv-seg button').forEach(b => b.classList.toggle('on', b.dataset.lv === lvKey));
+  const L = LV[lvKey];
+  $('lv-desc').textContent = T('lvDesc', L.c, L.r, L.m);
+  const b = store.get('best-' + lvKey, 0);
+  $('menu-best').textContent = T('best', b ? T('sec', fmt(b)) : 0);
+}
+function showOver(win, t, record) {
+  if (state !== (win ? 'win' : 'lose')) return;
+  $('over-icon').textContent = win ? '🏆' : '💥';
+  const title = $('over-title');
+  title.textContent = win ? T('winTitle') : T('loseTitle');
+  title.className = win ? 'clear-title' : 'over-title';
+  $('over-record').classList.toggle('hidden', !record);
+  const best = store.get('best-' + lvKey, 0);
+  const pct = Math.floor(opened / (C * R - M) * 100);
+  $('over-stats').innerHTML =
+    `<span>${T('stTime')}</span><b>${T('sec', fmt(t))}</b>` +
+    `<span>${T('stBest')}</span><b>${best ? T('sec', fmt(best)) : '—'}</b>` +
+    `<span>${T('stProgress')}</span><b>${pct}%</b>` +
+    `<span>${T('stClicks')}</span><b>${clicks}</b>` +
+    `<span>${T('stHints')}</span><b>${hintsUsed}</b>`;
+  $('screen-over').classList.remove('hidden', 'peek');
+}
+
+// ---------------- 绘制 ----------------
+const PAL = {
+  light: {
+    top: '#f1dfc0', side: '#d7bb91', hi: '#fff6e6', open: '#f8f1e4', line: '#e8dac3', hover: '#f8e9cf', press: '#eadcc4',
+    nums: ['', '#2f6fd6', '#2f9a4a', '#d6443a', '#7a4bc9', '#b8662a', '#1f9aa8', '#3a2e24', '#8c7f70'],
+    mine: '#2b221b', boomBg: '#f08a7a', hint: '#5a9e63'
+  },
+  dark: {
+    top: '#5c4731', side: '#3a2c1d', hi: '#715a3f', open: '#2a2016', line: '#3a2d1f', hover: '#6c5439', press: '#3b2e20',
+    nums: ['', '#7fb0ff', '#7fd88f', '#ff8a7a', '#c6a3ff', '#f0a868', '#6fd6e0', '#f2e7d4', '#b8aa98'],
+    mine: '#f2e7d4', boomBg: '#a8402f', hint: '#7fd88f'
+  }
+};
+
+function drawMine(x, y, col) {
+  const cx = x + cs / 2, cy = y + cs / 2, r = cs * 0.24;
+  ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = Math.max(1.5, cs * 0.06); ctx.lineCap = 'round';
+  for (let k = 0; k < 4; k++) {
+    const a = k * Math.PI / 4;
+    ctx.beginPath();
+    ctx.moveTo(cx - Math.cos(a) * r * 1.45, cy - Math.sin(a) * r * 1.45);
+    ctx.lineTo(cx + Math.cos(a) * r * 1.45, cy + Math.sin(a) * r * 1.45);
+    ctx.stroke();
+  }
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,.75)';
+  ctx.beginPath(); ctx.arc(cx - r * 0.35, cy - r * 0.35, r * 0.28, 0, Math.PI * 2); ctx.fill();
+}
+function drawFlag(x, y, scale) {
+  const cx = x + cs / 2, cy = y + cs / 2;
+  ctx.save(); ctx.translate(cx, cy); ctx.scale(scale, scale);
+  const s = cs;
+  ctx.fillStyle = '#6b5a45';
+  ctx.fillRect(-s * 0.03, -s * 0.28, s * 0.06, s * 0.52);
+  ctx.fillRect(-s * 0.18, s * 0.2, s * 0.36, s * 0.07);
+  ctx.fillStyle = '#e0483a';
+  ctx.beginPath(); ctx.moveTo(s * 0.03, -s * 0.3); ctx.lineTo(s * 0.26, -s * 0.17); ctx.lineTo(s * 0.03, -s * 0.03); ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+function drawCovered(x, y, P, mode) {
+  const g = Math.max(1, cs * 0.05);
+  ctx.fillStyle = P.side;
+  KIT.roundRect(ctx, x + g, y + g, cs - g * 2, cs - g * 2, cs * 0.18); ctx.fill();
+  ctx.fillStyle = mode === 'press' ? P.press : mode === 'hover' ? P.hover : P.top;
+  const lift = mode === 'press' ? 0 : cs * 0.08;
+  KIT.roundRect(ctx, x + g, y + g, cs - g * 2, cs - g * 2 - lift, cs * 0.18); ctx.fill();
+  if (mode !== 'press') {
+    ctx.fillStyle = P.hi;
+    ctx.globalAlpha = 0.6;
+    KIT.roundRect(ctx, x + g * 2.5, y + g * 2.2, cs - g * 5, cs * 0.12, cs * 0.06); ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+}
+
+function pressedSet() {
+  const s = new Set();
+  if (press && press.type === 'mouse' && press.i >= 0 && (state === 'play' || state === 'ready')) {
+    const c = cells[press.i];
+    if (!c.open && !c.flag && !flagMode && press.btn === 0) s.add(press.i);
+    if (c.open && c.n) nbrs(press.i).forEach(n => { if (!cells[n].open && !cells[n].flag) s.add(n); });
+  }
+  if (flashNbrs && performance.now() - flashNbrs.at < 220) nbrs(flashNbrs.i).forEach(n => { if (!cells[n].open && !cells[n].flag) s.add(n); });
+  return s;
+}
+
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  if (ctx && cells.length) draw(now, dt);
+  if (state === 'play') $('timer').textContent = Math.floor(elapsed());
+  else if (state === 'ready' || state === 'menu') $('timer').textContent = 0;
+  requestAnimationFrame(frame);
+}
+
+function draw(now, dt) {
+  const P = KIT.dark() ? PAL.dark : PAL.light;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = P.open; ctx.fillRect(0, 0, W, H);
+  const pressed = pressedSet();
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.font = `400 ${Math.round(cs * 0.62)}px "AMG Display", "PingFang SC", system-ui, sans-serif`;
+
+  for (let i = 0; i < cells.length; i++) {
+    const c = cells[i], x = (i % C) * cs, y = ((i / C) | 0) * cs;
+    const shown = c.open && now >= c.at;
+    const boomed = state === 'lose' && c.mine && c.boom && now >= c.boom;
+    if (boomed && !c.blown) {
+      c.blown = true;
+      parts.burst(x + cs / 2, y + cs / 2, { n: c.first ? 30 : 12, color: ['#f2b84b', '#e0603a', '#6b5a45'], speed: c.first ? 260 : 150, life: 0.6, size: 4, gravity: 300 });
+      if (!c.first && Math.random() < 0.5) sfx.boom(false);
+    }
+    if (shown || boomed) {
+      ctx.strokeStyle = P.line; ctx.lineWidth = 1;
+      ctx.strokeRect(x + 0.5, y + 0.5, cs - 1, cs - 1);
+      if (boomed) {
+        if (c.first) { ctx.fillStyle = P.boomBg; ctx.fillRect(x + 1, y + 1, cs - 2, cs - 2); }
+        drawMine(x, y, c.first ? '#2b221b' : P.mine);
+      } else if (c.n) {
+        ctx.fillStyle = P.nums[c.n];
+        ctx.fillText(c.n, x + cs / 2, y + cs / 2 + cs * 0.03);
+      }
+      if (i === hintCell && now - hintAt < 1400) {
+        ctx.strokeStyle = P.hint; ctx.lineWidth = 3; ctx.globalAlpha = 1 - (now - hintAt) / 1400;
+        ctx.strokeRect(x + 2, y + 2, cs - 4, cs - 4); ctx.globalAlpha = 1;
+      }
+      // 翻开动画：盖板缩小淡出
+      const k = (now - (boomed ? c.boom : c.at)) / 150;
+      if (k < 1) {
+        ctx.save(); ctx.globalAlpha = 1 - k;
+        ctx.translate(x + cs / 2, y + cs / 2); ctx.scale(1 - k * 0.5, 1 - k * 0.5); ctx.translate(-x - cs / 2, -y - cs / 2);
+        drawCovered(x, y, P, '');
+        ctx.restore();
+      }
+    } else {
+      drawCovered(x, y, P, pressed.has(i) ? 'press' : (i === hover && (state === 'play' || state === 'ready') ? 'hover' : ''));
+      if (c.flag && now >= c.flagAt) {
+        const k = Math.min(1, (now - c.flagAt) / 160);
+        drawFlag(x, y - cs * 0.04, KIT.ease.outBack(k));
+        if (state === 'lose' && !c.mine && now > loseUntil) {
+          ctx.strokeStyle = '#d6443a'; ctx.lineWidth = Math.max(2, cs * 0.08); ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.moveTo(x + cs * 0.22, y + cs * 0.22); ctx.lineTo(x + cs * 0.78, y + cs * 0.78);
+          ctx.moveTo(x + cs * 0.78, y + cs * 0.22); ctx.lineTo(x + cs * 0.22, y + cs * 0.78);
+          ctx.stroke();
         }
       }
     }
   }
+  parts.update(dt);
+  parts.draw(ctx);
 }
-function chord(x, y) {
-  const c = G.board[y][x];
-  if (!c || !c.open || c.n === 0) return;
-  let flags = 0;
-  for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
-    if (!dx && !dy) continue;
-    const nx = x + dx, ny = y + dy;
-    if (nx >= 0 && ny >= 0 && nx < G.w && ny < G.h && G.board[ny][nx].flag) flags++;
-  }
-  if (flags !== c.n) return;
-  for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
-    if (!dx && !dy) continue;
-    const nx = x + dx, ny = y + dy;
-    if (nx >= 0 && ny >= 0 && nx < G.w && ny < G.h) {
-      const n = G.board[ny][nx];
-      if (!n.open && !n.flag) {
-        if (n.mine) { n.open = true; G.boomAt = [nx, ny]; return gameOver(false); }
-        flood(nx, ny);
-      }
-    }
-  }
-  sfx.open();
-  checkWin();
-}
-function toggleFlag(x, y) {
-  if (G.over || G.win) return;
-  const c = G.board[y] && G.board[y][x];
-  if (!c || c.open) return;
-  c.flag = !c.flag;
-  G.flags += c.flag ? 1 : -1;
-  sfx.flag();
-}
-function checkWin() {
-  if (G.opened + G.mines === G.w * G.h) {
-    G.win = true;
-    const secs = Math.floor((Date.now() - G.t0) / 1000);
-    const best = store.best;
-    if (!best[G.diff] || secs < best[G.diff]) { best[G.diff] = secs; store.best = best; }
-    sfx.win();
-    $('over-title').textContent = T('winTitle');
-    $('over-sub').textContent = T('winSub', diffName(G.diff), secs, best[G.diff]);
-    setTimeout(() => showScreen('over'), 400);
-  }
-}
-function gameOver(win) {
-  G.over = true;
-  sfx.boom();
-  // 展开所有雷
-  G.board.forEach(row => row.forEach(c => { if (c.mine) c.open = true; }));
-  $('over-title').textContent = T('loseTitle');
-  $('over-sub').textContent = T('loseSub', diffName(G.diff), G.opened);
-  setTimeout(() => showScreen('over'), 600);
-}
-function showScreen(name) {
-  for (const k of ['screen-menu', 'screen-over'])
-    $(k).classList.toggle('hidden', k !== 'screen-' + name);
-  if (!name) for (const k of ['screen-menu', 'screen-over']) $(k).classList.add('hidden');
-}
-function startGame(d) {
-  reset(d);
-  G.state = 'play';
-  showScreen(null);
-}
-function refreshBest() {
-  const b = store.best, na = T('na');
-  const fmt = v => v ? v + 's' : na;
-  $('menu-best').textContent = T('bestLine', fmt(b[0]), fmt(b[1]), fmt(b[2]));
-}
-function pos(e) {
-  const r = canvas.getBoundingClientRect();
-  const px = (e.clientX - r.left) / r.width * W, py = (e.clientY - r.top) / r.height * H;
-  const x = Math.floor((px - G.ox) / G.cell), y = Math.floor((py - G.oy) / G.cell);
-  if (x < 0 || y < 0 || x >= G.w || y >= G.h) return null;
-  return [x, y];
-}
-let pressT = 0, pressPos = null;
-canvas.addEventListener('pointerdown', e => {
-  if (G.state !== 'play') return;
-  const p = pos(e);
-  if (!p) return;
-  pressT = Date.now(); pressPos = p;
-});
-canvas.addEventListener('pointerup', e => {
-  if (G.state !== 'play') return;
-  const p = pos(e);
-  if (!p) return;
-  const held = Date.now() - pressT;
-  const [x, y] = p;
-  if (e.button === 2 || held > 450) toggleFlag(x, y);
-  else {
-    const c = G.board[y][x];
-    if (c.open) chord(x, y);
-    else open(x, y);
-  }
-});
-canvas.addEventListener('contextmenu', e => {
-  e.preventDefault();
-  if (G.state !== 'play') return;
-  const p = pos(e);
-  if (p) toggleFlag(p[0], p[1]);
-});
-// 双击数字展开
-canvas.addEventListener('dblclick', e => {
-  if (G.state !== 'play') return;
-  const p = pos(e);
-  if (p) chord(p[0], p[1]);
-});
-window.addEventListener('keydown', e => {
-  if (e.code === 'KeyM') toggleMute();
-  else if (e.code === 'KeyP' || e.code === 'Escape') togglePause();
-  else if (e.code === 'KeyR') { if (G.state === 'play' || G.state === 'pause' || G.state === 'menu') startGame(G.diff); }
-});
-function togglePause() {
-  if (G.state === 'play') { G.state = 'pause'; G._pauseAt = Date.now(); }
-  else if (G.state === 'pause') {
-    if (G._pauseAt && G.t0) G.t0 += Date.now() - G._pauseAt;
-    G.state = 'play';
-  }
-}
-document.querySelectorAll('[data-mode]').forEach(b => b.onclick = () => { tone(700, .07, 'sine', .08); startGame(+b.dataset.mode); });
-$('btn-retry').onclick = () => startGame(G.diff);
-$('btn-menu').onclick = () => { G.state = 'menu'; showScreen('menu'); refreshBest(); };
-function toggleMute() {
-  muted = !muted; store.muted = muted;
-  $('btn-mute').textContent = muted ? '🔇' : '🔊';
-}
-$('btn-mute').onclick = toggleMute;
-$('btn-mute').textContent = muted ? '🔇' : '🔊';
-// i18n boot: static DOM + dynamic boot texts
-window.__refreshLang = function () {
-  AMG.apply(STR);
-  $('btn-mute').title = T('muteTitle');
-  refreshBest();
-};
-AMG.mountBtn();
-window.__refreshLang();
 
-function render() {
-  ctx.fillStyle = '#1c2536'; ctx.fillRect(0, 0, W, H);
-  if (G.state === 'menu') return;
-  // 顶栏
-  ctx.fillStyle = 'rgba(0,0,0,.4)';
-  ctx.fillRect(0, 0, W, 64);
-  ctx.fillStyle = '#fff'; ctx.font = '900 18px system-ui'; ctx.textAlign = 'left';
-  ctx.fillText('💣 ' + String(G.mines - G.flags).padStart(3, '0'), 16, 30);
-  ctx.fillText(diffName(G.diff), 16, 54);
-  ctx.textAlign = 'center';
-  const face = G.over ? '😵' : G.win ? '😎' : '🙂';
-  ctx.font = '30px serif';
-  ctx.fillText(face, W / 2, 42);
-  ctx.font = '900 18px system-ui'; ctx.textAlign = 'right';
-  const secs = G.state === 'pause' && G._pauseAt && G.t0
-    ? Math.floor((G._pauseAt - G.t0) / 1000)
-    : G.started && !G.over && !G.win && G.state === 'play' ? Math.floor((Date.now() - G.t0) / 1000) : G.elapsed || 0;
-  if (G.started) G.elapsed = secs;
-  ctx.fillText('⏱ ' + String(Math.min(999, secs)).padStart(3, '0'), W - 16, 30);
-  ctx.fillText('🚩 ' + G.flags, W - 16, 54);
-  // 棋盘
-  for (let y = 0; y < G.h; y++) for (let x = 0; x < G.w; x++) {
-    const c = G.board[y][x];
-    const px = G.ox + x * G.cell, py = G.oy + y * G.cell;
-    if (c.open) {
-      ctx.fillStyle = '#0e1420';
-      ctx.fillRect(px, py, G.cell, G.cell);
-      if (c.mine) {
-        const boom = G.boomAt && G.boomAt[0] === x && G.boomAt[1] === y;
-        if (boom) { ctx.fillStyle = '#e33'; ctx.fillRect(px, py, G.cell, G.cell); }
-        ctx.font = Math.floor(G.cell * .6) + 'px serif'; ctx.textAlign = 'center';
-        ctx.fillText('💣', px + G.cell / 2, py + G.cell * .72);
-      } else if (c.n > 0) {
-        ctx.fillStyle = NCOL[c.n - 1];
-        ctx.font = '900 ' + Math.floor(G.cell * .62) + 'px system-ui'; ctx.textAlign = 'center';
-        ctx.fillText(c.n, px + G.cell / 2, py + G.cell * .74);
-      }
-    } else {
-      const g = ctx.createLinearGradient(px, py, px, py + G.cell);
-      g.addColorStop(0, '#4a5a7a'); g.addColorStop(1, '#33405c');
-      ctx.fillStyle = g;
-      ctx.fillRect(px, py, G.cell, G.cell);
-      ctx.fillStyle = 'rgba(255,255,255,.25)';
-      ctx.fillRect(px, py, G.cell, 2);
-      if (c.flag) {
-        ctx.font = Math.floor(G.cell * .6) + 'px serif'; ctx.textAlign = 'center';
-        ctx.fillText('🚩', px + G.cell / 2, py + G.cell * .72);
-      }
-    }
-    ctx.strokeStyle = 'rgba(0,0,0,.4)';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(px + .5, py + .5, G.cell - 1, G.cell - 1);
-  }
-  if (G.state === 'pause') {
-    ctx.fillStyle = 'rgba(5,10,25,.5)';
-    ctx.fillRect(0, 64, W, H);
-    ctx.fillStyle = '#fff'; ctx.font = '900 32px system-ui'; ctx.textAlign = 'center';
-    ctx.fillText(T('paused'), W / 2, H / 2);
-  }
+// ---------------- 输入 ----------------
+function cellAt(e) {
+  const p = KIT.point(cv, e, W, H);
+  const x = Math.floor(p.x / cs), y = Math.floor(p.y / cs);
+  return x >= 0 && x < C && y >= 0 && y < R ? idx(x, y) : -1;
 }
-let last = performance.now();
-function loop(now) {
-  last = now || performance.now();
-  render();
-  requestAnimationFrame(loop);
+function act(i, btn) {
+  if (i < 0 || (state !== 'play' && state !== 'ready')) return;
+  const c = cells[i];
+  clicks++;
+  if (btn === 2) { c.open ? chord(i) : toggleFlag(i); return; }
+  if (btn === 1 || c.open) { chord(i); return; }
+  if (flagMode) { toggleFlag(i); return; }
+  if (!c.flag) reveal(i);
 }
-reset(0);
-refreshBest();
-requestAnimationFrame(t => { last = t; requestAnimationFrame(loop); });
-window.__game = G;
-window.__gameErrors = [];
-window.addEventListener('error', e => window.__gameErrors.push(String(e.message)));
-G._open = open; G._flag = toggleFlag; G._chord = chord; G._reset = reset; G._start = startGame; G._diffs = DIFFS;
+
+cv.addEventListener('contextmenu', e => e.preventDefault());
+cv.addEventListener('pointerdown', e => {
+  if (!$('screen-over').classList.contains('hidden')) return;
+  if (state !== 'play' && state !== 'ready') return;
+  e.preventDefault();
+  const i = cellAt(e);
+  press = { i, btn: e.button, type: e.pointerType, long: false, x: e.clientX, y: e.clientY };
+  if (e.button === 0) setFace('😮');
+  if (e.pointerType !== 'mouse') {
+    clearTimeout(longTimer);
+    longTimer = setTimeout(() => {
+      if (!press || press.i !== i) return;
+      press.long = true;
+      clicks++;
+      cells[i].open ? chord(i) : toggleFlag(i);
+      if (navigator.vibrate) try { navigator.vibrate(25); } catch (er) {}
+    }, 360);
+  }
+});
+cv.addEventListener('pointermove', e => {
+  hover = cellAt(e);
+  if (!press) return;
+  if (press.type === 'mouse') press.i = hover;
+  else if (Math.hypot(e.clientX - press.x, e.clientY - press.y) > 12) { clearTimeout(longTimer); press = null; }
+});
+cv.addEventListener('pointerleave', () => { hover = -1; if (press && press.type === 'mouse') press = null; if (state === 'play' || state === 'ready') setFace('🙂'); });
+window.addEventListener('pointerup', () => {
+  clearTimeout(longTimer);
+  if (state === 'play' || state === 'ready') setFace('🙂');
+  if (!press) return;
+  const p = press; press = null;
+  if (!p.long) act(p.i, p.btn);
+});
+
+$('btn-face').onclick = () => { if (state !== 'menu') newGame(); };
+$('btn-flag').onclick = () => {
+  flagMode = !flagMode; renderBar();
+  KIT.toast($('toast'), flagMode ? T('flagOn') : T('flagOff'));
+  KIT.tone(flagMode ? 880 : 600, 0.06, { type: 'triangle', vol: 0.05 });
+};
+$('btn-hint').onclick = useHint;
+$('btn-start').onclick = newGame;
+$('btn-retry').onclick = newGame;
+$('btn-menu').onclick = showMenu;
+$('btn-look').onclick = () => $('screen-over').classList.add('peek');
+field.addEventListener('click', () => {
+  const s = $('screen-over');
+  if (s.classList.contains('peek')) s.classList.remove('peek');
+});
+document.querySelectorAll('#lv-seg button').forEach(b => b.addEventListener('click', () => {
+  lvKey = b.dataset.lv; store.set('lv', lvKey);
+  KIT.tone(520, 0.06, { type: 'triangle', vol: 0.05 });
+  showMenu();
+}));
+
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.target && /INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return;
+  const k = e.key.toLowerCase();
+  if (k === ' ' && hover >= 0 && (state === 'play' || state === 'ready')) {
+    e.preventDefault(); clicks++;
+    cells[hover].open ? chord(hover) : toggleFlag(hover);
+  } else if (k === 'f' && state !== 'menu') $('btn-flag').click();
+  else if (k === 'h' && state === 'play') useHint();
+  else if (k === 'r' && state !== 'menu') newGame();
+  else if (k === 'enter' && state === 'menu') newGame();
+});
+
+let rz = 0;
+window.addEventListener('resize', () => {
+  clearTimeout(rz);
+  rz = setTimeout(() => { state === 'menu' ? showMenu() : setup(true); }, 120);
+});
+
+const syncMute = KIT.mountMute($('btn-mute'));
+KIT.boot(() => { syncMute(); renderMenu(); $('btn-flag').title = T('op5'); });
+showMenu();
+requestAnimationFrame(frame);
 })();

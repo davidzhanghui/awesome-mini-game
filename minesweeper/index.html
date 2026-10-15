@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<meta name="description" content="点开所有安全格子，小心别踩到地雷！">
+<meta name="description" content="扫雷网页版：初级、中级、高级三档难度，首次点击必定安全，支持右键/长按插旗、数字快速展开、提示和最佳用时纪录。">
 <link rel="canonical" href="https://awesome-mini-game.vercel.app/minesweeper/">
 <link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/minesweeper/">
 <link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/minesweeper/?lang=en">
@@ -12,41 +12,33 @@
 <link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/minesweeper/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Awesome Mini Game">
-<meta property="og:title" content="扫雷 · 经典益智">
-<meta property="og:description" content="点开所有安全格子，小心别踩到地雷！">
+<meta property="og:title" content="扫雷 · 数字推理">
+<meta property="og:description" content="扫雷网页版：三档难度，首次点击必定安全，支持右键/长按插旗、数字快速展开、提示和最佳用时纪录。">
 <meta property="og:url" content="https://awesome-mini-game.vercel.app/minesweeper/">
 <meta property="og:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="扫雷 · 经典益智">
-<meta name="twitter:description" content="点开所有安全格子，小心别踩到地雷！">
+<meta name="twitter:title" content="扫雷 · 数字推理">
+<meta name="twitter:description" content="扫雷网页版：三档难度，首次点击必定安全，支持右键/长按插旗、数字快速展开、提示和最佳用时纪录。">
 <meta name="twitter:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "VideoGame",
-  "name": "扫雷 · 经典益智",
-  "description": "点开所有安全格子，小心别踩到地雷！",
+  "name": "扫雷 · 数字推理",
+  "description": "扫雷网页版：三档难度，首次点击必定安全，支持右键/长按插旗、数字快速展开、提示和最佳用时纪录。",
   "url": "https://awesome-mini-game.vercel.app/minesweeper/",
   "genre": "益智解谜",
   "gamePlatform": "Web Browser",
-  "inLanguage": [
-    "zh-CN",
-    "en",
-    "ja",
-    "ko"
-  ],
+  "inLanguage": ["zh-CN", "en", "ja", "ko"],
   "isAccessibleForFree": true,
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "CNY"
-  }
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CNY" }
 }
 </script>
 <link rel="icon" href="/favicon.svg" />
-<title>扫雷 · 经典益智</title>
-<link rel="stylesheet" href="styles.css" />
-<link rel="stylesheet" href="../assets/ui.css?v=20260915" />
+<title>扫雷 · 数字推理</title>
+<link rel="stylesheet" href="../assets/game-page.css?v=20261015" />
+<link rel="stylesheet" href="styles.css?v=20261015" />
+<link rel="stylesheet" href="../assets/ui.css?v=20261015" />
 <script src="../assets/theme.js"></script>
 </head>
 <body>
@@ -55,130 +47,156 @@
   <header class="brand">
     <div class="logo">💣</div>
     <div>
-      <h1><span data-i18n="name">扫雷</span> <em data-i18n="subtitle">经典益智</em></h1>
-      <p data-i18n="intro">点开所有安全格子，小心别踩到地雷！</p>
+      <h1><span data-i18n="name">扫雷</span> <em data-i18n="subtitle">数字推理</em></h1>
+      <p data-i18n="intro">看懂数字，找出所有地雷，一颗都别踩！</p>
     </div>
     <div class="brand-btns">
-      <button id="btn-mute" class="icon-btn" title="声音开 / 关 (M)">🔊</button>
+      <button id="btn-mute" class="icon-btn">🔊</button>
     </div>
   </header>
-  <p class="rotate-tip" aria-hidden="true"></p>
-  <section class="cabinet">
-    <div class="game-frame">
-      <canvas id="game" width="520" height="620"></canvas>
+
+  <section class="cabinet" id="cabinet">
+    <div class="game-frame" id="frame">
+      <div class="mbar">
+        <div class="pill-box" title="mines"><span>💣</span><b id="mines-left">10</b></div>
+        <button class="tool" id="btn-hint" title="hint">💡<i id="hint-left">3</i></button>
+        <button class="face" id="btn-face">🙂</button>
+        <button class="tool" id="btn-flag" title="flag mode">🚩</button>
+        <div class="pill-box"><span>⏱</span><b id="timer">0</b></div>
+      </div>
+      <div class="field" id="field"><canvas id="game" class="board-cv"></canvas></div>
+      <div class="toast" id="toast"></div>
+
       <div id="screen-menu" class="screen">
         <div class="title-badge">MINESWEEPER</div>
         <h2 class="game-title" data-i18n="name">扫雷</h2>
-        <div class="hero-row"><span class="hero">💣</span><span class="hero f">🚩</span><span class="hero">🔢</span></div>
-        <div class="mode-grid">
-          <button class="btn primary" data-mode="0" data-i18n="mode0">🌱 初级 9×9·10</button>
-          <button class="btn duel" data-mode="1" data-i18n="mode1">🌿 中级 16×16·40</button>
-          <button class="btn duel" data-mode="2" data-i18n="mode2">🌳 高级 30×16·99</button>
+        <div class="hero-row"><span class="hero">🚩</span><span class="hero">💣</span><span class="hero">🔍</span></div>
+        <div class="seg-label" data-i18n="pickLevel">选择难度</div>
+        <div class="seg" id="lv-seg">
+          <button data-lv="easy" data-i18n="lvEasy">初级</button><button data-lv="mid" data-i18n="lvMid">中级</button><button data-lv="hard" data-i18n="lvHard">高级</button>
         </div>
-        <div id="menu-best" class="mini-board">🏆 最佳：初 -- · 中 -- · 高 --</div>
+        <p class="hint" id="lv-desc"></p>
+        <button id="btn-start" class="btn primary" data-i18n="start">🚀 开始扫雷</button>
+        <div id="menu-best" class="mini-board"></div>
       </div>
+
       <div id="screen-over" class="screen dim hidden">
         <div class="panel pop">
-          <h3 id="over-title" class="over-title">💥 踩到地雷！</h3>
-          <div id="over-sub" class="over-sub"></div>
-          <div class="row"><button id="btn-retry" class="btn primary" data-i18n="retry">🔄 再来一局 (R)</button><button id="btn-menu" class="btn ghost" data-i18n="menu">菜单</button></div>
+          <div class="medal-big" id="over-icon">😎</div>
+          <h3 id="over-title"></h3>
+          <div id="over-record" class="new-record hidden" data-i18n="newRecord">新纪录！</div>
+          <div class="stat-list" id="over-stats"></div>
+          <div class="row">
+            <button id="btn-retry" class="btn primary" data-i18n="retry">🔄 再来一局</button>
+            <button id="btn-look" class="btn ghost" data-i18n="look">👀 看看雷区</button>
+            <button id="btn-menu" class="btn ghost" data-i18n="menu">菜单</button>
+          </div>
         </div>
       </div>
     </div>
+
     <aside class="side">
       <div class="card"><h4 data-i18n="opTitle">🎮 操作</h4><ul>
-        <li data-i18n="op1">左键揭开 · 右键标旗（触屏长按标旗）</li><li data-i18n="op2">双击数字：旗数够则展开周围</li>        <li><kbd>R</kbd> <span data-i18n="op3a">重开</span> · <kbd>P</kbd>/<kbd>Esc</kbd> <span data-i18n="op3b">暂停</span> · <kbd>M</kbd> <span data-i18n="op3c">静音</span></li></ul></div>
-      <div class="card"><h4 data-i18n="ruleTitle">📏 规则</h4><ul class="medals">
-        <li data-i18n="rule1">🛡 首次点击必定安全</li><li data-i18n="rule2">🔢 数字 = 周围 8 格地雷数</li><li data-i18n="rule3">🏁 全部安全格揭开即胜利</li></ul></div>
-      <div class="card diff"><h4 data-i18n="tipTitle">💡 排雷口诀</h4>
-        <p data-i18n="tipBody">先在边缘点出大片空白！数字周围旗子插够了就双击，一键展开最解压。</p></div>
+        <li data-i18n="op1">🖱️ 左键翻开格子，右键插旗 / 拔旗</li>
+        <li data-i18n="op2">🔢 点已翻开的数字：周围旗数够了就一键展开</li>
+        <li data-i18n="op3">👆 触屏：点一下翻开，长按插旗；或打开 🚩 模式</li>
+        <li><kbd>Space</kbd> <span data-i18n="op4">对鼠标所指格子插旗/展开</span> · <kbd>F</kbd> <span data-i18n="op5">旗子模式</span> · <kbd>R</kbd> <span data-i18n="op6">重开</span></li>
+      </ul></div>
+      <div class="card"><h4 data-i18n="dexTitle">📚 雷区图鉴</h4>
+        <div class="dex">
+          <div class="ic num">3</div><span data-i18n="dex1">数字 = 周围 8 格里藏着几颗雷</span>
+          <div class="ic">🚩</div><span data-i18n="dex2">确定是雷就插上小旗，防止误点</span>
+          <div class="ic">💡</div><span data-i18n="dex3">卡住时用提示：帮你翻开一个安全格，但要罚时 10 秒</span>
+        </div>
+      </div>
+      <div class="card diff"><h4 data-i18n="tipTitle">🧠 推理秘诀</h4>
+        <p data-i18n="tipBody">先找「1」贴着只剩一个没翻的格子——那里一定是雷；旗数已经等于数字时，剩下的邻居全都安全。常见的「1-2-1」「1-2-2-1」形状记熟了，速度会快一倍！</p></div>
     </aside>
   </section>
-  <details class="card seo-about"><summary data-i18n="aboutTitle">📖 关于这款游戏</summary><p data-i18n="aboutBody">点开所有安全格子，小心别踩到地雷！ 浏览器打开即玩，支持键盘和触屏，无需下载安装，完全免费。</p></details>
 
-  <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏</footer>
+  <details class="card seo-about"><summary data-i18n="aboutTitle">📖 关于这款游戏</summary><p data-i18n="aboutBody">经典扫雷网页版：根据数字推理出地雷的位置，翻开所有安全格子即可获胜。提供初级 9×9、中级 16×16、高级 30×16 三档难度，第一次点击保证安全，支持右键插旗、数字一键展开、触屏长按插旗、提示和每档难度的最佳用时纪录。完全免费，打开即玩。</p></details>
+  <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持鼠标和触屏</footer>
 </main>
-<script src="../assets/i18n.js?v=20260915"></script>
+<script src="../assets/i18n.js?v=20261015"></script>
+<script src="../assets/touch.js?v=20261015"></script>
 <script>
 window.GAME_STR = {
   zh: {
-    title: '扫雷 · 经典益智', name: '扫雷', subtitle: '经典益智',
-    intro: '点开所有安全格子，小心别踩到地雷！',
-    mode0: '🌱 初级 9×9·10', mode1: '🌿 中级 16×16·40', mode2: '🌳 高级 30×16·99',
-    retry: '🔄 再来一局 (R)', menu: '菜单',
-    opTitle: '🎮 操作', op1: '左键揭开 · 右键标旗（触屏长按标旗）', op2: '双击数字：旗数够则展开周围',
-    ruleTitle: '📏 规则', rule1: '🛡 首次点击必定安全', rule2: '🔢 数字 = 周围 8 格地雷数', rule3: '🏁 全部安全格揭开即胜利',
-    tipTitle: '💡 排雷口诀', tipBody: '先在边缘点出大片空白！数字周围旗子插够了就双击，一键展开最解压。',
-    footer: '🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏',
-    muteTitle: '声音开 / 关 (M)', paused: '⏸ 暂停', op3a: '重开', op3b: '暂停', op3c: '静音',
-    diffs: ['初级', '中级', '高级'], diffShort: ['初', '中', '高'],
-    winTitle: '🎉 扫雷成功！', loseTitle: '💥 踩到地雷！',
-    winSub: (n, s, b) => n + ' · 用时 ' + s + 's · 最佳 ' + b + 's',
-    loseSub: (n, o) => n + ' · 已揭开 ' + o + ' 格',
-    bestLine: (a, b, c) => '🏆 最佳：初 ' + a + ' · 中 ' + b + ' · 高 ' + c,
-    na: '--',
+    title: '扫雷 · 数字推理', name: '扫雷', subtitle: '数字推理', intro: '看懂数字，找出所有地雷，一颗都别踩！',
+    pickLevel: '选择难度', lvEasy: '初级', lvMid: '中级', lvHard: '高级', start: '🚀 开始扫雷',
+    newRecord: '新纪录！', retry: '🔄 再来一局', look: '👀 看看雷区', menu: '菜单',
+    opTitle: '🎮 操作', op1: '🖱️ 左键翻开格子，右键插旗 / 拔旗', op2: '🔢 点已翻开的数字：周围旗数够了就一键展开', op3: '👆 触屏：点一下翻开，长按插旗；或打开 🚩 模式',
+    op4: '对鼠标所指格子插旗/展开', op5: '旗子模式', op6: '重开',
+    dexTitle: '📚 雷区图鉴', dex1: '数字 = 周围 8 格里藏着几颗雷', dex2: '确定是雷就插上小旗，防止误点', dex3: '卡住时用提示：帮你翻开一个安全格，但要罚时 10 秒',
+    tipTitle: '🧠 推理秘诀', tipBody: '先找「1」贴着只剩一个没翻的格子——那里一定是雷；旗数已经等于数字时，剩下的邻居全都安全。常见的「1-2-1」「1-2-2-1」形状记熟了，速度会快一倍！',
     aboutTitle: '📖 关于这款游戏',
-    aboutBody: '点开所有安全格子，小心别踩到地雷！ 浏览器打开即玩，支持键盘和触屏，无需下载安装，完全免费。',
+    aboutBody: '经典扫雷网页版：根据数字推理出地雷的位置，翻开所有安全格子即可获胜。提供初级 9×9、中级 16×16、高级 30×16 三档难度，第一次点击保证安全，支持右键插旗、数字一键展开、触屏长按插旗、提示和每档难度的最佳用时纪录。完全免费，打开即玩。',
+    footer: '🕹️ 打开即玩 · 完全免费 · 支持鼠标和触屏', muteTitle: '声音开 / 关 (M)',
+    lvDesc: (c, r, m) => c + '×' + r + ' 格 · ' + m + ' 颗地雷',
+    best: v => v ? '🏆 最佳用时：' + v : '🏆 还没有纪录，冲！',
+    winTitle: '扫雷成功！', loseTitle: '踩到地雷了…',
+    stTime: '用时', stBest: '最佳', stHints: '使用提示', stProgress: '完成度', stClicks: '点击次数',
+    sec: v => v + ' 秒', flagOn: '🚩 旗子模式：点格子插旗', flagOff: '⛏ 翻开模式',
+    hintPenalty: '💡 +10 秒', noHint: '提示用完啦', noSafe: '先随便翻开一格吧'
   },
   en: {
-    title: 'Minesweeper · Classic Puzzle', name: 'Minesweeper', subtitle: 'Classic Puzzle',
-    intro: 'Open all the safe squares — watch out for mines!',
-    mode0: '🌱 Beginner 9×9·10', mode1: '🌿 Intermediate 16×16·40', mode2: '🌳 Expert 30×16·99',
-    retry: '🔄 Play Again (R)', menu: 'Menu',
-    opTitle: '🎮 Controls', op1: 'Left-click to open · right-click to flag (long-press on touch)', op2: 'Double-click a number: chord when flags match',
-    ruleTitle: '📏 Rules', rule1: '🛡 First click is always safe', rule2: '🔢 Number = mines in the 8 neighbors', rule3: '🏁 Open all safe cells to win',
-    tipTitle: '💡 Sweep Tips', tipBody: 'Open a big blank area near the edge first! Once the flags around a number match, double-click to chord — so satisfying.',
-    footer: '🕹️ Play instantly · Free · Keyboard & touch friendly',
-    muteTitle: 'Sound on/off (M)', paused: '⏸ Paused', op3a: 'restart', op3b: 'pause', op3c: 'mute',
-    diffs: ['Beginner', 'Intermediate', 'Expert'], diffShort: ['B', 'I', 'E'],
-    winTitle: '🎉 Cleared!', loseTitle: '💥 Boom! Mine hit!',
-    winSub: (n, s, b) => n + ' · ' + s + 's · best ' + b + 's',
-    loseSub: (n, o) => n + ' · ' + o + ' cells opened',
-    bestLine: (a, b, c) => '🏆 Best: B ' + a + ' · I ' + b + ' · E ' + c,
-    na: '--',
+    title: 'Minesweeper · Logic', name: 'Minesweeper', subtitle: 'Number Logic', intro: 'Read the numbers, find every mine, step on none!',
+    pickLevel: 'DIFFICULTY', lvEasy: 'Beginner', lvMid: 'Intermediate', lvHard: 'Expert', start: '🚀 Start Sweeping',
+    newRecord: 'NEW RECORD!', retry: '🔄 Play Again', look: '👀 View Board', menu: 'Menu',
+    opTitle: '🎮 Controls', op1: '🖱️ Left-click to reveal, right-click to flag', op2: '🔢 Click a number with enough flags around to open its neighbors', op3: '👆 Touch: tap to reveal, long-press to flag — or turn on 🚩 mode',
+    op4: 'flag / chord the hovered cell', op5: 'flag mode', op6: 'restart',
+    dexTitle: '📚 Field Guide', dex1: 'A number = mines hidden in its 8 neighbors', dex2: 'Plant a flag where you are sure a mine sits', dex3: 'Stuck? A hint opens a safe cell for a 10s penalty',
+    tipTitle: '🧠 Logic Tips', tipBody: 'Look for a "1" touching just one hidden cell — that is a mine. When flags already match a number, every other neighbor is safe. Learn the 1-2-1 and 1-2-2-1 patterns and you will double your speed!',
     aboutTitle: '📖 About this game',
-    aboutBody: 'Open all the safe squares — watch out for mines! Play instantly in your browser — keyboard and touch supported, no download needed, completely free.',
+    aboutBody: 'Classic Minesweeper in your browser: use the numbers to deduce where the mines are and reveal every safe cell to win. Beginner 9×9, Intermediate 16×16 and Expert 30×16, a guaranteed-safe first click, right-click flags, chording, long-press flags on touch, hints and best times per level. Free to play.',
+    footer: '🕹️ Play instantly · Free · Mouse & touch', muteTitle: 'Sound on/off (M)',
+    lvDesc: (c, r, m) => c + '×' + r + ' · ' + m + ' mines',
+    best: v => v ? '🏆 Best time: ' + v : '🏆 No record yet — go!',
+    winTitle: 'Field cleared!', loseTitle: 'Boom! You hit a mine…',
+    stTime: 'Time', stBest: 'Best', stHints: 'Hints used', stProgress: 'Cleared', stClicks: 'Clicks',
+    sec: v => v + 's', flagOn: '🚩 Flag mode: tap to flag', flagOff: '⛏ Dig mode',
+    hintPenalty: '💡 +10s', noHint: 'No hints left', noSafe: 'Open a cell first'
   },
   ja: {
-    title: 'マインスイーパ · クラシックパズル', name: 'マインスイーパ', subtitle: 'クラシックパズル',
-    intro: '安全なマスを全部開こう、地雷に気をつけて！',
-    mode0: '🌱 初級 9×9·10', mode1: '🌿 中級 16×16·40', mode2: '🌳 上級 30×16·99',
-    retry: '🔄 もう一回 (R)', menu: 'メニュー',
-    opTitle: '🎮 操作', op1: '左クリックで開く · 右クリックで旗（長押し対応）', op2: '数字をダブルクリック：旗が揃えば周囲を展開',
-    ruleTitle: '📏 ルール', rule1: '🛡 初手は必ず安全', rule2: '🔢 数字 = 周囲8マスの地雷数', rule3: '🏁 安全マスをすべて開けば勝利',
-    tipTitle: '💡 掃海のコツ', tipBody: 'まず端で広い空白を開こう！数字の周りに旗が揃ったらダブルクリック、一気に展開して爽快。',
-    footer: '🕹️ すぐ遊べる · 完全無料 · キーボード＆タッチ対応',
-    muteTitle: 'サウンド ON/OFF (M)', paused: '⏸ 一時停止中', op3a: 'リスタート', op3b: '一時停止', op3c: 'ミュート',
-    diffs: ['初級', '中級', '上級'], diffShort: ['初', '中', '上'],
-    winTitle: '🎉 クリア！', loseTitle: '💥 ドカン！地雷ヒット！',
-    winSub: (n, s, b) => n + ' · ' + s + '秒 · ベスト ' + b + '秒',
-    loseSub: (n, o) => n + ' · ' + o + 'マス開放済み',
-    bestLine: (a, b, c) => '🏆 ベスト：初 ' + a + ' · 中 ' + b + ' · 上 ' + c,
-    na: '--',
+    title: 'マインスイーパ · 数字推理', name: 'マインスイーパ', subtitle: '数字推理', intro: '数字を読んで地雷を全部見つけよう、踏んだら負け！',
+    pickLevel: '難易度', lvEasy: '初級', lvMid: '中級', lvHard: '上級', start: '🚀 スタート',
+    newRecord: '新記録！', retry: '🔄 もう一回', look: '👀 盤面を見る', menu: 'メニュー',
+    opTitle: '🎮 操作', op1: '🖱️ 左クリックで開く、右クリックで旗', op2: '🔢 旗の数がそろった数字をクリックで周囲を一気に開く', op3: '👆 タッチ：タップで開く、長押しで旗。🚩モードも使える',
+    op4: 'マウス位置のマスに旗/一括', op5: '旗モード', op6: 'やり直し',
+    dexTitle: '📚 フィールド図鑑', dex1: '数字＝周り8マスにある地雷の数', dex2: '地雷だと確信したら旗を立てよう', dex3: '詰まったらヒント：安全なマスを1つ開く（10秒ペナルティ）',
+    tipTitle: '🧠 推理のコツ', tipBody: '未開封マスが1つだけ接している「1」を探そう——そこは地雷。旗の数が数字と同じなら残りの隣は全部安全。「1-2-1」「1-2-2-1」の形を覚えればスピード倍増！',
     aboutTitle: '📖 このゲームについて',
-    aboutBody: '安全なマスを全部開こう、地雷に気をつけて！ ブラウザでそのまま遊べます。キーボード・タッチ操作対応、ダウンロード不要・完全無料。',
+    aboutBody: 'ブラウザで遊べる定番マインスイーパ：数字から地雷の位置を推理し、安全なマスを全部開ければ勝ち。初級9×9・中級16×16・上級30×16、初手は必ず安全、右クリック旗、一括オープン、タッチ長押し旗、ヒント、難易度別ベストタイム対応。完全無料。',
+    footer: '🕹️ すぐ遊べる · 完全無料 · マウス・タッチ対応', muteTitle: 'サウンド ON/OFF (M)',
+    lvDesc: (c, r, m) => c + '×' + r + ' · 地雷 ' + m + ' 個',
+    best: v => v ? '🏆 ベストタイム：' + v : '🏆 記録なし、挑戦しよう！',
+    winTitle: 'クリア！', loseTitle: '地雷を踏んだ…',
+    stTime: 'タイム', stBest: 'ベスト', stHints: 'ヒント', stProgress: '進行度', stClicks: 'クリック数',
+    sec: v => v + ' 秒', flagOn: '🚩 旗モード：タップで旗', flagOff: '⛏ 掘るモード',
+    hintPenalty: '💡 +10 秒', noHint: 'ヒントはもうありません', noSafe: 'まずどこか開けてみて'
   },
   ko: {
-    title: '지뢰찾기 · 클래식 퍼즐', name: '지뢰찾기', subtitle: '클래식 퍼즐',
-    intro: '안전한 칸을 모두 여세요, 지뢰 조심!',
-    mode0: '🌱 초급 9×9·10', mode1: '🌿 중급 16×16·40', mode2: '🌳 고급 30×16·99',
-    retry: '🔄 다시 하기 (R)', menu: '메뉴',
-    opTitle: '🎮 조작', op1: '좌클릭으로 열기 · 우클릭으로 깃발 (터치는 길게 누르기)', op2: '숫자 더블클릭: 깃발이 맞으면 주변 열기',
-    ruleTitle: '📏 규칙', rule1: '🛡 첫 클릭은 항상 안전', rule2: '🔢 숫자 = 주변 8칸의 지뢰 수', rule3: '🏁 모든 안전 칸을 열면 승리',
-    tipTitle: '💡 지뢰 제거 요령', tipBody: '먼저 가장자리에서 넓은 빈 공간을 여세요! 숫자 주변 깃발이 맞으면 더블클릭으로 한 번에 펼치기.',
-    footer: '🕹️ 바로 플레이 · 완전 무료 · 키보드 & 터치 지원',
-    muteTitle: '사운드 켜기/끄기 (M)', paused: '⏸ 일시정지', op3a: '다시 시작', op3b: '일시정지', op3c: '음소거',
-    diffs: ['초급', '중급', '고급'], diffShort: ['초', '중', '고'],
-    winTitle: '🎉 클리어!', loseTitle: '💥 꽝! 지뢰 밟음!',
-    winSub: (n, s, b) => n + ' · ' + s + '초 · 최고 ' + b + '초',
-    loseSub: (n, o) => n + ' · ' + o + '칸 열음',
-    bestLine: (a, b, c) => '🏆 최고: 초 ' + a + ' · 중 ' + b + ' · 고 ' + c,
-    na: '--',
+    title: '지뢰찾기 · 숫자 추리', name: '지뢰찾기', subtitle: '숫자 추리', intro: '숫자를 읽고 모든 지뢰를 찾아내세요, 하나도 밟지 말고!',
+    pickLevel: '난이도', lvEasy: '초급', lvMid: '중급', lvHard: '고급', start: '🚀 시작하기',
+    newRecord: '신기록!', retry: '🔄 다시 하기', look: '👀 판 보기', menu: '메뉴',
+    opTitle: '🎮 조작', op1: '🖱️ 왼쪽 클릭으로 열기, 오른쪽 클릭으로 깃발', op2: '🔢 깃발 수가 맞는 숫자를 클릭하면 주변을 한 번에 열기', op3: '👆 터치: 탭으로 열기, 길게 눌러 깃발. 🚩 모드도 가능',
+    op4: '마우스 위치 칸에 깃발/일괄 열기', op5: '깃발 모드', op6: '다시 시작',
+    dexTitle: '📚 지뢰밭 도감', dex1: '숫자 = 주변 8칸에 숨은 지뢰 수', dex2: '확실한 지뢰엔 깃발을 꽂아 실수를 막자', dex3: '막히면 힌트: 안전한 칸 하나를 열어줘요 (10초 페널티)',
+    tipTitle: '🧠 추리 비결', tipBody: '닫힌 칸이 하나만 붙은 "1"을 찾으세요 — 그 칸이 지뢰입니다. 깃발 수가 숫자와 같으면 나머지 이웃은 모두 안전. 1-2-1, 1-2-2-1 모양을 익히면 속도가 두 배!',
     aboutTitle: '📖 게임 소개',
-    aboutBody: '안전한 칸을 모두 여세요, 지뢰 조심! 브라우저에서 바로 플레이 — 키보드와 터치 지원, 다운로드 불필요, 완전 무료.',
+    aboutBody: '브라우저에서 즐기는 클래식 지뢰찾기: 숫자로 지뢰 위치를 추리하고 안전한 칸을 모두 열면 승리. 초급 9×9, 중급 16×16, 고급 30×16, 첫 클릭 안전 보장, 오른쪽 클릭 깃발, 일괄 열기, 터치 길게 눌러 깃발, 힌트, 난이도별 최고 기록 지원. 완전 무료.',
+    footer: '🕹️ 바로 플레이 · 완전 무료 · 마우스·터치 지원', muteTitle: '사운드 켜기/끄기 (M)',
+    lvDesc: (c, r, m) => c + '×' + r + ' · 지뢰 ' + m + '개',
+    best: v => v ? '🏆 최고 기록: ' + v : '🏆 아직 기록 없음, 도전!',
+    winTitle: '지뢰 제거 성공!', loseTitle: '지뢰를 밟았어요…',
+    stTime: '시간', stBest: '최고', stHints: '힌트 사용', stProgress: '진행도', stClicks: '클릭 수',
+    sec: v => v + '초', flagOn: '🚩 깃발 모드: 탭해서 깃발', flagOff: '⛏ 파기 모드',
+    hintPenalty: '💡 +10초', noHint: '힌트를 다 썼어요', noSafe: '먼저 아무 칸이나 열어 보세요'
   }
 };
 </script>
-<script src="game.js?v=20260906"></script>
+<script src="../assets/bgm.js?v=20261015"></script>
+<script src="../assets/kit.js?v=20261015"></script>
+<script src="game.js?v=20261015"></script>
 </body>
 </html>

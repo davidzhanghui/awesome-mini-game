@@ -28,12 +28,12 @@ Press `/` on the home page to search games.
 | 🃏 Dou Dizhu | `dou-dizhu/` | 3-player, complete hand-type detection |
 | ⚫ Gomoku | `gomoku/` | PvP + AI with 3 difficulty levels |
 | 🧱 Tetris | `tetris/` | Guideline rules, SRS rotation, T-Spin |
-| 🔢 2048 | `game-2048/` | Smooth slide-and-merge animations |
-| 💣 Minesweeper | `minesweeper/` | 3 difficulties, first-click safe |
-| 🎯 Breakout | `breakout/` | Power-ups: multi-ball, laser, pierce |
-| 🫧 Bubble Dragon | `bubble-dragon/` | Aiming + bounce + chain clears |
-| 💎 Match 3 | `match3/` | Swap-to-match, combo multiplier |
-| 🐤 Flappy Bird | `flappy-bird/` | 1P / versus 2P, day-night themes |
+| 🔢 2048 | `game-2048/` | 4 board sizes, undo, auto-save |
+| 💣 Minesweeper | `minesweeper/` | 3 difficulties, safe first click, chording, hints |
+| 🎯 Breakout | `breakout/` | 10 levels, steel/TNT bricks, 8 power-ups |
+| 🫧 Bubble Dragon | `bubble-dragon/` | Bounce aiming, drops, 12 levels + endless |
+| 💎 Match 3 | `match3/` | Striped/bomb/rainbow gems, 15 levels + blitz |
+| 🐤 Flappy Bird | `flappy-bird/` | 3 difficulties, moving pipes, medals, day/night |
 
 ## Tech
 

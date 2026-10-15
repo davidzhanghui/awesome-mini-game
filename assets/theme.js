@@ -41,7 +41,7 @@
 
   function mount() {
     var host = document.querySelector('.brand-btns') || document.querySelector('.top-links');
-    // flappy / mario 自带昼夜切换（body.night 已映射为暖黑主题），不重复挂载
+    // mario 自带昼夜切换（body.night 已映射为暖黑主题），不重复挂载
     if (!host || document.getElementById('amg-theme-btn') || document.getElementById('btn-theme')) return;
     var b = document.createElement('button');
     b.id = 'amg-theme-btn';
