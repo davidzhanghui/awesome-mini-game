@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<meta name="description" content="驾驶坦克保卫基地，消灭所有敌方坦克！">
+<meta name="description" content="坦克大战网页版：守住老鹰基地！12 张战场、4 种敌军坦克、6 种道具，可破坏砖墙、冰面滑行、夜战车灯，支持双人合作、手柄、触屏，还能用地图工坊自己造地图。">
 <link rel="canonical" href="https://awesome-mini-game.vercel.app/tank-battle/">
 <link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/tank-battle/">
 <link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/tank-battle/?lang=en">
@@ -12,41 +12,34 @@
 <link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/tank-battle/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Awesome Mini Game">
-<meta property="og:title" content="坦克大战 · 经典街机">
-<meta property="og:description" content="驾驶坦克保卫基地，消灭所有敌方坦克！">
+<meta property="og:title" content="坦克大战 · 钢铁城防">
+<meta property="og:description" content="守住老鹰！12 张战场、双人合作、夜战车灯与地图工坊，经典 Battle City 网页重制。">
 <meta property="og:url" content="https://awesome-mini-game.vercel.app/tank-battle/">
 <meta property="og:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="坦克大战 · 经典街机">
-<meta name="twitter:description" content="驾驶坦克保卫基地，消灭所有敌方坦克！">
+<meta name="twitter:title" content="坦克大战 · 钢铁城防">
+<meta name="twitter:description" content="守住老鹰！12 张战场、双人合作、夜战车灯与地图工坊，经典 Battle City 网页重制。">
 <meta name="twitter:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "VideoGame",
-  "name": "坦克大战 · 经典街机",
-  "description": "驾驶坦克保卫基地，消灭所有敌方坦克！",
+  "name": "坦克大战 · 钢铁城防",
+  "description": "守住老鹰！12 张战场、双人合作、夜战车灯与地图工坊，经典 Battle City 网页重制。",
   "url": "https://awesome-mini-game.vercel.app/tank-battle/",
-  "genre": "射击街机",
+  "genre": "射击",
   "gamePlatform": "Web Browser",
-  "inLanguage": [
-    "zh-CN",
-    "en",
-    "ja",
-    "ko"
-  ],
+  "playMode": ["SinglePlayer", "CoOp"],
+  "inLanguage": ["zh-CN", "en", "ja", "ko"],
   "isAccessibleForFree": true,
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "CNY"
-  }
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CNY" }
 }
 </script>
 <link rel="icon" href="/favicon.svg" />
-<title>坦克大战 · 经典街机</title>
-<link rel="stylesheet" href="styles.css" />
-<link rel="stylesheet" href="../assets/ui.css?v=20260915" />
+<title>坦克大战 · 钢铁城防</title>
+<link rel="stylesheet" href="../assets/game-page.css?v=20261015" />
+<link rel="stylesheet" href="styles.css?v=20261015" />
+<link rel="stylesheet" href="../assets/ui.css?v=20261015" />
 <script src="../assets/theme.js"></script>
 </head>
 <body>
@@ -55,285 +48,203 @@
   <header class="brand">
     <div class="logo">🪖</div>
     <div>
-      <h1><span data-i18n="gameTitle">坦克大战</span> <em data-i18n="arcadeSub">经典街机</em></h1>
-      <p data-i18n="intro">驾驶坦克保卫基地，消灭所有敌方坦克！</p>
+      <h1><span data-i18n="name">坦克大战</span> <em data-i18n="subtitle">钢铁城防</em></h1>
+      <p data-i18n="intro">守住老鹰基地！12 张战场、4 种敌军坦克、6 种道具，双人合作还能自己造地图。</p>
     </div>
     <div class="brand-btns">
-      <button id="btn-mute" class="icon-btn" title="声音开 / 关 (M)">🔊</button>
+      <button id="btn-mute" class="icon-btn">🔊</button>
     </div>
   </header>
+
   <section class="cabinet">
-    <div class="game-frame">
-      <canvas id="game" width="624" height="624"></canvas>
-      <div id="hud" class="hud hidden">
-        <span id="hud-stage">第 1 关</span>
-        <span id="hud-foes">敌军 12</span>
-        <span id="hud-score">0</span>
-        <span id="hud-lives">P1 ❤3</span>
-      </div>
-      <div id="screen-menu" class="screen">
-        <div class="title-badge">BATTLE CITY</div>
-        <h2 class="game-title" data-i18n="gameTitle">坦克大战</h2>
-        <div class="tank-row"><span>🟡</span><span>🟢</span><span>🔴</span><span>⚪</span></div>
-        <div class="row">
-          <button id="btn-1p" class="btn primary" data-i18n="solo">🚀 单人出击</button>
-          <button id="btn-2p" class="btn duel" data-i18n="duo">👥 双人守家</button>
+    <div class="col">
+      <div class="game-frame" id="frame">
+        <canvas id="game" class="stage"></canvas>
+
+        <div id="edit-bar" class="edit-bar hidden">
+          <button data-b="1"><span class="sw b1"></span></button>
+          <button data-b="2"><span class="sw b2"></span></button>
+          <button data-b="3"><span class="sw b3"></span></button>
+          <button data-b="4"><span class="sw b4"></span></button>
+          <button data-b="5"><span class="sw b5"></span></button>
+          <button data-b="0">🧽</button>
+          <button id="ed-size">⬛</button>
+          <div class="sep"></div>
+          <button id="ed-rand">🎲</button>
+          <button id="ed-clear">🗑️</button>
+          <button id="ed-test" class="go">▶</button>
+          <button id="ed-exit">✖</button>
         </div>
-        <p class="pick-hint" data-i18n="stageLabel">关卡</p>
-        <div id="stage-select" class="level-select"></div>
-        <div class="opt-row">
-          <button id="btn-editor" class="btn ghost sm" data-i18n="editorBtn">🗺 地图编辑器</button>
+
+        <div id="screen-menu" class="screen clear-bg">
+          <div class="title-badge">BATTLE CITY</div>
+          <h2 class="game-title" data-i18n="name">坦克大战</h2>
+          <div class="seg" id="pl-seg"><button data-n="1" data-i18n="p1">👤 单人</button><button data-n="2" data-i18n="p2">👥 双人合作</button></div>
+          <div class="seg" id="diff-seg"><button data-d="0" data-i18n="dEasy">🌱 新兵</button><button data-d="1" data-i18n="dNormal">⚔️ 老兵</button><button data-d="2" data-i18n="dHard">🔥 王牌</button></div>
+          <div class="seg-label" data-i18n="pickStage">选择战场</div>
+          <div class="level-select" id="stage-pick"></div>
+          <div class="menu-btns"><button id="btn-start" class="btn primary" data-i18n="start">🎯 出击！</button><button id="btn-workshop" class="btn ghost" data-i18n="workshop">🛠️ 地图工坊</button></div>
+          <p class="hint" id="hint-1p"><kbd>WASD</kbd>/<kbd>↑↓←→</kbd> <span data-i18n="hintMove">移动</span> · <kbd>Space</kbd>/<kbd>J</kbd> <span data-i18n="hintFire">开火</span> · <kbd>P</kbd> <span data-i18n="pauseKw">暂停</span></p>
+          <p class="hint hidden" id="hint-2p">1P <kbd>WASD</kbd> + <kbd>Space</kbd> · 2P <kbd>↑↓←→</kbd> + <kbd>Enter</kbd></p>
+          <div id="menu-best" class="mini-board"></div>
         </div>
-        <div id="custom-note" class="custom-note hidden" data-i18n="customNote">已保存自创地图，可在编辑器中试玩</div>
-        <div class="mini-board"><span data-i18n="bestPrefix">🏆 历史最高：</span><b id="menu-best">0</b></div>
-      </div>
-      <div id="screen-pause" class="screen dim hidden">
-        <div class="panel">
-          <h3 data-i18n="pauseTitle">⏸ 已暂停</h3>
-          <p data-i18n="pauseTip">按 P 或点击继续</p>
-          <div class="row">
-            <button id="btn-resume" class="btn primary" data-i18n="resume">继续</button>
-            <button id="btn-quit" class="btn ghost" data-i18n="quit">回菜单</button>
+
+        <div id="screen-pause" class="screen dim hidden">
+          <div class="panel pop">
+            <h3 data-i18n="paused">⏸ 暂停中</h3>
+            <div class="row" style="margin-top:14px"><button id="btn-resume" class="btn primary" data-i18n="resume">▶ 继续</button><button id="btn-restart" class="btn ghost" data-i18n="restart">🔄 重打本关</button><button id="btn-quit" class="btn ghost" data-i18n="menu">菜单</button></div>
+          </div>
+        </div>
+
+        <div id="screen-over" class="screen dim hidden">
+          <div class="panel pop">
+            <div class="medal-big">💥</div>
+            <h3 class="over-title">GAME OVER</h3>
+            <p class="over-sub" id="over-sub"></p>
+            <div id="over-record" class="new-record hidden" data-i18n="newRecord">新纪录！</div>
+            <div class="stat-list" id="over-stats"></div>
+            <div class="row"><button id="btn-continue" class="btn primary" data-i18n="continueBtn">▶ 接关（本关重来）</button></div>
+            <div class="row" style="margin-top:10px"><button id="btn-retry" class="btn ghost" data-i18n="retry">🔄 从第 1 关开始</button><button id="btn-menu" class="btn ghost" data-i18n="menu">菜单</button></div>
+          </div>
+        </div>
+
+        <div id="screen-win" class="screen dim hidden">
+          <div class="panel pop">
+            <div class="medal-big">🦅</div>
+            <h3 class="clear-title" data-i18n="winTitle">全部通关！</h3>
+            <p class="over-sub" data-i18n="winSub">12 处战场全部守住，钢铁城防坚不可摧！</p>
+            <div id="win-record" class="new-record hidden" data-i18n="newRecord">新纪录！</div>
+            <div class="stat-list" id="win-stats"></div>
+            <div class="row"><button id="btn-loop" class="btn primary" data-i18n="loopBtn">🔥 挑战二周目</button><button id="btn-menu2" class="btn ghost" data-i18n="menu">菜单</button></div>
           </div>
         </div>
       </div>
-      <div id="screen-clear" class="screen dim hidden">
-        <div class="panel pop">
-          <h3 class="clear-title" data-i18n="clearTitle">🏁 阵地守住了！</h3>
-          <div id="clear-stats" class="stat-list"></div>
-          <div class="row">
-            <button id="btn-next" class="btn primary" data-i18n="nextLabel">下一关 →</button>
-            <button id="btn-menu2" class="btn ghost" data-i18n="menu">菜单</button>
-          </div>
-        </div>
-      </div>
-      <div id="screen-over" class="screen dim hidden">
-        <div class="panel pop">
-          <h3 class="over-title">GAME OVER</h3>
-          <div id="over-sub" class="over-sub"></div>
-          <div class="row">
-            <button id="btn-retry" class="btn primary" data-i18n="retry">🔄 重新出击 (R)</button>
-            <button id="btn-menu3" class="btn ghost" data-i18n="menu">菜单</button>
-          </div>
-        </div>
-      </div>
-      <div id="screen-win" class="screen dim hidden">
-        <div class="panel pop win-panel">
-          <h3 class="win-title" data-i18n="winTitle">👑 全部通关！老鹰安然无恙！</h3>
-          <div class="medal">🦅🎖️</div>
-          <div class="score-row">
-            <div><label data-i18n="totalScore">总分</label><b id="win-score">0</b></div>
-            <div class="divider"></div>
-            <div><label data-i18n="bestRecord">历史最高</label><b id="win-best">0</b></div>
-          </div>
-          <div class="row">
-            <button id="btn-again" class="btn primary" data-i18n="again">🎮 再玩一次</button>
-            <button id="btn-menu4" class="btn ghost" data-i18n="menu">菜单</button>
-          </div>
-        </div>
-      </div>
-      <div id="editor-bar" class="editor-bar hidden">
-        <div class="palette" id="palette">
-          <button data-t="1" class="pal active" title="砖块">🧱</button>
-          <button data-t="2" class="pal" title="钢铁">⬜</button>
-          <button data-t="3" class="pal" title="河流">🌊</button>
-          <button data-t="4" class="pal" title="草丛">🌿</button>
-          <button data-t="5" class="pal" title="冰面">🧊</button>
-          <button data-t="0" class="pal" title="橡皮擦">🧽</button>
-        </div>
-        <div class="palette">
-          <button id="ed-clear" class="pal text" title="清空" data-i18n="edClear">清空</button>
-          <button id="ed-test" class="pal text" title="试玩" data-i18n="edTest">▶试玩</button>
-          <button id="ed-save" class="pal text" title="保存" data-i18n="edSave">💾保存</button>
-          <button id="ed-back" class="pal text" title="返回">✖</button>
-        </div>
-      </div>
-      <div id="touch" class="touch hidden">
-        <div class="t-left">
-          <button id="t-up" class="t-btn">▲</button>
-          <div><button id="t-left" class="t-btn">◀</button><button id="t-down" class="t-btn">▼</button><button id="t-right" class="t-btn">▶</button></div>
-        </div>
-        <div class="t-right"><button id="t-fire" class="t-btn fire">💥</button></div>
+
+      <div class="pad" id="pad">
+        <div class="cross"><button data-k="0">▲</button><button data-k="3">◀</button><button data-k="1">▶</button><button data-k="2">▼</button></div>
+        <button id="pad-pause" class="small">⏸</button>
+        <button data-k="f" class="fire">FIRE</button>
       </div>
     </div>
+
     <aside class="side">
       <div class="card"><h4 data-i18n="opTitle">🎮 操作</h4><ul>
-        <li><span data-i18n="opP1pre">P1：</span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><span data-i18n="opP1mid"> 移动 · </span><kbd data-i18n="keySpace">空格</kbd><span data-i18n="opP1post"> 开火</span></li>
-        <li><span data-i18n="opP2pre">P2：</span><kbd>↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd><span data-i18n="opP2mid"> 移动 · </span><kbd data-i18n="keyEnter">回车</kbd><span data-i18n="opP2post"> 开火</span></li>
-        <li><kbd>P</kbd><span data-i18n="ctlPause"> 暂停 · </span><kbd>M</kbd><span data-i18n="ctlMute"> 静音 · </span><kbd>R</kbd><span data-i18n="ctlRestart"> 重开</span></li></ul></div>
-      <div class="card"><h4 data-i18n="itemTitle">🎁 道具</h4><ul class="medals">
-        <li data-i18n="itemStar">⭐ 星星 — 火力升级（可打穿钢板）</li>
-        <li data-i18n="itemHelmet">⛑ 头盔 — 8 秒无敌</li>
-        <li data-i18n="itemClock">⏰ 时钟 — 敌军定身 7 秒</li>
-        <li data-i18n="itemShovel">🛡 工兵铲 — 家变钢墙 20 秒</li>
-        <li data-i18n="itemGrenade">💣 手雷 — 炸掉所有敌军</li>
-        <li data-i18n="itemLife">🎖 坦克 — 生命 +1</li></ul></div>
-      <div class="card diff"><h4 data-i18n="guardTitle">🦅 守家要点</h4>
-        <p data-i18n="guardText">老鹰被击毁直接战败！注意流弹也会打坏老家砖墙。闪烁红光的敌军必掉道具。</p></div>
+        <li data-i18n="op1">1P：WASD 移动 · 空格 / J 开火</li>
+        <li data-i18n="op2">2P：方向键移动 · Enter / 小键盘 0 开火</li>
+        <li data-i18n="op3">🔫 按住开火键可连射；单人时两套按键都能用</li>
+        <li data-i18n="op4">👆 触屏：下方十字键移动，红色按钮开火</li>
+        <li><kbd>P</kbd> <span data-i18n="pauseKw">暂停</span> · <kbd>M</kbd> <span data-i18n="muteKw">静音</span> · <span data-i18n="op5">🎮 支持手柄</span></li>
+      </ul></div>
+      <div class="card"><h4 data-i18n="dexTitle">🎁 道具图鉴</h4>
+        <div class="dex">
+          <div class="ic">⭐</div><span data-i18n="i1">星星：火力升级——子弹加速 → 双发 → 能打穿钢板</span>
+          <div class="ic">⛑️</div><span data-i18n="i2">头盔：10 秒无敌护盾</span>
+          <div class="ic">⏰</div><span data-i18n="i3">闹钟：冻结全部敌人 10 秒</span>
+          <div class="ic">🧱</div><span data-i18n="i4">铁锹：老鹰四周变成钢墙 18 秒</span>
+          <div class="ic">💣</div><span data-i18n="i5">手雷：炸毁场上所有敌人</span>
+          <div class="ic" style="font-size:11px;font-weight:900">1UP</div><span data-i18n="i6">坦克：奖励一条命（每 2 万分也送一条）</span>
+        </div>
+      </div>
+      <div class="card diff"><h4 data-i18n="tipTitle">🧠 指挥官秘诀</h4>
+        <p data-i18n="tipBody">红色闪烁的坦克被击中会掉道具，优先打它！装甲坦克要打 4 下，颜色会随血量变化。别误伤队友——会把对方冻住 3 秒；更别打自己的老鹰！夜战关卡只有车灯照到的地方看得清，留意黑暗里的红眼睛。</p></div>
     </aside>
   </section>
-  <details class="card seo-about"><summary data-i18n="aboutTitle">📖 关于这款游戏</summary><p data-i18n="aboutBody">驾驶坦克保卫基地，消灭所有敌方坦克！ 浏览器打开即玩，支持键盘和触屏，无需下载安装，完全免费。</p></details>
 
-  <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏</footer>
+  <details class="card seo-about"><summary data-i18n="aboutTitle">📖 关于这款游戏</summary><p data-i18n="aboutBody">坦克大战网页版是一款致敬 FC 经典 Battle City 的俯视角坦克射击游戏。你的任务是守住基地里的老鹰：每关 20 辆敌军坦克从上方三处出生点涌出，普通、快速、火力、装甲四种坦克各有特点。砖墙可以一块块打碎，钢板只有满级火力才能击穿，河流无法通行，树林能藏身，冰面会打滑。收集星星、头盔、闹钟、铁锹、手雷和奖命坦克六种道具扭转战局。12 张手工设计的战场包含两场夜战，支持单人和双人合作、键盘、手柄与触屏，通关后还有更难的二周目。地图工坊可以自己画地图、随机生成对称地图并立即试玩。完全免费。</p></details>
+  <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持双人合作、手柄和触屏</footer>
 </main>
-<script src="../assets/i18n.js?v=20260915"></script>
-<script src="../assets/touch.js?v=20260908"></script>
+<script src="../assets/i18n.js?v=20261015"></script>
+<script src="../assets/touch.js?v=20261015"></script>
 <script>
 window.GAME_STR = {
   zh: {
-    title: '坦克大战 · 经典街机', gameTitle: '坦克大战', arcadeSub: '经典街机',
-    intro: '驾驶坦克保卫基地，消灭所有敌方坦克！',
-    solo: '🚀 单人出击', duo: '👥 双人守家', stageLabel: '关卡', editorBtn: '🗺 地图编辑器',
-    customNote: '已保存自创地图，可在编辑器中试玩', bestPrefix: '🏆 历史最高：',
-    pauseTitle: '⏸ 已暂停', pauseTip: '按 P 或点击继续', resume: '继续', quit: '回菜单',
-    clearTitle: '🏁 阵地守住了！', nextLabel: '下一关 →', menu: '菜单',
-    retry: '🔄 重新出击 (R)', winTitle: '👑 全部通关！老鹰安然无恙！',
-    totalScore: '总分', bestRecord: '历史最高', again: '🎮 再玩一次',
-    edClear: '清空', edTest: '▶试玩', edSave: '💾保存',
-    opTitle: '🎮 操作', opP1pre: 'P1：', opP1mid: ' 移动 · ', opP1post: ' 开火',
-    opP2pre: 'P2：', opP2mid: ' 移动 · ', opP2post: ' 开火',
-    ctlPause: ' 暂停 · ', ctlMute: ' 静音 · ', ctlRestart: ' 重开',
-    keySpace: '空格', keyEnter: '回车',
-    itemTitle: '🎁 道具',
-    itemStar: '⭐ 星星 — 火力升级（可打穿钢板）', itemHelmet: '⛑ 头盔 — 8 秒无敌',
-    itemClock: '⏰ 时钟 — 敌军定身 7 秒', itemShovel: '🛡 工兵铲 — 家变钢墙 20 秒',
-    itemGrenade: '💣 手雷 — 炸掉所有敌军', itemLife: '🎖 坦克 — 生命 +1',
-    guardTitle: '🦅 守家要点', guardText: '老鹰被击毁直接战败！注意流弹也会打坏老家砖墙。闪烁红光的敌军必掉道具。',
-    footer: '🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏',
-    muteTitle: '声音开 / 关 (M)',
-    stages: ['第 1 关 · 初露锋芒', '第 2 关 · 钢铁长城', '第 3 关 · 河流草原', '第 4 关 · 冰火两重', '第 5 关 · 最终决战'],
-    stageShort: n => '第 ' + n + ' 关', customMap: '自创地图',
-    foesLeft: n => '敌军 ' + n,
-    itemFloat: { star: '⭐火力+', helmet: '⛑无敌!', clock: '⏰定身!', shovel: '🛡钢墙!', grenade: '💣全灭!', life: '🎖+1命!' },
-    eagleDown: '老鹰被击毁了！', allLost: '坦克全部损毁！',
-    overSub: (r, s) => r + ' · 得分 ' + s,
-    clearStage: n => '🎯 ' + n,
-    clearBonus: b => '✨ 过关奖励 <b>+' + b + '</b>',
-    clearScore: s => '💯 总分 <b>' + s + '</b>',
-    nextStage: n => '下一关 → ' + n,
-    eagleTag: '🦅 老鹰',
-    freezeTag: s => '❄ 定身 ' + s + 's', shovelTag: s => '🛡 钢墙 ' + s + 's',
-    palTitles: { 1: '砖块', 2: '钢铁', 3: '河流', 4: '草丛', 5: '冰面', 0: '橡皮擦' },
-    edTitles: { clear: '清空', test: '试玩', save: '保存', back: '返回' },
+    title: '坦克大战 · 钢铁城防', name: '坦克大战', subtitle: '钢铁城防', intro: '守住老鹰基地！12 张战场、4 种敌军坦克、6 种道具，双人合作还能自己造地图。',
+    p1: '👤 单人', p2: '👥 双人合作', dEasy: '🌱 新兵', dNormal: '⚔️ 老兵', dHard: '🔥 王牌', pickStage: '选择战场',
+    start: '🎯 出击！', workshop: '🛠️ 地图工坊', hintMove: '移动', hintFire: '开火', pauseKw: '暂停', muteKw: '静音',
+    paused: '⏸ 暂停中', resume: '▶ 继续', restart: '🔄 重打本关', menu: '菜单', newRecord: '新纪录！', retry: '🔄 从第 1 关开始', continueBtn: '▶ 接关（本关重来）',
+    winTitle: '全部通关！', winSub: '12 处战场全部守住，钢铁城防坚不可摧！', loopBtn: '🔥 挑战二周目',
+    overBase: '🦅 老鹰基地被摧毁了……', overAll: '💥 我方坦克全部阵亡……',
+    opTitle: '🎮 操作', op1: '1P：WASD 移动 · 空格 / J 开火', op2: '2P：方向键移动 · Enter / 小键盘 0 开火', op3: '🔫 按住开火键可连射；单人时两套按键都能用', op4: '👆 触屏：下方十字键移动，红色按钮开火', op5: '🎮 支持手柄',
+    dexTitle: '🎁 道具图鉴', i1: '星星：火力升级——子弹加速 → 双发 → 能打穿钢板', i2: '头盔：10 秒无敌护盾', i3: '闹钟：冻结全部敌人 10 秒', i4: '铁锹：老鹰四周变成钢墙 18 秒', i5: '手雷：炸毁场上所有敌人', i6: '坦克：奖励一条命（每 2 万分也送一条）',
+    tipTitle: '🧠 指挥官秘诀', tipBody: '红色闪烁的坦克被击中会掉道具，优先打它！装甲坦克要打 4 下，颜色会随血量变化。别误伤队友——会把对方冻住 3 秒；更别打自己的老鹰！夜战关卡只有车灯照到的地方看得清，留意黑暗里的红眼睛。',
     aboutTitle: '📖 关于这款游戏',
-    aboutBody: '驾驶坦克保卫基地，消灭所有敌方坦克！ 浏览器打开即玩，支持键盘和触屏，无需下载安装，完全免费。',
+    aboutBody: '坦克大战网页版是一款致敬 FC 经典 Battle City 的俯视角坦克射击游戏。你的任务是守住基地里的老鹰：每关 20 辆敌军坦克从上方三处出生点涌出，普通、快速、火力、装甲四种坦克各有特点。砖墙可以一块块打碎，钢板只有满级火力才能击穿，河流无法通行，树林能藏身，冰面会打滑。收集星星、头盔、闹钟、铁锹、手雷和奖命坦克六种道具扭转战局。12 张手工设计的战场包含两场夜战，支持单人和双人合作、键盘、手柄与触屏，通关后还有更难的二周目。地图工坊可以自己画地图、随机生成对称地图并立即试玩。完全免费。',
+    footer: '🕹️ 打开即玩 · 完全免费 · 支持双人合作、手柄和触屏', muteTitle: '声音开 / 关 (M)',
+    stageNames: ['初次交锋', '钢铁十字', '密林伏击', '渡河作战', '冰湖决战', '夜袭', '铁壁要塞', '迷宫巷战', '群岛', '钢雨', '冰夜', '最终防线'],
+    customName: '自制地图', locked: '先打通前面的战场', loopN: n => '第 ' + n + ' 周目', nightTip: '🌙 夜战：车灯之外一片漆黑',
+    stScore: '得分', stScoreP: n => n + 'P 得分', stStage: '到达战场', stKills: '击毁坦克', stCont: '接关次数', stBest: '最高分', bestLbl: v => '🏆 最高分 ' + v,
+    oneUp: '1UP!',
+    pw: { star: '⭐ 火力升级！', starMax: '⭐ 火力已满！', helmet: '⛑️ 无敌护盾！', clock: '⏰ 敌军冻结！', shovel: '🧱 基地加固！', grenade: '💣 全屏轰炸！', tank: '🎖️ 增加一条命！' },
+    edTip: '🛠️ 拖动绘制 · 右键擦除 · 自动保存', edB: ['橡皮擦 (0)', '砖墙 (1)', '钢板 (2)', '河流 (3)', '树林 (4)', '冰面 (5)'],
+    edSize: '笔刷：整格 / 半格', edRand: '随机生成对称地图', edClear: '清空地图', edTest: '试玩这张地图', edExit: '返回菜单 (Esc)'
   },
   en: {
-    title: 'Tank Battle · Arcade Classic', gameTitle: 'Tank Battle', arcadeSub: 'Arcade Classic',
-    intro: 'Drive your tank, defend the base, blast every enemy!',
-    solo: '🚀 Solo', duo: '👥 2P Co-op', stageLabel: 'Stage', editorBtn: '🗺 Map Editor',
-    customNote: 'Custom map saved — test it in the editor', bestPrefix: '🏆 Best: ',
-    pauseTitle: '⏸ Paused', pauseTip: 'Press P or click to resume', resume: 'Resume', quit: 'Menu',
-    clearTitle: '🏁 Base held!', nextLabel: 'Next stage →', menu: 'Menu',
-    retry: '🔄 Retry (R)', winTitle: '👑 Victory! The Eagle stands safe!',
-    totalScore: 'Total', bestRecord: 'Best', again: '🎮 Play again',
-    edClear: 'Clear', edTest: '▶Test', edSave: '💾Save',
-    opTitle: '🎮 Controls', opP1pre: 'P1: ', opP1mid: ' move · ', opP1post: ' fire',
-    opP2pre: 'P2: ', opP2mid: ' move · ', opP2post: ' fire',
-    ctlPause: ' Pause · ', ctlMute: ' Mute · ', ctlRestart: ' Restart',
-    keySpace: 'Space', keyEnter: 'Enter',
-    itemTitle: '🎁 Power-ups',
-    itemStar: '⭐ Star — upgrade firepower (pierces steel)', itemHelmet: '⛑ Helmet — 8s invincibility',
-    itemClock: '⏰ Clock — freeze enemies 7s', itemShovel: '🛡 Shovel — steel walls for 20s',
-    itemGrenade: '💣 Grenade — wipe out all enemies', itemLife: '🎖 Tank — +1 life',
-    guardTitle: '🦅 Defend the Eagle', guardText: 'Losing the Eagle means instant defeat! Stray shells also damage home walls. Flashing red enemies always drop power-ups.',
-    footer: '🕹️ Play instantly · Free · Keyboard & touch friendly',
-    muteTitle: 'Sound on/off (M)',
-    stages: ['Stage 1 · First Blood', 'Stage 2 · Steel Wall', 'Stage 3 · River Meadow', 'Stage 4 · Ice & Fire', 'Stage 5 · Final Stand'],
-    stageShort: n => 'STAGE ' + n, customMap: 'Custom map',
-    foesLeft: n => 'Enemies ' + n,
-    itemFloat: { star: '⭐Power+', helmet: '⛑Shield!', clock: '⏰Frozen!', shovel: '🛡Steel!', grenade: '💣Wipeout!', life: '🎖+1 life!' },
-    eagleDown: 'The Eagle has been destroyed!', allLost: 'All tanks destroyed!',
-    overSub: (r, s) => r + ' · Score ' + s,
-    clearStage: n => '🎯 ' + n,
-    clearBonus: b => '✨ Stage bonus <b>+' + b + '</b>',
-    clearScore: s => '💯 Total <b>' + s + '</b>',
-    nextStage: n => 'Next → ' + n,
-    eagleTag: '🦅 EAGLE',
-    freezeTag: s => '❄ Frozen ' + s + 's', shovelTag: s => '🛡 Steel ' + s + 's',
-    palTitles: { 1: 'Bricks', 2: 'Steel', 3: 'River', 4: 'Bushes', 5: 'Ice', 0: 'Eraser' },
-    edTitles: { clear: 'Clear', test: 'Playtest', save: 'Save', back: 'Back' },
+    title: 'Tank Battle · Steel Fortress', name: 'TANK BATTLE', subtitle: 'Steel Fortress', intro: 'Defend the eagle! 12 battlefields, 4 enemy tank types, 6 power-ups, 2P co-op and your own maps.',
+    p1: '👤 1 Player', p2: '👥 2P Co-op', dEasy: '🌱 Rookie', dNormal: '⚔️ Veteran', dHard: '🔥 Ace', pickStage: 'BATTLEFIELD',
+    start: '🎯 Roll Out!', workshop: '🛠️ Map Workshop', hintMove: 'move', hintFire: 'fire', pauseKw: 'pause', muteKw: 'mute',
+    paused: '⏸ Paused', resume: '▶ Resume', restart: '🔄 Retry Stage', menu: 'Menu', newRecord: 'NEW RECORD!', retry: '🔄 From Stage 1', continueBtn: '▶ Continue (retry stage)',
+    winTitle: 'ALL CLEAR!', winSub: 'All 12 battlefields held. The steel fortress stands!', loopBtn: '🔥 Second Loop',
+    overBase: '🦅 The eagle base was destroyed…', overAll: '💥 All your tanks were lost…',
+    opTitle: '🎮 Controls', op1: '1P: WASD move · Space / J fire', op2: '2P: arrows move · Enter / Numpad 0 fire', op3: '🔫 Hold fire for auto-fire. In 1P both key sets work', op4: '👆 Touch: D-pad below to move, red button to fire', op5: '🎮 Gamepad supported',
+    dexTitle: '🎁 Power-ups', i1: 'Star: firepower up — faster shells → double shot → pierces steel', i2: 'Helmet: 10s invincible shield', i3: 'Clock: freezes all enemies for 10s', i4: 'Shovel: steel walls around the eagle for 18s', i5: 'Grenade: destroys every enemy on screen', i6: 'Tank: extra life (also every 20,000 pts)',
+    tipTitle: '🧠 Commander Tips', tipBody: 'Flashing red tanks drop a power-up when hit — shoot them first! Armored tanks take 4 hits and change color as they weaken. Don\'t hit your teammate — it freezes them for 3s — and never shoot your own eagle! In night stages you only see what your headlights touch: watch for red eyes in the dark.',
     aboutTitle: '📖 About this game',
-    aboutBody: 'Drive your tank, defend the base, blast every enemy! Play instantly in your browser — keyboard and touch supported, no download needed, completely free.',
+    aboutBody: 'Tank Battle is a free browser top-down tank shooter inspired by the NES classic Battle City. Defend the eagle at your base as 20 enemy tanks per stage pour in from three spawn points — basic, fast, power and armored tanks each behave differently. Bricks crumble piece by piece, steel only breaks under max firepower, rivers block tanks, forests hide them and ice makes you slide. Grab stars, helmets, clocks, shovels, grenades and extra-life tanks to turn the tide. 12 handcrafted battlefields including two night operations, solo or 2-player co-op with keyboard, gamepad and touch, plus a harder second loop. The Map Workshop lets you paint your own maps, generate symmetric random maps and play them instantly.',
+    footer: '🕹️ Play instantly · Free · 2P co-op, gamepad & touch', muteTitle: 'Sound on/off (M)',
+    stageNames: ['First Contact', 'Iron Cross', 'Forest Ambush', 'River Crossing', 'Frozen Lake', 'Night Raid', 'Iron Fortress', 'Street Maze', 'Archipelago', 'Steel Rain', 'Frost Night', 'Last Stand'],
+    customName: 'Custom Map', locked: 'Clear the previous battlefields first', loopN: n => 'Loop ' + n, nightTip: '🌙 Night ops: darkness beyond your headlights',
+    stScore: 'Score', stScoreP: n => n + 'P score', stStage: 'Reached', stKills: 'Tanks destroyed', stCont: 'Continues', stBest: 'Best', bestLbl: v => '🏆 Best ' + v,
+    oneUp: '1UP!',
+    pw: { star: '⭐ FIREPOWER UP!', starMax: '⭐ MAX FIREPOWER!', helmet: '⛑️ SHIELD ON!', clock: '⏰ ENEMIES FROZEN!', shovel: '🧱 BASE FORTIFIED!', grenade: '💣 BOOM!', tank: '🎖️ EXTRA LIFE!' },
+    edTip: '🛠️ Drag to paint · right-click erases · auto-saved', edB: ['Eraser (0)', 'Brick (1)', 'Steel (2)', 'River (3)', 'Forest (4)', 'Ice (5)'],
+    edSize: 'Brush: full / half tile', edRand: 'Random symmetric map', edClear: 'Clear map', edTest: 'Play this map', edExit: 'Back to menu (Esc)'
   },
   ja: {
-    title: '戦車バトル · アーケードクラシック', gameTitle: '戦車バトル', arcadeSub: 'アーケードクラシック',
-    intro: '戦車を動かして基地を守り、敵を全部倒そう！',
-    solo: '🚀 ソロ出撃', duo: '👥 2P協力', stageLabel: 'ステージ', editorBtn: '🗺 マップエディタ',
-    customNote: '自作マップを保存済 — エディタで試遊可能', bestPrefix: '🏆 ベスト： ',
-    pauseTitle: '⏸ 一時停止中', pauseTip: 'Pキーまたはクリックで再開', resume: '再開', quit: 'メニュー',
-    clearTitle: '🏁 基地を守り抜いた！', nextLabel: '次ステージ →', menu: 'メニュー',
-    retry: '🔄 再出撃 (R)', winTitle: '👑 完全制覇！基地は無事だ！',
-    totalScore: '合計', bestRecord: 'ベスト', again: '🎮 もう一度',
-    edClear: 'クリア', edTest: '▶試遊', edSave: '💾保存',
-    opTitle: '🎮 操作', opP1pre: 'P1： ', opP1mid: ' 移動 · ', opP1post: ' 射撃',
-    opP2pre: 'P2： ', opP2mid: ' 移動 · ', opP2post: ' 射撃',
-    ctlPause: ' 一時停止 · ', ctlMute: ' ミュート · ', ctlRestart: ' リスタート',
-    keySpace: 'スペース', keyEnter: 'Enter',
-    itemTitle: '🎁 アイテム',
-    itemStar: '⭐ 星 — 火力アップ（鋼板を貫通）', itemHelmet: '⛑ ヘルメット — 8秒無敵',
-    itemClock: '⏰ 時計 — 敵を7秒停止', itemShovel: '🛡 シャベル — 基地が鋼壁に20秒',
-    itemGrenade: '💣 手榴弾 — 敵を全滅', itemLife: '🎖 戦車 — 残機 +1',
-    guardTitle: '🦅 基地防衛の要点', guardText: '基地が破壊されると即敗北！流れ弾も自陣の壁を壊す。赤く点滅する敵は必ずアイテムを落とす。',
-    footer: '🕹️ すぐ遊べる · 完全無料 · キーボード＆タッチ対応',
-    muteTitle: 'サウンド切替 (M)',
-    stages: ['ステージ1 · 初陣', 'ステージ2 · 鋼の壁', 'ステージ3 · 河と草原', 'ステージ4 · 氷と火', 'ステージ5 · 最終決戦'],
-    stageShort: n => 'STAGE ' + n, customMap: '自作マップ',
-    foesLeft: n => '敵 ' + n,
-    itemFloat: { star: '⭐火力+', helmet: '⛑無敵!', clock: '⏰停止!', shovel: '🛡鋼壁!', grenade: '💣全滅!', life: '🎖+1機!' },
-    eagleDown: '基地が破壊された！', allLost: '戦車をすべて失った！',
-    overSub: (r, s) => r + ' · スコア ' + s,
-    clearStage: n => '🎯 ' + n,
-    clearBonus: b => '✨ ステージボーナス <b>+' + b + '</b>',
-    clearScore: s => '💯 合計 <b>' + s + '</b>',
-    nextStage: n => '次へ → ' + n,
-    eagleTag: '🦅 基地',
-    freezeTag: s => '❄ 停止 ' + s + 's', shovelTag: s => '🛡 鋼壁 ' + s + 's',
-    palTitles: { 1: 'レンガ', 2: '鋼鉄', 3: '河川', 4: '草むら', 5: '氷', 0: '消しゴム' },
-    edTitles: { clear: 'クリア', test: '試遊', save: '保存', back: '戻る' },
+    title: 'タンクバトル · 鋼鉄の砦', name: 'タンクバトル', subtitle: '鋼鉄の砦', intro: '司令部のワシを守れ！12 の戦場、4 種の敵戦車、6 種のアイテム。2 人協力もマップ作りもできる。',
+    p1: '👤 1人', p2: '👥 2人協力', dEasy: '🌱 新兵', dNormal: '⚔️ 古参兵', dHard: '🔥 エース', pickStage: '戦場選択',
+    start: '🎯 出撃！', workshop: '🛠️ マップ工房', hintMove: '移動', hintFire: '発射', pauseKw: '一時停止', muteKw: 'ミュート',
+    paused: '⏸ 一時停止中', resume: '▶ 再開', restart: '🔄 この面をやり直す', menu: 'メニュー', newRecord: '新記録！', retry: '🔄 1面から', continueBtn: '▶ コンティニュー（この面から）',
+    winTitle: 'オールクリア！', winSub: '12 の戦場をすべて守り抜いた。鋼鉄の砦は不落だ！', loopBtn: '🔥 2周目へ',
+    overBase: '🦅 司令部が破壊された……', overAll: '💥 味方の戦車が全滅した……',
+    opTitle: '🎮 操作', op1: '1P：WASD 移動 · Space / J 発射', op2: '2P：方向キー移動 · Enter / テンキー0 発射', op3: '🔫 発射ボタン長押しで連射。1人時はどちらのキーでもOK', op4: '👆 タッチ：下の十字キーで移動、赤ボタンで発射', op5: '🎮 ゲームパッド対応',
+    dexTitle: '🎁 アイテム図鑑', i1: 'スター：火力アップ——弾速アップ → 2連射 → 鋼板を貫通', i2: 'ヘルメット：10秒間の無敵シールド', i3: '時計：敵を10秒間すべて停止', i4: 'スコップ：ワシの周りが18秒間鋼鉄の壁に', i5: '手榴弾：画面上の敵をすべて破壊', i6: '戦車：残機 +1（2万点ごとにも +1）',
+    tipTitle: '🧠 指揮官の心得', tipBody: '赤く点滅する戦車は撃つとアイテムを落とす。最優先で狙おう！装甲戦車は4発必要で、体力に応じて色が変わる。味方を撃つと3秒間動けなくなるので注意。自分のワシは絶対に撃たないこと！夜戦ではライトが照らす範囲しか見えない。暗闇の赤い目に気をつけて。',
     aboutTitle: '📖 このゲームについて',
-    aboutBody: '戦車を動かして基地を守り、敵を全部倒そう！ ブラウザでそのまま遊べます。キーボード・タッチ操作対応、ダウンロード不要・完全無料。',
+    aboutBody: 'タンクバトルはファミコンの名作「バトルシティー」に敬意を込めたブラウザ向け見下ろし型戦車シューティング。司令部のワシを守り抜け。各面20両の敵が3か所の出現地点から押し寄せ、通常・高速・火力・装甲の4種類はそれぞれ動きが違う。レンガは少しずつ崩れ、鋼板は最大火力でしか壊せない。川は通れず、森には隠れられ、氷の上は滑る。スター・ヘルメット・時計・スコップ・手榴弾・戦車の6種のアイテムで戦況を覆そう。夜戦2面を含む手作りの12戦場、1人プレイと2人協力、キーボード・ゲームパッド・タッチ対応、さらに難しい2周目も。マップ工房では自分でマップを描いたり、左右対称のランダムマップを生成してすぐに遊べる。完全無料。',
+    footer: '🕹️ すぐ遊べる · 完全無料 · 2人協力・ゲームパッド・タッチ対応', muteTitle: 'サウンド ON/OFF (M)',
+    stageNames: ['初陣', '鉄十字', '密林の伏兵', '渡河作戦', '氷湖決戦', '夜襲', '鉄壁要塞', '迷路市街戦', '群島', '鋼の雨', '氷の夜', '最終防衛線'],
+    customName: '自作マップ', locked: '前の戦場をクリアしよう', loopN: n => n + '周目', nightTip: '🌙 夜戦：ライトの外は真っ暗',
+    stScore: 'スコア', stScoreP: n => n + 'P スコア', stStage: '到達戦場', stKills: '撃破数', stCont: 'コンティニュー', stBest: 'ベスト', bestLbl: v => '🏆 ベスト ' + v,
+    oneUp: '1UP!',
+    pw: { star: '⭐ 火力アップ！', starMax: '⭐ 火力最大！', helmet: '⛑️ 無敵シールド！', clock: '⏰ 敵が停止！', shovel: '🧱 司令部強化！', grenade: '💣 全滅！', tank: '🎖️ 残機アップ！' },
+    edTip: '🛠️ ドラッグで描画 · 右クリックで消去 · 自動保存', edB: ['消しゴム (0)', 'レンガ (1)', '鋼板 (2)', '川 (3)', '森 (4)', '氷 (5)'],
+    edSize: 'ブラシ：1マス / 半マス', edRand: '左右対称ランダム生成', edClear: 'マップを消去', edTest: 'このマップで遊ぶ', edExit: 'メニューへ (Esc)'
   },
   ko: {
-    title: '탱크 배틀 · 아케이드 클래식', gameTitle: '탱크 배틀', arcadeSub: '아케이드 클래식',
-    intro: '전차로 기지를 지키며 적 전차를 모두 격파하세요!',
-    solo: '🚀 솔로 출격', duo: '👥 2P 협동', stageLabel: '스테이지', editorBtn: '🗺 맵 에디터',
-    customNote: '커스텀 맵 저장됨 — 에디터에서 테스트 가능', bestPrefix: '🏆 최고: ',
-    pauseTitle: '⏸ 일시정지', pauseTip: 'P 키 또는 클릭으로 계속', resume: '계속', quit: '메뉴',
-    clearTitle: '🏁 기지를 사수했다!', nextLabel: '다음 스테이지 →', menu: '메뉴',
-    retry: '🔄 다시 출격 (R)', winTitle: '👑 완전 클리어! 기지는 무사하다!',
-    totalScore: '총점', bestRecord: '최고', again: '🎮 다시 하기',
-    edClear: '지우기', edTest: '▶테스트', edSave: '💾저장',
-    opTitle: '🎮 조작', opP1pre: 'P1: ', opP1mid: ' 이동 · ', opP1post: ' 발사',
-    opP2pre: 'P2: ', opP2mid: ' 이동 · ', opP2post: ' 발사',
-    ctlPause: ' 일시정지 · ', ctlMute: ' 음소거 · ', ctlRestart: ' 재시작',
-    keySpace: '스페이스', keyEnter: '엔터',
-    itemTitle: '🎁 아이템',
-    itemStar: '⭐ 별 — 화력 업그레이드 (강철 관통)', itemHelmet: '⛑ 헬멧 — 8초 무적',
-    itemClock: '⏰ 시계 — 적 7초 정지', itemShovel: '🛡 삽 — 기지가 강철벽으로 20초',
-    itemGrenade: '💣 수류탄 — 적 전멸', itemLife: '🎖 탱크 — 목숨 +1',
-    guardTitle: '🦅 기지 방어 요점', guardText: '기지(독수리)가 파괴되면 즉시 패배! 유탄도 아군 벽을 부순다. 빨갛게 깜빡이는 적은 반드시 아이템을 떨군다.',
-    footer: '🕹️ 바로 플레이 · 완전 무료 · 키보드 & 터치 지원',
-    muteTitle: '사운드 켜기/끄기 (M)',
-    stages: ['스테이지 1 · 첫 출격', '스테이지 2 · 강철 장벽', '스테이지 3 · 강과 초원', '스테이지 4 · 얼음과 불', '스테이지 5 · 최종 결전'],
-    stageShort: n => 'STAGE ' + n, customMap: '커스텀 맵',
-    foesLeft: n => '적군 ' + n,
-    itemFloat: { star: '⭐화력+', helmet: '⛑무적!', clock: '⏰정지!', shovel: '🛡강철!', grenade: '💣전멸!', life: '🎖+1기!' },
-    eagleDown: '기지(독수리)가 파괴됐다!', allLost: '탱크를 모두 잃었다!',
-    overSub: (r, s) => r + ' · 점수 ' + s,
-    clearStage: n => '🎯 ' + n,
-    clearBonus: b => '✨ 스테이지 보너스 <b>+' + b + '</b>',
-    clearScore: s => '💯 총점 <b>' + s + '</b>',
-    nextStage: n => '다음 → ' + n,
-    eagleTag: '🦅 기지',
-    freezeTag: s => '❄ 정지 ' + s + 's', shovelTag: s => '🛡 강철 ' + s + 's',
-    palTitles: { 1: '벽돌', 2: '강철', 3: '강', 4: '수풀', 5: '얼음', 0: '지우개' },
-    edTitles: { clear: '지우기', test: '테스트', save: '저장', back: '뒤로' },
+    title: '탱크 대전 · 강철 요새', name: '탱크 대전', subtitle: '강철 요새', intro: '독수리 기지를 지켜라! 12개 전장, 4종 적 탱크, 6종 아이템. 2인 협동과 맵 만들기까지.',
+    p1: '👤 1인', p2: '👥 2인 협동', dEasy: '🌱 신병', dNormal: '⚔️ 베테랑', dHard: '🔥 에이스', pickStage: '전장 선택',
+    start: '🎯 출격!', workshop: '🛠️ 맵 공방', hintMove: '이동', hintFire: '발사', pauseKw: '일시정지', muteKw: '음소거',
+    paused: '⏸ 일시정지', resume: '▶ 계속', restart: '🔄 이 스테이지 다시', menu: '메뉴', newRecord: '신기록!', retry: '🔄 1스테이지부터', continueBtn: '▶ 이어하기 (이 스테이지부터)',
+    winTitle: '올 클리어!', winSub: '12개 전장을 모두 지켜냈다. 강철 요새는 무너지지 않는다!', loopBtn: '🔥 2회차 도전',
+    overBase: '🦅 독수리 기지가 파괴되었다……', overAll: '💥 아군 탱크가 전멸했다……',
+    opTitle: '🎮 조작', op1: '1P: WASD 이동 · Space / J 발사', op2: '2P: 방향키 이동 · Enter / 숫자패드 0 발사', op3: '🔫 발사 키를 누르고 있으면 연사. 1인일 땐 두 키 세트 모두 사용 가능', op4: '👆 터치: 아래 십자키로 이동, 빨간 버튼으로 발사', op5: '🎮 게임패드 지원',
+    dexTitle: '🎁 아이템 도감', i1: '별: 화력 강화 —— 탄속 증가 → 2연발 → 강철 관통', i2: '헬멧: 10초 무적 실드', i3: '시계: 모든 적 10초 정지', i4: '삽: 독수리 주변이 18초간 강철 벽으로', i5: '수류탄: 화면 위 모든 적 파괴', i6: '탱크: 목숨 +1 (2만 점마다도 +1)',
+    tipTitle: '🧠 지휘관의 비결', tipBody: '빨갛게 깜박이는 탱크는 맞히면 아이템을 떨어뜨립니다. 먼저 노리세요! 장갑 탱크는 4발을 맞혀야 하고 체력에 따라 색이 바뀝니다. 아군을 쏘면 3초간 얼어붙으니 조심, 자기 독수리는 절대 쏘지 마세요! 야간전에서는 헤드라이트가 비추는 곳만 보입니다. 어둠 속 붉은 눈을 조심하세요.',
     aboutTitle: '📖 게임 소개',
-    aboutBody: '전차로 기지를 지키며 적 전차를 모두 격파하세요! 브라우저에서 바로 플레이 — 키보드와 터치 지원, 다운로드 불필요, 완전 무료.',
+    aboutBody: '탱크 대전은 패미컴 명작 배틀 시티에 경의를 담은 브라우저 탑다운 탱크 슈팅 게임입니다. 기지의 독수리를 지키세요. 스테이지마다 적 탱크 20대가 위쪽 세 출현 지점에서 몰려오며, 일반·고속·화력·장갑 네 종류는 저마다 다르게 움직입니다. 벽돌은 조금씩 부서지고, 강철은 최대 화력으로만 뚫리며, 강은 지나갈 수 없고, 숲에는 숨을 수 있고, 얼음 위에서는 미끄러집니다. 별·헬멧·시계·삽·수류탄·탱크 여섯 가지 아이템으로 전세를 뒤집으세요. 야간전 두 판을 포함한 12개 수제 전장, 1인 플레이와 2인 협동, 키보드·게임패드·터치 지원, 더 어려운 2회차까지. 맵 공방에서는 직접 맵을 그리거나 좌우 대칭 랜덤 맵을 만들어 바로 플레이할 수 있습니다. 완전 무료.',
+    footer: '🕹️ 바로 플레이 · 완전 무료 · 2인 협동·게임패드·터치 지원', muteTitle: '사운드 켜기/끄기 (M)',
+    stageNames: ['첫 교전', '강철 십자', '숲속 매복', '도하 작전', '얼음 호수', '야습', '철벽 요새', '미로 시가전', '군도', '강철 비', '얼음 밤', '최후 방어선'],
+    customName: '내 맵', locked: '앞 전장을 먼저 클리어하세요', loopN: n => n + '회차', nightTip: '🌙 야간전: 헤드라이트 밖은 칠흑 같은 어둠',
+    stScore: '점수', stScoreP: n => n + 'P 점수', stStage: '도달 전장', stKills: '격파 수', stCont: '이어하기', stBest: '최고', bestLbl: v => '🏆 최고 ' + v,
+    oneUp: '1UP!',
+    pw: { star: '⭐ 화력 강화!', starMax: '⭐ 화력 최대!', helmet: '⛑️ 무적 실드!', clock: '⏰ 적 정지!', shovel: '🧱 기지 강화!', grenade: '💣 전멸!', tank: '🎖️ 목숨 +1!' },
+    edTip: '🛠️ 드래그로 그리기 · 우클릭 지우기 · 자동 저장', edB: ['지우개 (0)', '벽돌 (1)', '강철 (2)', '강 (3)', '숲 (4)', '얼음 (5)'],
+    edSize: '브러시: 한 칸 / 반 칸', edRand: '좌우 대칭 랜덤 생성', edClear: '맵 지우기', edTest: '이 맵으로 플레이', edExit: '메뉴로 (Esc)'
   }
 };
 </script>
-<script src="game.js?v=20260914"></script>
+<script src="../assets/bgm.js?v=20261015"></script>
+<script src="../assets/kit.js?v=20261015"></script>
+<script src="game.js?v=20261015"></script>
 </body>
 </html>

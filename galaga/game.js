@@ -1,993 +1,730 @@
+/* 小蜜蜂 Galaga · 星际蜂群 —— 致敬街机 Galaga 的网页重制版
+ * 逻辑画布 448×576（竖版）。敌机沿“海龟路径”入场 → 编队摇摆 / 呼吸 → 俯冲攻击；
+ * Boss 牵引光束可俘虏战机，击落押送中的 Boss 可救回战机变成双机；每 4 关一个挑战关。
+ */
 (() => {
-// ================= 小蜜蜂 Galaga =================
-// 阵型入场 / 俯冲 / Boss抓机 / 双机合体 / 奖励关 / 双人协作
-const STR = window.GAME_STR || { zh: {}, en: {} };
-const T = (k, ...a) => AMG.tf(STR, k, ...a);
-const W = 480, H = 640;
-const canvas = document.getElementById('game');
-const ctx = canvas.getContext('2d');
-const $ = id => document.getElementById(id);
-const dpr = Math.min(window.devicePixelRatio || 1, 2);
-canvas.width = W * dpr; canvas.height = H * dpr;
-ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+'use strict';
+const { $, T } = KIT;
+const store = KIT.store('amg-galaga');
+const W = 448, H = 576, STEP = 1 / 60, PY = 514;
+const cv = $('game'), c = KIT.canvas(cv, W, H);
+const MONO = '"Courier New", ui-monospace, Menlo, monospace';
+const DISP = '"AMG Display", "PingFang SC", system-ui, sans-serif';
+const rnd = (a, b) => a + Math.random() * (b - a);
+const ri = (a, b) => Math.floor(a + Math.random() * (b - a + 1));
+const clamp = KIT.clamp;
+const TAU = Math.PI * 2;
+const angDiff = (a, b) => ((b - a + Math.PI * 3) % TAU) - Math.PI;
 
-const store = {
-  get best() { return +(localStorage.getItem('galaga-best') || 0); },
-  set best(v) { localStorage.setItem('galaga-best', v); },
-  get muted() { return localStorage.getItem('galaga-muted') === '1'; },
-  set muted(v) { localStorage.setItem('galaga-muted', v ? '1' : '0'); }
+// ---------------- 像素精灵（左半 + 中线，自动镜像） ----------------
+const mirror = rows => rows.map(r => r + [...r.slice(0, 7)].reverse().join(''));
+function pix(rows, pal) {
+  const o = document.createElement('canvas'); o.width = rows[0].length; o.height = rows.length;
+  const g = o.getContext('2d');
+  rows.forEach((r, y) => [...r].forEach((ch, x) => { if (pal[ch]) { g.fillStyle = pal[ch]; g.fillRect(x, y, 1, 1); } }));
+  return o;
+}
+const FIGHTER = mirror(['.......w', '.......w', '.......w', '......ww', '......ww', '...r..ww', '...r..ww', '...w.www', 'r..wwbww', 'r..wbbww', 'w.wwwwww', 'wwwwwrww', 'www.rrww', 'ww...rw.', 'w.....w.', '........']);
+const BEE = [
+  mirror(['........', '.bb....y', 'bbbb..yy', 'bbbbb.yr', 'bbbbbbyy', '.bbbb.yr', '..bb..yy', '......yy', '.....b.y', '....b...', '........', '........']),
+  mirror(['........', '.......y', '......yy', '.bb...yr', 'bbbb..yy', 'bbbbb.yr', 'bbbbbbyy', '.bbb..yy', '.....b.y', '....b...', '........', '........'])
+];
+const BFLY = [
+  mirror(['........', '.rr....b', 'rrrr..bb', 'rrrrr.ww', 'rwwrrrww', 'rrrrr.ww', 'rrrr..ww', '.rr....w', '.....w..', '....w...', '........', '........']),
+  mirror(['........', '.......b', '..rr..bb', '.rrrr.ww', 'rrwwrrww', 'rrrrr.ww', '.rrrr.ww', '..rr...w', '.....w..', '....w...', '........', '........'])
+];
+const BOSS = [
+  mirror(['........', '......gg', '.....ggg', '....gyyg', '....gggg', 'o..ggggg', 'oo.gg.gg', 'ooogg.gg', 'ooooggog', 'oooo.goo', '.ooo..oo', '..o...o.', '........', '........']),
+  mirror(['........', '......gg', '.....ggg', '....gyyg', 'o...gggg', 'oo.ggggg', 'ooogg.gg', 'oooogggg', '.ooogg.g', '..oo.goo', '...o..oo', '......o.', '........', '........'])
+];
+const SPR = {
+  fighter: pix(FIGHTER, { w: '#f2f2f2', r: '#e8392b', b: '#3f6bff' }),
+  captive: pix(FIGHTER, { w: '#e8392b', r: '#f2f2f2', b: '#ffd23a' }),
+  bee: BEE.map(r => pix(r, { b: '#3f6bff', y: '#ffd23a', r: '#e8392b' })),
+  bfly: BFLY.map(r => pix(r, { r: '#e8392b', w: '#f2f2f2', b: '#3f6bff' })),
+  morph: BFLY.map(r => pix(r, { r: '#2fd6c6', w: '#ffe14a', b: '#ff4fa0' })),
+  boss: BOSS.map(r => pix(r, { g: '#36c25a', y: '#ffd23a', o: '#f08a2a' })),
+  bossHit: BOSS.map(r => pix(r, { g: '#7b6cff', y: '#ffd23a', o: '#c060ff' }))
 };
-
-// ---------- 音频 ----------
-let actx = null, muted = store.muted;
-const musicOn = true; // BGM 与其他游戏一致：由声音键统管，不再独立开关
-function ac() {
-  if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
-  if (actx.state === 'suspended') actx.resume();
-  return actx;
-}
-function tone(f, dur, type, vol, slide) {
-  if (muted) return;
-  try {
-    const a = ac(), o = a.createOscillator(), g = a.createGain();
-    o.type = type || 'square'; o.frequency.setValueAtTime(f, a.currentTime);
-    if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(30, f + slide), a.currentTime + dur);
-    g.gain.setValueAtTime(vol || .09, a.currentTime);
-    g.gain.exponentialRampToValueAtTime(.001, a.currentTime + dur);
-    o.connect(g); g.connect(a.destination); o.start(); o.stop(a.currentTime + dur);
-  } catch (e) {}
-}
-function noise(dur, vol) {
-  if (muted) return;
-  try {
-    const a = ac(), n = Math.floor(a.sampleRate * dur), buf = a.createBuffer(1, n, a.sampleRate), d = buf.getChannelData(0);
-    for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
-    const s = a.createBufferSource(), g = a.createGain();
-    s.buffer = buf; g.gain.value = vol || .2;
-    s.connect(g); g.connect(a.destination); s.start();
-  } catch (e) {}
-}
-const sfx = {
-  shoot: () => tone(880, .1, 'square', .06, 440),
-  eshoot: () => tone(330, .14, 'sawtooth', .045, -120),
-  boom: () => noise(.3, .28),
-  bigboom: () => noise(.55, .34),
-  capture: () => { [300, 400, 500, 700].forEach((f, i) => setTimeout(() => tone(f, .14, 'sine', .1), i * 100)); },
-  rescue: () => { [700, 500, 400, 900].forEach((f, i) => setTimeout(() => tone(f, .13, 'sine', .1), i * 90)); },
-  bonus: () => { [523, 659, 784, 1047, 1319].forEach((f, i) => setTimeout(() => tone(f, .15, 'square', .09), i * 100)); },
-  clear: () => { [523, 523, 659, 784, 1047].forEach((f, i) => setTimeout(() => tone(f, .15, 'square', .09), i * 110)); },
-  dive: () => tone(200, .4, 'sawtooth', .05, 500),
-  click: () => tone(700, .07, 'sine', .1),
-};
-const midi = m => 440 * Math.pow(2, (m - 69) / 12);
-const Music = {
-  timer: null, step: 0, next: 0,
-  lead: [76, 0, 79, 0, 81, 0, 79, 76, 74, 0, 72, 0, 74, 0, 76, 0],
-  bass: [48, 0, 48, 0, 55, 0, 53, 0],
-  start() {
-    this.stop();
-    if (!musicOn) return;
-    this.step = 0;
-    try { this.next = ac().currentTime + .1; } catch (e) { return; }
-    this.timer = setInterval(() => this.tick(), 120);
-  },
-  stop() { if (this.timer) clearInterval(this.timer); this.timer = null; },
-  tick() {
-    if (muted || !musicOn) return;
-    try {
-      const a = ac();
-      while (this.next < a.currentTime + .35) {
-        const l = this.lead[this.step % this.lead.length];
-        const b = this.bass[this.step % this.bass.length];
-        if (l) this.note(midi(l), this.next, .13, 'square', .035);
-        if (b) this.note(midi(b), this.next, .13, 'triangle', .07);
-        this.next += .16;
-        this.step++;
-      }
-    } catch (e) {}
-  },
-  note(f, t, dur, type, vol) {
-    const a = ac(), o = a.createOscillator(), g = a.createGain();
-    o.type = type; o.frequency.value = f;
-    g.gain.setValueAtTime(vol, t);
-    g.gain.exponentialRampToValueAtTime(.001, t + dur);
-    o.connect(g); g.connect(a.destination); o.start(t); o.stop(t + dur);
-  }
-};
-
-// ---------- 输入 ----------
-const keys = { l: false, r: false, fire: false, l2: false, r2: false, fire2: false };
-function setKey(code, down) {
-  if (code === 'ArrowLeft' || code === 'KeyA') keys.l = down;
-  else if (code === 'ArrowRight' || code === 'KeyD') keys.r = down;
-  else if (code === 'KeyZ' || code === 'Space') keys.fire = down;
-  else if (code === 'KeyJ') keys.l2 = down;
-  else if (code === 'KeyK') keys.r2 = down;
-  else if (code === 'KeyL') keys.fire2 = down;
-}
-window.addEventListener('keydown', e => {
-  if (['ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) e.preventDefault();
-  if (e.repeat) return;
-  setKey(e.code, true);
-  if (e.code === 'KeyP' || e.code === 'Escape') togglePause();
-  if (e.code === 'KeyM') toggleMute();
-  if (e.code === 'KeyR' || e.code === 'Enter') {
-    if (G.state === 'over') retryAll();
-    else if (G.state === 'menu') startGame(G.mode);
-  }
-});
-window.addEventListener('keyup', e => setKey(e.code, false));
-function bindTouch(id, prop) {
-  const el = $(id);
-  const on = e => { e.preventDefault(); keys[prop] = true; };
-  const off = e => { e.preventDefault(); keys[prop] = false; };
-  el.addEventListener('pointerdown', on);
-  el.addEventListener('pointerup', off);
-  el.addEventListener('pointercancel', off);
-  el.addEventListener('pointerleave', off);
-}
-bindTouch('t-left', 'l'); bindTouch('t-right', 'r'); bindTouch('t-a', 'fire');
-
-// ---------- 状态 ----------
-const PY = H - 70;
-const G = {
-  state: 'menu', mode: 'solo', t: 0, stage: 1,
-  score: 0, lives: 3, best: store.best, newBest: false,
-  players: [], enemies: [], bullets: [], ebullets: [], parts: [], floats: [],
-  stars: [], entering: [], diveT: 0, bossBeam: null, captured: null,
-  dual: false, stageT: 0, introT: 0, overT: 0, clearT: 0,
-  challenge: false, challLeft: 0, challBonus: 0,
-  shake: 0, scored0: 0, kills: 0,
-};
-for (let i = 0; i < 90; i++) G.stars.push({ x: Math.random() * W, y: Math.random() * H, s: .5 + Math.random() * 2, v: 40 + Math.random() * 130 });
-
-const SCORES = { zako: 50, goei: 80, boss: 150 };
-const FORM_Y = [120, 165, 210, 250]; // boss, goei, zako, zako 行
-
-function formationSlots(stage) {
-  // 随关卡加数量：boss 4→6, goei 8→10, zako row 10+10 → 12+12
-  const hard = Math.min(1, (stage - 1) / 5);
-  const nb = stage >= 3 ? 6 : 4;
-  const ng = stage >= 2 ? 10 : 8;
-  const nz = 10 + Math.floor(hard * 4);
-  const slots = [];
-  for (let i = 0; i < nb; i++) slots.push({ type: 'boss', col: i - (nb - 1) / 2 });
-  for (let i = 0; i < ng; i++) slots.push({ type: 'goei', col: i - (ng - 1) / 2 });
-  for (let i = 0; i < nz; i++) slots.push({ type: 'zako', col: i - (nz - 1) / 2, row: 2 });
-  for (let i = 0; i < nz; i++) slots.push({ type: 'zako', col: i - (nz - 1) / 2, row: 3 });
-  return slots;
-}
-const MAX_PER_LINE = 10, COL_W = 38, ROW_Y = { boss: 0, goei: 1, zako: 2 };
-function slotPos(slot) {
-  // 分行排布，避免 24 列挤爆：每行最多 10 个，分两段错开
-  const row = slot.type === 'boss' ? 0 : slot.type === 'goei' ? 1 : (slot.row || 2);
-  const siblings = G._slots ? G._slots.filter(s => (s.type === 'boss' ? 0 : s.type === 'goei' ? 1 : (s.row || 2)) === row).length : 10;
-  const idx = slot._idx || 0;
-  const n = Math.max(siblings, 1);
-  const x = W / 2 + (idx - (n - 1) / 2) * Math.min(COL_W, (W - 80) / Math.max(n - 1, 1));
-  return { x, y: FORM_Y[row] };
+function drawSpr(img, x, y, rot, sc = 2) {
+  c.save(); c.translate(x, y); c.rotate(rot); c.imageSmoothingEnabled = false;
+  c.drawImage(img, -img.width * sc / 2, -img.height * sc / 2, img.width * sc, img.height * sc);
+  c.restore();
 }
 
-function newPlayer(x, p2) {
-  return { x, y: PY, w: 30, h: 26, vx: 0, cd: 0, alive: true, p2: !!p2, respawn: 0, warp: 0 };
-}
-function resetCommon() {
-  G.enemies = []; G.bullets = []; G.ebullets = []; G.parts = []; G.floats = [];
-  G.entering = []; G.bossBeam = null; G.captured = null; G.dual = false;
-  G.diveT = 2.5; G.shake = 0;
-}
-function startGame(mode) {
-  G.mode = mode || 'solo';
-  G.score = 0; G.lives = 3; G.stage = 1; G.newBest = false; G.kills = 0; G._extend = 0;
-  startStage(1);
-}
-function startStage(stage) {
-  G.stage = stage;
-  G.challenge = stage % 3 === 0; // 3/6/9…为奖励关
-  const keepDual = !!G.dual;
-  resetCommon();
-  G.dual = keepDual;
-  G.players = [newPlayer(W / 2, false)];
-  if (G.mode === 'coop') G.players.push(newPlayer(W / 2 + 60, true));
-  G.state = 'intro'; G.introT = 0; G.stageT = 0; G.clearT = 0;
-  G.scored0 = G.score;
-  // 入场队列：分批曲线入场
-  const slots = formationSlots(stage);
-  G._slots = slots;
-  slots.forEach((s, i) => s._idx = i % Math.max(1, slots.filter(o => (o.type === 'boss' ? 0 : o.type === 'goei' ? 1 : (o.row || 2)) === (s.type === 'boss' ? 0 : s.type === 'goei' ? 1 : (s.row || 2))).length));
-  // 按类型分组编号，保证同行内 _idx 连续
-  const counters = {};
-  slots.forEach(s => {
-    const row = s.type === 'boss' ? 0 : s.type === 'goei' ? 1 : (s.row || 2);
-    counters[row] = counters[row] || 0;
-    s._idx = counters[row]++;
-  });
-  slots.forEach((s, i) => {
-    G.entering.push({ slot: s, t: -i * .28, side: i % 2 ? 1 : -1, x: 0, y: 0, done: false });
-  });
-  if (G.challenge) {
-    // 奖励关：40 只 zako，直线编队入场后定点跳舞，不射击
-    G.entering = [];
-    for (let i = 0; i < 40; i++) {
-      G.entering.push({ slot: { type: 'zako', chall: true, ci: i }, t: -i * .22, side: i % 2 ? 1 : -1, x: 0, y: 0, done: false });
+// ---------------- 路径（海龟绘图：f 前进 / t 转弯） ----------------
+function turtle(start, cmds, mir) {
+  let [x, y, hd] = start, a = hd * Math.PI / 180;
+  const pts = [[x, y]];
+  for (const cm of cmds) {
+    if (cm[0] === 'f') {
+      const n = Math.ceil(cm[1] / 2);
+      for (let i = 0; i < n; i++) { x += Math.cos(a) * cm[1] / n; y += Math.sin(a) * cm[1] / n; pts.push([x, y]); }
+    } else {
+      const tot = cm[1] * Math.PI / 180, arc = Math.abs(tot) * cm[2], n = Math.ceil(arc / 2);
+      for (let i = 0; i < n; i++) { a += tot / n; x += Math.cos(a) * arc / n; y += Math.sin(a) * arc / n; pts.push([x, y]); }
     }
-    G.challLeft = 40; G.challBonus = 0;
   }
-  showScreen(null);
-  $('btn-pause').classList.add('hidden');
-  Music.stop();
-  sfx.capture();
+  return mir ? pts.map(([px, py]) => [W - px, py]) : pts;
 }
+const PATHS = {
+  A: [[W / 2 - 24, -16, 90], [['f', 140], ['t', 200, 48], ['f', 40]]],
+  B: [[-16, 430, -35], [['f', 110], ['t', -250, 50], ['f', 30]]],
+  C: [[-16, 120, 25], [['f', 150], ['t', 160, 55], ['f', 30]]],
+  A2: [[W / 2 - 24, -16, 90], [['f', 100], ['t', -120, 60], ['t', 300, 40], ['f', 20]]],
+  B2: [[-16, 300, -10], [['f', 140], ['t', -300, 45], ['f', 20]]],
+  C2: [[-16, 40, 40], [['f', 180], ['t', 220, 45], ['f', 30]]],
+  X1: [[180, -16, 90], [['f', 200], ['t', -270, 60], ['f', 520]]],
+  X2: [[-16, 300, -20], [['f', 100], ['t', -200, 70], ['f', 80], ['t', 200, 70], ['f', 520]]],
+  X3: [[-16, 80, 10], [['f', 120], ['t', 330, 50], ['f', 520]]],
+  X4: [[100, -16, 70], [['f', 120], ['t', -120, 80], ['t', 240, 50], ['f', 520]]],
+  X5: [[-16, 450, -60], [['f', 160], ['t', 300, 45], ['f', 520]]]
+};
+const pathCache = {};
+const getPath = (n, m) => pathCache[n + m] || (pathCache[n + m] = turtle(PATHS[n][0], PATHS[n][1], m));
 
-// 入场曲线：从屏幕上方两侧盘旋进入阵型位
-function entryPos(e, total) {
-  const p = slotPos(e.slot);
-  if (e.slot.chall) {
-    // 奖励关阵型：8 列 × 5 行
-    const ci = e.slot.ci, cols = 8;
-    p.x = W / 2 + (ci % cols - (cols - 1) / 2) * 44;
-    p.y = 110 + Math.floor(ci / cols) * 36;
-  }
-  const t = e.t;
-  if (t < 0) return { x: e.side > 0 ? W + 40 : -40, y: -30, a: 0 };
-  const dur = 2.6;
-  const k = Math.min(1, t / dur);
-  const sx = e.side > 0 ? W + 40 : -40, sy = -30;
-  // 三段：俯冲下来 → 绕圈 → 归位
-  const x = sx + (p.x - sx) * k + Math.sin(k * Math.PI * 3 + (e.side > 0 ? 0 : Math.PI)) * 120 * (1 - k);
-  const y = sy + (p.y - sy) * (k * k * .6 + k * .4) + Math.abs(Math.sin(k * Math.PI * 2)) * 60 * (1 - k);
-  return { x, y, a: k };
-}
+// ---------------- 状态 ----------------
+let state = 'menu', prevState = 'play', diff = store.get('diff', 1), hiScore = store.get('best', 20000);
+let stage = 1, phase = 'intro', phaseT = 0, waveF = 0, sched = [], schedIdx = 0, diveT = 0, eid = 0;
+let enemies = [], pb = [], eb = [], booms = [], pops = [], msg = null, readyT = 0, starSpd = 1;
+let score = 0, lives = 3, nextLife = 20000, shots = 0, hits = 0, chHits = 0, chTotal = 0, demo = false, god = false;
+const morphGroups = {};
+let mgid = 0, breath = 0, swayAmp = 1, breathAmp = 0;
+const player = { x: W / 2, alive: false, dual: false, state: 'ok', inv: 0, fireCd: 0, respawnT: 0, gameOver: false, capt: null, spin: 0, cy: PY };
+const fx = new KIT.Particles();
+const DIVING = new Set(['dive', 'homing', 'escort', 'beamGo', 'beam', 'morph']);
+const isChallenge = n => n % 4 === 3;
+let challenge = false;
 
-function overlap(a, b) {
-  return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
-}
-function addScore(n, x, y) {
-  G.score += n;
-  checkExtend();
-  if (x !== undefined) G.floats.push({ x, y, text: '+' + n, age: 0 });
-}
-function boom(x, y, big, color) {
-  sfx[big ? 'bigboom' : 'boom']();
-  for (let i = 0; i < (big ? 26 : 12); i++) {
-    G.parts.push({ x, y, vx: (Math.random() - .5) * 360, vy: (Math.random() - .5) * 360, life: .5 + Math.random() * .4, age: 0, r: 2 + Math.random() * 3, c: color || ['#ffd93d', '#ff8c42', '#fff'][Math.random() * 3 | 0] });
+const STAR_COLS = ['#ffffff', '#ff5a5a', '#5aff7a', '#6a8bff', '#ffe45a', '#ff6af0', '#5af0ff'];
+const starsL = Array.from({ length: 120 }, () => ({ x: rnd(0, W), y: rnd(0, H), z: ri(0, 2), c: STAR_COLS[ri(0, 6)], ph: rnd(0, 6.28), f: rnd(0.02, 0.09) }));
+const nebula = (() => {
+  const o = document.createElement('canvas'); o.width = W; o.height = H * 2;
+  const g = o.getContext('2d');
+  for (const [x, y, r, col] of [[90, 200, 220, 'rgba(90,40,160,.16)'], [360, 520, 260, 'rgba(30,80,170,.14)'], [200, 880, 240, 'rgba(150,40,110,.12)'], [380, 1040, 200, 'rgba(40,120,160,.12)'], [90, 200 + H, 220, 'rgba(90,40,160,.16)']]) {
+    const gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, col); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, W, H * 2);
   }
-}
+  return o;
+})();
+let nebY = 0;
 
-// ---------- 俯冲 / 抓机 ----------
-function tryDive() {
-  // 选一个在阵型中的敌机开始俯冲（boss 优先抓机）
-  const cands = G.enemies.filter(e => e.mode === 'form' && !e.diving);
-  if (!cands.length || G.bossBeam) return;
-  const boss = cands.find(e => e.type === 'boss' && !G.captured && G.players.some(p => p.alive));
-  let e;
-  if (boss && Math.random() < .45 + G.stage * .05) e = boss;
-  else e = cands[Math.random() * cands.length | 0];
-  e.diving = true; e.diveT = 0; e.diveKind = e.type === 'boss' && !G.captured && G.players.some(p => p.alive) && Math.random() < .5 ? 'capture' : 'attack';
-  if (e.diveKind === 'capture') { e.hp = 2; }
-  sfx.dive();
-}
-function fireEnemy(e) {
-  if (G.challenge) return;
-  const p = G.players.find(p => p.alive);
-  if (!p) return;
-  const dx = (p.x - e.x) * .0015;
-  G.ebullets.push({ x: e.x, y: e.y + 14, w: 5, h: 12, vx: dx * 200 * .5, vy: 200 + G.stage * 12, life: 5 });
-  sfx.eshoot();
-}
+// ---------------- 声音 ----------------
+const SFX = {
+  shot: () => KIT.tone(1300, 0.07, { type: 'square', vol: 0.035, to: 500 }),
+  hit: () => { KIT.noise(0.18, { vol: 0.08, lp: 2400 }); KIT.tone(500, 0.12, { type: 'square', vol: 0.04, to: 120 }); },
+  bossHit: () => KIT.tone(700, 0.12, { type: 'square', vol: 0.05, to: 1100 }),
+  bossDie: () => { KIT.noise(0.35, { vol: 0.12, lp: 1500 }); KIT.arp([880, 660, 440], 0.05, { type: 'square', vol: 0.04 }); },
+  dive: () => KIT.tone(1100, 0.55, { type: 'triangle', vol: 0.025, to: 300 }),
+  beam: () => { for (let i = 0; i < 6; i++) KIT.tone(i % 2 ? 380 : 300, 0.28, { type: 'sine', vol: 0.05, to: i % 2 ? 300 : 420, delay: i * 0.27 }); },
+  captured: () => KIT.arp([523, 494, 466, 440, 415, 392], 0.13, { type: 'square', vol: 0.05 }),
+  rescue: () => KIT.arp([523, 659, 784, 1047, 1319, 1568], 0.07, { type: 'square', vol: 0.05 }),
+  die: () => { KIT.noise(0.9, { vol: 0.25, lp: 900 }); KIT.tone(300, 0.8, { type: 'sawtooth', vol: 0.07, to: 40 }); },
+  start: () => KIT.arp([523, 587, 659, 784, 659, 784, 1047, 988, 1047], 0.09, { type: 'square', vol: 0.05 }),
+  life: () => KIT.arp([784, 988, 1175, 1568], 0.07, { type: 'triangle', vol: 0.08 }),
+  morph: () => KIT.arp([1500, 1200, 1500, 1200], 0.04, { type: 'triangle', vol: 0.04 }),
+  perfect: () => KIT.arp([523, 659, 784, 1047, 784, 1047, 1319, 1568], 0.08, { type: 'square', vol: 0.06 }),
+  tick: () => KIT.tone(1046, 0.04, { type: 'square', vol: 0.03 })
+};
+const snd = k => { if (!demo) SFX[k](); };
 
-// 玩家被击中
-function hitPlayer(p) {
-  if (!p.alive || G.state !== 'play') return;
-  boom(p.x + p.w / 2, p.y + p.h / 2, true, ['#5ee6ff', '#fff', '#ffd93d']);
-  G.shake = 10;
-  if (G.dual && !p.p2) {
-    // 双机时只损失一架
-    G.dual = false;
-    p.warp = 1.2;
-    float(p.x, p.y - 20, T('floatSolo'));
-    return;
-  }
-  p.alive = false; p.respawn = 1.6;
-  G.lives--;
-  checkExtend();
-  if (G.lives < 0) { gameOver(); }
+// ---------------- 编队 ----------------
+const ROW_Y = [84, 118, 150, 182, 214];
+function slotPos(s) {
+  const k = 1 + 0.16 * breath * breathAmp, sway = Math.sin(F * 0.018) * 22 * swayAmp;
+  return { x: W / 2 + (s.c - 4.5) * 36 * k + sway, y: 64 + (ROW_Y[s.r] - 64) * k };
 }
-// 分数奖励命：3万、10万各奖一命（经典规则）
-function checkExtend() {
-  if (G.state !== 'play') return;
-  G._extend = G._extend || 0;
-  const marks = [30000, 100000];
-  if (G._extend < marks.length && G.score >= marks[G._extend]) {
-    G._extend++;
-    G.lives++;
-    float(W / 2, H / 2 - 40, T('floatLife'));
-    sfx.rescue();
-  }
+function allSlots() {
+  return {
+    boss: [3, 4, 5, 6].map(c2 => [0, c2]),
+    bfly: [3, 4, 5, 6, 1, 2, 7, 8].map(c2 => [1, c2]).concat([1, 2, 3, 4, 5, 6, 7, 8].map(c2 => [2, c2])),
+    bee: [3, 4, 5, 6, 0, 1, 2, 7, 8, 9].map(c2 => [3, c2]).concat([0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(c2 => [4, c2]))
+  };
 }
-function float(x, y, text) { G.floats.push({ x, y, text, age: 0 }); }
-
-// Boss 牵引光束抓住玩家
-function capturePlayer(boss, p) {
-  G.captured = { boss, px: p.x, py: p.y, t: 0 };
-  G.bossBeam = null;
-  boss.diving = false; boss.mode = 'return'; boss.retT = 0;
-  sfx.capture();
-  float(p.x, p.y - 24, T('floatCaptured'));
-  G.dual = false;
-  G.lives--;
-  if (G.lives < 0) {
-    p.alive = false; p.respawn = 0;
-    gameOver();
-    return;
+function buildSched() {
+  const out = [];
+  if (challenge) {
+    const pats = ['X1', 'X2', 'X3', 'X4', 'X5'], tys = [['bee', 'bee'], ['bfly', 'boss'], ['bfly', 'bfly'], ['morph', 'morph'], ['boss', 'bfly']];
+    const rot = Math.floor(stage / 4) % 5;
+    pats.forEach((p0, gi) => [false, true].forEach((m, si) => {
+      const p = pats[(gi + rot) % 5];
+      for (let k = 0; k < 4; k++) out.push({ t: 30 + gi * 220 + k * 12, type: tys[gi][si], path: getPath(p, m), slot: null, group: gi });
+    }));
+  } else {
+    const S = allSlots(), P = stage % 2 === 0 ? ['A2', 'B2', 'C2'] : ['A', 'B', 'C'];
+    const rep = (t, n) => Array(n).fill(t);
+    const groups = [
+      [[P[0], false, rep('bfly', 4)], [P[0], true, rep('bee', 4)]],
+      [[P[1], false, ['boss', 'bfly', 'boss', 'bfly', 'boss', 'bfly', 'boss', 'bfly']]],
+      [[P[1], true, rep('bfly', 8)]],
+      [[P[2], false, rep('bee', 8)]],
+      [[P[2], true, rep('bee', 8)]]
+    ];
+    groups.forEach((g, gi) => g.forEach(([p, m, tys]) => tys.forEach((ty, k) => out.push({ t: 30 + gi * 180 + k * 9, type: ty, path: getPath(p, m), slot: S[ty].shift() }))));
   }
-  p.alive = false;
-  p.respawn = 1.6;
+  return out.sort((a, b) => a.t - b.t);
 }
-// 救回：击落带着战机的 boss（返回途中或回阵后均可）
-function rescueCheck(boss) {
-  if (G.captured && G.captured.boss === boss) {
-    G.captured = null;
-    G.dual = true;
-    const p = G.players[0];
-    p.alive = true;
-    p.respawn = 0;
-    p.warp = 1.2;
-    if (p.y > H - 80) { p.x = W / 2; p.y = PY; }
-    addScore(1500, boss.x, boss.y);
-    float(boss.x, boss.y - 20, T('floatRescue'));
-    sfx.rescue();
-    return true;
-  }
+const enterSpd = () => Math.min(5, 3.1 + stage * 0.05 + diff * 0.15);
+function spawn(s) {
+  const p0 = s.path[0];
+  enemies.push({
+    id: ++eid, type: s.type, slot: s.slot ? { r: s.slot[0], c: s.slot[1] } : null, x: p0[0], y: p0[1], ang: Math.PI / 2, mode: 'enter', path: s.path, pi: 0, spd: enterSpd(),
+    hp: s.type === 'boss' && !challenge ? 2 : 1, t: 0, group: s.group, flash: 0, escKilled: 0, vx: 0, vy: 0,
+    shotsLeft: !challenge && stage >= 2 && Math.random() < 0.18 + stage * 0.03 + diff * 0.06 ? 1 : 0, shootY: rnd(150, 320)
+  });
+}
+function followPath(e) {
+  e.pi += e.spd / 2;
+  const P = e.path, i = Math.floor(e.pi);
+  if (i >= P.length - 1) { const l = P[P.length - 1]; e.x = l[0]; e.y = l[1]; return true; }
+  const f = e.pi - i, a = P[i], b = P[i + 1];
+  const nx = a[0] + (b[0] - a[0]) * f, ny = a[1] + (b[1] - a[1]) * f;
+  if (Math.abs(nx - e.x) + Math.abs(ny - e.y) > 0.01) e.ang = Math.atan2(ny - e.y, nx - e.x);
+  e.x = nx; e.y = ny;
+  return false;
+}
+function moveToward(e, tx, ty, spd) {
+  const dx = tx - e.x, dy = ty - e.y, d = Math.hypot(dx, dy);
+  if (d <= spd) { e.x = tx; e.y = ty; return true; }
+  const a = Math.atan2(dy, dx);
+  e.ang += angDiff(e.ang, a) * 0.25;
+  e.x += Math.cos(a) * spd; e.y += Math.sin(a) * spd;
   return false;
 }
 
-// ---------- 流程 ----------
-function showScreen(name) {
-  const screens = { menu: $('screen-menu'), pause: $('screen-pause'), clear: $('screen-clear'), over: $('screen-over') };
-  for (const k in screens) screens[k].classList.toggle('hidden', k !== name);
-  if (!name) for (const k in screens) screens[k].classList.add('hidden');
-  $('btn-pause').classList.toggle('hidden', G.state !== 'play');
+// ---------------- 俯冲 ----------------
+function startDive(e, beam) {
+  const side = e.x < W / 2 ? -1 : 1;
+  e.mode = 'dive'; e.pi = 0; e.spd = 2.6 + Math.min(1.6, stage * 0.06) + diff * 0.2; e.beamDive = !!beam; e.escKilled = 0;
+  e.path = turtle([e.x, e.y, -90], [['f', 6], ['t', side * 200, 26]], false);
+  const nShots = demo || beam ? 0 : Math.min(4, 1 + Math.floor(stage / 4) + (diff === 2 ? 1 : 0) - (diff === 0 ? 1 : 0));
+  e.shotsLeft = Math.max(0, nShots); e.shootY = rnd(150, 260);
+  e.morphChecked = false;
+  snd('dive');
 }
-function refreshMenu() { $('menu-best').textContent = T('best', Math.max(store.best, G.score)); }
-function toMenu() { G.state = 'menu'; Music.stop(); refreshMenu(); showScreen('menu'); }
-function togglePause(force) {
-  if (G.state === 'play') { G.state = 'pause'; showScreen('pause'); Music.stop(); }
-  else if (G.state === 'pause' && !force) { G.state = 'play'; showScreen(null); $('btn-pause').classList.remove('hidden'); Music.start(); }
+function pickDiver() {
+  const pool = enemies.filter(e => e.mode === 'form' && e.type !== 'captive');
+  if (!pool.length) return;
+  let e = pool[ri(0, pool.length - 1)];
+  if (Math.random() < 0.25) { const bs = pool.filter(b => b.type === 'boss'); if (bs.length) e = bs[ri(0, bs.length - 1)]; }
+  if (e.type === 'boss') {
+    const busy = enemies.some(b => b.type === 'captive' || b.beamDive && (b.mode === 'dive' || b.mode === 'beamGo' || b.mode === 'beam'));
+    if (!e.captive && !player.dual && player.alive && !busy && !demo && Math.random() < 0.5) { startDive(e, true); return; }
+    startDive(e, false);
+    const esc = pool.filter(b => b.type === 'bfly' && b.slot.r === 1 && Math.abs(b.slot.c - e.slot.c) <= 1).slice(0, 2);
+    esc.forEach((b, k) => { b.mode = 'escort'; b.leader = e; b.off = esc.length === 1 ? (b.slot.c < e.slot.c ? -26 : 26) : k ? 26 : -26; b.shotsLeft = e.shotsLeft; b.shootY = e.shootY + 30; });
+    if (e.captive) e.captive.mode = 'follow';
+  } else startDive(e, false);
 }
-function stageClear() {
-  const gained = G.score - G.scored0;
-  if (G.challenge) {
-    if (G.challLeft <= 0) { addScore(10000, W / 2, H / 2 - 60); float(W / 2, H / 2 - 90, 'PERFECT +10000'); }
-    G.challBonus = G.challLeft <= 0 ? 10000 : 0;
+function stepDives() {
+  if (challenge || (!player.alive && !demo) || phase !== 'fight' || schedIdx < sched.length) return;
+  if (enemies.some(e => e.mode === 'enter')) return;
+  const divers = enemies.filter(e => DIVING.has(e.mode)).length, left = enemies.length;
+  const maxD = Math.min(2 + Math.floor(stage / 3) + diff, 7) + (left <= 8 ? 3 : 0);
+  if (--diveT > 0 || divers >= maxD) return;
+  diveT = Math.max(18, 110 - stage * 5 - diff * 20 - (left <= 8 ? 45 : 0)) + ri(0, 40);
+  pickDiver();
+}
+function shoot(e) {
+  if (demo || !player.alive) return;
+  const tx = player.x + rnd(-30, 30), a = Math.atan2(PY - e.y, tx - e.x), sp = 3.2 + diff * 0.45 + Math.min(1, stage * 0.04);
+  eb.push({ x: e.x, y: e.y + 8, vx: Math.cos(a) * sp, vy: Math.max(1.8, Math.sin(a) * sp) });
+}
+function morph(e) {
+  e.dead = true; e.silent = true;
+  const id = ++mgid; morphGroups[id] = { left: 3, killed: 0 };
+  for (const [ox, oy] of [[-22, 0], [0, -16], [22, 0]]) {
+    enemies.push({ id: ++eid, type: 'morph', x: e.x + ox, y: e.y + oy, ang: Math.PI / 2, mode: 'morph', vx: clamp((player.x - e.x) * 0.006, -1.6, 1.6), vy: 3.1, t: 0, hp: 1, mg: id, flash: 10, shotsLeft: 0 });
   }
-  if (G.score > store.best) store.best = G.score;
-  Music.stop(); sfx.clear();
-  G.state = 'clear';
-  $('clear-stage').textContent = G.stage;
-  $('clear-stats').innerHTML =
-    '<div>' + T('clearScore', gained) + '</div>' +
-    (G.challenge ? '<div>' + T('challLine', G.challLeft, G.challBonus) + '</div>' : '') +
-    '<div>' + T('killsLine', G.kills, Math.max(0, G.lives)) + '</div>' +
-    (G.dual ? '<div>' + T('dualKeep') + '</div>' : '');
-  setTimeout(() => showScreen('clear'), 700);
-}
-function gameOver() {
-  G.state = 'over';
-  Music.stop();
-  const isNew = G.score > store.best;
-  G.newBest = isNew;
-  if (isNew) store.best = G.score;
-  $('final-score').textContent = G.score;
-  $('final-best').textContent = store.best;
-  $('new-record').classList.toggle('hidden', !isNew);
-  G.overT = .5;
-}
-function retryAll() {
-  startGame(G.mode);
+  fx.burst(e.x, e.y, { n: 16, color: ['#2fd6c6', '#ffe14a', '#ff4fa0'], speed: 140, life: 0.4, size: 3, gravity: 0, shape: 'spark' });
+  snd('morph');
 }
 
-// ---------- 更新 ----------
-let last = performance.now();
-function loop(now) {
-  const dt = Math.min((now - last) / 1000, .033);
-  last = now;
-  if (G.state !== 'pause' && G.state !== 'menu') update(dt);
-  else G.t += dt;
-  render();
-  requestAnimationFrame(loop);
-}
-
-function update(dt) {
-  G.t += dt;
-  for (const s of G.stars) { s.y += s.v * dt; if (s.y > H) { s.y = -4; s.x = Math.random() * W; } }
-  if (G.shake > 0) G.shake = Math.max(0, G.shake - dt * 30);
-  for (let i = G.parts.length - 1; i >= 0; i--) {
-    const p = G.parts[i];
-    p.age += dt;
-    if (p.age > p.life) { G.parts.splice(i, 1); continue; }
-    p.x += p.vx * dt; p.y += p.vy * dt;
-    p.vx *= .98; p.vy *= .98;
-  }
-  for (let i = G.floats.length - 1; i >= 0; i--) {
-    const f = G.floats[i];
-    f.age += dt; f.y -= 40 * dt;
-    if (f.age > 1.1) G.floats.splice(i, 1);
-  }
-
-  if (G.state === 'intro') {
-    G.introT += dt;
-    if (G.introT > 1.4) { G.state = 'play'; $('btn-pause').classList.remove('hidden'); Music.start(); }
-    return;
-  }
-  if (G.state === 'over') {
-    if (G.overT > 0) { G.overT -= dt; if (G.overT <= 0) showScreen('over'); }
-    return;
-  }
-  if (G.state === 'clear') return;
-  if (G.state !== 'play') return;
-  G.stageT += dt;
-
-  // ---- 玩家 ----
-  for (const p of G.players) {
-    if (p.warp > 0) p.warp -= dt;
-    if (!p.alive) {
-      if (p.respawn > 0) {
-        p.respawn -= dt;
-        if (p.respawn <= 0 && G.lives >= 0) {
-          p.alive = true; p.x = W / 2 + (p.p2 ? 60 : -30); p.y = PY; p.warp = 1.2;
-        }
+// ---------------- 敌机逐帧 ----------------
+function stepEnemy(e) {
+  e.t++;
+  if (e.flash > 0) e.flash--;
+  switch (e.mode) {
+    case 'enter':
+      if (followPath(e)) { if (e.slot) e.mode = 'toSlot'; else { e.dead = true; e.silent = true; } }
+      if (!e.slot && e.pi > 20 && (e.x < -40 || e.x > W + 40 || e.y < -40 || e.y > H + 40)) { e.dead = true; e.silent = true; }
+      break;
+    case 'toSlot': { const s = slotPos(e.slot); if (moveToward(e, s.x, s.y, Math.max(2.4, e.spd))) e.mode = 'form'; break; }
+    case 'form': { const s = slotPos(e.slot); e.x = s.x; e.y = s.y; e.ang += angDiff(e.ang, Math.PI / 2) * 0.15; break; }
+    case 'dive':
+      if (followPath(e)) {
+        if (e.beamDive) { e.mode = 'beamGo'; e.bx = clamp(player.x, 60, W - 60); }
+        else { e.mode = 'homing'; e.vx = (e.x < W / 2 ? -1 : 1) * 0.6; e.vy = 1.6; }
       }
-      continue;
+      break;
+    case 'homing': {
+      const maxVy = 2.5 + Math.min(1.6, stage * 0.06) + diff * 0.3, tx = player.alive ? player.x : W / 2;
+      e.vy = Math.min(e.vy + 0.05, maxVy);
+      e.vx = clamp(e.vx + clamp((tx - e.x) * 0.004, -0.09, 0.09), -2.6, 2.6);
+      e.x += e.vx + (e.type === 'bfly' ? Math.sin(e.t * 0.09) * 1.2 : 0); e.y += e.vy;
+      e.ang = Math.atan2(e.vy, e.vx);
+      if (e.type === 'bee' && stage >= 4 && !e.morphChecked && e.y > 190 && !demo) { e.morphChecked = true; if (Math.random() < 0.16 + Math.min(0.14, stage * 0.01)) morph(e); }
+      if (e.y > H + 24) { e.y = -24; e.x = clamp(e.x, 20, W - 20); e.mode = e.slot ? 'toSlot' : 'gone'; if (!e.slot) { e.dead = true; e.silent = true; } }
+      break;
     }
-    const L = p.p2 ? keys.l2 : keys.l, R = p.p2 ? keys.r2 : keys.r;
-    const sp = 340;
-    if (L && !R) { p.x -= sp * dt; p.tilt = Math.max(-1, (p.tilt || 0) - dt * 8); }
-    else if (R && !L) { p.x += sp * dt; p.tilt = Math.min(1, (p.tilt || 0) + dt * 8); }
-    else p.tilt = (p.tilt || 0) * Math.max(0, 1 - dt * 10);
-    p.x = Math.max(8, Math.min(W - 8 - (G.dual && !p.p2 ? p.w + 34 : p.w), p.x));
-    if (p.cd > 0) p.cd -= dt;
-    const F = p.p2 ? keys.fire2 : keys.fire;
-    if (F && p.cd <= 0) {
-      p.cd = G.dual && !p.p2 ? .22 : .16;
-      const cx = p.x + p.w / 2;
-      G.bullets.push({ x: cx - 3, y: p.y - 12, w: 6, h: 14, vy: -560, life: 2 });
-      if (G.dual && !p.p2) G.bullets.push({ x: cx + 31, y: p.y - 12, w: 6, h: 14, vy: -560, life: 2 });
-      sfx.shoot();
+    case 'escort': {
+      const L = e.leader;
+      if (L && !L.dead && (L.mode === 'dive' || L.mode === 'homing')) {
+        e.x += (L.x + e.off - e.x) * 0.25; e.y += (L.y - 20 - e.y) * 0.25; e.ang = L.ang;
+      } else { e.mode = 'homing'; e.vx = 0; e.vy = 2; }
+      break;
     }
-  }
-
-  // ---- 入场 ----
-  for (const e of G.entering) {
-    if (e.done) continue;
-    e.t += dt;
-    const total = 2.6;
-    if (e.t >= total) {
-      e.done = true;
-      const p = slotPos(e.slot);
-      G.enemies.push(makeEnemy(e.slot, p.x, p.y));
+    case 'beamGo': if (moveToward(e, e.bx, 292, 2.6)) { e.mode = 'beam'; e.beamT = 0; e.ang = Math.PI / 2; snd('beam'); } break;
+    case 'beam': stepBeam(e); break;
+    case 'morph':
+      e.x += e.vx; e.y += e.vy; e.vx += Math.sin(e.t * 0.06) * 0.06; e.ang = Math.atan2(e.vy, e.vx);
+      if (e.y > H + 30) { e.dead = true; e.silent = true; }
+      break;
+    case 'follow': {
+      const o = e.owner;
+      if (!o || o.dead) { e.mode = 'leave'; break; }
+      if (o.mode === 'form') { const s = slotPos(o.slot); e.x = s.x; e.y = s.y - 30; e.ang += angDiff(e.ang, Math.PI / 2) * 0.2; }
+      else { e.x += (o.x - Math.cos(o.ang) * 30 - e.x) * 0.3; e.y += (o.y - Math.sin(o.ang) * 30 - e.y) * 0.3; e.ang = o.ang; }
+      break;
     }
-  }
-  if (G.entering.length && G.entering.every(e => e.done)) { /* 入场完毕 */ }
-
-  // ---- 俯冲调度 ----
-  G.diveT -= dt;
-  const formed = G.enemies.filter(e => e.mode === 'form').length;
-  if (G.diveT <= 0 && formed > 0 && !G.challenge) {
-    tryDive();
-    G.diveT = Math.max(1.6, 3.2 - G.stage * .2);
-  }
-  // 阵型敌机偶尔开火（限制屏幕上敌方子弹数，避免弹幕过密）
-  if (!G.challenge && G.ebullets.length < 3 + G.stage && Math.random() < dt * (1 + G.stage * .25) && formed > 0) {
-    const shooters = G.enemies.filter(e => e.mode === 'form');
-    fireEnemy(shooters[Math.random() * shooters.length | 0]);
-  }
-
-  // ---- 敌机 ----
-  for (let i = G.enemies.length - 1; i >= 0; i--) {
-    const e = G.enemies[i];
-    e.animT = (e.animT || 0) + dt * 8;
-    if (e.mode === 'dive' || e.diving) updateDive(e, dt);
-    else if (e.mode === 'return') {
-      // 带战机返回阵型
-      e.retT += dt;
-      const p = slotPos(e.slot);
-      e.x += (p.x - e.x) * Math.min(1, dt * 2);
-      e.y += (p.y - e.y) * Math.min(1, dt * 2);
-      if (Math.hypot(p.x - e.x, p.y - e.y) < 6) { e.mode = 'form'; e.x = p.x; e.y = p.y; }
-      if (G.captured && G.captured.boss === e) { G.captured.px = e.x; G.captured.py = e.y - 30; }
-    } else if (e.mode === 'form') {
-      // 阵型内左右摇摆
-      const p = slotPos(e.slot);
-      e.x = p.x + Math.sin(G.t * 1.6 + e.slot._idx) * 8;
-      e.y = p.y;
-      if (e.shootCd === undefined) e.shootCd = 2 + Math.random() * 4;
-    } else if (e.mode === 'chall') {
-      // 奖励关：定点左右跳舞
-      e.x = e.bx + Math.sin(G.t * 2 + e.ci) * 60;
-      e.y = e.by + Math.sin(G.t * 3 + e.ci * 2) * 8;
-    }
-    // 飞出屏幕底部 → 回到顶部重新进入（attack 俯冲）或删除
-    if (e.y > H + 40) {
-      if (e.diveKind === 'attack' || e.mode === 'dive') {
-        e.y = -30; e.x = Math.random() * (W - 60) + 30;
-        e.mode = 'leave';
-      } else {
-        G.enemies.splice(i, 1);
-        continue;
+    case 'rescue': {
+      e.spin += 0.25;
+      const tx = player.alive ? clamp(player.x + 32, 48, W - 16) : W / 2, ty = player.alive ? PY : PY - 120;
+      if (moveToward(e, tx, ty, 2.4) && player.alive && player.state === 'ok') {
+        e.dead = true; e.silent = true;
+        if (!player.dual) { player.dual = true; player.x = clamp(tx - 16, 32, W - 32); }
+        snd('rescue'); msg = { text: T('rescued'), col: '#7dffb0', t: 150 };
       }
+      break;
     }
-    if (e.mode === 'leave') {
-      e.y += 160 * dt;
-      const p = slotPos(e.slot);
-      // 飞到顶部后归位
-      if (e.y < 60) { e.x += (p.x - e.x) * dt * 1.5; }
-      else { e.mode = 'form'; e.diving = false; const q = slotPos(e.slot); e.x = q.x; e.y = q.y; }
-      if (e.y < -50) { e.mode = 'form'; e.diving = false; const q = slotPos(e.slot); e.x = q.x; e.y = q.y; }
-    }
+    case 'leave': e.y -= 3.2; e.ang = -Math.PI / 2; if (e.y < -40) { e.dead = true; e.silent = true; } break;
   }
-
-  // ---- Boss 牵引光束 ----
-  if (G.bossBeam) {
-    const b = G.bossBeam;
-    b.t += dt;
-    // 光束持续 4s，范围内玩家被吸上去
-    const bx = b.boss.x + b.boss.w / 2;
-    for (const p of G.players) {
-      if (!p.alive || p.p2 || p.warp > 0) continue;
-      const cx = p.x + p.w / 2;
-      if (Math.abs(cx - bx) < 34 && p.y > b.boss.y) {
-        p.y -= 150 * dt;
-        p.x += (bx - p.w / 2 - p.x) * dt * 3;
-        if (p.y < b.boss.y + 44) { capturePlayer(b.boss, p); break; }
-      }
-    }
-    // 光束期间 boss 不动
-    if (G.bossBeam && b.t > 4) G.bossBeam = null;
+  if (e.shotsLeft > 0 && (DIVING.has(e.mode) || e.mode === 'enter') && e.y >= e.shootY && e.y < 420) { shoot(e); e.shotsLeft--; e.shootY = e.y + rnd(40, 90); }
+}
+function stepBeam(e) {
+  if (!e.capturing) e.beamT++;
+  const P = player;
+  if (!e.capturing && P.alive && P.state === 'ok' && !P.dual && !god && e.beamT > 50 && e.beamT < 230 && Math.abs(P.x - e.x) < 28) {
+    e.capturing = true; P.state = 'captured'; P.capt = e; P.spin = 0; P.cy = PY;
+    pb = []; snd('captured');
   }
-  // 被抓走的战机跟随 boss
-  if (G.captured) {
-    const c = G.captured;
-    c.t += dt;
-    const b = c.boss;
-    // 若 boss 已死（理论上 rescueCheck 会清掉），保护一下
-    if (!G.enemies.includes(b)) G.captured = null;
-  }
-
-  // ---- 子弹 ----
-  for (let i = G.bullets.length - 1; i >= 0; i--) {
-    const bl = G.bullets[i];
-    bl.y += bl.vy * dt; bl.life -= dt;
-    if (bl.y < -20 || bl.life <= 0) { G.bullets.splice(i, 1); continue; }
-    // 打敌机
-    for (let j = G.enemies.length - 1; j >= 0; j--) {
-      const e = G.enemies[j];
-      if (overlap(bl, e)) {
-        G.bullets.splice(i, 1);
-        damageEnemy(e, 1, bl.x, bl.y);
-        break;
-      }
-    }
-  }
-  for (let i = G.ebullets.length - 1; i >= 0; i--) {
-    const bl = G.ebullets[i];
-    bl.x += bl.vx * dt; bl.y += bl.vy * dt; bl.life -= dt;
-    if (bl.y > H + 20 || bl.life <= 0) { G.ebullets.splice(i, 1); continue; }
-    for (const p of G.players) {
-      if (!p.alive || p.warp > 0) continue;
-      if (overlap(bl, p)) {
-        G.ebullets.splice(i, 1);
-        // 奖励关无敌机子弹（fireEnemy 已禁），这里只处理普通关
-        hitPlayer(p);
-        break;
-      }
-    }
-  }
-
-  // 玩家撞敌机
-  for (const p of G.players) {
-    if (!p.alive || p.warp > 0) continue;
-    for (let j = G.enemies.length - 1; j >= 0; j--) {
-      const e = G.enemies[j];
-      if (e.mode === 'chall') continue;
-      if (overlap(p, e)) {
-        damageEnemy(e, 1, e.x, e.y);
-        hitPlayer(p);
-        break;
-      }
-    }
-  }
-
-  // ---- 过关判定 ----
-  const active = G.entering.some(e => !e.done);
-  if (!active && G.enemies.length === 0 && !G.captured) {
-    if (G.challenge) {
-      // 奖励关：时间到或全歼都算过（challLeft<=0 即全歼）
-      if (G.challLeft <= 0 || G.stageT > 40) { G.clearT += dt; if (G.clearT > .8) stageClear(); }
-    } else {
-      G.clearT += dt;
-      if (G.clearT > 1) stageClear();
-    }
-  } else G.clearT = 0;
-  // 挑战关超时保护
-  if (G.challenge && G.stageT > 60 && G.enemies.length === 0) stageClear();
+  if (e.beamT >= 280) { e.mode = e.captive ? 'toSlot' : 'homing'; e.vx = 0; e.vy = 1; e.spd = 2.8; }
 }
 
-function makeEnemy(slot, x, y) {
-  const base = { x: x - 15, y: y - 12, w: 30, h: 24, slot, type: slot.type, mode: slot.chall ? 'chall' : 'form', diving: false, diveT: 0, hp: slot.type === 'boss' ? 2 : 1, animT: Math.random() * 5 };
-  if (slot.chall) { base.bx = x - 15; base.by = y - 12; base.ci = slot.ci; }
-  return base;
-}
-
-function updateDive(e, dt) {
-  e.mode = 'dive';
-  e.diveT += dt;
-  const p0 = G.players.find(p => p.alive) || { x: W / 2, y: PY };
-  if (e.diveKind === 'capture') {
-    // Boss 抓机：俯冲到玩家上方悬停，放光束
-    if (!e.capPhase) e.capPhase = 0;
-    if (e.capPhase === 0) {
-      e.y += 190 * dt;
-      e.x += Math.sign(p0.x - e.x) * 120 * dt;
-      if (e.y >= p0.y - 190) { e.capPhase = 1; e.y = p0.y - 190; G.bossBeam = { boss: e, t: 0 }; sfx.capture(); }
-    } else if (e.capPhase === 1) {
-      e.x += Math.sin(G.t * 3) * 20 * dt;
-      // 光束结束还没抓到 → 返回
-      if (!G.bossBeam) { e.mode = 'return'; e.retT = 0; e.capPhase = 0; e.diveKind = 'attack'; }
-      // 抓到了 → capturePlayer 里已置 return
-      if (G.captured && G.captured.boss === e) { e.capPhase = 0; }
+// ---------------- 玩家 ----------------
+const keys = new Set();
+const K_L = ['ArrowLeft', 'KeyA', 'Pad_l'], K_R = ['ArrowRight', 'KeyD', 'Pad_r'], K_F = ['Space', 'KeyJ', 'KeyZ', 'KeyK', 'Pad_f'];
+const touch = { on: false, x: 0, dx: 0, id: null };
+const shipXs = () => player.dual ? [player.x - 16, player.x + 16] : [player.x];
+function stepPlayer() {
+  const P = player;
+  if (P.state === 'captured') {
+    const b = P.capt;
+    P.spin += 0.18; P.cy -= 1.3;
+    if (b && !b.dead) P.x += (b.x - P.x) * 0.08;
+    if (!b || b.dead || P.cy <= b.y + 34) {
+      P.state = 'ok'; P.alive = false; P.capt = null;
+      if (b && !b.dead) {
+        const cap = { id: ++eid, type: 'captive', x: b.x, y: b.y + 30, ang: Math.PI / 2, mode: 'follow', owner: b, hp: 1, t: 0, flash: 0, shotsLeft: 0 };
+        enemies.push(cap); b.captive = cap; b.capturing = false; b.beamT = 230;
+        msg = { text: T('captured'), col: '#ff5a5a', t: 170 };
+      }
+      loseLife(170);
     }
     return;
   }
-  // 普通攻击俯冲：正弦蛇形向下，到底部后 leave 归位
-  e.y += (200 + G.stage * 14) * dt;
-  e.x += Math.sin(e.diveT * 5 + (e.slot._idx || 0)) * 160 * dt;
-  // 俯冲中开火
-  if (!e.fired && e.y > 200 && e.y < H - 200 && Math.random() < dt * 1.2) { e.fired = true; fireEnemy(e); }
+  if (!P.alive) return;
+  if (P.inv > 0) P.inv--;
+  if (P.fireCd > 0) P.fireCd--;
+  let dir = 0;
+  if (K_L.some(k => keys.has(k))) dir -= 1;
+  if (K_R.some(k => keys.has(k))) dir += 1;
+  const half = P.dual ? 32 : 16;
+  P.x = clamp(P.x + dir * 3.4 + touch.dx, half, W - half); touch.dx = 0;
+  if ((K_F.some(k => keys.has(k)) || touch.on) && P.fireCd <= 0 && pb.length <= (P.dual ? 2 : 1)) {
+    for (const x of shipXs()) pb.push({ x, y: PY - 14 });
+    shots += P.dual ? 2 : 1; P.fireCd = 9; snd('shot');
+  }
 }
-
-function damageEnemy(e, dmg, hx, hy) {
-  e.hp -= dmg;
-  if (e.hp > 0) { tone(200, .08, 'square', .08); return; } // boss 第一发只变色
-  // 击落
-  const idx = G.enemies.indexOf(e);
-  if (idx >= 0) G.enemies.splice(idx, 1);
-  G.kills++;
-  const diving = e.mode === 'dive' || e.diving;
-  // 救回判定优先：击落的是带机返回中的 boss → 双机合体
-  if (e.type === 'boss' && G.captured && G.captured.boss === e && rescueCheck(e)) {
-    boom(e.x + 15, e.y + 12, true);
+function loseLife(t) {
+  player.respawnT = t; player.dual = false;
+  if (lives > 0) lives--; else player.gameOver = true;
+}
+function killPlayer(xHit) {
+  const P = player;
+  if (P.dual) {
+    const xs = shipXs(), i = Math.abs(xs[0] - xHit) < Math.abs(xs[1] - xHit) ? 0 : 1;
+    boomAt(xs[i], PY, true); P.dual = false; P.x = xs[1 - i]; P.inv = 50; snd('die');
     return;
   }
-  // 被抓走的战机：其他情况下 boss 死时若带机，战机坠毁
-  if (G.captured && G.captured.boss === e) {
-    G.captured = null;
-    float(e.x, e.y, T('floatLost'));
-  }
-  let sc = SCORES[e.type] || 50;
-  if (diving) sc *= 2; // 俯冲中双倍
-  if (e.diveKind === 'capture' || e.capPhase === 1) sc *= 2; // 抓机俯冲中击落 4 倍（boss 150→600）
-  if (e.mode === 'chall' || (e.slot && e.slot.chall)) { sc = 100; G.challLeft--; }
-  addScore(sc, e.x + 15, e.y);
-  boom(e.x + 15, e.y + 12, e.type === 'boss');
-  // 俯冲 rescue：击落正在抓机俯冲（capPhase）的 boss 若已抓到？已在上面处理；未抓到正常分
+  P.alive = false; boomAt(P.x, PY, true); snd('die'); KIT.stopMusic();
+  loseLife(150);
+}
+function addScore(v) {
+  if (demo) return;
+  score += v;
+  if (score >= nextLife) { nextLife = nextLife === 20000 ? 70000 : nextLife + 70000; lives++; snd('life'); msg = { text: T('oneUp'), col: '#7dffb0', t: 90 }; }
 }
 
-// ---------- 绘制 ----------
-function spr(rows, pal, x, y, px, flip) {
-  for (let r = 0; r < rows.length; r++) {
-    const row = rows[r];
-    for (let c = 0; c < row.length; c++) {
-      const ch = row[flip ? row.length - 1 - c : c];
-      if (ch === '.' || ch === ' ') continue;
-      ctx.fillStyle = pal[ch] || '#f0f';
-      ctx.fillRect(Math.round(x + c * px), Math.round(y + r * px), Math.ceil(px), Math.ceil(px));
+// ---------------- 击中 ----------------
+function pointsFor(e) {
+  if (challenge) return 100;
+  const dive = e.mode !== 'form';
+  switch (e.type) {
+    case 'bee': return dive ? 100 : 50;
+    case 'bfly': return dive ? 160 : 80;
+    case 'boss': return !dive ? 150 : e.escKilled >= 2 ? 1600 : e.escKilled === 1 ? 800 : 400;
+    case 'morph': return 160;
+    case 'captive': return 1000;
+  }
+  return 0;
+}
+function boomAt(x, y, big, cols) {
+  booms.push({ x, y, t: 0, max: big ? 60 : 26, big, cols: cols || ['#fff', '#ffe14a', '#ff7a2a', '#e8392b'] });
+  fx.burst(x, y, { n: big ? 30 : 12, color: cols || ['#fff', '#ffe14a', '#ff7a2a', '#7ad8ff'], speed: big ? 220 : 150, life: big ? 0.9 : 0.45, size: big ? 3 : 2.4, gravity: 0, shape: 'spark' });
+}
+function hitEnemy(e) {
+  hits++;
+  if (e.type === 'boss' && e.hp > 1) { e.hp--; e.flash = 8; snd('bossHit'); return; }
+  e.dead = true;
+  const pts = pointsFor(e);
+  addScore(pts);
+  const cols = e.type === 'bee' ? ['#ffd23a', '#3f6bff', '#fff'] : e.type === 'bfly' ? ['#e8392b', '#fff', '#3f6bff'] : e.type === 'morph' ? ['#2fd6c6', '#ffe14a', '#ff4fa0'] : ['#36c25a', '#f08a2a', '#fff', '#7b6cff'];
+  boomAt(e.x, e.y, false, cols);
+  if (pts >= 400 || e.type === 'captive') pops.push({ x: e.x, y: e.y, t: 70, text: String(pts) });
+  snd(e.type === 'boss' ? 'bossDie' : 'hit');
+  if (e.mode === 'escort' && e.leader && !e.leader.dead) e.leader.escKilled++;
+  if (e.type === 'boss' && e.captive && !e.captive.dead) {
+    const cap = e.captive;
+    if (e.mode !== 'form') { cap.mode = 'rescue'; cap.spin = 0; cap.owner = null; }
+    else cap.mode = 'leave';
+  }
+  if (e.type === 'captive') { msg = { text: T('captiveLost'), col: '#ffb070', t: 120 }; }
+  if (e.mg && morphGroups[e.mg]) {
+    const g = morphGroups[e.mg]; g.killed++;
+    if (g.killed === 3) { const b = 1000 * Math.min(3, 1 + Math.floor(stage / 8)); addScore(b); pops.push({ x: e.x, y: e.y - 14, t: 80, text: String(b) }); }
+  }
+  if (challenge) chHits++;
+}
+function stepBullets() {
+  for (const b of pb) b.y -= 9;
+  pb = pb.filter(b => b.y > -10);
+  for (const b of pb) {
+    for (const e of enemies) {
+      if (e.dead || e.mode === 'rescue' || e.mode === 'leave') continue;
+      if (Math.abs(e.x - b.x) < 13 && Math.abs(e.y - b.y) < 14) { b.dead = true; hitEnemy(e); break; }
     }
   }
+  pb = pb.filter(b => !b.dead);
+  for (const b of eb) { b.x += b.vx; b.y += b.vy; }
+  eb = eb.filter(b => b.y < H + 10 && b.x > -10 && b.x < W + 10);
+  const P = player;
+  if (P.alive && P.state === 'ok' && !P.inv && !god) {
+    for (const b of eb) for (const x of shipXs()) if (Math.abs(b.x - x) < 9 && Math.abs(b.y - PY) < 12) { b.dead = true; killPlayer(x); return; }
+    for (const e of enemies) {
+      if (e.dead || !(DIVING.has(e.mode) || e.mode === 'toSlot' || e.mode === 'enter') || e.mode === 'beam') continue;
+      for (const x of shipXs()) if (Math.abs(e.x - x) < 22 && Math.abs(e.y - PY) < 20) { hitEnemy(e); killPlayer(x); return; }
+    }
+  }
+  eb = eb.filter(b => !b.dead);
 }
-// 玩家战机（贴近 Galaga 自机：白红蓝配色）
-const PAL_P = { W: '#f2f7ff', R: '#e7402e', B: '#2b9fe3', Y: '#ffd93d', E: '#ffb52e' };
-const SHIP = [
-  '.......WW.......',
-  '.......WW.......',
-  '.......WW.......',
-  '.......WW.......',
-  '......WWWW......',
-  '......WWWW......',
-  '......WRWW......',
-  '.....WWRRWW.....',
-  '.....WRBBRW.....',
-  '....WWBBBBWW....',
-  '....WBBBBBBW....',
-  '...WWBBBBBBWW...',
-  '...WBBBBBBBBW...',
-  '..WWBBWBBWBBWW..',
-  '..WBBBWBBWBBBW..',
-  '.WWBBBWBWBBBWW.',
-  '.WBBBWWBBWWBBBW.',
-  '.WBBWWBBBBWWBBW.',
-  'EWWWBBBBBBBBWWWE',
-  'EEWWBBBBBBBBWWEE',
-  '.EWWWBBBBBBWWWE.',
-  '...EEWWBBWWEE...',
-  '....EEWWWWEE....',
-  '.....EE..EE.....',
-];
-// Zako 蓝黄小蜜蜂
-const PAL_Z = { B: '#2b6fe3', Y: '#ffd93d', W: '#f2f7ff', R: '#e7402e', E: '#1c1c1c' };
-const ZAKO = [
-  '.....BB.BB......',
-  '....BBB.BBB.....',
-  '....BBB.BBB.....',
-  '...BBBB.BBBB....',
-  '...BWWB.BWWB....',
-  '...BWKB.BWKB....',
-  '....BBBBBBB.....',
-  '..YBBBBBBBBBY...',
-  '.YYBBBBBBBBBYY..',
-  '.YBBBBBBBBBBBY..',
-  '..BBBBBBBBBB....',
-  '...BB.BB.BB.....',
-  '...BB.BB.BB.....',
-];
-// Goei 红蝶
-const PAL_G2 = { R: '#e7402e', Y: '#ffd93d', W: '#f2f7ff', B: '#2b6fe3', E: '#1c1c1c' };
-const GOEI = [
-  '....RR...RR.....',
-  '...RRR...RRR....',
-  '...RRR...RRR....',
-  '..RRRR...RRRR...',
-  '..RWRR...RRWR...',
-  '..RWKR...RKWR...',
-  '...RRRRRRRRR....',
-  '..YRRRRRRRRRY...',
-  '.YYRRRYRYRRRYY..',
-  '.YRRRYRYRYRRRY..',
-  '..RRRYRYRYRRR...',
-  '...RB.....BR....',
-  '...RB.....BR....',
-];
-// Boss 绿大甲（2 血，受伤变紫）
-const PAL_B = { G: '#35c759', D: '#1d7a38', Y: '#ffd93d', W: '#f2f7ff', R: '#e7402e', E: '#1c1c1c' };
-const PAL_BH = { G: '#b16bff', D: '#6e3ab5', Y: '#ffd93d', W: '#f2f7ff', R: '#e7402e', E: '#1c1c1c' };
-const BOSS = [
-  '....GG...GG.....',
-  '...GGG...GGG....',
-  '...GGG...GGG....',
-  '..GGGG...GGGG...',
-  '..GWGG...GGWG...',
-  '..GWKG...GKWG...',
-  '...GGGGGGGGG....',
-  '..GGGGGGGGGGG...',
-  '.YGGGGGGGGGGGY..',
-  '.YGGGWGGGWGGGY..',
-  '.YGGGWGGGWGGGY..',
-  '..GGGGGGGGGGG...',
-  '..DGG.....GGD...',
-  '..DD.......DD...',
-];
 
-function drawBG() {
-  const g = ctx.createLinearGradient(0, 0, 0, H);
-  g.addColorStop(0, '#050518'); g.addColorStop(.6, '#0d1440'); g.addColorStop(1, '#1b2452');
-  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = '#fff';
-  for (const s of G.stars) {
-    ctx.globalAlpha = .3 + .7 * (s.s / 2.5);
-    ctx.fillRect(s.x, s.y, s.s, s.s * 3);
-  }
-  ctx.globalAlpha = 1;
-  // 地平线霓虹线
-  ctx.fillStyle = 'rgba(90,120,255,.15)';
-  ctx.fillRect(0, H - 8, W, 8);
+// ---------------- 关卡流程 ----------------
+function startStage() {
+  challenge = isChallenge(stage);
+  sched = buildSched(); schedIdx = 0; waveF = 0; diveT = 120; chHits = 0; chTotal = challenge ? 40 : 0;
+  swayAmp = 1; breathAmp = 0;
+  phase = 'intro'; phaseT = 0; eb = [];
+  if (!player.alive && !player.gameOver && player.state === 'ok') { player.alive = true; player.x = W / 2; player.inv = 0; }
+  snd('start');
 }
-function drawPlayers() {
-  for (const p of G.players) {
-    if (!p.alive) continue;
-    if (p.warp > 0 && Math.floor(G.t * 14) % 2 === 0) continue; // 重生闪烁
-    ctx.save();
-    // 移动倾斜（-0.25 ~ 0.25 弧度），手感反馈
-    const cx = p.x + 15, cy = p.y + 20;
-    ctx.translate(cx, cy);
-    ctx.rotate((p.tilt || 0) * .25);
-    ctx.translate(-cx, -cy);
-    if (G.dual && !p.p2) {
-      // 双机：左右各一架
-      spr(SHIP, PAL_P, p.x, p.y, 1.6, false);
-      spr(SHIP, PAL_P, p.x + 34, p.y, 1.6, false);
-      p.w = 30; // 逻辑宽度保持单架（判定不翻倍，经典规则双机更宽——这里视觉双机、判定略宽）
-    } else {
-      spr(SHIP, PAL_P, p.x, p.y, 1.6, false);
+let F = 0;
+function stepGame() {
+  phaseT++;
+  breath = (1 - Math.cos(F * 0.028)) / 2;
+  const allIn = schedIdx >= sched.length && !enemies.some(e => e.mode === 'enter' || e.mode === 'toSlot' && e.t < 400);
+  swayAmp += ((allIn ? 0 : 1) - swayAmp) * 0.02; breathAmp += ((allIn ? 1 : 0) - breathAmp) * 0.02;
+  if (phase === 'intro') {
+    if (phaseT > (challenge ? 150 : 110)) { phase = 'fight'; phaseT = 0; if (!demo) KIT.music('star-wing'); }
+  } else if (phase === 'fight') {
+    waveF++;
+    while (schedIdx < sched.length && sched[schedIdx].t <= waveF) spawn(sched[schedIdx++]);
+    stepDives();
+    if (schedIdx >= sched.length && enemies.length === 0) {
+      if (challenge) { phase = 'chResult'; phaseT = 0; KIT.stopMusic(); }
+      else { phase = 'clear'; phaseT = 0; }
     }
-    // 引擎尾焰
-    const fl = 6 + Math.random() * 8 + Math.abs(p.tilt || 0) * 6;
-    ctx.fillStyle = '#5ee6ff';
-    ctx.fillRect(p.x + 12, p.y + 38, 6, fl);
-    ctx.fillStyle = '#fff';
-    ctx.fillRect(p.x + 14, p.y + 38, 2, fl * .6);
-    if (G.dual && !p.p2) {
-      ctx.fillStyle = '#5ee6ff';
-      ctx.fillRect(p.x + 46, p.y + 38, 6, fl);
-      ctx.fillStyle = '#fff';
-      ctx.fillRect(p.x + 48, p.y + 38, 2, fl * .6);
+  } else if (phase === 'clear') {
+    if (phaseT > 80) { stage++; startStage(); }
+  } else if (phase === 'chResult') {
+    if (phaseT === 60) snd('tick');
+    if (phaseT === 130) { const perfect = chHits >= chTotal; addScore(perfect ? 10000 : chHits * 100); snd(perfect ? 'perfect' : 'tick'); }
+    if (phaseT > 300) { stage++; startStage(); }
+  } else if (phase === 'gameover') {
+    if (phaseT > 200) showOver();
+  }
+  stepPlayer();
+  for (const e of enemies) if (!e.dead) stepEnemy(e);
+  enemies = enemies.filter(e => !e.dead);
+  stepBullets();
+  enemies = enemies.filter(e => !e.dead);
+  // 复活
+  const P = player;
+  if (!P.alive && P.state === 'ok' && phase !== 'gameover' && phase !== 'over') {
+    P.respawnT--;
+    if (P.respawnT <= 0) {
+      if (P.gameOver) { phase = 'gameover'; phaseT = 0; KIT.stopMusic(); }
+      else if (!readyT && (!enemies.some(e => DIVING.has(e.mode)) || P.respawnT < -420)) readyT = 100;
     }
-    ctx.restore();
   }
-  // 被抓走的战机画在 boss 下方
-  if (G.captured) {
-    const c = G.captured;
-    const bx = c.boss.x, by = c.boss.y;
-    ctx.save();
-    ctx.rotate(Math.sin(G.t * 6) * .15);
-    spr(SHIP, PAL_P, bx - 6, by + 26, 1.4, false);
-    ctx.restore();
+  if (readyT > 0 && --readyT === 0) { P.alive = true; P.x = W / 2; P.inv = 40; if (phase === 'fight') KIT.music('star-wing'); }
+}
+function stepFx() {
+  for (const b of booms) b.t++;
+  booms = booms.filter(b => b.t < b.max);
+  for (const p of pops) { p.t--; p.y -= 0.3; }
+  pops = pops.filter(p => p.t > 0);
+  if (msg && --msg.t <= 0) msg = null;
+  fx.update(STEP);
+  const want = state === 'play' ? (player.alive || player.state === 'captured' ? (phase === 'intro' ? 3 : 1) : 0) : 0.6;
+  starSpd += (want - starSpd) * 0.04;
+  for (const s of starsL) { s.y += [0.4, 0.9, 1.6][s.z] * starSpd; if (s.y > H) { s.y -= H; s.x = rnd(0, W); } }
+  nebY = (nebY + 0.15 * starSpd) % H;
+}
+
+// ---------------- 绘制 ----------------
+function drawStars() {
+  c.fillStyle = '#02030a'; c.fillRect(0, 0, W, H);
+  c.drawImage(nebula, 0, nebY - H, W, H * 2);
+  for (const s of starsL) {
+    if (Math.sin(F * s.f + s.ph) < -0.25) continue;
+    c.fillStyle = s.c; const sz = s.z === 2 ? 2 : 1.4;
+    c.fillRect(s.x, s.y, sz, sz * (1 + starSpd * 0.6 * s.z));
   }
 }
-function drawEnemies() {
-  for (const e of G.enemies) {
-    const wob = e.mode === 'dive' || e.diving ? Math.sin(e.diveT * 10) * .3 : 0;
-    ctx.save();
-    ctx.translate(e.x + e.w / 2, e.y + e.h / 2);
-    ctx.rotate(wob);
-    ctx.translate(-(e.x + e.w / 2), -(e.y + e.h / 2));
-    const flip = Math.floor((e.animT || 0)) % 2 === 0;
-    if (e.type === 'zako') spr(ZAKO, PAL_Z, e.x - 1, e.y, 2, flip);
-    else if (e.type === 'goei') spr(GOEI, PAL_G2, e.x - 1, e.y, 2, flip);
-    else spr(BOSS, e.hp > 1 ? PAL_B : PAL_BH, e.x - 3, e.y - 2, 2, flip);
-    ctx.restore();
-  }
-  // 牵引光束
-  if (G.bossBeam) {
-    const b = G.bossBeam.boss;
-    const bx = b.x + b.w / 2;
-    const grd = ctx.createLinearGradient(0, b.y + 20, 0, b.y + 220);
-    grd.addColorStop(0, 'rgba(120,220,255,.85)');
-    grd.addColorStop(1, 'rgba(120,220,255,.05)');
-    ctx.fillStyle = grd;
-    const wob = Math.sin(G.t * 20) * 6;
-    ctx.beginPath();
-    ctx.moveTo(bx - 14, b.y + 20);
-    ctx.lineTo(bx + 14, b.y + 20);
-    ctx.lineTo(bx + 34 + wob, b.y + 220);
-    ctx.lineTo(bx - 34 + wob, b.y + 220);
-    ctx.closePath(); ctx.fill();
-    ctx.fillStyle = 'rgba(255,255,255,.5)';
-    ctx.fillRect(bx - 3, b.y + 20, 6, 200);
-  }
+function enemyImg(e) {
+  const fl = (e.mode === 'form' ? F >> 5 : F >> 3) & 1;
+  if (e.type === 'boss') return (e.hp > 1 || challenge ? SPR.boss : SPR.bossHit)[fl];
+  if (e.type === 'captive') return e.mode === 'rescue' && (F >> 2) & 1 ? SPR.fighter : SPR.captive;
+  return SPR[e.type][fl];
 }
-function drawShots() {
-  for (const b of G.bullets) {
-    ctx.fillStyle = '#fff';
-    ctx.fillRect(b.x, b.y, b.w, b.h);
-    ctx.fillStyle = '#ff5d5d';
-    ctx.fillRect(b.x + 1, b.y, b.w - 2, 4);
+function drawBeam(e) {
+  const t = e.beamT, ext = t < 50 ? t / 50 : t < 230 || e.capturing ? 1 : Math.max(0, 1 - (t - 230) / 50);
+  if (ext <= 0) return;
+  const top = e.y + 16, len = 210 * ext, COLS = ['rgba(90,200,255,.55)', 'rgba(110,120,255,.5)', 'rgba(200,110,255,.45)', 'rgba(90,220,255,.3)'];
+  c.save(); c.globalCompositeOperation = 'lighter';
+  for (let y = 0; y < len; y += 5) {
+    const k = y / 210, hw = 8 + k * 30 + Math.sin(y * 0.15 + F * 0.3) * 2;
+    c.fillStyle = COLS[((Math.floor((y - F * 2) / 10) % 4) + 4) % 4];
+    c.fillRect(e.x - hw, top + y, hw * 2, 4);
   }
-  for (const b of G.ebullets) {
-    ctx.fillStyle = '#ff5d8f';
-    ctx.beginPath(); ctx.arc(b.x + 2.5, b.y + 6, 4, 0, 7); ctx.fill();
-    ctx.fillStyle = '#fff';
-    ctx.beginPath(); ctx.arc(b.x + 2.5, b.y + 6, 1.8, 0, 7); ctx.fill();
-  }
+  const gr = c.createRadialGradient(e.x, top + len, 0, e.x, top + len, 50);
+  gr.addColorStop(0, 'rgba(120,200,255,.35)'); gr.addColorStop(1, 'rgba(120,200,255,0)');
+  c.fillStyle = gr; c.fillRect(e.x - 50, top + len - 50, 100, 100);
+  c.restore();
 }
-function drawParts() {
-  for (const p of G.parts) {
-    ctx.globalAlpha = Math.max(0, 1 - p.age / p.life);
-    ctx.fillStyle = p.c;
-    ctx.fillRect(p.x - p.r / 2, p.y - p.r / 2, p.r, p.r);
+function drawBooms() {
+  c.save(); c.globalCompositeOperation = 'lighter'; c.lineCap = 'round';
+  for (const b of booms) {
+    const k = b.t / b.max, n = b.big ? 14 : 8, R = (b.big ? 46 : 22) * KIT.ease.outCubic(k);
+    c.globalAlpha = 1 - k;
+    for (let i = 0; i < n; i++) {
+      const a = i / n * TAU + (i % 2) * 0.2, r0 = R * (i % 2 ? 0.35 : 0.2), r1 = R * (i % 2 ? 0.75 : 1);
+      c.strokeStyle = b.cols[i % b.cols.length]; c.lineWidth = b.big ? 3 : 2.2;
+      c.beginPath(); c.moveTo(b.x + Math.cos(a) * r0, b.y + Math.sin(a) * r0); c.lineTo(b.x + Math.cos(a) * r1, b.y + Math.sin(a) * r1); c.stroke();
+    }
+    if (k < 0.3) { c.fillStyle = '#fff'; c.beginPath(); c.arc(b.x, b.y, (b.big ? 14 : 7) * (1 - k / 0.3), 0, TAU); c.fill(); }
   }
-  ctx.globalAlpha = 1;
-  ctx.textAlign = 'center';
-  for (const f of G.floats) {
-    ctx.globalAlpha = Math.max(0, 1 - f.age / 1.1);
-    ctx.font = '900 16px system-ui';
-    ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(0,0,0,.6)';
-    ctx.strokeText(f.text, f.x, f.y);
-    ctx.fillStyle = '#ffd93d';
-    ctx.fillText(f.text, f.x, f.y);
+  c.restore();
+}
+function drawBadges() {
+  let n = stage, x = W - 14;
+  const kinds = [[50, '#ffd23a', 14], [30, '#ff6af0', 13], [20, '#5af0ff', 12], [10, '#3f6bff', 11], [5, '#e8392b', 9], [1, '#e8392b', 7]];
+  for (const [v, col, h] of kinds) {
+    while (n >= v && x > W / 2) {
+      n -= v;
+      c.fillStyle = '#ddd'; c.fillRect(x, H - 6 - h * 1.6, 1.5, h * 1.6);
+      c.fillStyle = col; c.beginPath(); c.moveTo(x, H - 6 - h * 1.6); c.lineTo(x - h * 0.9, H - 6 - h * 1.3); c.lineTo(x, H - 6 - h); c.closePath(); c.fill();
+      if (v >= 10) { c.fillStyle = '#fff'; c.fillRect(x - 3, H - 6 - h * 1.35, 2, 2); }
+      x -= v >= 10 ? 14 : 10;
+    }
   }
-  ctx.globalAlpha = 1;
 }
 function drawHUD() {
-  ctx.fillStyle = 'rgba(0,0,0,.45)';
-  ctx.fillRect(0, 0, W, 52);
-  ctx.fillStyle = '#ff5d5d';
-  ctx.font = '900 15px system-ui'; ctx.textAlign = 'left';
-  ctx.fillText('SCORE', 12, 19);
-  ctx.fillStyle = '#fff';
-  ctx.fillText(String(G.score).padStart(7, '0'), 12, 37);
-  ctx.fillStyle = '#5ee6ff'; ctx.textAlign = 'center';
-  ctx.fillText((G.challenge ? '⭐ CHALLENGE ' : 'STAGE ') + G.stage, W / 2, 24);
-  if (G.challenge && G.state === 'play') {
-    ctx.fillStyle = '#ffd93d';
-    ctx.fillText(T('hudChallLeft', G.challLeft), W / 2, 41);
-  } else {
-    ctx.fillStyle = '#fff';
-    const left = G.enemies.length + G.entering.filter(e => !e.done).length;
-    ctx.fillText(T('hudFoes', left), W / 2, 41);
-  }
-  ctx.textAlign = 'right';
-  ctx.fillStyle = '#fff';
-  ctx.fillText('🚀×' + Math.max(0, G.lives), W - 12, 24);
-  ctx.fillStyle = '#ffd93d';
-  ctx.fillText('HI ' + Math.max(store.best, G.score), W - 12, 41);
-  ctx.textAlign = 'left';
-  // 双机指示
-  if (G.dual) {
-    ctx.fillStyle = '#5ee66e';
-    ctx.font = '900 13px system-ui';
-    ctx.fillText(T('hudDual'), 12, 64);
-    ctx.font = '900 15px system-ui';
-  }
-  if (G.captured) {
-    ctx.fillStyle = '#ff8c42';
-    ctx.font = '900 13px system-ui';
-    ctx.fillText(T('hudCaptured'), 90, 64);
-    ctx.font = '900 15px system-ui';
-  }
-  if (G.state === 'intro') {
-    ctx.fillStyle = 'rgba(0,0,0,.55)'; ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = '#fff'; ctx.textAlign = 'center';
-    ctx.font = '900 36px system-ui';
-    ctx.fillText(G.challenge ? T('introChall') : 'STAGE ' + G.stage, W / 2, H / 2 - 20);
-    ctx.font = '700 16px system-ui';
-    ctx.fillStyle = '#ffd93d';
-    ctx.fillText(G.challenge ? T('introChallSub') : T('introGo'), W / 2, H / 2 + 14);
-    ctx.textAlign = 'left';
-  }
+  c.textBaseline = 'top'; c.font = 'bold 15px ' + MONO;
+  c.textAlign = 'left';
+  if ((F >> 5) & 1 || state !== 'play') { c.fillStyle = '#ff3b3b'; c.fillText('1UP', 30, 8); }
+  c.fillStyle = '#fff'; c.fillText(String(score).padStart(6, ' '), 22, 26);
+  c.textAlign = 'center'; c.fillStyle = '#ff3b3b'; c.fillText('HIGH SCORE', W / 2, 8);
+  c.fillStyle = '#fff'; c.fillText(String(Math.max(hiScore, score)), W / 2, 26);
+  for (let i = 0; i < Math.min(lives, 8); i++) drawSpr(SPR.fighter, 18 + i * 24, H - 16, 0, 1.3);
+  drawBadges();
+}
+function centerText(t, y, col, size, font) {
+  c.textAlign = 'center'; c.textBaseline = 'middle'; c.font = 'bold ' + (size || 18) + 'px ' + (font || MONO);
+  c.fillStyle = col; c.fillText(t, W / 2, y);
 }
 function render() {
-  ctx.save();
-  if (G.shake > 0) ctx.translate((Math.random() - .5) * G.shake, (Math.random() - .5) * G.shake);
-  drawBG();
-  if (G.state === 'menu') { ctx.restore(); return; }
-  drawEnemies();
-  drawPlayers();
-  drawShots();
-  drawParts();
+  drawStars();
+  for (const e of enemies) if (e.mode === 'beam') drawBeam(e);
+  for (const e of enemies) {
+    if (e.flash && (e.flash >> 1) & 1) continue;
+    const img = enemyImg(e);
+    const rot = e.type === 'captive' ? e.ang + Math.PI / 2 + (e.mode === 'rescue' ? e.spin : 0) : e.ang - Math.PI / 2;
+    drawSpr(img, e.x, e.y, rot);
+  }
+  const P = player;
+  if (P.state === 'captured') drawSpr((F >> 3) & 1 ? SPR.captive : SPR.fighter, P.x, P.cy, P.spin);
+  else if (P.alive && !(P.inv && (F >> 2) & 1)) for (const x of shipXs()) drawSpr(SPR.fighter, x, PY, 0);
+  for (const b of pb) { c.fillStyle = '#e8392b'; c.fillRect(b.x - 1, b.y + 2, 2, 6); c.fillStyle = '#f2f2f2'; c.fillRect(b.x - 1.2, b.y - 5, 2.4, 8); c.fillStyle = '#3f6bff'; c.fillRect(b.x - 1.2, b.y - 6, 2.4, 2); }
+  for (const b of eb) {
+    c.fillStyle = 'rgba(255,90,60,.35)'; c.beginPath(); c.arc(b.x, b.y, 5, 0, TAU); c.fill();
+    c.fillStyle = '#ffe14a'; c.fillRect(b.x - 1.5, b.y - 4, 3, 8); c.fillStyle = '#fff'; c.fillRect(b.x - 0.8, b.y - 3, 1.6, 4);
+  }
+  drawBooms();
+  fx.draw(c);
+  c.textAlign = 'center'; c.textBaseline = 'middle'; c.font = 'bold 13px ' + MONO;
+  for (const p of pops) { c.globalAlpha = Math.min(1, p.t / 20); c.fillStyle = '#5af0ff'; c.fillText(p.text, p.x, p.y); }
+  c.globalAlpha = 1;
+  if (state === 'menu') return;
   drawHUD();
-  ctx.restore();
+  if (phase === 'intro') {
+    if (challenge) { centerText('CHALLENGING STAGE', H / 2 - 20, '#5af0ff', 22); centerText(T('chHint'), H / 2 + 14, '#c8d0ff', 15, DISP); }
+    else { centerText('STAGE ' + stage, H / 2 - 10, '#5af0ff', 24); if (phaseT < 80 && stage === 1) centerText(T('ready'), H / 2 + 24, '#ff3b3b', 16); }
+  }
+  if (readyT > 0) centerText('READY', H / 2 + 40, '#ff3b3b', 20);
+  if (phase === 'chResult') {
+    if (phaseT > 30) { centerText('NUMBER OF HITS', H / 2 - 40, '#5af0ff', 18); centerText(String(chHits), H / 2 - 12, '#fff', 22); }
+    if (phaseT > 130) {
+      if (chHits >= chTotal) { centerText('PERFECT !', H / 2 + 24, (F >> 3) & 1 ? '#ffe14a' : '#ff6af0', 24); centerText('SPECIAL BONUS 10000 PTS', H / 2 + 56, '#ffe14a', 16); }
+      else { centerText('BONUS', H / 2 + 24, '#ffe14a', 18); centerText(String(chHits * 100), H / 2 + 52, '#fff', 20); }
+    }
+  }
+  if (phase === 'gameover') centerText('GAME OVER', H / 2, '#ff3b3b', 30);
+  if (msg) { c.globalAlpha = Math.min(1, msg.t / 20); centerText(msg.text, H / 2 + 80, msg.col, 18, DISP); c.globalAlpha = 1; }
 }
 
-// ---------- 启动 ----------
-function toggleMute() {
-  muted = !muted; store.muted = muted;
-  $('btn-mute').textContent = muted ? '🔇' : '🔊';
-  if (muted) Music.stop();
-  else if (G.state === 'play') Music.start();
+// ---------------- 主循环 ----------------
+let acc = 0, last = performance.now();
+function tick() {
+  F++;
+  if (state === 'play' || state === 'menu') { stepGame(); }
+  if (state !== 'pause') stepFx();
 }
-$('btn-mute').onclick = e => { e.stopPropagation(); toggleMute(); };
-$('btn-mute').textContent = muted ? '🔇' : '🔊';
-// i18n boot: static DOM + dynamic boot texts
-AMG.mountBtn();
-window.__refreshLang = function() {
-  AMG.apply(STR);
-  $('btn-mute').title = T('muteTitle');
-  $('btn-pause').title = T('pauseBtnTitle');
-  refreshMenu();
-};
-window.__refreshLang();
-document.querySelectorAll('[data-mode]').forEach(b => b.onclick = () => { ac(); sfx.click(); G.mode = b.dataset.mode; G.score = 0; G.lives = 3; G.stage = 1; G.kills = 0; startStage(1); });
-$('btn-next').onclick = () => { startStage(G.stage + 1); };
-$('btn-replay').onclick = () => { startStage(G.stage); };
-$('btn-retry').onclick = () => retryAll();
-$('btn-menu').onclick = () => toMenu();
-$('btn-resume').onclick = () => togglePause();
-$('btn-quit').onclick = () => toMenu();
-$('btn-pause').onclick = e => { e.stopPropagation(); togglePause(); };
-canvas.parentElement.addEventListener('pointerdown', e => {
-  if (e.target.closest('button')) return;
-  if (G.state === 'pause') togglePause();
+function loopFrame(now) {
+  acc += Math.min(0.1, (now - last) / 1000); last = now;
+  pollPads();
+  let n = 0;
+  while (acc >= STEP && n++ < 6) { acc -= STEP; tick(); }
+  if (n >= 6) acc = 0;
+  render();
+  requestAnimationFrame(loopFrame);
+}
+
+// ---------------- 输入 ----------------
+const GAME_KEYS = new Set(['Space', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown']);
+document.addEventListener('keydown', e => {
+  if (e.target && /INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return;
+  if (GAME_KEYS.has(e.code) && state === 'play') e.preventDefault();
+  if (e.repeat) return;
+  if (e.code === 'KeyP' || e.code === 'Escape') { togglePause(); return; }
+  if (state === 'menu' && (e.code === 'Enter' || e.code === 'Space')) { e.preventDefault(); $('btn-start').click(); return; }
+  keys.add(e.code);
 });
+document.addEventListener('keyup', e => keys.delete(e.code));
+window.addEventListener('blur', () => { keys.clear(); if (state === 'play') togglePause(); });
+document.addEventListener('visibilitychange', () => { if (document.hidden && state === 'play') togglePause(); });
+let padPause = false, padFire = false;
+function pollPads() {
+  let gps = [];
+  try { gps = navigator.getGamepads ? navigator.getGamepads() : []; } catch (e) { return; }
+  let l = false, r = false, f = false, p = false;
+  for (const g of gps) {
+    if (!g) continue;
+    const b = k => !!(g.buttons[k] && g.buttons[k].pressed);
+    l = l || b(14) || g.axes[0] < -0.4; r = r || b(15) || g.axes[0] > 0.4; f = f || b(0) || b(1) || b(2) || b(3); p = p || b(9);
+  }
+  const set = (k, v) => v ? keys.add(k) : keys.delete(k);
+  set('Pad_l', l); set('Pad_r', r); set('Pad_f', f);
+  if (f && !padFire && state === 'menu') $('btn-start').click();
+  if (p && !padPause) togglePause();
+  padFire = f; padPause = p;
+}
+cv.addEventListener('pointerdown', e => {
+  if (state !== 'play') return;
+  touch.on = true; touch.id = e.pointerId; touch.x = e.clientX;
+  try { cv.setPointerCapture(e.pointerId); } catch (_) {}
+});
+cv.addEventListener('pointermove', e => {
+  if (!touch.on || e.pointerId !== touch.id) return;
+  const r = cv.getBoundingClientRect();
+  touch.dx += (e.clientX - touch.x) * W / r.width * 1.3; touch.x = e.clientX;
+});
+const endTouch = e => { if (e.pointerId === touch.id) { touch.on = false; touch.dx = 0; } };
+cv.addEventListener('pointerup', endTouch); cv.addEventListener('pointercancel', endTouch);
+$('t-pause').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); togglePause(); });
 
-resetCommon();
-G.players = [newPlayer(W / 2, false)];
-showScreen('menu');
-window.__game = G;
-window.__gameErrors = [];
-window.addEventListener('error', e => window.__gameErrors.push(String(e.message)));
-// 调试函数
-G._start = startGame; G._startStage = startStage; G._slotPos = slotPos;
-G._damage = damageEnemy; G._capture = capturePlayer; G._addScore = addScore;
-G._formation = formationSlots;
-requestAnimationFrame(t => { last = t; requestAnimationFrame(loop); });
+// ---------------- 屏幕 ----------------
+function togglePause() {
+  if (state === 'play') { prevState = state; state = 'pause'; $('screen-pause').classList.remove('hidden'); KIT.stopMusic(); }
+  else if (state === 'pause') { state = prevState; $('screen-pause').classList.add('hidden'); if (phase === 'fight' && player.alive) KIT.music('star-wing'); last = performance.now(); }
+}
+function hideScreens() { ['screen-menu', 'screen-pause', 'screen-over'].forEach(id => $(id).classList.add('hidden')); }
+function resetWorld() { enemies = []; pb = []; eb = []; booms = []; pops = []; fx.clear(); msg = null; readyT = 0; }
+function newGame() {
+  demo = false; state = 'play'; hideScreens(); KIT.audio();
+  resetWorld();
+  score = 0; lives = [4, 3, 2][diff]; nextLife = 20000; shots = 0; hits = 0; stage = 1;
+  Object.assign(player, { x: W / 2, alive: true, dual: false, state: 'ok', inv: 0, fireCd: 0, respawnT: 0, gameOver: false, capt: null });
+  startStage();
+}
+function showOver() {
+  state = 'over'; phase = 'over'; KIT.stopMusic();
+  const rec = score > store.get('best', 20000);
+  if (rec) { hiScore = score; store.set('best', score); }
+  $('over-record').classList.toggle('hidden', !rec);
+  const ratio = shots ? (hits / shots * 100).toFixed(1) : '0.0';
+  const rows = [[T('stScore'), score.toLocaleString()], [T('stStage'), stage], [T('stShots'), shots], [T('stHits'), hits], [T('stRatio'), ratio + ' %'], [T('stBest'), Math.max(hiScore, score).toLocaleString()]];
+  $('over-stats').innerHTML = rows.map(([a, b]) => `<span>${a}</span><b>${b}</b>`).join('');
+  $('screen-over').classList.remove('hidden');
+}
+function startDemo() {
+  demo = true; resetWorld(); stage = 2; challenge = false;
+  Object.assign(player, { alive: false, dual: false, state: 'ok', gameOver: false, respawnT: 1e9 });
+  const S = allSlots();
+  for (const ty of ['boss', 'bfly', 'bee']) for (const s of S[ty]) {
+    const sl = { r: s[0], c: s[1] }, p = slotPos(sl);
+    enemies.push({ id: ++eid, type: ty, slot: sl, x: p.x, y: p.y, ang: Math.PI / 2, mode: 'form', hp: ty === 'boss' ? 2 : 1, t: 0, flash: 0, escKilled: 0, shotsLeft: 0 });
+  }
+  sched = []; schedIdx = 0; phase = 'fight'; diveT = 60; swayAmp = 0; breathAmp = 1;
+}
+function toMenu() {
+  if (state === 'pause' || state === 'play') { if (score > hiScore) { hiScore = score; store.set('best', score); } }
+  hideScreens(); state = 'menu'; KIT.stopMusic(); startDemo(); renderMenu(); $('screen-menu').classList.remove('hidden');
+}
+function renderMenu() {
+  document.querySelectorAll('#diff-seg button').forEach(b => b.classList.toggle('on', +b.dataset.d === diff));
+  $('menu-best').textContent = T('bestLbl', hiScore.toLocaleString());
+}
+document.querySelectorAll('#diff-seg button').forEach(b => b.onclick = () => { diff = +b.dataset.d; store.set('diff', diff); renderMenu(); });
+$('btn-start').onclick = newGame;
+$('btn-resume').onclick = () => togglePause();
+$('btn-quit').onclick = toMenu;
+$('btn-retry').onclick = newGame;
+$('btn-menu').onclick = toMenu;
+
+if (location.hash === '#debug') window.__gl = {
+  info: () => ({ state, phase, stage, challenge, enemies: enemies.length, modes: enemies.reduce((m, e) => (m[e.mode] = (m[e.mode] || 0) + 1, m), {}), score, lives, dual: player.dual, alive: player.alive, pstate: player.state, shots, hits }),
+  stage: n => { newGame(); stage = n; resetWorld(); startStage(); },
+  god: v => { god = v !== false; },
+  killAll: () => { for (const e of enemies) e.dead = true; schedIdx = sched.length; },
+  beam: () => { const b = enemies.find(e => e.type === 'boss' && e.mode === 'form'); if (b) startDive(b, true); return !!b; },
+  rescue: () => { const b = enemies.find(e => e.captive); if (b) { b.mode = 'homing'; b.vx = 0; b.vy = 1; hitEnemy(b); if (!b.dead) hitEnemy(b); } return !!b; },
+  dive: () => pickDiver(),
+  lives: n => { lives = n; }
+};
+const syncMute = KIT.mountMute($('btn-mute'));
+KIT.boot(() => { syncMute(); renderMenu(); });
+toMenu();
+requestAnimationFrame(loopFrame);
 })();

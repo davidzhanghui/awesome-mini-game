@@ -1,964 +1,1348 @@
+/* 坦克大战 · 钢铁城防 —— 致敬 Battle City 的网页重制版
+ * 逻辑画布 528×448：左侧 416×416 战场（13×13 格，每格 32px），右侧 96px 信息栏。
+ * 地形以 8px 微格存储（52×52），砖墙可被一点点打碎；地图设计稿用 13×13 字符串。
+ */
 (() => {
-// 坦克大战：26x26 网格（经典 13x13 大格，每大格 2x2 小格），每小格 24px
-const STR = window.GAME_STR || { zh: {}, en: {} };
-const T = (k, ...a) => AMG.tf(STR, k, ...a);
-const stageFull = i => (T('stages') || [])[i] || STAGES[i].name;
-const COLS = 26, ROWS = 26, CELL = 24, W = COLS * CELL, H = ROWS * CELL;
-// 地形：0 空 1 砖 2 钢 3 水 4 草 5 冰
-const canvas = document.getElementById('game');
-const ctx = canvas.getContext('2d');
-const $ = id => document.getElementById(id);
-function fit() {
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  canvas.width = W * dpr; canvas.height = H * dpr;
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-}
-fit();
-window.addEventListener('resize', fit);
+'use strict';
+const { $, T } = KIT;
+const store = KIT.store('amg-tank');
+const W = 528, H = 448, FX = 16, FY = 16, FS = 416, MC = 52, HT = 26, STEP = 1 / 60;
+const cv = $('game'), c = KIT.canvas(cv, W, H);
+const E = 0, BR = 1, ST = 2, WA = 3, TR = 4, IC = 5;
+const DIRS = [[0, -1], [1, 0], [0, 1], [-1, 0]];
+const MONO = '"Courier New", ui-monospace, Menlo, monospace';
+const DISP = '"AMG Display", "PingFang SC", system-ui, sans-serif';
+const EMOJI = '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", system-ui';
+const rnd = (a, b) => a + Math.random() * (b - a);
+const ri = (a, b) => Math.floor(a + Math.random() * (b - a + 1));
+const clamp = KIT.clamp;
+const ov = (ax, ay, aw, ah, bx, by, bw, bh) => ax < bx + bw && ax + aw > bx && ay < by + bh && ay + ah > by;
+const hash = (a, b) => { let h = (Math.imul(a, 374761393) + Math.imul(b, 668265263)) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
 
-const store = {
-  get best() { return +(localStorage.getItem('tank-best') || 0); },
-  set best(v) { localStorage.setItem('tank-best', v); },
-  get custom() { try { return JSON.parse(localStorage.getItem('tank-custom') || 'null'); } catch (e) { return null; } },
-  set custom(v) { localStorage.setItem('tank-custom', JSON.stringify(v)); },
-  get muted() { return localStorage.getItem('tank-muted') === '1'; },
-  set muted(v) { localStorage.setItem('tank-muted', v ? '1' : '0'); }
-};
-let actx = null, muted = store.muted;
-function ac() {
-  if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
-  if (actx.state === 'suspended') actx.resume();
-  return actx;
-}
-function tone(f, dur, type, vol, slide) {
-  if (muted) return;
-  try {
-    const a = ac(), o = a.createOscillator(), g = a.createGain();
-    o.type = type || 'square'; o.frequency.setValueAtTime(f, a.currentTime);
-    if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(30, f + slide), a.currentTime + dur);
-    g.gain.setValueAtTime(vol || .1, a.currentTime);
-    g.gain.exponentialRampToValueAtTime(.001, a.currentTime + dur);
-    o.connect(g); g.connect(a.destination); o.start(); o.stop(a.currentTime + dur);
-  } catch (e) {}
-}
-function noise(dur, vol) {
-  if (muted) return;
-  try {
-    const a = ac(), n = Math.floor(a.sampleRate * dur), buf = a.createBuffer(1, n, a.sampleRate), d = buf.getChannelData(0);
-    for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
-    const s = a.createBufferSource(), g = a.createGain();
-    s.buffer = buf; g.gain.value = vol || .2;
-    s.connect(g); g.connect(a.destination); s.start();
-  } catch (e) {}
-}
-const sfx = {
-  shoot: () => tone(220, .1, 'square', .09, 180),
-  boom: () => noise(.35, .3),
-  hit: () => noise(.15, .2),
-  item: () => [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => tone(f, .12, 'square', .09), i * 70)),
-  spawn: () => tone(440, .12, 'sine', .07, 220),
-  click: () => tone(700, .07, 'sine', .1),
-  power: () => tone(300, .3, 'sawtooth', .08, 500),
-  gameover: () => [400, 300, 200, 120].forEach((f, i) => setTimeout(() => tone(f, .25, 'sawtooth', .1), i * 180))
-};
-
-// ---------- 关卡 ----------
-const EAGLE = { c: 12, r: 24 }; // 老鹰左上角（占 2x2）
-function emptyGrid() { return Array.from({ length: ROWS }, () => new Array(COLS).fill(0)); }
-function rect(g, c0, r0, c1, r1, t) {
-  for (let r = r0; r <= r1; r++) for (let c = c0; c <= c1; c++) if (c >= 0 && r >= 0 && c < COLS && r < ROWS) g[r][c] = t;
-}
-// 老鹰周边砖墙（+ 老鹰本体 9）
-function homeWall(g, t) {
-  t = t === undefined ? 1 : t;
-  rect(g, 11, 23, 11, 25, t); rect(g, 14, 23, 14, 25, t); rect(g, 12, 23, 13, 23, t);
-  rect(g, 12, 24, 13, 25, 9);
-  // 出生通道保护：老家墙外侧一格不画墙（P1 左路 8-10 列、P2 右路 15-17 列）
-  rect(g, 8, 24, 10, 25, 0);
-  rect(g, 15, 24, 17, 25, 0);
-}
-// P1/P2 出生位及老家墙周边清空，保证出生点左右畅通
-function clearSpawnArea(g) {
-  rect(g, 6, 24, 10, 25, 0);
-  rect(g, 18, 24, 20, 25, 0);
-  rect(g, 8, 22, 9, 23, 0);
-  rect(g, 16, 22, 17, 23, 0);
-  // 老鹰左墙(11,24-25)右移到 18 列，保证 P1 出生位右侧两列全空
-  rect(g, 11, 24, 11, 25, 0);
-  rect(g, 18, 24, 18, 25, 1);
-  // P2 出生位(16列)左右清空
-  rect(g, 14, 24, 14, 25, 0);
-}
-const STAGES = [
-  { name: '第 1 关 · 初露锋芒', foes: 12,
-    map(g) { homeWall(g); rect(g, 2, 4, 5, 9, 1); rect(g, 8, 4, 11, 9, 1); rect(g, 14, 4, 17, 9, 1); rect(g, 20, 4, 23, 9, 1); rect(g, 6, 12, 9, 15, 2); rect(g, 16, 12, 19, 15, 1); rect(g, 2, 18, 7, 20, 1); rect(g, 18, 18, 23, 20, 1); rect(g, 11, 14, 14, 16, 4); rect(g, 11, 20, 14, 21, 1); } },
-  { name: '第 2 关 · 钢铁长城', foes: 14,
-    map(g) { homeWall(g); rect(g, 0, 6, 25, 6, 2); rect(g, 4, 9, 9, 14, 1); rect(g, 16, 9, 21, 14, 1); rect(g, 11, 10, 14, 12, 3); rect(g, 2, 17, 8, 19, 1); rect(g, 17, 17, 23, 19, 1); rect(g, 11, 17, 14, 19, 2); rect(g, 5, 21, 8, 21, 5); rect(g, 17, 21, 20, 21, 5); } },
-  { name: '第 3 关 · 河流草原', foes: 16,
-    map(g) { homeWall(g); rect(g, 0, 8, 25, 10, 3); rect(g, 12, 0, 13, 7, 1); rect(g, 5, 12, 10, 16, 4); rect(g, 15, 12, 20, 16, 4); rect(g, 3, 13, 3, 19, 1); rect(g, 22, 13, 22, 19, 1); rect(g, 7, 18, 18, 20, 1); rect(g, 11, 14, 14, 16, 2); rect(g, 0, 21, 5, 23, 5); rect(g, 20, 21, 25, 23, 5); } },
-  { name: '第 4 关 · 冰火两重', foes: 18,
-    map(g) { homeWall(g); rect(g, 2, 3, 23, 5, 5); rect(g, 2, 7, 6, 12, 1); rect(g, 10, 7, 15, 12, 2); rect(g, 19, 7, 23, 12, 1); rect(g, 0, 13, 25, 14, 3); rect(g, 4, 16, 9, 20, 4); rect(g, 16, 16, 21, 20, 1); rect(g, 11, 17, 14, 19, 5); rect(g, 12, 20, 13, 22, 1); } },
-  { name: '第 5 关 · 最终决战', foes: 20,
-    map(g) { homeWall(g, 2); rect(g, 0, 4, 25, 4, 2); rect(g, 3, 7, 8, 12, 1); rect(g, 9, 7, 16, 12, 2); rect(g, 17, 7, 22, 12, 1); rect(g, 5, 14, 20, 15, 3); rect(g, 2, 17, 7, 21, 4); rect(g, 18, 17, 23, 21, 4); rect(g, 10, 18, 15, 20, 1); rect(g, 11, 21, 14, 22, 2); } }
+// ---------------- 地图 ----------------
+// . 空地  # 砖墙  @ 钢板  ~ 河流  % 树林  = 冰面
+// 出生点（上方三处、下方两处）和老鹰周围由程序自动清空 / 砌墙
+const CH = { '.': E, '#': BR, '@': ST, '~': WA, '%': TR, '=': IC };
+const MAPS = [
+  { th: 0, rows: [
+    '.............', '.#.#.#.#.#.#.', '.#.#.#.#.#.#.', '.#.#.#@#.#.#.', '.#.#.....#.#.', '.....#.#.....', '@.##.#.#.##.@',
+    '.....#.#.....', '.#.#.###.#.#.', '.#.#.#.#.#.#.', '.#.#.....#.#.', '.#.#.....#.#.', '.#.........#.'] },
+  { th: 2, rows: [
+    '...@.....@...', '.#.@.#.#.@.#.', '.#...#.#...#.', '.#.##...##.#.', '....#@@@#....', '@@..#...#..@@', '.....%.%.....',
+    '~~~.##.##.~~~', '.#.........#.', '.#.#@...@#.#.', '.#.#.###.#.#.', '.#.........#.', '.#.#.....#.#.'] },
+  { th: 1, rows: [
+    '...%%...%%...', '.#%%%.#.%%%#.', '.#%%..#..%%#.', '..%.@@#@@.%..', '##%.......%##', '..%%%.#.%%%..', '.#.%%%%%%%.#.',
+    '.#..#####..#.', '%%%.......%%%', '%#%.#.#.#.%#%', '%#..#...#..#%', '....#...#....', '%%.#.....#.%%'] },
+  { th: 1, rows: [
+    '.............', '.##.##.##.##.', '.#...#.#...#.', '.............', '~~~.~~.~~.~~~', '.@.........@.', '.@.##%%%##.@.',
+    '.....%%%.....', '~~.~~~.~~~.~~', '.#.#.....#.#.', '.#.#.#.#.#.#.', '.#.........#.', '...#.....#...'] },
+  { th: 3, rows: [
+    '.............', '.#.=======.#.', '.#.=#===#=.#.', '...=======...', '@#.=.@=@.=.#@', '...=======...', '##.==#=#==.##',
+    '...=======...', '.#.=.=.=.=.#.', '.#.=======.#.', '.#..#...#..#.', '....#...#....', '.##.......##.'] },
+  { th: 0, night: true, rows: [
+    '.............', '.%#.#.%.#.#%.', '.%#.#.%.#.#%.', '...#.....#...', '@@.#.###.#.@@', '.............', '##.%%#.#%%.##',
+    '...%%...%%...', '.#.#.###.#.#.', '.#.#.#.#.#.#.', '...#.....#...', '.%.#.....#.%.', '.%.........%.'] },
+  { th: 2, rows: [
+    '.............', '.@@@.....@@@.', '.@#@.###.@#@.', '.@#@.#@#.@#@.', '.....#.#.....', '##.#.....#.##', '~~.#.@@@.#.~~',
+    '~~.........~~', '.#.###.###.#.', '.#.#.....#.#.', '.#.#.#.#.#.#.', '...#.....#...', '.@.#.....#.@.'] },
+  { th: 0, rows: [
+    '...#.....#...', '.#.#.###.#.#.', '.#...#.#...#.', '.####.#.####.', '......#......', '@###.###.###@', '...#.....#...',
+    '.#.#.#@#.#.#.', '.#...#.#...#.', '.###.#.#.###.', '...#.....#...', '.#.#.....#.#.', '.#.........#.'] },
+  { th: 1, rows: [
+    '.............', '.~~~.#.#.~~~.', '.~#~.....~#~.', '.~~~.%%%.~~~.', '.....%@%.....', '#.~~~%%%~~~.#', '#.~#.....#~.#',
+    '..~~~.#.~~~..', '.#.........#.', '.#.~~.#.~~.#.', '...~~.#.~~...', '.#.........#.', '.#.#.....#.#.'] },
+  { th: 2, rows: [
+    '..@.......@..', '.#@.#.@.#.@#.', '.#..#.@.#..#.', '....@...@....', '@.#...#...#.@', '..#.@.#.@.#..', '.@..#####..@.',
+    '.....%%%.....', '#.@.#.#.#.@.#', '#...#...#...#', '.@.###.###.@.', '...#.....#...', '.@.#.....#.@.'] },
+  { th: 3, night: true, rows: [
+    '.............', '.=#=.%%%.=#=.', '.=#=.%#%.=#=.', '.===.....===.', '....#===#....', '@@..#=@=#..@@', '....#===#....',
+    '.%%.......%%.', '.%%.#.#.#.%%.', '....#.#.#....', '==.##...##.==', '==.........==', '==.#.....#.=='] },
+  { th: 0, rows: [
+    '.............', '.@.#.@.@.#.@.', '.@.#.@.@.#.@.', '.@.#.....#.@.', '...~~###~~...', '##.~~...~~.##', '@@.~~.@.~~.@@',
+    '....%%%%%....', '.#.#%#.#%#.#.', '.#.#.....#.#.', '.#@#.###.#@#.', '.#.........#.', '...#.....#...'] }
 ];
+// 每关 20 辆敌军：[普通, 快速, 火力, 装甲]
+const COMP = [[18, 2, 0, 0], [14, 4, 0, 2], [12, 5, 1, 2], [2, 5, 10, 3], [8, 5, 5, 2], [9, 2, 7, 2],
+  [7, 4, 6, 3], [7, 4, 7, 2], [6, 4, 7, 3], [12, 2, 4, 2], [5, 5, 4, 6], [0, 6, 8, 6]];
+const THEMES = [
+  { g: '#2a2c31', s: ['#31343a', '#232529'], tread: 'rgba(0,0,0,.3)' },
+  { g: '#262e22', s: ['#2e3829', '#1f261b'], tread: 'rgba(0,0,0,.3)' },
+  { g: '#3a3125', s: ['#44392b', '#30281e'], tread: 'rgba(0,0,0,.28)' },
+  { g: '#2c3644', s: ['#36424f', '#252e3a'], tread: 'rgba(0,0,0,.26)' }
+];
+const ETYPES = [
+  { k: 'basic', spd: 0.8, bspd: 4, hp: 1, pts: 100, fr: [60, 130] },
+  { k: 'fast', spd: 1.9, bspd: 5, hp: 1, pts: 200, fr: [60, 130] },
+  { k: 'power', spd: 1.1, bspd: 8, hp: 1, pts: 300, fr: [40, 95] },
+  { k: 'armor', spd: 0.95, bspd: 5, hp: 4, pts: 400, fr: [45, 110] }
+];
+const PSPD = 1.5;
+const DIFF = { spd: [0.85, 1, 1.12], fire: [1.5, 1, 0.72], spawn: [210, 170, 125], aggro: [0.22, 0.38, 0.55], max: [4, 4, 5], lives: [3, 2, 2] };
+const SPAWNS = [192, 384, 0], PSPAWN = [128, 256], BASE = { x: 192, y: 384 };
+const PKINDS = ['star', 'star', 'helmet', 'clock', 'shovel', 'grenade', 'tank'];
+const PICON = { star: '⭐', helmet: '⛑️', clock: '⏰', shovel: '🧱', grenade: '💣' };
+const PCOL = [['#f2c230', '#9c7410', '#ffe9a0'], ['#57c46e', '#257a3a', '#b4f2c0']];
+const ECOL = ['#c5cbd3', '#68707c', '#f0f3f6'];
+const ACOL = [ECOL, ECOL, ECOL, ['#e2b64a', '#8a6a16', '#fbe4a6'], ['#7fbf54', '#3f6e1f', '#c7eca0']];
+const RCOL = ['#e5483b', '#8c2018', '#ffa196'];
 
-// 敌方类型：basic / fast / power / armor
-const FOE_TYPES = {
-  basic: { hp: 1, speed: 62, bspeed: 260, score: 100, color: '#cfcfcf' },
-  fast: { hp: 1, speed: 118, bspeed: 260, score: 200, color: '#e8e8e8' },
-  power: { hp: 1, speed: 78, bspeed: 420, score: 300, color: '#ffd93d' },
-  armor: { hp: 3, speed: 58, bspeed: 300, score: 400, color: '#5ee66e' }
-};
-const ITEM_KINDS = ['star', 'helmet', 'clock', 'shovel', 'grenade', 'life'];
-
-const G = {
-  state: 'menu', mode: '1p', stageIdx: 0, score: 0, t: 0,
-  grid: emptyGrid(), players: [], foes: [], bullets: [], items: [],
-  spawnQueue: [], spawnT: 0, freezeT: 0, shovelT: 0, shake: 0,
-  eagleAlive: true, overReason: '', customStage: false,
-  editor: null, floats: [], parts: []
-};
-G.grid = emptyGrid();
-
-function loadStage(idx, custom) {
-  G.stageIdx = idx; G.customStage = !!custom;
-  G.grid = emptyGrid();
-  if (custom) {
-    const c = store.custom;
-    for (let r = 0; r < ROWS; r++) for (let cI = 0; cI < COLS; cI++) G.grid[r][cI] = c.grid[r][cI];
-  } else STAGES[idx].map(G.grid);
-  clearSpawnArea(G.grid);
-  G.foes = []; G.bullets = []; G.items = []; G.floats = []; G.parts = [];
-  G.freezeT = 0; G.shovelT = 0; G.shake = 0; G.eagleAlive = true;
-  const total = custom ? 14 : STAGES[idx].foes;
-  // 出怪序列：越往后越强，每 4 辆必出一辆闪烁道具车
-  const seq = [];
-  const diff = custom ? .5 : idx / (STAGES.length - 1);
-  for (let i = 0; i < total; i++) {
-    const r = Math.random();
-    let t = 'basic';
-    if (i > 2 && r < .12 + diff * .22) t = 'armor';
-    else if (r < .3 + diff * .2) t = 'power';
-    else if (r < .52 + diff * .2) t = 'fast';
-    seq.push({ type: t, bonus: i % 4 === 3 });
+// 出生点 / 老鹰保护区（半格坐标）
+const RESERVED = [];
+for (const sx of [0, 12, 24]) for (let k = 0; k < 4; k++) RESERVED.push([sx + (k & 1), k >> 1]);
+for (const sx of [8, 16]) for (let k = 0; k < 4; k++) RESERVED.push([sx + (k & 1), 24 + (k >> 1)]);
+const isBaseCell = (hx, hy) => hx >= 12 && hx <= 13 && hy >= 24;
+const isProtected = (hx, hy) => (hx >= 11 && hx <= 14 && hy >= 23) || RESERVED.some(([x, y]) => x === hx && y === hy);
+const RING_MC = [];
+for (let hy = 23; hy < 26; hy++) for (let hx = 11; hx < 15; hx++) if (!isBaseCell(hx, hy)) for (let k = 0; k < 4; k++) RING_MC.push([hx * 2 + (k & 1), hy * 2 + (k >> 1)]);
+function applyReserved(a) {
+  for (const [x, y] of RESERVED) a[y * HT + x] = E;
+  for (let hy = 23; hy < 26; hy++) for (let hx = 11; hx < 15; hx++) a[hy * HT + hx] = isBaseCell(hx, hy) ? E : BR;
+}
+function tilesToHT(rows) {
+  const a = new Uint8Array(HT * HT);
+  for (let ty = 0; ty < 13; ty++) for (let tx = 0; tx < 13; tx++) {
+    const v = CH[rows[ty][tx]] || E;
+    for (let k = 0; k < 4; k++) a[(ty * 2 + (k >> 1)) * HT + tx * 2 + (k & 1)] = v;
   }
-  G.spawnQueue = seq;
-  G.spawnT = 1; G.spawned = 0; G.stageT = 0;
-  // 玩家出生
-  G.players = [];
-  const mk = (x, side) => ({
-    side, x: x * CELL + 2, y: 24 * CELL + 2, w: CELL * 2 - 4, h: CELL * 2 - 4,
-    dir: 0, speed: 128, alive: true, lives: 3, stars: 0, invuln: 2,
-    cd: 0, maxBullets: 1, ai: null, slide: 0, spawnT: 0, flash: 0
-  });
-  if (G.mode === '2p') { G.players = [mk(6, 'p1'), mk(16, 'p2')]; }
-  else G.players = [mk(8, 'p1')];
-  G.players.forEach(p => {
-    p.lives = 3;
-    // P1 出生点右侧保持两列空（避开老家左墙）
-    if (p.side === 'p1' && p.x + p.w + 2 > 11 * CELL) p.x = 9 * CELL + 2;
-  });
-  updateHUD();
+  applyReserved(a);
+  return a;
 }
 
-// ---------- 碰撞 ----------
-function tankCells(t) {
-  const out = [];
-  const eps = .5;
-  const c0 = Math.floor((t.x + eps) / CELL), r0 = Math.floor((t.y + eps) / CELL);
-  const c1 = Math.floor((t.x + t.w - 1 - eps) / CELL), r1 = Math.floor((t.y + t.h - 1 - eps) / CELL);
-  for (let r = r0; r <= r1; r++) for (let c = c0; c <= c1; c++) out.push([c, r]);
-  return out;
+// ---------------- 状态 ----------------
+let state = 'menu', prevState = 'play', demo = false, demoIdx = 0;
+let nP = store.get('players', 1), diff = store.get('diff', 1), unlock = store.get('unlock', 0);
+let pickStage = Math.min(store.get('pick', 0), unlock), hiScore = store.get('best', 0);
+let stageIdx = 0, loop = 0, custom = false, fromEditor = false, thIdx = 0, night = false;
+let ht = new Uint8Array(HT * HT);
+const mg = new Uint8Array(MC * MC);
+let players = [], enemies = [], bullets = [], stars = [], booms = [], pops = [];
+let queue = [], spawned = 0, killed = 0, spawnT = 0, spawnPt = 0, eid = 0;
+let pwr = null, freezeT = 0, shovelT = 0, baseDead = false, clearT = 0, overSeq = 0, stageF = 0, shake = 0, F = 0;
+let curtain = null, tally = null, banner = null, continues = 0, waterPath = new Path2D();
+let brush = BR, bsize = 2, edHover = null, painting = false, erasing = false;
+const fx = new KIT.Particles();
+
+// ---------------- 离屏画布 ----------------
+const SC = 2;
+function off(w, h) { const o = document.createElement('canvas'); o.width = w * SC; o.height = h * SC; const g = o.getContext('2d'); g.scale(SC, SC); return [o, g]; }
+const [groundCv, gg] = off(FS, FS), [mapCv, mx] = off(FS, FS), [treeCv, tg] = off(FS, FS), [treadCv, trx] = off(FS, FS), [darkCv, dk] = off(FS, FS);
+
+function pix(rows, pal) {
+  const o = document.createElement('canvas'); o.width = 16; o.height = 16;
+  const g = o.getContext('2d');
+  rows.forEach((r, y) => [...r].forEach((ch, x) => { if (pal[ch]) { g.fillStyle = pal[ch]; g.fillRect(x, y, 1, 1); } }));
+  return o;
 }
-function blocksTank(c, r, isFoe) {
-  if (c < 0 || r < 0 || c >= COLS || r >= ROWS) return true;
-  const t = G.grid[r][c];
-  if (t === 1 || t === 2 || t === 3) return true;
-  if (t === 9 || t === 10) return true; // 老鹰（活/毁）都挡路
+const EAGLE = pix([
+  '................', '.o............o.', '.oo....ww....oo.', '.ooo..wwkw..ooo.', '.oooo.wwww.oooo.', '.ooooo.ww.ooooo.',
+  '..oooooyyooooo..', '...ooooyyoooo...', '....ooyyyyoo....', '.....oyyyyo.....', '......yyyy......', '.....yy..yy.....',
+  '....yy....yy....', '...dddddddddd...', '..dddddddddddd..', '................'
+], { o: '#e0a83e', w: '#f6f1e4', k: '#1d1d1d', y: '#a8711f', d: '#70747d' });
+const EAGLE_DEAD = pix([
+  '................', '................', '................', '................', '................', '................',
+  '.......r........', '....r.rrr.r.....', '...rrrrrrrrr.r..', '..rrkrrrrkrrrr..', '.rrrrrrkrrrrrrr.', '.rrkrrrrrrrkrrr.',
+  'rrrrrrrrrrrrrrrr', '...dddddddddd...', '..dddddddddddd..', '................'
+], { r: '#5b5550', k: '#2a2522', d: '#70747d' });
+
+function makeWaterPat(ph) {
+  const o = document.createElement('canvas'); o.width = o.height = 32;
+  const g = o.getContext('2d'); g.scale(2, 2);
+  g.fillStyle = '#1c5aab'; g.fillRect(0, 0, 16, 16);
+  g.fillStyle = '#2470cc'; g.fillRect(0, (ph * 5) % 16, 16, 4); g.fillRect(0, (ph * 5 + 9) % 16, 16, 2);
+  g.strokeStyle = '#8cc8ff'; g.lineWidth = 1;
+  const wv = (x, y) => { g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + 2, y - 2, x + 4, y); g.quadraticCurveTo(x + 6, y + 2, x + 8, y); g.stroke(); };
+  wv((ph * 3) % 16 - 2, 4); wv((ph * 3 + 8) % 16 - 2, 12);
+  const p = c.createPattern(o, 'repeat');
+  try { p.setTransform(new DOMMatrix().scale(0.5)); } catch (e) {}
+  return p;
+}
+const WATER = [0, 1, 2].map(makeWaterPat);
+
+// ---------------- 地形绘制 ----------------
+function renderGround() {
+  const th = THEMES[thIdx];
+  gg.fillStyle = th.g; gg.fillRect(0, 0, FS, FS);
+  for (let k = 0; k < 900; k++) {
+    gg.fillStyle = th.s[k & 1];
+    const x = hash(k, 7 + thIdx) * FS, y = hash(k, 91 + thIdx) * FS, s = 1 + hash(k, 3) * 2.5;
+    gg.fillRect(x, y, s, s);
+  }
+  gg.strokeStyle = 'rgba(255,255,255,.025)'; gg.lineWidth = 1;
+  for (let k = 1; k < 13; k++) { gg.beginPath(); gg.moveTo(k * 32, 0); gg.lineTo(k * 32, FS); gg.moveTo(0, k * 32); gg.lineTo(FS, k * 32); gg.stroke(); }
+  // 老鹰底座
+  gg.fillStyle = 'rgba(0,0,0,.25)'; gg.fillRect(BASE.x - 2, BASE.y - 2, 36, 34);
+}
+function drawBrick(g, x, y, i, j) {
+  g.fillStyle = '#6a2a10'; g.fillRect(x, y, 8, 8);
+  for (let k = 0; k < 2; k++) {
+    const yy = y + k * 4, row = j * 2 + k, sh = (row & 1) ? 4 : 0;
+    for (let xx = x - sh; xx < x + 8; xx += 8) {
+      const x0 = Math.max(x, xx), x1 = Math.min(x + 8, xx + 7.5);
+      if (x1 <= x0) continue;
+      const v = hash(Math.floor((xx + 64) / 8) + i, row) > 0.5;
+      g.fillStyle = v ? '#c9642c' : '#b8582a'; g.fillRect(x0, yy, x1 - x0, 3.5);
+      g.fillStyle = '#e8925a'; g.fillRect(x0, yy, x1 - x0, 1);
+      g.fillStyle = '#93401c'; g.fillRect(x0, yy + 2.5, x1 - x0, 1);
+    }
+  }
+}
+function drawSteel(g, x, y, i, j) {
+  const bx = (i >> 1) * 16, by = (j >> 1) * 16;
+  g.save(); g.beginPath(); g.rect(x, y, 8, 8); g.clip();
+  g.fillStyle = '#525a64'; g.fillRect(bx, by, 16, 16);
+  g.fillStyle = '#9ba5af'; g.fillRect(bx + 1, by + 1, 14, 14);
+  g.fillStyle = '#eef2f5'; g.fillRect(bx + 1, by + 1, 14, 2); g.fillRect(bx + 1, by + 1, 2, 14);
+  g.fillStyle = '#6b747e'; g.fillRect(bx + 3, by + 13, 12, 2); g.fillRect(bx + 13, by + 3, 2, 12);
+  g.fillStyle = '#ccd3da'; g.fillRect(bx + 5, by + 5, 6, 6);
+  g.fillStyle = '#7d8690'; g.fillRect(bx + 9, by + 9, 2, 2);
+  g.restore();
+}
+function drawIce(g, x, y, i, j) {
+  const bx = (i >> 1) * 16, by = (j >> 1) * 16;
+  g.save(); g.beginPath(); g.rect(x, y, 8, 8); g.clip();
+  g.fillStyle = '#a6d3e8'; g.fillRect(bx, by, 16, 16);
+  g.strokeStyle = '#e4f6ff'; g.lineWidth = 1.2;
+  g.beginPath(); g.moveTo(bx + 2, by + 9); g.lineTo(bx + 9, by + 2); g.moveTo(bx + 7, by + 15); g.lineTo(bx + 15, by + 7); g.stroke();
+  g.fillStyle = '#86bcd6'; g.fillRect(bx, by + 15, 16, 1); g.fillRect(bx + 15, by, 1, 16);
+  g.restore();
+}
+const BUSH = [[4, 4, 4.6], [12, 4, 4.6], [4, 12, 4.6], [12, 12, 4.6], [8, 8, 4.2]];
+function drawTree(g, x, y, i, j) {
+  const bx = (i >> 1) * 16, by = (j >> 1) * 16;
+  g.save(); g.beginPath(); g.rect(x, y, 8, 8); g.clip();
+  g.fillStyle = '#123d18'; g.fillRect(bx, by, 16, 16);
+  for (const [ox, oy, r] of BUSH) { g.fillStyle = '#1a5222'; g.beginPath(); g.arc(bx + ox, by + oy, r + 1, 0, 7); g.fill(); }
+  for (const [ox, oy, r] of BUSH) { g.fillStyle = '#2c8a39'; g.beginPath(); g.arc(bx + ox, by + oy, r - 0.4, 0, 7); g.fill(); }
+  for (const [ox, oy, r] of BUSH) { g.fillStyle = '#5cbf5e'; g.beginPath(); g.arc(bx + ox - 1.3, by + oy - 1.4, r * 0.38, 0, 7); g.fill(); }
+  g.restore();
+}
+function drawCell(i, j) {
+  const x = i * 8, y = j * 8, v = mg[j * MC + i];
+  mx.clearRect(x, y, 8, 8); tg.clearRect(x, y, 8, 8);
+  if (v === BR) drawBrick(mx, x, y, i, j);
+  else if (v === ST) drawSteel(mx, x, y, i, j);
+  else if (v === IC) drawIce(mx, x, y, i, j);
+  else if (v === TR) drawTree(tg, x, y, i, j);
+}
+function setCell(i, j, v) { mg[j * MC + i] = v; drawCell(i, j); }
+function buildMG() { for (let j = 0; j < MC; j++) for (let i = 0; i < MC; i++) mg[j * MC + i] = ht[(j >> 1) * HT + (i >> 1)]; }
+function rebuildWater() {
+  waterPath = new Path2D();
+  for (let j = 0; j < MC; j++) for (let i = 0; i < MC; i++) if (mg[j * MC + i] === WA) waterPath.rect(i * 8, j * 8, 8, 8);
+}
+function renderAll() {
+  renderGround();
+  mx.clearRect(0, 0, FS, FS); tg.clearRect(0, 0, FS, FS); trx.clearRect(0, 0, FS, FS);
+  for (let j = 0; j < MC; j++) for (let i = 0; i < MC; i++) if (mg[j * MC + i]) drawCell(i, j);
+  rebuildWater();
+}
+function setRing(v) {
+  for (const [i, j] of RING_MC) {
+    if (mg[j * MC + i] === v) continue;
+    if (players.some(t => t.alive && ov(i * 8, j * 8, 8, 8, t.x, t.y, 32, 32)) || enemies.some(t => ov(i * 8, j * 8, 8, 8, t.x, t.y, 32, 32))) continue;
+    setCell(i, j, v);
+  }
+}
+
+// ---------------- 碰撞 ----------------
+function cellAt(x, y) { const i = Math.floor(x / 8), j = Math.floor(y / 8); return i < 0 || j < 0 || i >= MC || j >= MC ? -1 : mg[j * MC + i]; }
+function mapHas(x, y, w, h, test) {
+  const i0 = Math.max(0, Math.floor(x / 8)), i1 = Math.min(MC - 1, Math.floor((x + w - 0.01) / 8));
+  const j0 = Math.max(0, Math.floor(y / 8)), j1 = Math.min(MC - 1, Math.floor((y + h - 0.01) / 8));
+  for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++) if (test(mg[j * MC + i])) return true;
   return false;
 }
-function tankHitTank(t, list) {
-  for (const o of list) {
-    if (o === t || !o.alive) continue;
-    // 出生旋转门中的敌军不参与碰撞
-    if (o.spawnT > 0 || t.spawnT > 0) continue;
-    // AABB 缩进 2px，避免贴边误判卡死
-    if (t.x + 2 < o.x + o.w - 2 && t.x + t.w - 2 > o.x + 2 && t.y + 2 < o.y + o.h - 2 && t.y + t.h - 2 > o.y + 2) return true;
-  }
+const solidT = v => v === BR || v === ST || v === WA;
+const bulletT = v => v === BR || v === ST;
+function blockedAt(t, x, y) {
+  if (x < 0 || y < 0 || x > FS - 32 || y > FS - 32) return true;
+  if (mapHas(x, y, 32, 32, solidT)) return true;
+  if (ov(x, y, 32, 32, BASE.x, BASE.y, 32, 32)) return true;
+  for (const o of players) if (o !== t && o.alive && ov(x, y, 32, 32, o.x, o.y, 32, 32) && !ov(t.x, t.y, 32, 32, o.x, o.y, 32, 32)) return true;
+  for (const o of enemies) if (o !== t && ov(x, y, 32, 32, o.x, o.y, 32, 32) && !ov(t.x, t.y, 32, 32, o.x, o.y, 32, 32)) return true;
   return false;
 }
-function moveTank(t, dt, allTanks) {
-  const step = t.speed * dt;
-  let nx = t.x, ny = t.y;
-  if (t.dir === 0) ny -= step;
-  else if (t.dir === 1) nx += step;
-  else if (t.dir === 2) ny += step;
-  else nx -= step;
-  nx = Math.max(0, Math.min(W - t.w, nx));
-  ny = Math.max(0, Math.min(H - t.h, ny));
-  const old = { x: t.x, y: t.y };
-  t.x = nx; t.y = ny;
-  for (const [c, r] of tankCells(t)) {
-    if (blocksTank(c, r)) { t.x = old.x; t.y = old.y; return false; }
+function tankAt(x, y) { return players.some(t => t.alive && ov(x, y, 32, 32, t.x, t.y, 32, 32)) || enemies.some(t => ov(x, y, 32, 32, t.x, t.y, 32, 32)); }
+function tryMove(t, dx, dy) { if (blockedAt(t, t.x + dx, t.y + dy)) return false; t.x += dx; t.y += dy; return true; }
+function snap(t, d) {
+  const vert = d % 2 === 0, v = vert ? t.x : t.y, s = Math.round(v / 16) * 16;
+  if (Math.abs(s - v) < 0.01) { if (vert) t.x = s; else t.y = s; return; }
+  for (const cand of [s, s > v ? s - 16 : s + 16]) {
+    const nx = vert ? cand : t.x, ny = vert ? t.y : cand;
+    if (!blockedAt(t, nx, ny)) { t.x = nx; t.y = ny; return; }
   }
-  if (tankHitTank(t, allTanks)) { t.x = old.x; t.y = old.y; return false; }
+}
+function turn(t, d) { if (d === t.dir) return; if (d % 2 !== t.dir % 2) snap(t, d); t.dir = d; }
+function moveTank(t, spd, assist) {
+  const [dx, dy] = DIRS[t.dir];
+  let d = spd;
+  while (d > 0.05 && !tryMove(t, dx * d, dy * d)) d = d > 1 ? Math.floor(d - 0.001) : d / 2;
+  if (d <= 0.05) return assist ? cornerAssist(t, spd) : false;
+  t.tread += d; t.stampD += d;
+  if (t.stampD >= 5) stampTread(t);
   return true;
 }
-// 子弹打砖：按行列啃
-function bulletHitWall(b) {
-  const c0 = Math.max(0, Math.floor(b.x / CELL)), r0 = Math.max(0, Math.floor(b.y / CELL));
-  const c1 = Math.min(COLS - 1, Math.floor((b.x + b.w) / CELL)), r1 = Math.min(ROWS - 1, Math.floor((b.y + b.h) / CELL));
-  let hitSteel = false, broke = false;
-  for (let r = r0; r <= r1; r++) for (let c = c0; c <= c1; c++) {
-    const t = G.grid[r][c];
-    if (t === 1) { G.grid[r][c] = 0; broke = true; }
-    else if (t === 2) { if (b.power >= 2) { G.grid[r][c] = 0; broke = true; } else hitSteel = true; }
-    else if (t === 9) {
-      G.grid[r][c] = 10; broke = true; eagleDown();
-    }
-  }
-  if (broke) { sfx.hit(); addParts(b.x, b.y, '#c98a2e', 6); }
-  else if (hitSteel) sfx.hit();
-  return broke || hitSteel;
-}
-function eagleDown() {
-  if (!G.eagleAlive) return;
-  G.eagleAlive = false;
-  G.shake = 14;
-  sfx.gameover();
-  gameOver(T('eagleDown'));
-}
-function addParts(x, y, c, n) {
-  for (let i = 0; i < (n || 8); i++) G.parts.push({ x, y, vx: (Math.random() - .5) * 260, vy: (Math.random() - .5) * 260, life: .5, age: 0, r: 3, c });
-}
-function addFloat(x, y, text) { G.floats.push({ x, y, text, age: 0 }); }
-function addScore(n, x, y) {
-  G.score += n;
-  if (x !== undefined) addFloat(x, y, '+' + n);
-  if (G.score > store.best) store.best = G.score;
-}
-
-// ---------- 开火 ----------
-function fire(t) {
-  if (!t.alive || t.cd > 0 || G.state !== 'play') return;
-  const mine = G.bullets.filter(b => b.owner === t).length;
-  if (mine >= t.maxBullets) return;
-  t.cd = t.side[0] === 'p' ? .22 : .5 + Math.random() * .5;
-  const s = 6;
-  let x = t.x + t.w / 2 - s / 2, y = t.y + t.h / 2 - s / 2;
-  if (t.dir === 0) y = t.y - s - 1;
-  else if (t.dir === 1) x = t.x + t.w + 1;
-  else if (t.dir === 2) y = t.y + t.h + 1;
-  else x = t.x - s - 1;
-  // 出生点安全检查：子弹落点若在己方坦克体内则不出膛（防自杀式开火打老鹰）
-  if (t.side[0] === 'p') {
-    for (const p of G.players) {
-      if (!p.alive) continue;
-      if (x < p.x + p.w - 4 && x + s > p.x + 4 && y < p.y + p.h - 4 && y + s > p.y + 4) return;
-    }
-  }
-  const sp = t.bulletSpeed || 380;
-  const vx = t.dir === 1 ? sp : t.dir === 3 ? -sp : 0;
-  const vy = t.dir === 2 ? sp : t.dir === 0 ? -sp : 0;
-  G.bullets.push({ x, y, w: s, h: s, vx, vy, owner: t, power: t.stars >= 2 ? 2 : 1, foe: t.side === 'foe' });
-  if (t.side[0] === 'p') sfx.shoot();
-}
-function hurtPlayer(p) {
-  if (!p.alive || p.invuln > 0 || G.state !== 'play') return;
-  p.lives--;
-  addParts(p.x + p.w / 2, p.y + p.h / 2, '#ff5d5d', 16);
-  sfx.boom();
-  if (p.lives <= 0) {
-    p.alive = false;
-    if (G.players.every(q => !q.alive)) gameOver(T('allLost'));
-  } else {
-    // 原地重生
-    p.x = (p.side === 'p2' ? 16 : p.side === 'p1' && G.mode === '2p' ? 6 : 8) * CELL + 2; p.y = 24 * CELL + 2;
-    p.dir = 0; p.invuln = 3; p.stars = 0; p.maxBullets = 1;
-  }
-  updateHUD();
-}
-function hurtFoe(f, power) {
-  f.hp -= power;
-  f.flash = .12;
-  if (f.hp <= 0) {
-    f.alive = false;
-    const info = FOE_TYPES[f.type];
-    addScore(info.score, f.x, f.y - 8);
-    addParts(f.x + f.w / 2, f.y + f.h / 2, '#ff8c42', 14);
-    sfx.boom();
-    if (f.bonus) spawnItem(f.x + f.w / 2, f.y + f.h / 2);
-  } else sfx.hit();
-}
-function spawnItem(x, y) {
-  const kind = ITEM_KINDS[Math.random() * ITEM_KINDS.length | 0];
-  G.items.push({ kind, x: Math.max(10, Math.min(W - 34, x - 12)), y: Math.max(10, Math.min(H - 34, y - 12)), w: 24, h: 24, age: 0 });
-  sfx.spawn();
-}
-function applyItem(p, kind) {
-  sfx.item();
-  addFloat(p.x + p.w / 2, p.y - 6, (T('itemFloat') || {})[kind] || kind);
-  if (kind === 'star') {
-    p.stars = Math.min(3, p.stars + 1);
-    if (p.stars >= 1) p.maxBullets = 2;
-    if (p.stars >= 3) p.speed = 150;
-    sfx.power();
-  }
-  else if (kind === 'helmet') p.invuln = 8;
-  else if (kind === 'clock') G.freezeT = 7;
-  else if (kind === 'shovel') {
-    G.shovelT = 20;
-    homeWall(G.grid, 2);
-  }
-  else if (kind === 'grenade') {
-    for (const f of G.foes) if (f.alive) hurtFoe(f, 99);
-  }
-  else if (kind === 'life') { p.lives++; updateHUD(); }
-}
-
-// ---------- 敌军 AI ----------
-function spawnFoe() {
-  if (!G.spawnQueue.length) return;
-  if (G.foes.filter(f => f.alive).length >= 4) return;
-  const { type, bonus } = G.spawnQueue.shift();
-  G.spawned = (G.spawned || 0) + 1;
-  const info = FOE_TYPES[type];
-  // 出生点：左/中/右轮换，避免扎堆；选无己方坦克挡路的位置
-  if (G.spawnCursor === undefined) G.spawnCursor = 0;
-  const spots = [0, 12, 24];
-  let sx = null;
-  for (let k = 0; k < 3; k++) {
-    const s = spots[(G.spawnCursor + k) % 3];
-    const x = s * CELL;
-    let blocked = false;
-    for (const t of [...G.players, ...G.foes]) {
-      if (!t.alive) continue;
-      if (x < t.x + t.w + 12 && x + CELL * 2 > t.x - 12 && 0 < t.y + t.h + 12 && CELL * 2 > t.y - 12) { blocked = true; break; }
-    }
-    if (!blocked) { sx = x; G.spawnCursor = (G.spawnCursor + k + 1) % 3; break; }
-  }
-  if (sx === null) {
-    // 三个出生点都被堵：把怪塞回队列稍后重试
-    G.spawnQueue.unshift({ type, bonus });
-    G.spawned--;
-    return;
-  }
-  G.foes.push({
-    side: 'foe', type, bonus, x: sx + 2, y: 2, w: CELL * 2 - 4, h: CELL * 2 - 4,
-    dir: 2, speed: info.speed, bulletSpeed: info.bspeed, hp: info.hp, maxHp: info.hp,
-    alive: true, cd: 1 + Math.random(), aiT: 0, invuln: 0, stars: 0, maxBullets: 1,
-    spawnT: .8, flash: 0
-  });
-  sfx.spawn();
-}
-function foeAI(f, dt) {
-  f.aiT -= dt;
-  if (f.aiT <= 0) {
-    f.aiT = .5 + Math.random() * 1.2;
-    const r = Math.random();
-    // 目标：在老鹰和玩家之间二选一（各 25% 概率追玩家，增加对抗性）
-    let tx = EAGLE.c * CELL, ty = EAGLE.r * CELL;
-    const alive = G.players.filter(p => p.alive);
-    if (alive.length && r < .3) {
-      const p = alive[Math.random() * alive.length | 0];
-      tx = p.x; ty = p.y;
-    }
-    let want = null;
-    if (r < .5) want = Math.abs(tx - f.x) > Math.abs(ty - f.y) ? (tx > f.x ? 1 : 3) : (ty > f.y ? 2 : 0);
-    else want = Math.random() * 4 | 0;
-    f.dir = want;
-  }
-  // 开火：前方是砖/钢/老鹰/玩家时才打，不浪费子弹；每关开局 5 秒敌军不开火（保护期）
-  if (G.stageT > 5) {
-    if (looksShootable(f) && f.cd <= 0) fire(f);
-    else if (Math.random() < dt * .25 && f.cd <= 0) fire(f);
-  }
-}
-// 前方两格内有可击目标（砖/钢/老鹰/玩家）则值得开火
-function looksShootable(f) {
-  const cx = f.x + f.w / 2, cy = f.y + f.h / 2;
-  for (let s = 1; s <= 3; s++) {
-    const d = s * CELL;
-    const x = f.dir === 1 ? cx + d : f.dir === 3 ? cx - d : cx;
-    const y = f.dir === 2 ? cy + d : f.dir === 0 ? cy - d : cy;
-    if (x < 0 || y < 0 || x >= W || y >= H) return false;
-    const t = G.grid[Math.floor(y / CELL)][Math.floor(x / CELL)];
-    if (t === 1 || t === 2 || t === 9 || t === 10) return true;
-    for (const p of G.players) {
-      if (!p.alive) continue;
-      if (x > p.x && x < p.x + p.w && y > p.y && y < p.y + p.h) return true;
+function cornerAssist(t, spd) {
+  const [dx, dy] = DIRS[t.dir], px = dy !== 0;
+  for (let o = 1; o <= 12; o++) for (const sg of [-1, 1]) {
+    const ox = px ? sg * o : 0, oy = px ? 0 : sg * o;
+    if (!blockedAt(t, t.x + ox + dx * 2, t.y + oy + dy * 2) && !blockedAt(t, t.x + ox, t.y + oy)) {
+      const m = Math.min(spd, o);
+      if (tryMove(t, px ? sg * m : 0, px ? 0 : sg * m)) { t.tread += m; return true; }
     }
   }
   return false;
 }
-
-// ---------- 主循环 ----------
-const keys = {};
-const KEYMAP = {
-  KeyW: ['p1', 'up'], KeyA: ['p1', 'left'], KeyS: ['p1', 'down'], KeyD: ['p1', 'right'],
-  ArrowUp: ['p2', 'up'], ArrowLeft: ['p2', 'left'], ArrowDown: ['p2', 'down'], ArrowRight: ['p2', 'right']
-};
-window.addEventListener('keydown', e => {
-  if (['Space', 'Enter', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) e.preventDefault();
-  keys[e.code] = true;
-  if (e.repeat) return;
-  if (e.code === 'Space') { const p = G.players[0]; if (p) tryFireKey(p); }
-  if (e.code === 'Enter') { const p = G.players[1]; if (p) tryFireKey(p); }
-  if (e.code === 'KeyP' || e.code === 'Escape') togglePause();
-  if (e.code === 'KeyM') toggleMute();
-  if (e.code === 'KeyR') { if (G.state === 'over' || G.state === 'clear') retry(); else if (G.state === 'play') retry(); }
-});
-window.addEventListener('keyup', e => { keys[e.code] = false; });
-function tryFireKey(p) { if (G.state === 'play') fire(p); }
-function pressDir(p, side) {
-  if (side === 'p1') {
-    if (keys.KeyW) return 0;
-    if (keys.KeyD) return 1;
-    if (keys.KeyS) return 2;
-    if (keys.KeyA) return 3;
-  } else {
-    if (keys.ArrowUp) return 0;
-    if (keys.ArrowRight) return 1;
-    if (keys.ArrowDown) return 2;
-    if (keys.ArrowLeft) return 3;
-  }
-  return null;
+function stampTread(t) {
+  t.stampD = 0;
+  const v = cellAt(t.x + 16, t.y + 16);
+  if (v === WA || v === IC) return;
+  trx.save(); trx.translate(t.x + 16, t.y + 16); trx.rotate(t.dir * Math.PI / 2);
+  trx.fillStyle = THEMES[thIdx].tread;
+  trx.fillRect(-14, 4, 6, 3); trx.fillRect(8, 4, 6, 3);
+  trx.restore();
 }
-function update(dt) {
-  G.t += dt;
-  if (G.state === 'play') G.stageT += dt;
-  if (G.shake > 0) G.shake = Math.max(0, G.shake - dt * 30);
-  for (let i = G.parts.length - 1; i >= 0; i--) {
-    const p = G.parts[i];
-    p.age += dt; p.x += p.vx * dt; p.y += p.vy * dt;
-    if (p.age > p.life) G.parts.splice(i, 1);
-  }
-  for (let i = G.floats.length - 1; i >= 0; i--) {
-    const f = G.floats[i];
-    f.age += dt; f.y -= 40 * dt;
-    if (f.age > 1.2) G.floats.splice(i, 1);
-  }
-  if (G.state !== 'play') return;
-  if (G.freezeT > 0) G.freezeT -= dt;
-  if (G.shovelT > 0) {
-    G.shovelT -= dt;
-    if (G.shovelT <= 0) homeWall(G.grid, 1);
-  }
-  // 出怪
-  if (G.spawnQueue.length) {
-    G.spawnT -= dt;
-    if (G.spawnT <= 0) { G.spawnT = 2.2; spawnFoe(); }
-  }
-  const all = [...G.players.filter(p => p.alive), ...G.foes.filter(f => f.alive)];
-  // 玩家
-  G.players.forEach((p, pi) => {
-    if (!p.alive) return;
-    if (p.cd > 0) p.cd -= dt;
-    if (p.invuln > 0) p.invuln -= dt;
-    if (p.spawnT > 0) { p.spawnT -= dt; return; }
-    const d = pressDir(p, p.side);
-    // 冰面打滑
-    let onIce = false;
-    for (const [c, r] of tankCells(p)) if (G.grid[r] && G.grid[r][c] === 5) onIce = true;
-    if (d !== null) {
-      p.dir = d; p.slide = 0;
-      moveTank(p, dt * (onIce ? 1.25 : 1), all);
-    } else if (onIce && p.slide > 0) {
-      moveTank(p, dt * .6, all);
-      p.slide -= dt;
-    } else p.slide = onIce ? .4 : 0;
-    // 拾道具
-    for (let i = G.items.length - 1; i >= 0; i--) {
-      const it = G.items[i];
-      if (p.x < it.x + it.w && p.x + p.w > it.x && p.y < it.y + it.h && p.y + p.h > it.y) {
-        G.items.splice(i, 1);
-        applyItem(p, it.kind);
-      }
-    }
-  });
-  // 敌军
-  for (const f of G.foes) {
-    if (!f.alive) continue;
-    if (f.spawnT > 0) { f.spawnT -= dt; continue; }
-    if (f.cd > 0) f.cd -= dt;
-    if (f.flash > 0) f.flash -= dt;
-    if (G.freezeT <= 0) {
-      foeAI(f, dt);
-      moveTank(f, dt, all);
-    }
-  }
-  // 子弹
-  for (let i = G.bullets.length - 1; i >= 0; i--) {
-    const b = G.bullets[i];
-    b.x += b.vx * dt; b.y += b.vy * dt;
-    let dead = false;
-    if (b.x < -8 || b.y < -8 || b.x > W + 8 || b.y > H + 8) dead = true;
-    if (!dead && bulletHitWall(b)) dead = true;
-    if (!dead) {
-      // 子弹互撞
-      for (let j = G.bullets.length - 1; j >= 0; j--) {
-        const o = G.bullets[j];
-        if (o === b || o.foe === b.foe) continue;
-        if (b.x < o.x + o.w && b.x + b.w > o.x && b.y < o.y + o.h && b.y + b.h > o.y) {
-          o.dead = true; dead = true;
-          addParts(b.x, b.y, '#fff', 4);
-          break;
-        }
-      }
-    }
-    if (!dead) {
-      if (b.foe) {
-        for (const p of G.players) {
-          if (!p.alive) continue;
-          if (b.x < p.x + p.w && b.x + b.w > p.x && b.y < p.y + p.h && b.y + p.h > p.y) {
-            dead = true;
-            hurtPlayer(p);
-            break;
-          }
-        }
-      } else {
-        for (const f of G.foes) {
-          if (!f.alive || f.spawnT > 0) continue;
-          if (b.x < f.x + f.w && b.x + b.w > f.x && b.y < f.y + f.h && b.y + b.h > f.y) {
-            dead = true;
-            hurtFoe(f, b.power);
-            break;
-          }
-        }
-      }
-    }
-    if (dead || b.dead) G.bullets.splice(i, 1);
-  }
-  // 胜利：出怪完毕 + 敌军全灭（且至少出过怪，避免测试清怪误触）
-  if (!G.spawnQueue.length && G.spawned > 0 && G.foes.every(f => !f.alive)) levelClear();
-  G.foes = G.foes.filter(f => f.alive || (f.deadT = (f.deadT || 0) + dt) < .1);
-  updateHUD();
+function fadeTreads() {
+  trx.globalCompositeOperation = 'destination-out';
+  trx.fillStyle = 'rgba(0,0,0,.06)'; trx.fillRect(0, 0, FS, FS);
+  trx.globalCompositeOperation = 'source-over';
 }
-function updateHUD() {
-  $('hud-stage').textContent = G.customStage ? T('customMap') : T('stageShort', G.stageIdx + 1);
-  const left = G.spawnQueue.length + G.foes.filter(f => f.alive).length;
-  $('hud-foes').textContent = T('foesLeft', left);
-  $('hud-score').textContent = String(G.score).padStart(6, '0');
-  $('hud-lives').textContent = G.players.map(p => (p.side === 'p1' ? 'P1' : 'P2') + ' ❤' + Math.max(0, p.lives)).join(' ');
+function scorch(x, y, r) {
+  const g = trx.createRadialGradient(x, y, 0, x, y, r);
+  g.addColorStop(0, 'rgba(0,0,0,.5)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+  trx.fillStyle = g; trx.beginPath(); trx.arc(x, y, r, 0, 7); trx.fill();
 }
 
-// ---------- 流程 ----------
-function setScreen(n) {
-  for (const id of ['screen-menu', 'screen-pause', 'screen-clear', 'screen-over', 'screen-win'])
-    $(id).classList.toggle('hidden', id !== n);
-  if (!n) for (const id of ['screen-menu', 'screen-pause', 'screen-clear', 'screen-over', 'screen-win']) $(id).classList.add('hidden');
-  $('btn-pause') && $('btn-pause').classList.toggle('hidden', G.state !== 'play');
-}
-function buildStageGrid() {
-  const box = $('stage-select');
-  if (!box) return;
-  box.innerHTML = '';
-  STAGES.forEach((s, i) => {
-    const parts = stageFull(i).split('·');
-    const b = document.createElement('button');
-    b.className = 'lvl-btn' + (i === G.stageIdx ? ' active' : '');
-    b.innerHTML = parts[0].trim() + '<small>' + (parts[1] || '').trim() + '</small>';
-    b.onclick = () => { if (G.stageIdx === i) return; G.stageIdx = i; sfx.click(); buildStageGrid(); };
-    box.appendChild(b);
-  });
-}
-function showMenu() {
-  G.state = 'menu';
-  setScreen('screen-menu');
-  buildStageGrid();
-  $('custom-note').classList.toggle('hidden', !store.custom);
-  $('menu-best').textContent = store.best;
-}
-function startGame(mode, stageIdx, custom) {
-  G.mode = mode; G.score = 0;
-  loadStage(stageIdx || 0, custom);
-  G.state = 'play';
-  setScreen(null);
-  $('hud').classList.remove('hidden');
-  sfx.click();
-}
-function retry() {
-  const idx = G.stageIdx, c = G.customStage;
-  G.score = 0;
-  loadStage(idx, c);
-  G.state = 'play';
-  setScreen(null);
-  $('hud').classList.remove('hidden');
-}
-function levelClear() {
-  G.state = 'clear';
-  const bonus = 500 * (G.customStage ? 1 : G.stageIdx + 1);
-  G.score += bonus;
-  if (G.score > store.best) store.best = G.score;
-  $('clear-stats').innerHTML = '<div>' + T('clearStage', G.customStage ? T('customMap') : stageFull(G.stageIdx)) + '</div>' +
-    '<div>' + T('clearBonus', bonus) + '</div>' +
-    '<div>' + T('clearScore', G.score) + '</div>';
-  if (!G.customStage && G.stageIdx < STAGES.length - 1) {
-    $('btn-next').textContent = T('nextStage', stageFull(G.stageIdx + 1));
-    $('btn-next').classList.remove('hidden');
-  } else $('btn-next').classList.add('hidden');
-  setTimeout(() => setScreen('screen-clear'), 500);
-}
-function gameOver(reason) {
-  if (G.state !== 'play') return;
-  G.state = 'over';
-  G.overReason = reason;
-  $('over-sub').textContent = T('overSub', reason, G.score);
-  if (!G.customStage && G.stageIdx >= STAGES.length - 1 && false) { /* never win via over */ }
-  setTimeout(() => setScreen('screen-over'), 800);
-}
-function winAll() {
-  G.state = 'win';
-  $('win-score').textContent = G.score;
-  $('win-best').textContent = store.best;
-  setTimeout(() => setScreen('screen-win'), 500);
-}
-function togglePause() {
-  if (G.state === 'play') { G.state = 'pause'; setScreen('screen-pause'); }
-  else if (G.state === 'pause') { G.state = 'play'; setScreen(null); }
-}
-function toggleMute() {
-  muted = !muted; store.muted = muted;
-  $('btn-mute').textContent = muted ? '🔇' : '🔊';
-}
+// ---------------- 声音 ----------------
+const SFX = {
+  fire: () => { KIT.tone(420, 0.08, { type: 'square', vol: 0.05, to: 170 }); KIT.noise(0.05, { vol: 0.04, lp: 3000 }); },
+  efire: () => KIT.tone(260, 0.06, { type: 'square', vol: 0.018, to: 140 }),
+  brick: () => KIT.noise(0.12, { vol: 0.09, lp: 1700 }),
+  steel: () => KIT.tone(1500, 0.08, { type: 'triangle', vol: 0.06, to: 1100 }),
+  wall: () => KIT.tone(900, 0.05, { type: 'square', vol: 0.025, to: 500 }),
+  armor: () => KIT.tone(700, 0.1, { type: 'square', vol: 0.05, to: 1400 }),
+  boom: () => { KIT.noise(0.45, { vol: 0.18, lp: 900 }); KIT.tone(120, 0.35, { type: 'sawtooth', vol: 0.06, to: 40 }); },
+  pdie: () => { KIT.noise(0.8, { vol: 0.24, lp: 700 }); KIT.tone(220, 0.7, { type: 'sawtooth', vol: 0.08, to: 30 }); },
+  base: () => { KIT.noise(1.4, { vol: 0.3, lp: 500 }); KIT.tone(160, 1.2, { type: 'sawtooth', vol: 0.1, to: 25 }); },
+  pAppear: () => KIT.arp([660, 880, 660, 990], 0.06, { type: 'square', vol: 0.04 }),
+  pick: () => KIT.arp([523, 659, 784, 1047, 1319], 0.05, { type: 'square', vol: 0.05 }),
+  life: () => KIT.arp([784, 988, 1175, 1568], 0.07, { type: 'triangle', vol: 0.08 }),
+  stun: () => KIT.tone(300, 0.3, { type: 'sine', vol: 0.06, to: 900 }),
+  freeze: () => KIT.arp([1568, 1319, 1047, 1319, 1568], 0.05, { type: 'triangle', vol: 0.05 }),
+  tick: () => KIT.tone(1046, 0.03, { type: 'square', vol: 0.03 }),
+  start: () => KIT.arp([392, 523, 659, 784, 659, 784, 1047], 0.1, { type: 'square', vol: 0.05 })
+};
+const snd = k => { if (!demo) SFX[k](); };
 
-// ---------- 编辑器 ----------
-function openEditor() {
-  G.state = 'editor';
-  setScreen(null);
-  $('hud').classList.add('hidden');
-  $('editor-bar').classList.remove('hidden');
-  G.editor = { grid: emptyGrid(), brush: 1 };
-  homeWall(G.editor.grid);
-  clearSpawnArea(G.editor.grid);
-  // 老鹰本体
-  G.editor.grid[24][12] = 9; G.editor.grid[24][13] = 9;
-  G.editor.grid[25][12] = 9; G.editor.grid[25][13] = 9;
-  document.querySelectorAll('#palette [data-t]').forEach(b => b.onclick = () => {
-    document.querySelectorAll('#palette [data-t]').forEach(x => x.classList.remove('active'));
-    b.classList.add('active');
-    G.editor.brush = +b.dataset.t;
-  });
+// ---------------- 坦克 ----------------
+function makePlayer(i) {
+  return { team: 'p', idx: i, x: PSPAWN[i], y: 384, dir: 0, alive: false, lives: DIFF.lives[diff], lvl: 0, score: 0, kills: [0, 0, 0, 0], skills: [0, 0, 0, 0],
+    shield: 0, stun: 0, respawnT: 1, out: false, tread: 0, stampD: 0, bullets: 0, fireCd: 0, mz: 0, slide: 0, nextLife: 20000, ai: false, think: 0, stuck: 0, mood: 'hunt', wander: randPt() };
 }
-function closeEditor() {
-  G.state = 'menu';
-  $('editor-bar').classList.add('hidden');
-  showMenu();
+function spawnPlayer(p) {
+  p.x = PSPAWN[p.idx]; p.y = 384; p.dir = 0; p.alive = true; p.shield = 180; p.stun = 0; p.slide = 0; p.bullets = 0; p.fireCd = 0;
 }
-$('btn-editor').onclick = () => { sfx.click(); openEditor(); };
-$('ed-back').onclick = closeEditor;
-$('ed-clear').onclick = () => { G.editor.grid = emptyGrid(); homeWall(G.editor.grid); };
-$('ed-save').onclick = () => {
-  store.custom = { grid: G.editor.grid, time: Date.now() };
-  sfx.item();
-  $('custom-note').classList.remove('hidden');
-  closeEditor();
-};
-$('ed-test').onclick = () => {
-  store.custom = { grid: G.editor.grid, time: Date.now() };
-  $('editor-bar').classList.add('hidden');
-  startGame(G.mode === '2p' ? '2p' : '1p', 0, true);
-};
-canvas.addEventListener('pointerdown', e => {
-  if (G.state === 'editor') {
-    paintAt(e, false);
-    const mv = ev => paintAt(ev, true);
-    const up = () => {
-      canvas.removeEventListener('pointermove', mv);
-      window.removeEventListener('pointerup', up);
-    };
-    canvas.addEventListener('pointermove', mv);
-    window.addEventListener('pointerup', up);
+function randPt() { return { x: ri(0, 24) * 16, y: ri(0, 24) * 16 }; }
+function pickMood() {
+  const ag = DIFF.aggro[diff] + Math.min(0.3, stageF / 60 / 200) + loop * 0.08, r = Math.random();
+  return r < ag ? 'base' : r < ag + 0.35 ? 'hunt' : 'wander';
+}
+function makeEnemy(x, y, q) {
+  const et = ETYPES[q.type];
+  return { team: 'e', id: ++eid, x, y, dir: 2, alive: true, type: q.type, hp: et.hp, bonus: q.bonus, spd: et.spd * DIFF.spd[diff] * (1 + loop * 0.05), bspd: et.bspd,
+    tread: 0, stampD: 0, bullets: 0, fireCd: 0, mz: 0, fireT: ri(30, 90), think: ri(20, 60), stuck: 0, patience: ri(10, 50), mood: pickMood(), moodT: ri(300, 600), wander: randPt(), flash: 0 };
+}
+function fire(t) {
+  if (t.fireCd > 0) return false;
+  const maxB = t.team === 'p' && t.lvl >= 2 ? 2 : 1;
+  if (t.bullets >= maxB) return false;
+  const [dx, dy] = DIRS[t.dir];
+  const spd = t.team === 'p' ? (t.lvl >= 1 ? 8 : 5) : t.bspd;
+  bullets.push({ x: t.x + 16 + dx * 14, y: t.y + 16 + dy * 14, dir: t.dir, spd, owner: t, team: t.team, steel: t.team === 'p' && t.lvl >= 3, dead: false });
+  t.bullets++; t.fireCd = t.team === 'p' ? 12 : 4; t.mz = 4;
+  snd(t.team === 'p' ? 'fire' : 'efire');
+  return true;
+}
+function readInput(i) {
+  const sets = nP === 1 ? [K1, K2] : [i === 0 ? K1 : K2];
+  let best = -1, bt = -1, fireOn = false;
+  for (const k of sets) {
+    for (let d = 0; d < 4; d++) for (const code of k.dir[d]) if (keys.has(code) && keyT[code] > bt) { bt = keyT[code]; best = d; }
+    for (const code of k.fire) if (keys.has(code)) fireOn = true;
+  }
+  return { dir: best, fire: fireOn };
+}
+function stepPlayer(p) {
+  if (p.out) return;
+  if (!p.alive) {
+    if (overSeq) return;
+    p.respawnT--;
+    if (p.respawnT === 30) stars.push({ x: PSPAWN[p.idx], y: 384, t: 30, ply: true });
+    if (p.respawnT <= 0) spawnPlayer(p);
     return;
   }
-  if (G.state === 'pause') togglePause();
-});
-function paintAt(e, drag) {
-  const r = canvas.getBoundingClientRect();
-  const c = Math.floor((e.clientX - r.left) / r.width * COLS);
-  const rr = Math.floor((e.clientY - r.top) / r.height * ROWS);
-  if (c < 0 || rr < 0 || c >= COLS || rr >= ROWS) return;
-  // 老鹰区不可画
-  if (c >= 12 && c <= 13 && rr >= 24 && rr <= 25) return;
-  // 出生点区不可画
-  if (rr >= 24 && ((c >= 7 && c <= 10) || (c >= 15 && c <= 18))) return;
-  G.editor.grid[rr][c] = G.editor.brush;
+  if (p.shield > 0) p.shield--;
+  if (p.fireCd > 0) p.fireCd--;
+  if (p.mz > 0) p.mz--;
+  if (p.stun > 0) { p.stun--; return; }
+  const inp = overSeq || baseDead ? { dir: -1, fire: false } : p.ai ? aiPlayer(p) : readInput(p.idx);
+  let d = inp.dir;
+  const onIce = cellAt(p.x + 16, p.y + 16) === IC;
+  if (d >= 0) p.slide = onIce ? 24 : 0;
+  else if (p.slide > 0) { p.slide--; d = p.dir; }
+  if (d >= 0) {
+    turn(p, d);
+    const moved = moveTank(p, onIce && inp.dir < 0 ? PSPD * (0.4 + p.slide / 40) : PSPD, !p.ai);
+    p.stuck = moved ? 0 : p.stuck + 1;
+    if (!moved && p.slide) p.slide = 0;
+  }
+  if (inp.fire) fire(p);
+}
+function aiPlayer(p) {
+  if (--p.think <= 0 || p.stuck > 20) { aiThink(p); p.stuck = 0; }
+  let f = Math.random() < 0.04;
+  for (const e of enemies) if (inLine(p, e.x, e.y)) f = true;
+  if (p.stuck > 6 && frontHas(p, BR)) f = true;
+  if (inLine(p, BASE.x, BASE.y)) f = false;
+  for (const o of players) if (o !== p && o.alive && inLine(p, o.x, o.y)) f = false;
+  return { dir: p.dir, fire: f };
+}
+function inLine(t, ox, oy) {
+  const [dx, dy] = DIRS[t.dir], ex = ox - t.x, ey = oy - t.y;
+  return dx ? Math.abs(ey) < 12 && ex * dx > 0 : Math.abs(ex) < 12 && ey * dy > 0;
+}
+function frontHas(t, v) { const [dx, dy] = DIRS[t.dir]; return mapHas(t.x + dx * 4, t.y + dy * 4, 32, 32, x => x === v); }
+function aiTarget(t) {
+  if (t.team === 'p') {
+    let best = null, bd = 1e9;
+    for (const e of enemies) { const d = Math.abs(e.x - t.x) + Math.abs(e.y - t.y); if (d < bd) { bd = d; best = e; } }
+    return best || t.wander;
+  }
+  if (t.mood === 'base') return BASE;
+  if (t.mood === 'hunt') {
+    let best = null, bd = 1e9;
+    for (const p of players) if (p.alive) { const d = Math.abs(p.x - t.x) + Math.abs(p.y - t.y); if (d < bd) { bd = d; best = p; } }
+    return best || BASE;
+  }
+  return t.wander;
+}
+function canGo(t, d) {
+  let x = t.x, y = t.y;
+  if (d % 2 === 0) x = Math.round(x / 16) * 16; else y = Math.round(y / 16) * 16;
+  const [dx, dy] = DIRS[d]; x += dx * 4; y += dy * 4;
+  if (x < 0 || y < 0 || x > FS - 32 || y > FS - 32) return 0;
+  if (ov(x, y, 32, 32, BASE.x, BASE.y, 32, 32)) return 0;
+  if (mapHas(x, y, 32, 32, v => v === ST || v === WA)) return 0;
+  return mapHas(x, y, 32, 32, v => v === BR) ? 1 : 2;
+}
+function aiThink(t) {
+  const tg = aiTarget(t), dx = tg.x - t.x, dy = tg.y - t.y;
+  const ws = [0, 0, 0, 0]; let tot = 0;
+  for (let d = 0; d < 4; d++) {
+    const cm = canGo(t, d);
+    let w = cm === 2 ? 1 : cm === 1 ? 0.45 : 0;
+    if (w) {
+      const [ux, uy] = DIRS[d], tow = ux * dx + uy * dy;
+      const major = Math.abs(ux ? dx : dy) >= Math.abs(ux ? dy : dx);
+      if (tow > 8) w *= major ? 5 : 2.5;
+      if (d === (t.dir + 2) % 4) w *= 0.35;
+    }
+    ws[d] = w; tot += w;
+  }
+  let d = ri(0, 3);
+  if (tot > 0) { let r = Math.random() * tot; for (d = 0; d < 3; d++) { r -= ws[d]; if (r <= 0) break; } }
+  turn(t, d);
+  t.think = ri(30, 130);
+}
+function aimTurn(e) {
+  if (e.mood === 'wander') return;
+  const ch = 0.3 + diff * 0.15;
+  for (const p of players) {
+    if (!p.alive) continue;
+    const ex = p.x - e.x, ey = p.y - e.y;
+    if (Math.abs(ex) < 10 && Math.abs(ey) < 220 && Math.random() < ch) { turn(e, ey < 0 ? 0 : 2); return; }
+    if (Math.abs(ey) < 10 && Math.abs(ex) < 220 && Math.random() < ch) { turn(e, ex < 0 ? 3 : 1); return; }
+  }
+}
+function stepEnemy(e) {
+  if (e.flash > 0) e.flash--;
+  if (e.fireCd > 0) e.fireCd--;
+  if (e.mz > 0) e.mz--;
+  if (freezeT > 0) return;
+  if (--e.moodT <= 0) { e.mood = pickMood(); e.moodT = ri(300, 700); e.wander = randPt(); }
+  if (--e.think <= 0) aiThink(e);
+  if (F % 16 === e.id % 16) aimTurn(e);
+  const moved = moveTank(e, e.spd, false);
+  e.stuck = moved ? 0 : e.stuck + 1;
+  if (e.stuck > 8 && frontHas(e, BR) && Math.random() < 0.08) fire(e);
+  if (e.stuck > e.patience) { aiThink(e); e.stuck = 0; e.patience = ri(10, 50); }
+  if (--e.fireT <= 0) { fire(e); e.fireT = Math.round(rnd(...ETYPES[e.type].fr) * DIFF.fire[diff] / (1 + loop * 0.15)); }
+  else if (e.fireT > 8 && F % 8 === 0 && Math.random() < 0.45 + diff * 0.2 && targetInLine(e)) e.fireT = ri(2, 8);
+}
+function targetInLine(e) {
+  for (const p of players) if (p.alive && inLine(e, p.x, p.y)) return true;
+  return !baseDead && inLine(e, BASE.x, BASE.y);
 }
 
-// ---------- 渲染 ----------
-function drawTank(x, y, dir, pal, bonus, spawnT, invuln, flash, foe, t) {
-  const s = CELL * 2 - 4;
-  if (spawnT > 0) {
-    // 出生旋转门
-    ctx.fillStyle = ['#888', '#eee'][Math.floor(G.t * 12) % 2];
-    ctx.fillRect(x, y, s, s / 4); ctx.fillRect(x, y + s * 3 / 4, s, s / 4);
-    ctx.fillRect(x, y, s / 4, s); ctx.fillRect(x + s * 3 / 4, y, s / 4, s);
+// ---------------- 子弹 ----------------
+function killBullet(b) { if (b.dead) return; b.dead = true; b.owner.bullets = Math.max(0, b.owner.bullets - 1); }
+function boom(x, y, big) {
+  booms.push({ x, y, t: 0, max: big ? 40 : 16, big, seed: Math.random() * 6 });
+  if (big) {
+    fx.burst(x, y, { n: 14, color: ['#ffd25a', '#ff8a3a', '#fff3c0'], speed: 190, life: 0.5, size: 3, gravity: 0, shape: 'spark' });
+    fx.burst(x, y, { n: 8, color: ['#55585e', '#3d4045', '#6b6e74'], speed: 50, life: 1.1, size: 7, gravity: -30 });
+    scorch(x, y, 22); shake = Math.max(shake, 4);
+  }
+}
+function bulletHit(b) {
+  const vert = b.dir % 2 === 0, bw = vert ? 6 : 8, bh = vert ? 8 : 6, x0 = b.x - bw / 2, y0 = b.y - bh / 2;
+  if (x0 < 0 || y0 < 0 || x0 + bw > FS || y0 + bh > FS) {
+    killBullet(b); boom(clamp(b.x, 2, FS - 2), clamp(b.y, 2, FS - 2), false);
+    if (b.team === 'p') snd('wall');
     return;
   }
-  if (invuln > 0 && Math.floor(G.t * 12) % 2 === 0) ctx.globalAlpha = .55;
-  const blink = bonus && Math.floor(G.t * 6) % 2 === 0;
-  const body = flash > 0 ? '#fff' : blink ? '#ff5d5d' : pal.body;
-  const dark = pal.dark;
-  ctx.save();
-  ctx.translate(x + s / 2, y + s / 2);
-  ctx.rotate(dir * Math.PI / 2);
-  const h = s / 2;
-  // 履带
-  ctx.fillStyle = dark;
-  ctx.fillRect(-h, -h, s * .28, s);
-  ctx.fillRect(h - s * .28, -h, s * .28, s);
-  ctx.fillStyle = 'rgba(255,255,255,.25)';
-  for (let i = 0; i < 4; i++) {
-    const yy = -h + ((G.t * 60 + i * 12) % s);
-    ctx.fillRect(-h, yy, s * .28, 3);
-    ctx.fillRect(h - s * .28, yy, s * .28, 3);
+  if (mapHas(x0, y0, bw, bh, bulletT)) { hitWall(b); return; }
+  if (!baseDead && ov(x0, y0, bw, bh, BASE.x, BASE.y, 32, 32)) { killBullet(b); destroyBase(); return; }
+  for (const t of players) {
+    if (!t.alive || t === b.owner || !ov(x0, y0, bw, bh, t.x + 1, t.y + 1, 30, 30)) continue;
+    killBullet(b); boom(b.x, b.y, false);
+    if (b.team === 'p') { if (!t.shield) { t.stun = 150; snd('stun'); } }
+    else if (t.shield > 0) snd('wall');
+    else killPlayer(t);
+    return;
   }
-  // 车身
-  ctx.fillStyle = body;
-  ctx.fillRect(-h + s * .26, -h + 4, s * .48, s - 8);
-  ctx.fillStyle = dark;
-  ctx.fillRect(-h + s * .26, -h + 4, s * .48, 3);
-  // 炮塔
-  ctx.fillStyle = body;
-  ctx.fillRect(-7, -7, 14, 14);
-  ctx.fillStyle = dark;
-  ctx.fillRect(-7, -7, 14, 3);
-  // 炮管
-  ctx.fillStyle = '#222';
-  ctx.fillRect(-2.5, -h - 4, 5, h - 2);
-  ctx.restore();
-  ctx.globalAlpha = 1;
-}
-const PAL_P1 = { body: '#e8c832', dark: '#8a6d00' };
-const PAL_P2 = { body: '#5ee66e', dark: '#1d7a2a' };
-function drawCell(t, x, y) {
-  if (t === 1) {
-    ctx.fillStyle = '#a34d1e'; ctx.fillRect(x, y, CELL, CELL);
-    ctx.fillStyle = '#e08a3c'; ctx.fillRect(x, y, CELL, 3); ctx.fillRect(x, y, 3, CELL);
-    ctx.fillStyle = '#5e2203'; ctx.fillRect(x + CELL / 2 - 1, y, 2, CELL); ctx.fillRect(x, y + CELL / 2 - 1, CELL, 2);
-  } else if (t === 2) {
-    ctx.fillStyle = '#cfd6dd'; ctx.fillRect(x, y, CELL, CELL);
-    ctx.fillStyle = '#ffffff'; ctx.fillRect(x, y, CELL, 3); ctx.fillRect(x, y, 3, CELL);
-    ctx.fillStyle = '#7a848e'; ctx.fillRect(x, y + CELL - 3, CELL, 3); ctx.fillRect(x + CELL - 3, y, 3, CELL);
-  } else if (t === 3) {
-    const w = Math.sin(G.t * 3 + (x + y) * .02) * 2;
-    ctx.fillStyle = '#1d5fc2'; ctx.fillRect(x, y, CELL, CELL);
-    ctx.fillStyle = '#5ea8ff'; ctx.fillRect(x + 3, y + 6 + w, CELL - 6, 3); ctx.fillRect(x + 5, y + 14 - w, CELL - 10, 3);
-  } else if (t === 4) {
-    ctx.fillStyle = 'rgba(46,139,60,.9)';
-    ctx.beginPath(); ctx.arc(x + 6, y + 8, 6, 0, 7); ctx.arc(x + 15, y + 14, 7, 0, 7); ctx.arc(x + 8, y + 18, 5, 0, 7); ctx.fill();
-    ctx.fillStyle = 'rgba(120,220,130,.9)';
-    ctx.fillRect(x + 4, y + 6, 3, 3); ctx.fillRect(x + 13, y + 12, 3, 3);
-  } else if (t === 5) {
-    ctx.fillStyle = '#cfe8ff'; ctx.fillRect(x, y, CELL, CELL);
-    ctx.fillStyle = '#ffffff'; ctx.fillRect(x + 4, y + 5, 8, 3); ctx.fillRect(x + 12, y + 14, 7, 3);
-  } else if (t === 9 || t === 10) {
-    drawEagle(x, y, t === 10);
+  if (b.team === 'p') for (const e of enemies) {
+    if (!e.alive || !ov(x0, y0, bw, bh, e.x + 1, e.y + 1, 30, 30)) continue;
+    killBullet(b); hitEnemy(e, b.owner);
+    return;
   }
 }
-function drawGrid(grid) {
-  for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
-    const t = grid[r][c];
-    if (!t) continue;
-    drawCell(t, c * CELL, r * CELL);
+function hitWall(b) {
+  killBullet(b);
+  const [dx, dy] = DIRS[b.dir], vert = b.dir % 2 === 0;
+  const lane = Math.round((vert ? b.x : b.y) / 8), r0 = Math.floor((vert ? b.y + dy * 3.99 : b.x + dx * 3.99) / 8), step = vert ? dy : dx;
+  let brick = false, steel = false;
+  for (let k = -2; k < 2; k++) for (let dd = 0; dd < 2; dd++) {
+    const ln = lane + k, dp = r0 + step * dd, i = vert ? ln : dp, j = vert ? dp : ln;
+    if (i < 0 || j < 0 || i >= MC || j >= MC) break;
+    const v = mg[j * MC + i];
+    if (v === BR) {
+      setCell(i, j, E); brick = true;
+      if (Math.random() < 0.5) fx.burst(i * 8 + 4, j * 8 + 4, { n: 3, color: ['#c9642c', '#e8925a', '#6a2a10'], speed: 90, life: 0.4, size: 3, gravity: 0, shape: 'square' });
+    } else if (v === ST) {
+      steel = true;
+      if (b.steel) setCell(i, j, E); else break;
+    }
+  }
+  boom(b.x, b.y, false);
+  if (steel) fx.burst(b.x, b.y, { n: 6, color: ['#fff', '#ffe08a'], speed: 180, life: 0.22, size: 2, gravity: 0, shape: 'spark' });
+  if (b.team === 'p') snd(steel && !b.steel ? 'steel' : 'brick');
+}
+function stepBullets() {
+  for (const b of bullets) {
+    if (b.dead) continue;
+    const [dx, dy] = DIRS[b.dir], n = Math.ceil(b.spd / 3);
+    for (let s = 0; s < n && !b.dead; s++) { b.x += dx * b.spd / n; b.y += dy * b.spd / n; bulletHit(b); }
+  }
+  for (let i = 0; i < bullets.length; i++) {
+    const a = bullets[i]; if (a.dead) continue;
+    for (let j = i + 1; j < bullets.length; j++) {
+      const b = bullets[j]; if (b.dead || a.team === b.team) continue;
+      if (Math.abs(a.x - b.x) < 8 && Math.abs(a.y - b.y) < 8) {
+        killBullet(a); killBullet(b);
+        fx.burst((a.x + b.x) / 2, (a.y + b.y) / 2, { n: 6, color: ['#fff', '#9fe3ff'], speed: 140, life: 0.2, size: 2, gravity: 0, shape: 'spark' });
+        break;
+      }
+    }
+  }
+  bullets = bullets.filter(b => !b.dead);
+}
+
+// ---------------- 击毁 / 得分 ----------------
+function addScore(p, v) {
+  if (demo) return;
+  p.score += v;
+  if (p.score >= p.nextLife) { p.nextLife += 20000; p.lives++; snd('life'); pops.push({ x: p.x + 16, y: p.y - 4, t: 70, text: T('oneUp'), col: '#7dff8a' }); }
+}
+function hitEnemy(e, p) {
+  if (e.bonus) { e.bonus = false; spawnPower(); }
+  e.hp--;
+  if (e.hp > 0) { e.flash = 8; boom(e.x + 16, e.y + 16, false); snd('armor'); return; }
+  killEnemy(e, p, true);
+}
+function killEnemy(e, p, score) {
+  e.alive = false; killed++;
+  boom(e.x + 16, e.y + 16, true); snd('boom');
+  if (score && p && p.team === 'p') {
+    const pts = ETYPES[e.type].pts;
+    addScore(p, pts); p.kills[e.type]++; p.skills[e.type]++;
+    pops.push({ x: e.x + 16, y: e.y + 16, t: 60, text: String(pts), col: '#fff' });
+  }
+}
+function killPlayer(p) {
+  p.alive = false; p.lvl = 0; p.bullets = 0;
+  boom(p.x + 16, p.y + 16, true);
+  booms.push({ x: p.x + 16, y: p.y + 16, t: 0, max: 50, big: true, seed: 2 });
+  shake = 7; snd('pdie');
+  if (p.lives > 0) { p.lives--; p.respawnT = 80; } else p.out = true;
+}
+function destroyBase() {
+  if (baseDead) return;
+  baseDead = true; shake = 12; snd('base');
+  for (let k = 0; k < 4; k++) booms.push({ x: BASE.x + 16 + rnd(-10, 10), y: BASE.y + 16 + rnd(-10, 10), t: -k * 6, max: 44, big: true, seed: k });
+  scorch(BASE.x + 16, BASE.y + 16, 34);
+  startGameOver();
+}
+function startGameOver() { if (!overSeq) { overSeq = 1; KIT.stopMusic(); } }
+
+// ---------------- 道具 ----------------
+function spawnPower() {
+  let x = 0, y = 0;
+  for (let k = 0; k < 40; k++) {
+    x = ri(0, 24) * 16; y = ri(0, 22) * 16;
+    if (ov(x, y, 32, 32, 160, 352, 96, 64)) continue;
+    if (!mapHas(x + 4, y + 4, 24, 24, v => v === ST || v === WA)) break;
+  }
+  pwr = { kind: PKINDS[ri(0, PKINDS.length - 1)], x, y, t: 1500 };
+  snd('pAppear');
+}
+function applyPower(p, k) {
+  const pw = T('pw');
+  if (k === 'helmet') p.shield = 600;
+  else if (k === 'clock') { freezeT = 600; snd('freeze'); }
+  else if (k === 'shovel') { shovelT = 1080; setRing(ST); }
+  else if (k === 'star') { if (p.lvl < 3) p.lvl++; else k = 'starMax'; }
+  else if (k === 'grenade') { for (const e of enemies) if (e.alive) killEnemy(e, null, false); shake = 10; }
+  else if (k === 'tank') { p.lives++; snd('life'); }
+  addScore(p, 500);
+  pops.push({ x: pwr.x + 16, y: pwr.y + 16, t: 60, text: '500', col: '#ffe08a' });
+  banner = { text: pw[k], t: 100 };
+  if (k !== 'tank') snd('pick');
+}
+function stepPower() {
+  if (!pwr) return;
+  if (--pwr.t <= 0) { pwr = null; return; }
+  for (const p of players) if (p.alive && ov(p.x, p.y, 32, 32, pwr.x + 4, pwr.y + 4, 24, 24)) { applyPower(p, pwr.kind); pwr = null; return; }
+}
+function stepShovel() {
+  shovelT--;
+  if (shovelT <= 0) { setRing(BR); return; }
+  if (shovelT < 180) setRing(Math.floor(shovelT / 15) % 2 ? BR : ST);
+}
+
+// ---------------- 关卡流程 ----------------
+const maxField = () => DIFF.max[diff] + (players.length === 2 ? 2 : 0);
+const spawnInterval = () => Math.max(60, DIFF.spawn[diff] - (custom ? 0 : stageIdx * 3) - loop * 15 - (players.length - 1) * 20);
+function buildQueue() {
+  const comp = (custom ? [10, 4, 4, 2] : COMP[stageIdx]).slice();
+  for (let l = 0; l < loop; l++) { const mv = Math.min(comp[0], 4); comp[0] -= mv; comp[3] += Math.ceil(mv / 2); comp[2] += Math.floor(mv / 2); }
+  const q = [];
+  comp.forEach((n, t) => { for (let i = 0; i < n; i++) q.push({ type: t, key: t + Math.random() * 2.6 }); });
+  q.sort((a, b) => a.key - b.key);
+  return q.map((o, i) => ({ type: o.type, bonus: i === 3 || i === 10 || i === 17 }));
+}
+function loadCustomHT() {
+  const s = store.get('custom', ''), a = new Uint8Array(HT * HT);
+  if (typeof s === 'string' && s.length === HT * HT) for (let i = 0; i < a.length; i++) { const v = +s[i]; a[i] = v >= 0 && v <= 5 ? v : 0; }
+  applyReserved(a);
+  return a;
+}
+function resetWorld() {
+  enemies = []; bullets = []; stars = []; booms = []; pops = []; fx.clear(); pwr = null; banner = null;
+  freezeT = shovelT = 0; baseDead = false; clearT = 0; overSeq = 0; stageF = 0; shake = 0;
+}
+function loadStage() {
+  const m = custom ? null : MAPS[stageIdx];
+  ht = custom ? loadCustomHT() : tilesToHT(m.rows);
+  thIdx = custom ? 0 : m.th; night = !custom && !!m.night;
+  buildMG(); renderAll(); resetWorld();
+  spawned = killed = 0; spawnT = 30; spawnPt = 0; queue = buildQueue();
+  for (const p of players) { p.skills = [0, 0, 0, 0]; p.bullets = 0; if (!p.out) spawnPlayer(p); }
+  if (night && !demo) banner = { text: T('nightTip'), t: 200 };
+}
+function stepSpawn() {
+  if (spawned >= queue.length || --spawnT > 0) return;
+  if (enemies.length + stars.filter(s => !s.ply).length >= maxField()) { spawnT = 20; return; }
+  for (let k = 0; k < 3; k++) {
+    const x = SPAWNS[(spawnPt + k) % 3];
+    if (!tankAt(x, 0)) {
+      stars.push({ x, y: 0, t: 56, q: queue[spawned++] });
+      spawnPt = (spawnPt + k + 1) % 3;
+      spawnT = enemies.length < 2 ? Math.min(60, spawnInterval()) : spawnInterval();
+      return;
+    }
+  }
+  spawnT = 15;
+}
+function stepFx() {
+  for (const s of stars) {
+    if (--s.t > 0 || s.ply) continue;
+    if (tankAt(s.x, s.y)) { s.t = 6; continue; }
+    enemies.push(makeEnemy(s.x, s.y, s.q)); s.done = true;
+  }
+  stars = stars.filter(s => s.t > 0 && !s.done);
+  for (const b of booms) b.t++;
+  booms = booms.filter(b => b.t < b.max);
+  for (const p of pops) { p.t--; p.y -= 0.35; }
+  pops = pops.filter(p => p.t > 0);
+  if (banner && --banner.t <= 0) banner = null;
+  fx.update(STEP);
+  if (shake > 0) shake = Math.max(0, shake - 0.4);
+  if (baseDead && F % 7 === 0) fx.burst(BASE.x + 16 + rnd(-6, 6), BASE.y + 10, { n: 1, color: ['#4a4d52', '#5d6066'], speed: 12, life: 1.6, size: 7, gravity: -26 });
+}
+function stepWorld() {
+  stageF++;
+  if (freezeT > 0) freezeT--;
+  if (shovelT > 0) stepShovel();
+  stepSpawn();
+  for (const p of players) stepPlayer(p);
+  for (const e of enemies) if (e.alive) stepEnemy(e);
+  stepBullets();
+  enemies = enemies.filter(e => e.alive);
+  stepPower();
+  stepFx();
+  if (F % 40 === 0) fadeTreads();
+  checkEnd();
+}
+function checkEnd() {
+  if (!overSeq && players.every(p => p.out)) startGameOver();
+  if (overSeq) {
+    overSeq++;
+    if (demo) { if (overSeq > 90) startDemo(); }
+    else if (overSeq > 210) showOver();
+    return;
+  }
+  if (killed >= queue.length && ++clearT > 170) { if (demo) startDemo(); else startTally(); }
+}
+
+// ---------------- 幕布 / 结算 ----------------
+const CL = 30, HOLD = 110;
+function startCurtain() { state = 'curtain'; curtain = { t: 0 }; KIT.stopMusic(); }
+function stepCurtain() {
+  const t = ++curtain.t;
+  if (t === CL) loadStage();
+  if (t === CL + 6) snd('start');
+  if (t >= CL * 2 + HOLD) { curtain = null; state = 'play'; KIT.music('tank-march'); }
+}
+const stageLabel = () => custom ? '★' : String(stageIdx + 1 + loop * MAPS.length);
+function stageName() { return custom ? T('customName') : T('stageNames')[stageIdx]; }
+function startTally() {
+  state = 'tally'; KIT.stopMusic();
+  if (!custom && stageIdx + 1 > unlock) { unlock = Math.min(MAPS.length - 1, stageIdx + 1); store.set('unlock', unlock); }
+  saveBest();
+  tally = { row: 0, cnt: players.map(() => [0, 0, 0, 0]), wait: 40, total: false, bonus: -1, done: false, silent: false };
+}
+function stepTally() {
+  const tl = tally;
+  if (tl.wait > 0) { tl.wait--; return; }
+  if (tl.done) { finishTally(); return; }
+  if (tl.row < 4) {
+    let more = false;
+    players.forEach((p, i) => { if (tl.cnt[i][tl.row] < p.skills[tl.row]) { tl.cnt[i][tl.row]++; more = true; } });
+    if (more) { if (!tl.silent) snd('tick'); tl.wait = 7; } else { tl.row++; tl.wait = 22; }
+    return;
+  }
+  if (!tl.total) {
+    tl.total = true; tl.wait = 40;
+    if (players.length === 2) {
+      const a = sumK(players[0].skills), b = sumK(players[1].skills);
+      if (a !== b) { tl.bonus = a > b ? 0 : 1; addScore(players[tl.bonus], 1000); if (!tl.silent) snd('life'); }
+    }
+    return;
+  }
+  tl.done = true; tl.wait = 130;
+}
+const sumK = a => a[0] + a[1] + a[2] + a[3];
+function skipTally() {
+  if (!tally || tally.done) { if (tally) tally.wait = Math.min(tally.wait, 10); return; }
+  tally.silent = true;
+  for (let k = 0; k < 400 && !tally.done; k++) { tally.wait = 0; stepTally(); }
+  tally.wait = 50;
+}
+function finishTally() {
+  tally = null;
+  if (custom) { if (fromEditor) enterEditor(); else toMenu(); return; }
+  if (stageIdx >= MAPS.length - 1) { showWin(); return; }
+  stageIdx++;
+  startCurtain();
+}
+
+// ---------------- 绘制：坦克 ----------------
+function rr(g, x, y, w, h, r) { KIT.roundRect(g, x, y, w, h, r); g.fill(); }
+function circ(g, x, y, r) { g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); }
+function drawTankShape(g, cx, cy, dir, kind, col, tread, sc) {
+  const [b, d, l] = col, heavy = kind === 'armor', slim = kind === 'fast';
+  g.save(); g.translate(cx, cy); g.rotate(dir * Math.PI / 2); if (sc) g.scale(sc, sc);
+  const tw = heavy ? 8 : slim ? 6 : 7, tx = 15;
+  g.fillStyle = '#1b1c20'; rr(g, -tx, -14, tw, 28, 2); rr(g, tx - tw, -14, tw, 28, 2);
+  g.fillStyle = d;
+  const o = ((tread % 4) + 4) % 4;
+  for (let y = -14 + o; y < 13; y += 4) { g.fillRect(-tx + 1, y, tw - 2, 2); g.fillRect(tx - tw + 1, y, tw - 2, 2); }
+  const hw = slim ? 14 : heavy ? 20 : 18, hh = heavy ? 24 : 22;
+  g.fillStyle = d; rr(g, -hw / 2, -hh / 2 + 1, hw, hh, 3);
+  g.fillStyle = b; rr(g, -hw / 2 + 1, -hh / 2 + 1, hw - 2, hh - 3, 3);
+  g.fillStyle = l; g.fillRect(-hw / 2 + 2, -hh / 2 + 2, hw - 4, 2);
+  if (heavy) { g.fillStyle = d; g.fillRect(-hw / 2 + 2, -5, 3, 12); g.fillRect(hw / 2 - 5, -5, 3, 12); g.fillStyle = l; g.fillRect(-hw / 2 + 2, -5, 3, 1); g.fillRect(hw / 2 - 5, -5, 3, 1); }
+  if (slim) { g.fillStyle = l; g.beginPath(); g.moveTo(-5, -9); g.lineTo(0, -12); g.lineTo(5, -9); g.closePath(); g.fill(); }
+  if (kind === 'p1' || kind === 'p2' || kind === 'p3') { g.fillStyle = d; g.fillRect(-hw / 2 + 2, 7, hw - 4, 2); }
+  const longB = kind === 'power' || kind === 'p3', bl = longB ? 17 : kind === 'p1' || kind === 'p2' ? 16 : 14, bw = longB ? 5 : 4;
+  g.fillStyle = d; g.fillRect(-bw / 2, -bl, bw, bl);
+  g.fillStyle = l; g.fillRect(-bw / 2 + 1, -bl + 1, 1, bl - 5);
+  if (longB || kind === 'p2') { g.fillStyle = d; g.fillRect(-bw / 2 - 1, -bl, bw + 2, 3); }
+  const trd = heavy || kind === 'p3' ? 7.5 : slim ? 5.5 : 6.5;
+  g.fillStyle = d; circ(g, 0, 2, trd + 1);
+  g.fillStyle = b; circ(g, 0, 2, trd);
+  g.fillStyle = l; circ(g, -trd * 0.3, 2 - trd * 0.3, trd * 0.36);
+  if (kind === 'p3') { g.fillStyle = d; circ(g, 0, 2, 2.2); }
+  g.restore();
+}
+function tankCols(t) {
+  if (t.team === 'p') return PCOL[t.idx];
+  if (t.flash > 0 && t.flash % 4 < 2) return ['#ffffff', '#c8c8c8', '#ffffff'];
+  if (t.bonus && (F >> 3) & 1) return RCOL;
+  return t.type === 3 ? ACOL[t.hp] || ECOL : ECOL;
+}
+function drawTank(g, t) {
+  if (t.team === 'p' && t.stun > 0 && (F >> 2) & 1) return;
+  g.fillStyle = 'rgba(0,0,0,.32)'; rr(g, t.x + 3, t.y + 5, 30, 29, 6);
+  drawTankShape(g, t.x + 16, t.y + 16, t.dir, t.team === 'p' ? 'p' + t.lvl : ETYPES[t.type].k, tankCols(t), t.tread);
+  if (t.mz > 0) {
+    const [dx, dy] = DIRS[t.dir];
+    g.save(); g.globalCompositeOperation = 'lighter';
+    g.fillStyle = `rgba(255,230,140,${t.mz / 4})`; circ(g, t.x + 16 + dx * 20, t.y + 16 + dy * 20, 5 + t.mz);
+    g.restore();
+  }
+  if (t.team === 'e' && freezeT > 0 && (freezeT > 120 || (F >> 3) & 1)) {
+    g.fillStyle = 'rgba(160,225,255,.38)'; rr(g, t.x + 1, t.y + 1, 30, 30, 5);
+    g.strokeStyle = 'rgba(230,250,255,.85)'; g.lineWidth = 1;
+    g.beginPath(); g.moveTo(t.x + 6, t.y + 8); g.lineTo(t.x + 12, t.y + 14); g.moveTo(t.x + 24, t.y + 22); g.lineTo(t.x + 28, t.y + 27); g.stroke();
+  }
+  if (t.team === 'p' && t.shield > 0) {
+    g.save(); g.translate(t.x + 16, t.y + 16);
+    g.fillStyle = 'rgba(120,220,255,.1)'; circ(g, 0, 0, 21);
+    g.strokeStyle = `rgba(130,225,255,${0.55 + 0.35 * Math.sin(F * 0.5)})`; g.lineWidth = 2;
+    g.setLineDash([6, 5]); g.lineDashOffset = -F * 0.8;
+    g.beginPath(); g.arc(0, 0, 21, 0, Math.PI * 2); g.stroke();
+    g.setLineDash([]); g.restore();
+  }
+}
+function drawSpawnStar(g, s) {
+  const R = 5 + Math.abs(Math.sin(s.t * 0.3)) * 11;
+  g.save(); g.translate(s.x + 16, s.y + 16); g.rotate(F * 0.12);
+  g.globalCompositeOperation = 'lighter';
+  const gr = g.createRadialGradient(0, 0, 0, 0, 0, R * 1.7);
+  gr.addColorStop(0, 'rgba(140,220,255,.7)'); gr.addColorStop(1, 'rgba(140,220,255,0)');
+  g.fillStyle = gr; circ(g, 0, 0, R * 1.7);
+  g.fillStyle = '#fff'; g.beginPath();
+  for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4, r = i % 2 ? R * 0.22 : R; g.lineTo(Math.cos(a) * r, Math.sin(a) * r); }
+  g.closePath(); g.fill(); g.restore();
+}
+function drawBullets(g) {
+  for (const b of bullets) {
+    g.save(); g.translate(b.x, b.y); g.rotate(b.dir * Math.PI / 2);
+    const gr = g.createLinearGradient(0, 0, 0, 16);
+    gr.addColorStop(0, b.team === 'p' ? 'rgba(255,214,110,.75)' : 'rgba(255,255,255,.5)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = gr; g.fillRect(-1.5, 0, 3, 16);
+    g.fillStyle = b.steel ? '#ffad42' : b.team === 'p' ? '#fff6d8' : '#f2f2f2';
+    g.beginPath(); g.moveTo(0, -5); g.lineTo(2.6, -1); g.lineTo(2.6, 4); g.lineTo(-2.6, 4); g.lineTo(-2.6, -1); g.closePath(); g.fill();
+    g.restore();
+  }
+}
+function drawBooms(g) {
+  g.save(); g.globalCompositeOperation = 'lighter';
+  for (const b of booms) {
+    if (b.t < 0) continue;
+    const k = b.t / b.max;
+    if (!b.big) {
+      const r = 3 + 11 * KIT.ease.outCubic(k);
+      g.globalAlpha = 1 - k;
+      g.fillStyle = '#ff7a2a'; circ(g, b.x, b.y, r);
+      g.fillStyle = k < 0.35 ? '#ffffff' : '#ffd25a'; circ(g, b.x, b.y, r * 0.55);
+    } else {
+      const r = 10 + 28 * KIT.ease.outCubic(k);
+      g.globalAlpha = Math.max(0, 1 - k * 1.1);
+      for (let i = 0; i < 6; i++) {
+        const a = b.seed + i * 1.05, rr2 = r * (0.42 + 0.18 * Math.sin(b.seed * 5 + i * 2)) * (1 - k * 0.4);
+        const ox = b.x + Math.cos(a) * r * 0.45, oy = b.y + Math.sin(a) * r * 0.45;
+        const gr = g.createRadialGradient(ox, oy, 0, ox, oy, rr2);
+        gr.addColorStop(0, k < 0.3 ? 'rgba(255,255,236,1)' : 'rgba(255,200,90,.95)'); gr.addColorStop(0.55, 'rgba(255,110,30,.8)'); gr.addColorStop(1, 'rgba(150,30,10,0)');
+        g.fillStyle = gr; circ(g, ox, oy, rr2);
+      }
+      g.strokeStyle = `rgba(255,220,160,${0.6 * (1 - k)})`; g.lineWidth = 3 * (1 - k) + 0.5;
+      g.beginPath(); g.arc(b.x, b.y, r * 1.35, 0, Math.PI * 2); g.stroke();
+    }
+  }
+  g.restore();
+}
+function drawPwr(g) {
+  if (!pwr || (pwr.t < 240 && (F >> 2) & 1)) return;
+  const s = 1 + Math.sin(F * 0.15) * 0.07;
+  g.save(); g.translate(pwr.x + 16, pwr.y + 16); g.scale(s, s);
+  g.shadowColor = '#ffe08a'; g.shadowBlur = 14;
+  g.fillStyle = (F >> 3) & 1 ? '#ffffff' : '#ffeccb'; rr(g, -14, -14, 28, 28, 7);
+  g.shadowBlur = 0; g.lineWidth = 2; g.strokeStyle = '#e2463a'; KIT.roundRect(g, -14, -14, 28, 28, 7); g.stroke();
+  if (pwr.kind === 'tank') drawTankShape(g, 0, 1, 0, 'p0', PCOL[0], 0, 0.62);
+  else { g.font = '17px ' + EMOJI; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(PICON[pwr.kind], 0, 1.5); }
+  g.restore();
+}
+function drawNight(g) {
+  dk.globalCompositeOperation = 'source-over';
+  dk.clearRect(0, 0, FS, FS);
+  dk.fillStyle = 'rgba(3,5,14,.93)'; dk.fillRect(0, 0, FS, FS);
+  dk.globalCompositeOperation = 'destination-out';
+  const hole = (x, y, r, a) => {
+    const gr = dk.createRadialGradient(x, y, 0, x, y, r);
+    gr.addColorStop(0, `rgba(0,0,0,${a})`); gr.addColorStop(0.6, `rgba(0,0,0,${a * 0.7})`); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    dk.fillStyle = gr; dk.beginPath(); dk.arc(x, y, r, 0, Math.PI * 2); dk.fill();
+  };
+  for (const p of players) {
+    if (!p.alive) continue;
+    const cx = p.x + 16, cy = p.y + 16, ang = -Math.PI / 2 + p.dir * Math.PI / 2, R = 170;
+    const gr = dk.createRadialGradient(cx, cy, 10, cx, cy, R);
+    gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(0.65, 'rgba(0,0,0,.75)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    dk.fillStyle = gr; dk.beginPath(); dk.moveTo(cx, cy); dk.arc(cx, cy, R, ang - 0.46, ang + 0.46); dk.closePath(); dk.fill();
+    hole(cx, cy, 46, 1);
+  }
+  for (const b of booms) if (b.t >= 0) hole(b.x, b.y, (b.big ? 90 : 34) * (1 - b.t / b.max), 1);
+  for (const b of bullets) hole(b.x, b.y, 16, 0.8);
+  for (const s of stars) hole(s.x + 16, s.y + 16, 34, 0.9);
+  hole(BASE.x + 16, BASE.y + 16, 40 + Math.sin(F * 0.2) * 3, 0.85);
+  if (pwr) hole(pwr.x + 16, pwr.y + 16, 34, 0.9);
+  dk.globalCompositeOperation = 'source-over';
+  g.drawImage(darkCv, 0, 0, FS, FS);
+  // 黑暗中的红眼睛
+  for (const e of enemies) {
+    const [dx, dy] = DIRS[e.dir], px = -dy, py = dx, cx = e.x + 16 + dx * 6, cy = e.y + 16 + dy * 6;
+    g.fillStyle = `rgba(255,60,50,${0.7 + 0.3 * Math.sin(F * 0.2 + e.id)})`;
+    circ(g, cx + px * 4, cy + py * 4, 1.6); circ(g, cx - px * 4, cy - py * 4, 1.6);
+  }
+}
+function drawField(g) {
+  g.drawImage(groundCv, 0, 0, FS, FS);
+  g.drawImage(treadCv, 0, 0, FS, FS);
+  g.fillStyle = WATER[(F >> 4) % 3]; g.fill(waterPath);
+  g.drawImage(mapCv, 0, 0, FS, FS);
+  g.save(); g.imageSmoothingEnabled = false; g.drawImage(baseDead ? EAGLE_DEAD : EAGLE, BASE.x, BASE.y, 32, 32); g.restore();
+  for (const s of stars) drawSpawnStar(g, s);
+  for (const e of enemies) drawTank(g, e);
+  for (const p of players) if (p.alive) drawTank(g, p);
+  drawBullets(g);
+  drawBooms(g);
+  fx.draw(g);
+  g.drawImage(treeCv, 0, 0, FS, FS);
+  if (night) { drawNight(g); drawBullets(g); }
+  drawPwr(g);
+  g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = 'bold 12px ' + MONO;
+  for (const p of pops) {
+    g.globalAlpha = Math.min(1, p.t / 20);
+    g.lineWidth = 3; g.strokeStyle = 'rgba(0,0,0,.7)'; g.strokeText(p.text, p.x, p.y);
+    g.fillStyle = p.col; g.fillText(p.text, p.x, p.y);
+  }
+  g.globalAlpha = 1;
+  if (banner) {
+    g.globalAlpha = Math.min(1, banner.t / 20);
+    g.font = '15px ' + DISP;
+    const w = g.measureText(banner.text).width + 28;
+    g.fillStyle = 'rgba(0,0,0,.6)'; rr(g, FS / 2 - w / 2, 22, w, 28, 14);
+    g.fillStyle = '#ffe08a'; g.fillText(banner.text, FS / 2, 37);
+    g.globalAlpha = 1;
+  }
+}
+
+// ---------------- 绘制：信息栏 / 幕布 / 结算 ----------------
+function miniTank(g, x, y, col) { g.fillStyle = col; g.fillRect(x, y + 1, 3, 10); g.fillRect(x + 8, y + 1, 3, 10); g.fillRect(x + 3, y + 3, 5, 7); g.fillRect(x + 4.5, y - 1, 2, 5); }
+function drawBezel(g) {
+  g.fillStyle = '#6b6e75'; g.fillRect(0, 0, W, H);
+  g.fillStyle = 'rgba(255,255,255,.08)'; g.fillRect(0, 0, W, 2);
+  g.fillStyle = 'rgba(0,0,0,.45)'; g.fillRect(FX - 2, FY - 2, FS + 4, FS + 4);
+  g.fillStyle = '#5c5f66';
+  for (const [x, y] of [[6, 6], [W - 10, 6], [6, H - 10], [W - 10, H - 10], [FX + FS + 2, 6], [FX + FS + 2, H - 10]]) { g.fillRect(x, y, 4, 4); }
+}
+function drawPanel(g) {
+  const px = FX + FS + 14;
+  g.textAlign = 'left'; g.textBaseline = 'top';
+  const remain = Math.max(0, queue.length - spawned);
+  for (let k = 0; k < remain; k++) miniTank(g, px + 4 + (k % 2) * 22, 24 + Math.floor(k / 2) * 16, '#24262b');
+  players.forEach((p, i) => {
+    const y = 206 + i * 62;
+    g.fillStyle = '#24262b'; g.font = 'bold 15px ' + MONO; g.fillText(i ? 'IIP' : 'IP', px, y);
+    g.fillStyle = PCOL[i][0]; g.fillRect(px + (i ? 36 : 24), y + 4, 8, 8);
+    miniTank(g, px, y + 21, '#24262b');
+    g.fillStyle = '#24262b'; g.font = 'bold 15px ' + MONO; g.fillText(String(Math.max(0, p.lives)), px + 18, y + 19);
+    for (let s = 0; s < p.lvl; s++) { g.fillStyle = '#ffd84a'; g.font = '10px ' + MONO; g.fillText('★', px + 40 + s * 10, y + 22); }
+    g.fillStyle = '#e9ebef'; g.font = 'bold 11px ' + MONO; g.fillText(String(p.score).padStart(7, '0'), px, y + 40);
+  });
+  const fy = 340;
+  g.fillStyle = '#24262b'; g.fillRect(px + 4, fy, 2, 26);
+  g.fillStyle = '#e2732a'; g.beginPath(); g.moveTo(px + 6, fy); g.lineTo(px + 26, fy + 6); g.lineTo(px + 6, fy + 13); g.closePath(); g.fill();
+  g.fillStyle = '#24262b'; g.font = 'bold 18px ' + MONO; g.fillText(stageLabel(), px + 30, fy + 8);
+  let ey = 384;
+  const eff = (ic, k, col) => {
+    g.font = '13px ' + EMOJI; g.fillText(ic, px, ey);
+    g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(px + 20, ey + 5, 50, 5);
+    g.fillStyle = col; g.fillRect(px + 20, ey + 5, 50 * k, 5);
+    ey += 20;
+  };
+  if (freezeT > 0) eff('⏰', freezeT / 600, '#9fe3ff');
+  if (shovelT > 0) eff('🧱', shovelT / 1080, '#ffb070');
+}
+function drawCurtain(g) {
+  const t = curtain.t;
+  let k = t < CL ? t / CL : t < CL + HOLD ? 1 : 1 - (t - CL - HOLD) / CL;
+  k = KIT.ease.inOut(clamp(k, 0, 1));
+  const h = H / 2 * k;
+  g.fillStyle = '#6b6e75'; g.fillRect(0, 0, W, h); g.fillRect(0, H - h, W, h);
+  g.fillStyle = 'rgba(0,0,0,.18)';
+  for (let y = 8; y < h; y += 16) g.fillRect(0, y, W, 1);
+  for (let y = H - 8; y > H - h; y -= 16) g.fillRect(0, y, W, 1);
+  g.fillStyle = '#3f4248'; g.fillRect(0, h - 3, W, 3); g.fillRect(0, H - h, W, 3);
+  if (t >= CL - 2 && t <= CL + HOLD + 4) {
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillStyle = '#1b1c20'; g.font = 'bold 30px ' + MONO; g.fillText('STAGE ' + stageLabel(), W / 2, H / 2 - 14);
+    g.font = '17px ' + DISP; g.fillStyle = '#f4e6c8'; g.fillText(stageName() + (loop ? ' · ' + T('loopN', loop + 1) : ''), W / 2, H / 2 + 20);
+    if (night) { g.font = '13px ' + DISP; g.fillStyle = '#c8d6ff'; g.fillText('🌙 NIGHT OPS', W / 2, H / 2 + 46); }
+  }
+}
+function drawGameOverText(g) {
+  const k = Math.min(1, overSeq / 110), y = FY + FS + 20 - (FS / 2 + 20) * KIT.ease.outCubic(k);
+  g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = 'bold 34px ' + MONO;
+  g.lineWidth = 6; g.strokeStyle = '#1b0b07'; g.strokeText('GAME OVER', FX + FS / 2, y);
+  g.fillStyle = '#e2463a'; g.fillText('GAME OVER', FX + FS / 2, y);
+}
+function drawTally(g) {
+  const tl = tally;
+  g.fillStyle = '#0b0b0d'; g.fillRect(0, 0, W, H);
+  g.textBaseline = 'middle'; g.textAlign = 'center'; g.font = 'bold 16px ' + MONO;
+  g.fillStyle = '#e2463a'; g.fillText('HI-SCORE', W / 2 - 60, 32);
+  g.fillStyle = '#f2a43a'; g.fillText(String(Math.max(hiScore, ...players.map(p => p.score))), W / 2 + 70, 32);
+  g.fillStyle = '#fff'; g.fillText('STAGE ' + stageLabel(), W / 2, 62);
+  const two = players.length === 2;
+  players.forEach((p, i) => {
+    const x = i ? W / 2 + 140 : W / 2 - 140;
+    g.fillStyle = '#e2463a'; g.fillText(i ? 'II-PLAYER' : 'I-PLAYER', x, 96);
+    g.fillStyle = '#f2a43a'; g.fillText(String(p.score), x, 120);
+  });
+  for (let r = 0; r < 4; r++) {
+    const y = 166 + r * 42;
+    drawTankShape(g, W / 2, y, 0, ETYPES[r].k, ECOL, 0, 0.8);
+    if (r > tl.row) continue;
+    players.forEach((p, i) => {
+      const n = tl.cnt[i][r], s = i ? 1 : -1;
+      g.fillStyle = '#fff'; g.font = 'bold 15px ' + MONO;
+      g.textAlign = 'right'; g.fillText(i ? '' : String(n * ETYPES[r].pts) + ' PTS', W / 2 - 92, y);
+      if (i) { g.textAlign = 'left'; g.fillText(String(n * ETYPES[r].pts) + ' PTS', W / 2 + 92, y); }
+      g.textAlign = 'center'; g.fillText(String(n), W / 2 + s * 58, y); g.fillText(i ? '▶' : '◀', W / 2 + s * 30, y);
+    });
+  }
+  g.fillStyle = '#fff'; g.fillRect(W / 2 - (two ? 190 : 150), 340, two ? 380 : 190, 2);
+  if (tl.total) {
+    g.textAlign = 'center'; g.font = 'bold 15px ' + MONO;
+    g.fillText('TOTAL', W / 2, 362);
+    players.forEach((p, i) => g.fillText(String(sumK(tl.cnt[i])), W / 2 + (i ? 58 : -58), 362));
+    if (tl.bonus >= 0 && (F >> 4) & 1) {
+      g.fillStyle = '#e2463a'; g.fillText('BONUS!', W / 2 + (tl.bonus ? 140 : -140), 396);
+      g.fillStyle = '#fff'; g.fillText('1000 PTS', W / 2 + (tl.bonus ? 140 : -140), 418);
+    }
+  }
+}
+function drawEditor(g) {
+  g.lineWidth = 1;
+  g.strokeStyle = 'rgba(255,255,255,.06)';
+  g.beginPath(); for (let k = 1; k < HT; k++) { g.moveTo(k * 16 + 0.5, 0); g.lineTo(k * 16 + 0.5, FS); g.moveTo(0, k * 16 + 0.5); g.lineTo(FS, k * 16 + 0.5); } g.stroke();
+  g.strokeStyle = 'rgba(255,255,255,.14)';
+  g.beginPath(); for (let k = 1; k < 13; k++) { g.moveTo(k * 32 + 0.5, 0); g.lineTo(k * 32 + 0.5, FS); g.moveTo(0, k * 32 + 0.5); g.lineTo(FS, k * 32 + 0.5); } g.stroke();
+  g.setLineDash([4, 3]); g.lineWidth = 1.5; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = 'bold 10px ' + MONO;
+  for (const x of SPAWNS) { g.strokeStyle = 'rgba(255,100,90,.8)'; g.strokeRect(x + 1, 1, 30, 30); g.fillStyle = 'rgba(255,100,90,.9)'; g.fillText('E', x + 16, 16); }
+  PSPAWN.forEach((x, i) => { g.strokeStyle = PCOL[i][0]; g.strokeRect(x + 1, 385, 30, 30); g.fillStyle = PCOL[i][0]; g.fillText(i ? '2P' : '1P', x + 16, 400); });
+  g.setLineDash([]);
+  if (edHover) {
+    const sz = bsize === 2 ? 32 : 16, hx = bsize === 2 ? edHover.hx & ~1 : edHover.hx, hy = bsize === 2 ? edHover.hy & ~1 : edHover.hy;
+    g.fillStyle = erasing || brush === E ? 'rgba(255,90,80,.25)' : 'rgba(255,255,255,.18)'; g.fillRect(hx * 16, hy * 16, sz, sz);
+    g.strokeStyle = '#fff'; g.lineWidth = 1.5; g.strokeRect(hx * 16 + 0.75, hy * 16 + 0.75, sz - 1.5, sz - 1.5);
   }
 }
 function render() {
-  ctx.save();
-  if (G.shake > 0) ctx.translate((Math.random() - .5) * G.shake, (Math.random() - .5) * G.shake);
-  ctx.fillStyle = '#0a0a0a'; ctx.fillRect(-20, -20, W + 40, H + 40);
-  const grid = G.state === 'editor' ? G.editor.grid : G.grid;
-  if (G.state === 'editor' || G.state === 'play' || G.state === 'pause' || G.state === 'clear' || G.state === 'over' || G.state === 'win') {
-    drawGrid(grid);
-  }
-  if (G.state === 'menu') { ctx.restore(); return; }
-  if (G.state === 'editor') {
-    // 编辑器网格线
-    ctx.strokeStyle = 'rgba(255,255,255,.08)'; ctx.lineWidth = 1;
-    for (let c = 0; c <= COLS; c += 2) { ctx.beginPath(); ctx.moveTo(c * CELL, 0); ctx.lineTo(c * CELL, H); ctx.stroke(); }
-    for (let r = 0; r <= ROWS; r += 2) { ctx.beginPath(); ctx.moveTo(0, r * CELL); ctx.lineTo(W, r * CELL); ctx.stroke(); }
-    // 老鹰位置标记
-    ctx.strokeStyle = 'rgba(255,217,61,.6)'; ctx.lineWidth = 2;
-    ctx.strokeRect(12 * CELL, 24 * CELL, CELL * 2, CELL * 2);
-    ctx.fillStyle = 'rgba(255,217,61,.9)'; ctx.font = '900 13px system-ui'; ctx.textAlign = 'center';
-    ctx.fillText(T('eagleTag'), 13 * CELL, 24 * CELL - 8);
-    // 出生点标记
-    ctx.fillStyle = 'rgba(94,230,110,.9)';
-    ctx.fillText('P1', 9 * CELL, 24 * CELL - 8);
-    ctx.fillText('P2', 17 * CELL, 24 * CELL - 8);
-    ctx.restore();
+  drawBezel(c);
+  if (state === 'tally' && tally) { drawTally(c); return; }
+  c.save();
+  if (shake > 0) c.translate(rnd(-shake, shake), rnd(-shake, shake));
+  c.save(); c.beginPath(); c.rect(FX, FY, FS, FS); c.clip(); c.translate(FX, FY);
+  drawField(c);
+  if (state === 'edit') drawEditor(c);
+  c.restore(); c.restore();
+  if (state !== 'edit') drawPanel(c);
+  if (overSeq && !demo) drawGameOverText(c);
+  if (curtain) drawCurtain(c);
+}
+
+// ---------------- 主循环 ----------------
+let acc = 0, last = performance.now();
+function tick() {
+  F++;
+  if (state === 'menu') { if (demo) stepWorld(); return; }
+  if (state === 'curtain') { stepCurtain(); return; }
+  if (state === 'tally') { stepTally(); return; }
+  if (state === 'play') stepWorld();
+  else if (state === 'over' || state === 'win' || state === 'edit') { fx.update(STEP); if (shake > 0) shake = Math.max(0, shake - 0.4); }
+}
+function loopFrame(now) {
+  acc += Math.min(0.1, (now - last) / 1000); last = now;
+  pollPads();
+  let n = 0;
+  while (acc >= STEP && n++ < 6) { acc -= STEP; tick(); }
+  if (n >= 6) acc = 0;
+  render();
+  requestAnimationFrame(loopFrame);
+}
+
+// ---------------- 输入 ----------------
+const keys = new Set(), keyT = {};
+let keySeq = 0;
+const K1 = { dir: [['KeyW', 'Tch_0', 'Pad0_0'], ['KeyD', 'Tch_1', 'Pad0_1'], ['KeyS', 'Tch_2', 'Pad0_2'], ['KeyA', 'Tch_3', 'Pad0_3']], fire: ['Space', 'KeyJ', 'KeyF', 'Tch_f', 'Pad0_f'] };
+const K2 = { dir: [['ArrowUp', 'Pad1_0'], ['ArrowRight', 'Pad1_1'], ['ArrowDown', 'Pad1_2'], ['ArrowLeft', 'Pad1_3']], fire: ['Enter', 'NumpadEnter', 'Numpad0', 'Slash', 'Period', 'Pad1_f'] };
+const isFire = code => K1.fire.includes(code) || K2.fire.includes(code);
+const GAME_KEYS = new Set(['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', 'Slash']);
+function press(code) {
+  keys.add(code); keyT[code] = ++keySeq;
+  if (state === 'tally' && isFire(code)) skipTally();
+  else if (state === 'curtain' && isFire(code) && curtain.t > CL + 20 && curtain.t < CL + HOLD) curtain.t = CL + HOLD;
+}
+document.addEventListener('keydown', e => {
+  if (e.target && /INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return;
+  if (GAME_KEYS.has(e.code) && state !== 'menu' && !(state === 'edit' && e.code === 'Enter')) e.preventDefault();
+  if (e.repeat) return;
+  if (e.code === 'KeyP' || e.code === 'Escape') { if (state === 'edit') exitEditor(); else togglePause(); return; }
+  if (state === 'menu' && (e.code === 'Enter' || e.code === 'Space')) { e.preventDefault(); $('btn-start').click(); return; }
+  if (state === 'edit') {
+    const n = '012345'.indexOf(e.key);
+    if (n >= 0) { brush = n; syncEditBar(); }
     return;
   }
-  // 老鹰画在砖上层已在循环里画了（占2x2，按左上画一次即可）——上面循环会对4格各画一次，这里用裁剪避免重叠无妨
-  // 道具
-  for (const it of G.items) {
-    const pulse = 1 + Math.sin(G.t * 6) * .08;
-    ctx.save();
-    ctx.translate(it.x + 12, it.y + 12); ctx.scale(pulse, pulse);
-    ctx.fillStyle = '#111'; ctx.fillRect(-13, -13, 26, 26);
-    ctx.strokeStyle = '#ffd93d'; ctx.lineWidth = 2; ctx.strokeRect(-13, -13, 26, 26);
-    ctx.font = '17px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText({ star: '⭐', helmet: '⛑', clock: '⏰', shovel: '🛡', grenade: '💣', life: '🎖' }[it.kind], 0, 1);
-    ctx.restore();
+  press(e.code);
+});
+document.addEventListener('keyup', e => keys.delete(e.code));
+window.addEventListener('blur', () => { keys.clear(); if (state === 'play') togglePause(); });
+document.addEventListener('visibilitychange', () => { if (document.hidden && state === 'play') togglePause(); });
+const padPrev = [false, false];
+function pollPads() {
+  let gps = [];
+  try { gps = navigator.getGamepads ? navigator.getGamepads() : []; } catch (e) { return; }
+  for (let i = 0; i < 2; i++) {
+    const g = gps[i];
+    const b = k => !!(g && g.buttons[k] && g.buttons[k].pressed);
+    const st = g ? [b(12) || g.axes[1] < -0.5, b(15) || g.axes[0] > 0.5, b(13) || g.axes[1] > 0.5, b(14) || g.axes[0] < -0.5, b(0) || b(1) || b(2) || b(3)] : [0, 0, 0, 0, 0];
+    ['0', '1', '2', '3', 'f'].forEach((s, k) => {
+      const code = 'Pad' + i + '_' + s;
+      if (st[k]) { if (!keys.has(code)) { press(code); if (s === 'f' && state === 'menu') $('btn-start').click(); } } else keys.delete(code);
+    });
+    const pz = b(9);
+    if (pz && !padPrev[i]) togglePause();
+    padPrev[i] = pz;
   }
-  // 坦克（草下层：先画坦克再补草）
-  for (const p of G.players) {
-    if (!p.alive) continue;
-    const pal = p.side === 'p2' ? PAL_P2 : PAL_P1;
-    drawTank(p.x, p.y, p.dir, p.stars >= 3 ? { body: '#ff8c42', dark: '#8a3d00' } : pal, false, p.spawnT, p.invuln, 0, false, G.t);
-  }
-  for (const f of G.foes) {
-    if (!f.alive) continue;
-    const info = FOE_TYPES[f.type];
-    drawTank(f.x, f.y, f.dir, { body: info.color, dark: '#444' }, f.bonus, f.spawnT, 0, f.flash, true, G.t);
-    if (f.maxHp > 1 && f.hp < f.maxHp) {
-      ctx.fillStyle = '#333'; ctx.fillRect(f.x, f.y - 6, f.w, 4);
-      ctx.fillStyle = '#5ee66e'; ctx.fillRect(f.x, f.y - 6, f.w * f.hp / f.maxHp, 4);
+}
+document.querySelectorAll('#pad [data-k]').forEach(btn => {
+  const code = 'Tch_' + btn.dataset.k;
+  const on = e => { e.preventDefault(); KIT.audio(); press(code); btn.classList.add('on'); };
+  const offF = () => { keys.delete(code); btn.classList.remove('on'); };
+  btn.addEventListener('pointerdown', on); btn.addEventListener('pointerup', offF); btn.addEventListener('pointercancel', offF); btn.addEventListener('pointerleave', offF);
+});
+$('pad-pause').addEventListener('click', () => togglePause());
+
+// ---------------- 地图工坊 ----------------
+function setHalf(hx, hy, v) {
+  if (isProtected(hx, hy) || ht[hy * HT + hx] === v) return false;
+  ht[hy * HT + hx] = v;
+  for (let k = 0; k < 4; k++) setCell(hx * 2 + (k & 1), hy * 2 + (k >> 1), v);
+  return true;
+}
+function paintAt(e) {
+  const p = KIT.point(cv, e, W, H), fx0 = p.x - FX, fy0 = p.y - FY;
+  if (fx0 < 0 || fy0 < 0 || fx0 >= FS || fy0 >= FS) { edHover = null; return; }
+  const hx = Math.floor(fx0 / 16), hy = Math.floor(fy0 / 16);
+  edHover = { hx, hy };
+  if (!painting) return;
+  const v = erasing ? E : brush;
+  const cells = bsize === 2 ? [[hx & ~1, hy & ~1], [(hx & ~1) + 1, hy & ~1], [hx & ~1, (hy & ~1) + 1], [(hx & ~1) + 1, (hy & ~1) + 1]] : [[hx, hy]];
+  let ch = false;
+  for (const [x, y] of cells) ch = setHalf(x, y, v) || ch;
+  if (ch) { rebuildWater(); KIT.tone(v ? 300 + v * 80 : 200, 0.03, { type: 'square', vol: 0.02 }); }
+}
+cv.addEventListener('pointerdown', e => {
+  if (state !== 'edit') return;
+  e.preventDefault(); painting = true; erasing = e.button === 2;
+  try { cv.setPointerCapture(e.pointerId); } catch (_) {}
+  paintAt(e);
+});
+cv.addEventListener('pointermove', e => { if (state === 'edit') paintAt(e); });
+const endPaint = () => { if (painting) { painting = false; erasing = false; saveCustom(); } };
+cv.addEventListener('pointerup', endPaint); cv.addEventListener('pointercancel', endPaint);
+cv.addEventListener('pointerleave', () => { if (!painting) edHover = null; });
+cv.addEventListener('contextmenu', e => { if (state === 'edit') e.preventDefault(); });
+function saveCustom() { store.set('custom', Array.from(ht).join('')); }
+function reachable(a) {
+  const pass = (tx, ty) => { for (let k = 0; k < 4; k++) { const v = a[(ty * 2 + (k >> 1)) * HT + tx * 2 + (k & 1)]; if (v === ST || v === WA) return false; } return true; };
+  const seen = new Uint8Array(169), q = [[6, 10]]; seen[136] = 1;
+  while (q.length) {
+    const [x, y] = q.shift();
+    for (const [dx, dy] of DIRS) {
+      const nx = x + dx, ny = y + dy;
+      if (nx < 0 || ny < 0 || nx > 12 || ny > 12 || seen[ny * 13 + nx] || !pass(nx, ny)) continue;
+      seen[ny * 13 + nx] = 1; q.push([nx, ny]);
     }
   }
-  // 草丛盖顶
-  for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
-    if (grid[r][c] !== 4) continue;
-    const x = c * CELL, y = r * CELL;
-    ctx.fillStyle = 'rgba(46,139,60,.85)';
-    ctx.beginPath(); ctx.arc(x + 6, y + 8, 6, 0, 7); ctx.arc(x + 15, y + 14, 7, 0, 7); ctx.fill();
-  }
-  // 子弹
-  for (const b of G.bullets) {
-    ctx.fillStyle = b.foe ? '#ff6b6b' : '#ffe45e';
-    ctx.fillRect(b.x - 1, b.y - 1, b.w + 2, b.h + 2);
-    ctx.fillStyle = '#fff';
-    ctx.fillRect(b.x + 1, b.y + 1, b.w - 2, b.h - 2);
-  }
-  // 粒子
-  for (const p of G.parts) {
-    ctx.globalAlpha = Math.max(0, 1 - p.age / p.life);
-    ctx.fillStyle = p.c;
-    ctx.fillRect(p.x - p.r / 2, p.y - p.r / 2, p.r, p.r);
-  }
-  ctx.globalAlpha = 1;
-  ctx.textAlign = 'center';
-  for (const f of G.floats) {
-    ctx.globalAlpha = Math.max(0, 1 - f.age / 1.2);
-    ctx.font = '900 16px system-ui';
-    ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(0,0,0,.7)';
-    ctx.strokeText(f.text, f.x, f.y);
-    ctx.fillStyle = '#ffd93d';
-    ctx.fillText(f.text, f.x, f.y);
-  }
-  ctx.globalAlpha = 1;
-  if (G.freezeT > 0) {
-    ctx.fillStyle = 'rgba(120,180,255,.9)';
-    ctx.font = '900 14px system-ui'; ctx.textAlign = 'left';
-    ctx.fillText(T('freezeTag', Math.ceil(G.freezeT)), 12, H - 12);
-  }
-  if (G.shovelT > 0) {
-    ctx.fillStyle = 'rgba(255,217,61,.9)';
-    ctx.font = '900 14px system-ui'; ctx.textAlign = 'right';
-    ctx.fillText(T('shovelTag', Math.ceil(G.shovelT)), W - 12, H - 12);
-  }
-  ctx.restore();
+  return [[0, 0], [6, 0], [12, 0], [4, 12], [8, 12]].every(([x, y]) => seen[y * 13 + x]);
 }
-function drawEagle(x, y, dead) {
-  // x,y 是4格之一的左上；只在左上格绘制完整老鹰
-  const gx = Math.round(x / CELL), gy = Math.round(y / CELL);
-  if (gx !== EAGLE.c || gy !== EAGLE.r) return;
-  const X = EAGLE.c * CELL, Y = EAGLE.r * CELL, S = CELL * 2;
-  ctx.save();
-  ctx.fillStyle = dead ? '#222' : '#e8d8a8';
-  ctx.fillRect(X, Y, S, S);
-  ctx.strokeStyle = dead ? '#000' : '#8a6d3b'; ctx.lineWidth = 2;
-  ctx.strokeRect(X + 1, Y + 1, S - 2, S - 2);
-  ctx.fillStyle = dead ? '#555' : '#5e4a1a';
-  // 简笔鹰：身 + 翼 + 头
-  ctx.fillRect(X + S / 2 - 4, Y + 12, 8, 24);
-  ctx.beginPath();
-  ctx.moveTo(X + S / 2 - 4, Y + 20); ctx.lineTo(X + 4, Y + 10); ctx.lineTo(X + 4, Y + 26); ctx.closePath(); ctx.fill();
-  ctx.beginPath();
-  ctx.moveTo(X + S / 2 + 4, Y + 20); ctx.lineTo(X + S - 4, Y + 10); ctx.lineTo(X + S - 4, Y + 26); ctx.closePath(); ctx.fill();
-  ctx.beginPath(); ctx.arc(X + S / 2, Y + 10, 7, 0, 7); ctx.fill();
-  if (!dead) {
-    ctx.fillStyle = '#c0392b';
-    ctx.fillRect(X + S / 2 - 7, Y + 2, 14, 4);
-  } else {
-    ctx.strokeStyle = '#ff5d5d'; ctx.lineWidth = 3;
-    ctx.beginPath(); ctx.moveTo(X + 6, Y + 6); ctx.lineTo(X + S - 6, Y + S - 6); ctx.moveTo(X + S - 6, Y + 6); ctx.lineTo(X + 6, Y + S - 6); ctx.stroke();
+function genRandom() {
+  const P = [[BR, 0.3], [ST, 0.05], [WA, 0.06], [TR, 0.08], [IC, 0.04]];
+  const HALF = [[1, 1, 1, 1], [1, 1, 0, 0], [0, 0, 1, 1], [1, 0, 1, 0], [0, 1, 0, 1]];
+  for (let tries = 0; tries < 40; tries++) {
+    const a = new Uint8Array(HT * HT);
+    for (let ty = 0; ty < 13; ty++) for (let tx = 0; tx < 7; tx++) {
+      let r = Math.random(), v = E;
+      for (const [t, p] of P) { if (r < p) { v = t; break; } r -= p; }
+      if (!v) continue;
+      const mask = v === BR && Math.random() < 0.3 ? HALF[ri(1, 4)] : HALF[0];
+      for (let k = 0; k < 4; k++) if (mask[k]) {
+        const hx = tx * 2 + (k & 1), hy = ty * 2 + (k >> 1);
+        a[hy * HT + hx] = v; a[hy * HT + (HT - 1 - hx)] = v;
+      }
+    }
+    applyReserved(a);
+    if (reachable(a)) { ht = a; return; }
   }
-  ctx.restore();
 }
+function edLoad() { buildMG(); renderAll(); saveCustom(); }
+function enterEditor() {
+  demo = false; state = 'edit'; hideScreens(); KIT.stopMusic(); curtain = null; tally = null;
+  $('edit-bar').classList.remove('hidden'); $('pad').classList.add('hidden');
+  ht = loadCustomHT(); thIdx = 0; night = false; players = []; queue = []; spawned = 0;
+  buildMG(); renderAll(); resetWorld();
+  syncEditBar();
+  banner = { text: T('edTip'), t: 260 };
+}
+function exitEditor() { $('edit-bar').classList.add('hidden'); toMenu(); }
+function syncEditBar() {
+  document.querySelectorAll('#edit-bar [data-b]').forEach(b => { b.classList.toggle('on', +b.dataset.b === brush); b.title = T('edB')[+b.dataset.b]; });
+  $('ed-size').textContent = bsize === 2 ? '⬛' : '▪️';
+  $('ed-size').title = T('edSize'); $('ed-rand').title = T('edRand'); $('ed-clear').title = T('edClear'); $('ed-test').title = T('edTest'); $('ed-exit').title = T('edExit');
+}
+document.querySelectorAll('#edit-bar [data-b]').forEach(b => b.onclick = () => { brush = +b.dataset.b; syncEditBar(); });
+$('ed-size').onclick = () => { bsize = bsize === 2 ? 1 : 2; syncEditBar(); };
+$('ed-rand').onclick = () => { genRandom(); edLoad(); KIT.arp([523, 659, 784], 0.05, { type: 'square', vol: 0.04 }); };
+$('ed-clear').onclick = () => { ht = new Uint8Array(HT * HT); applyReserved(ht); edLoad(); };
+$('ed-test').onclick = () => { saveCustom(); $('edit-bar').classList.add('hidden'); newGame(0, { custom: true, fromEditor: true }); };
+$('ed-exit').onclick = exitEditor;
 
-let last = performance.now();
-function loop(now) {
-  const dt = Math.min((now - last) / 1000, .033);
-  last = now;
-  if (G.state !== 'editor') update(dt);
-  else G.t += dt;
-  render();
-  requestAnimationFrame(loop);
+// ---------------- 屏幕 / 菜单 ----------------
+function togglePause() {
+  if (state === 'play' || state === 'curtain' || state === 'tally') { prevState = state; state = 'pause'; $('screen-pause').classList.remove('hidden'); KIT.stopMusic(); }
+  else if (state === 'pause') { state = prevState; $('screen-pause').classList.add('hidden'); if (state === 'play' && !overSeq) KIT.music('tank-march'); last = performance.now(); }
 }
+function hideScreens() { ['screen-menu', 'screen-pause', 'screen-over', 'screen-win'].forEach(id => $(id).classList.add('hidden')); }
+function topScore() { return players.length ? Math.max(...players.map(p => p.score)) : 0; }
+function saveBest() {
+  if (demo) return false;
+  const top = topScore();
+  if (top > hiScore) { hiScore = top; store.set('best', hiScore); return true; }
+  return false;
+}
+function stats(id) {
+  const rows = [];
+  players.forEach((p, i) => rows.push([players.length === 2 ? T('stScoreP', i + 1) : T('stScore'), p.score.toLocaleString()]));
+  rows.push([T('stStage'), custom ? T('customName') : stageLabel() + ' · ' + stageName()]);
+  rows.push([T('stKills'), players.reduce((s, p) => s + sumK(p.kills), 0)]);
+  if (continues) rows.push([T('stCont'), continues]);
+  rows.push([T('stBest'), hiScore.toLocaleString()]);
+  $(id).innerHTML = rows.map(([a, b]) => `<span>${a}</span><b>${b}</b>`).join('');
+}
+function showOver() {
+  state = 'over';
+  const rec = saveBest();
+  $('over-record').classList.toggle('hidden', !rec);
+  $('over-sub').textContent = baseDead ? T('overBase') : T('overAll');
+  stats('over-stats');
+  $('screen-over').classList.remove('hidden');
+}
+function showWin() {
+  state = 'win';
+  const rec = saveBest();
+  $('win-record').classList.toggle('hidden', !rec);
+  stats('win-stats');
+  $('screen-win').classList.remove('hidden');
+  KIT.arp([523, 659, 784, 1047, 784, 1047, 1319], 0.12, { type: 'square', vol: 0.06 });
+}
+function newGame(si, opts = {}) {
+  demo = false; custom = !!opts.custom; fromEditor = !!opts.fromEditor; loop = opts.loop || 0; continues = 0;
+  if (!opts.keep) { players = []; for (let i = 0; i < nP; i++) players.push(makePlayer(i)); }
+  stageIdx = si;
+  hideScreens(); KIT.audio(); $('pad').classList.remove('hidden');
+  startCurtain();
+}
+function doContinue() {
+  continues++;
+  for (const p of players) { p.lives = DIFF.lives[diff]; p.out = false; p.lvl = 0; p.alive = false; }
+  hideScreens(); startCurtain();
+}
+function startDemo() {
+  demo = true; custom = false; loop = 0;
+  players = [makePlayer(0), makePlayer(1)];
+  for (const p of players) { p.ai = true; p.lives = 99; }
+  stageIdx = [0, 3, 4, 8, 9, 1][demoIdx++ % 6];
+  loadStage();
+}
+function toMenu() {
+  if (players.length && !demo && state !== 'menu') saveBest();
+  hideScreens(); state = 'menu'; KIT.stopMusic(); curtain = null; tally = null;
+  $('edit-bar').classList.add('hidden'); $('pad').classList.remove('hidden');
+  startDemo();
+  renderMenu(); $('screen-menu').classList.remove('hidden');
+}
+function renderMenu() {
+  document.querySelectorAll('#pl-seg button').forEach(b => b.classList.toggle('on', +b.dataset.n === nP));
+  document.querySelectorAll('#diff-seg button').forEach(b => b.classList.toggle('on', +b.dataset.d === diff));
+  const box = $('stage-pick'); box.innerHTML = '';
+  const names = T('stageNames'), emo = ['🧱', '⚙️', '🌲', '🌊', '🧊', '🌙', '🏰', '🌀', '🏝️', '🔩', '🌌', '🦅'];
+  names.forEach((n, i) => {
+    const b = document.createElement('button');
+    b.className = 'lvl-btn' + (i === pickStage ? ' active' : '') + (i > unlock ? ' locked' : '') + (i < unlock ? ' done' : '');
+    b.innerHTML = `<span class="lv-emo">${i > unlock ? '🔒' : emo[i]}</span>${i + 1}<small>${n}</small>`;
+    b.title = i > unlock ? T('locked') : n;
+    b.onclick = () => { if (i > unlock) { KIT.tone(200, 0.1, { type: 'square', vol: 0.04 }); return; } pickStage = i; store.set('pick', i); renderMenu(); };
+    box.appendChild(b);
+  });
+  $('menu-best').textContent = T('bestLbl', hiScore.toLocaleString());
+  $('hint-2p').classList.toggle('hidden', nP !== 2);
+  $('hint-1p').classList.toggle('hidden', nP === 2);
+}
+document.querySelectorAll('#pl-seg button').forEach(b => b.onclick = () => { nP = +b.dataset.n; store.set('players', nP); renderMenu(); });
+document.querySelectorAll('#diff-seg button').forEach(b => b.onclick = () => { diff = +b.dataset.d; store.set('diff', diff); renderMenu(); });
+$('btn-start').onclick = () => newGame(pickStage);
+$('btn-workshop').onclick = () => { KIT.audio(); enterEditor(); };
+$('btn-resume').onclick = () => togglePause();
+$('btn-restart').onclick = () => { $('screen-pause').classList.add('hidden'); for (const p of players) { p.alive = false; p.out = false; } startCurtain(); };
+$('btn-quit').onclick = () => { if (fromEditor) enterEditor(); else toMenu(); };
+$('btn-continue').onclick = doContinue;
+$('btn-retry').onclick = () => newGame(0, { custom, fromEditor });
+$('btn-menu').onclick = () => { if (fromEditor) enterEditor(); else toMenu(); };
+$('btn-loop').onclick = () => { hideScreens(); for (const p of players) { p.out = false; if (p.lives < 1) p.lives = 1; } newGame(0, { loop: loop + 1, keep: true }); };
+$('btn-menu2').onclick = toMenu;
 
-// ---------- 按钮 ----------
-$('btn-1p').onclick = () => startGame('1p', G.stageIdx, false);
-$('btn-2p').onclick = () => startGame('2p', G.stageIdx, false);
-$('btn-resume').onclick = togglePause;
-$('btn-quit').onclick = () => { showMenu(); };
-$('btn-menu2').onclick = () => showMenu();
-$('btn-menu3').onclick = () => showMenu();
-$('btn-menu4').onclick = () => showMenu();
-$('btn-next').onclick = () => {
-  if (G.customStage) { showMenu(); return; }
-  if (G.stageIdx >= STAGES.length - 1) { winAll(); return; }
-  G.score = G.score; // 分数延续
-  loadStage(G.stageIdx + 1, false);
-  // 生命延续：保留玩家生命与星级
-  G.state = 'play';
-  setScreen(null);
-  $('hud').classList.remove('hidden');
+if (location.hash === '#debug') window.__tk = {
+  info: () => ({ state, stageIdx, loop, demo, enemies: enemies.length, spawned, killed, queue: queue.length, bullets: bullets.length, pwr: pwr && pwr.kind, freezeT, shovelT, baseDead,
+    players: players.map(p => ({ x: p.x, y: p.y, alive: p.alive, lives: p.lives, lvl: p.lvl, score: p.score, shield: p.shield, out: p.out })) }),
+  stage: i => newGame(i),
+  god: () => players.forEach(p => { p.shield = 1e9; }),
+  lvl: n => players.forEach(p => { p.lvl = n; }),
+  power: k => { spawnPower(); pwr.kind = k; pwr.x = players[0].x; pwr.y = players[0].y - 40; },
+  bonus: () => { spawnPower(); },
+  killAll: () => { for (const e of enemies) killEnemy(e, players[0], true); killed = queue.length; spawned = queue.length; stars = []; },
+  hurtBase: () => destroyBase(),
+  die: () => players.forEach(p => { p.shield = 0; p.lives = 0; if (p.alive) killPlayer(p); }),
+  tp: (x, y) => { players[0].x = x; players[0].y = y; },
+  freeze: () => { freezeT = 600; }
 };
-$('btn-retry').onclick = () => retry();
-$('btn-again').onclick = () => startGame(G.mode, 0, false);
-function toggleMute() {
-  muted = !muted; store.muted = muted;
-  $('btn-mute').textContent = muted ? '🔇' : '🔊';
-}
-$('btn-mute').onclick = e => { e.stopPropagation(); toggleMute(); };
-$('btn-mute').textContent = muted ? '🔇' : '🔊';
-// i18n boot: static DOM + dynamic boot texts
-AMG.mountBtn();
-window.__refreshLang = function() {
-  AMG.apply(STR);
-  $('btn-mute').title = T('muteTitle');
-  document.querySelectorAll('#palette [data-t]').forEach(b => { const n = (T('palTitles') || {})[b.dataset.t]; if (n) b.title = n; });
-  const edT = T('edTitles') || {};
-  if ($('ed-clear')) $('ed-clear').title = edT.clear || $('ed-clear').title;
-  if ($('ed-test')) $('ed-test').title = edT.test || $('ed-test').title;
-  if ($('ed-save')) $('ed-save').title = edT.save || $('ed-save').title;
-  if ($('ed-back')) $('ed-back').title = edT.back || $('ed-back').title;
-  buildStageGrid();
-  const mb = $('menu-best');
-  if (mb) mb.textContent = store.best;
-};
-window.__refreshLang();
-
-// 触屏
-function bindHold(id, code) {
-  const el = $(id);
-  const on = e => { e.preventDefault(); keys[code] = true; };
-  const off = e => { e.preventDefault(); keys[code] = false; };
-  el.addEventListener('pointerdown', on);
-  el.addEventListener('pointerup', off);
-  el.addEventListener('pointercancel', off);
-  el.addEventListener('pointerleave', off);
-}
-bindHold('t-up', 'KeyW'); bindHold('t-left', 'KeyA'); bindHold('t-down', 'KeyS'); bindHold('t-right', 'KeyD');
-$('t-fire').addEventListener('pointerdown', e => { e.preventDefault(); const p = G.players[0]; if (p) tryFireKey(p); });
-
-loadStage(0, false);
-G.state = 'menu';
-showMenu();
-window.__game = G;
-window.__gameErrors = [];
-window.addEventListener('error', e => window.__gameErrors.push(String(e.message)));
-G._loadStage = loadStage; G._fire = fire; G._startGame = startGame; G._applyItem = applyItem; G._STAGES = STAGES;
-requestAnimationFrame(t => { last = t; requestAnimationFrame(loop); });
+const syncMute = KIT.mountMute($('btn-mute'));
+KIT.boot(() => { syncMute(); renderMenu(); if (state === 'edit') syncEditBar(); });
+toMenu();
+requestAnimationFrame(loopFrame);
 })();

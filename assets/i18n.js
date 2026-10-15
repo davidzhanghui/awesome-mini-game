@@ -14,7 +14,7 @@
  * Toggle button: AMG.mountBtn() appends an EN/中文 button into .brand-btns
  *   (falls back to a fixed corner button). Switching reloads with ?lang=.
  * Home button: AMG.mountHome() inserts a 🏠 link to the landing page
- *   ("../") into .brand-btns (or raiden's .top-links), carrying ?lang=
+ *   ("../") into .brand-btns (or a legacy .top-links bar), carrying ?lang=
  *   so the landing page keeps the same language. It is ALSO auto-mounted
  *   on DOMContentLoaded, so individual games need zero edits.
  */
@@ -164,7 +164,7 @@
     a.setAttribute('aria-label', label);
     var host = document.querySelector('.brand-btns') || document.querySelector('.top-links');
     if (host) {
-      // .brand-btns pages style it as icon-btn; raiden's .top-links as ghost-btn.
+      // .brand-btns pages style it as icon-btn; legacy .top-links bars as ghost-btn.
       a.className = (host.classList.contains('brand-btns') ? 'icon-btn' : 'ghost-btn') + ' amg-home';
       host.insertBefore(a, host.firstChild);
     } else {
