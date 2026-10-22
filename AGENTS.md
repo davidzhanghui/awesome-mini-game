@@ -9,13 +9,14 @@
 
 1. 网页改动（游戏、落地页、assets）**先在 `main` 上修改并提交推送**；
 2. 切到 `feat/tauri-desktop`，`git merge main` 合入；
-3. 需要发版时 bump 版本（`package.json` / `src-tauri/Cargo.toml` / `src-tauri/tauri.conf.json` 三处保持一致），推 `v*` tag 触发 CI。
+3. 需要发版时 bump 版本（`package.json` / `src-tauri/Cargo.toml` / `src-tauri/tauri.conf.json` 三处保持一致），推 `v*` tag 触发 CI；
+4. tag 推送成功后立刻 `git checkout main`。工作区不要留在 `feat/tauri-desktop`，否则下一次加游戏会直接落在桌面分支上。修桌面壳或 workflow 时再临时切回去，改完推送后再次切回 `main`。
 
 **禁止**：不要把 `feat/tauri-desktop` 合回 `main`（main 只留纯网页源码）；desktop 相关文件只在 feat 分支维护。
 
 ## 发版
 
-使用 `david-mini-game-release` skill 的流水线：推 tag → CI 4 平台构建 → draft → 校验 latest.json → 中英分段说明 → publish。签名私钥 `~/.tauri/awesome-mini-game.key` 绝不进 git。
+使用 `david-mini-game-release` skill 的流水线：推 tag → 立刻切回 `main` → CI 4 平台构建 → draft → 校验 latest.json → 中英分段说明 → publish。签名私钥 `~/.tauri/awesome-mini-game.key` 绝不进 git。
 
 ## 本地环境
 

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>深渊回响 · Echoes of the Abyss</title>
+<meta name="description" content="网页版暗黑式地牢 ARPG：随机地牢、暗金装备、精英词缀与三种守层者。五职业、十层深渊、火把光影与实时合成音效，打开即玩。" />
+<link rel="canonical" href="https://awesome-mini-game.vercel.app/abyss/" />
+<link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/abyss/" />
+<link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/abyss/?lang=en" />
+<link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/abyss/?lang=ja" />
+<link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/abyss/?lang=ko" />
+<link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/abyss/" />
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Awesome Mini Game">
+<meta property="og:title" content="深渊回响 · Echoes of the Abyss">
+<meta property="og:description" content="暗黑式地牢 ARPG：随机地牢、暗金装备、精英词缀、三种守层者，五职业任选。">
+<meta property="og:url" content="https://awesome-mini-game.vercel.app/abyss/">
+<meta property="og:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="深渊回响 · Echoes of the Abyss">
+<meta name="twitter:description" content="暗黑式地牢 ARPG：随机地牢、暗金装备、精英词缀、三种守层者，五职业任选。">
+<meta name="twitter:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"VideoGame","name":"深渊回响 · Echoes of the Abyss","description":"暗黑式地牢 ARPG：随机地牢、暗金装备、精英词缀与三种守层者，五职业任选。","url":"https://awesome-mini-game.vercel.app/abyss/","genre":"动作角色扮演","gamePlatform":"Web Browser","playMode":"SinglePlayer","inLanguage":["zh-CN","en","ja","ko"],"isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"}}
+</script>
+<link rel="icon" href="/favicon.svg" />
+<link rel="stylesheet" href="../assets/game-page.css?v=20261023" />
+<link rel="stylesheet" href="styles.css?v=20261023" />
+<link rel="stylesheet" href="../assets/ui.css?v=20261023" />
+<script src="../assets/theme.js"></script>
+</head>
+<body>
+<div class="bg-orbs"><span></span><span></span><span></span></div>
+<main class="page">
+  <header class="brand">
+    <div class="logo">🕯️</div>
+    <div class="brand-text">
+      <h1><span data-i18n="name">深渊回响</span> <em data-i18n="subtitle">Echoes of the Abyss</em></h1>
+      <p data-i18n="intro">暗黑式地牢 ARPG：随机地牢、暗金装备、精英词缀与三种守层者。五职业任选，逐层深入。</p>
+    </div>
+    <div class="brand-btns">
+      <button id="btn-mute" class="icon-btn" type="button" title="声音开 / 关 (M)">🔊</button>
+    </div>
+  </header>
+
+  <section class="cabinet">
+    <div class="game-frame" id="frame">
+      <canvas id="c" class="stage"></canvas>
+
+      <!-- ================= HUD ================= -->
+      <div id="hud" class="hud-layer hidden">
+        <div class="top-left">
+          <div class="chip depth-chip"><b id="hud-depth">1</b><span id="hud-floor"></span></div>
+          <div class="chip small hidden" id="hud-clear"></div>
+        </div>
+        <div class="top-right">
+          <div class="chip gold-chip"><i>◈</i><b id="hud-gold">0</b></div>
+          <button type="button" class="hud-btn" id="btn-bag" title="背包 (Tab)">🎒</button>
+          <button type="button" class="hud-btn" id="btn-pause" title="暂停 (Esc)">⏸</button>
+          <button type="button" class="hud-btn" id="btn-sound" title="声音">🔊</button>
+        </div>
+
+        <div class="boss-bar hidden" id="boss-bar">
+          <span id="boss-name"></span>
+          <div class="boss-track"><div id="boss-fill"></div></div>
+        </div>
+
+        <div class="mini-wrap">
+          <canvas id="mini" width="168" height="132"></canvas>
+          <div class="mini-label" id="mini-label"></div>
+        </div>
+
+        <div class="orb orb-life" id="orb-life">
+          <div class="orb-fill" id="life-fill"></div>
+          <div class="orb-gloss"></div>
+          <div class="orb-text"><b id="life-num">100</b><small id="life-max">/100</small></div>
+          <div class="potion" id="potion-badge" title="空格喝药"><i>🧪</i><b id="potion-num">2</b></div>
+        </div>
+        <div class="orb orb-mana" id="orb-mana">
+          <div class="orb-fill" id="mana-fill"></div>
+          <div class="orb-gloss"></div>
+          <div class="orb-text"><b id="mana-num">70</b><small id="mana-max">/70</small></div>
+        </div>
+
+        <div class="bottom-mid">
+          <div class="xp-row">
+            <span class="lvl" id="hud-lvl">1</span>
+            <div class="xp-track"><div id="xp-fill"></div></div>
+            <span class="kill-count" id="hud-kills">☠ 0</span>
+          </div>
+          <div class="skill-bar" id="skill-bar"></div>
+        </div>
+
+        <div class="center-note" id="center-note"></div>
+      </div>
+
+      <!-- ================= 触屏 ================= -->
+      <div id="touch" class="touch-layer">
+        <div class="stick" id="stick"><div class="stick-knob" id="stick-knob"></div></div>
+        <div class="touch-btns">
+          <button type="button" class="tbtn atk" id="t-atk">⚔️</button>
+          <button type="button" class="tbtn sk" data-skill="0">1</button>
+          <button type="button" class="tbtn sk" data-skill="1">2</button>
+          <button type="button" class="tbtn sk" data-skill="2">3</button>
+          <button type="button" class="tbtn sk" data-skill="3">4</button>
+          <button type="button" class="tbtn pot" id="t-potion">🧪</button>
+        </div>
+      </div>
+
+      <!-- ================= 主菜单 ================= -->
+      <div id="ov-menu" class="screen menu-screen">
+        <div class="menu-panel">
+          <div class="title-badge">ECHOES OF THE ABYSS</div>
+          <h2 class="game-title" data-i18n="name">深渊回响</h2>
+          <p class="tagline" data-i18n="tagline">无光之底，唯余回响</p>
+
+          <div class="pick-label" data-i18n="heroes">选择职业</div>
+          <div class="hero-pick" id="hero-pick"></div>
+
+          <div class="menu-actions">
+            <button type="button" id="btn-start" class="btn primary big" data-i18n="start">踏入深渊</button>
+          </div>
+          <p class="menu-best" id="menu-best"></p>
+          <p class="hint menu-hint kbd-only" data-i18n="ctrlMove">WASD / 方向键移动，点地寻路</p>
+          <p class="hint kbd-only" data-i18n="ctrlAtk">左键攻击（可按住），右键技能 1</p>
+          <p class="hint kbd-only" data-i18n="ctrlSkill">Q / W / E 技能 2~4</p>
+          <p class="hint touch-show" data-i18n="ctrlTouch">触屏：左摇杆移动，右侧按钮攻击与技能</p>
+      <p class="rotate-hint" data-i18n="rotateHint">横屏游玩体验更佳</p>
+        </div>
+      </div>
+
+      <!-- ================= 祝福 ================= -->
+      <div id="ov-bless" class="screen dim hidden">
+        <div class="bless-panel pop">
+          <div class="bless-head">
+            <span class="bless-eyebrow" data-i18n="blessings">深渊祝福</span>
+            <h3 id="bless-title">第 1 层</h3>
+            <p class="over-sub" data-i18n="blessingPick">三选一，继续深入</p>
+          </div>
+          <div class="bless-cards" id="bless-cards"></div>
+          <div class="row">
+            <button type="button" id="bless-reroll" class="btn ghost small"></button>
+            <button type="button" id="bless-skip" class="btn ghost small" data-i18n="blessingSkip">放弃</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= 背包 ================= -->
+      <div id="ov-inv" class="screen inv-screen hidden">
+        <div class="inv-panel">
+          <div class="inv-head">
+            <h2 data-i18n="inventory">背包</h2>
+            <div class="inv-gold"><i>◈</i> <b id="inv-gold">0</b></div>
+            <button type="button" class="hud-btn" id="inv-close">✕</button>
+          </div>
+          <div class="inv-body">
+            <div class="inv-left">
+              <div class="equip-wrap" id="equip-wrap"></div>
+              <ul class="stat-list" id="stat-list"></ul>
+            </div>
+            <div class="inv-right">
+              <div class="inv-sub" data-i18n="bag">物品栏</div>
+              <div class="bag-grid" id="bag-grid"></div>
+              <div class="bag-empty" id="bag-empty" data-i18n="bagEmpty"></div>
+              <div class="item-detail hidden" id="item-detail">
+                <div class="item-main">
+                  <div class="item-head"><b id="item-name"></b><span id="item-slot"></span></div>
+                  <div class="item-rar" id="item-rar"></div>
+                  <ul class="item-stats" id="item-stats"></ul>
+                  <p class="item-flavor" id="item-flavor"></p>
+                </div>
+                <div class="row">
+                  <button type="button" class="btn small primary" id="item-equip"></button>
+                  <button type="button" class="btn small ghost" id="item-salvage"></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= 暂停 ================= -->
+      <div id="ov-pause" class="screen dim hidden">
+        <div class="panel pop">
+          <h3 data-i18n="pause">已暂停</h3>
+          <p class="over-sub" id="pause-sub"></p>
+          <div class="opts">
+            <label class="opt"><input type="checkbox" id="opt-auto"> <span data-i18n="autoPotion">低血量自动喝药</span></label>
+            <label class="opt"><input type="checkbox" id="opt-dmg" checked> <span data-i18n="damageNumbers">伤害数字</span></label>
+            <label class="opt vol"><span data-i18n="sound">音量</span>
+              <input type="range" id="opt-vol" min="0" max="100" step="5">
+              <b id="opt-vol-val">80</b>
+            </label>
+          </div>
+          <div class="row">
+            <button type="button" id="pause-resume" class="btn primary" data-i18n="resume">继续</button>
+            <button type="button" id="pause-restart" class="btn ghost" data-i18n="restart">重新开始</button>
+            <button type="button" id="pause-menu" class="btn ghost" data-i18n="toMenu">主菜单</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= 死亡 ================= -->
+      <div id="ov-dead" class="screen dim hidden">
+        <div class="panel pop end-panel">
+          <div id="dead-record" class="new-record hidden" data-i18n="newRecord">新纪录！</div>
+          <h3 class="end-title" data-i18n="defeat">你倒下了</h3>
+          <p class="over-sub" data-i18n="defeatSub">深渊吞没了你的回响。</p>
+          <ul id="dead-stats" class="stat-list"></ul>
+          <div class="row">
+            <button type="button" id="dead-retry" class="btn primary" data-i18n="retry">再来一次</button>
+            <button type="button" id="dead-menu" class="btn ghost" data-i18n="toMenu">主菜单</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= 侧栏 ================= -->
+    <aside class="side">
+      <div class="card">
+        <h4 data-i18n="controls">操作</h4>
+        <ul class="ops">
+          <li class="kbd-only" data-i18n="ctrlMove">WASD / 方向键移动，点地寻路</li>
+          <li class="kbd-only" data-i18n="ctrlAtk">左键攻击（可按住），右键技能 1</li>
+          <li class="kbd-only" data-i18n="ctrlSkill">Q / W / E 技能 2~4</li>
+          <li class="kbd-only" data-i18n="ctrlPotion">空格喝药，Tab 背包，Esc 暂停</li>
+          <li class="touch-item" data-i18n="ctrlTouch">触屏：左摇杆移动，右侧按钮攻击与技能</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4 data-i18n="stats">属性</h4>
+        <div class="mini-stats" id="mini-stats"></div>
+      </div>
+      <div class="card">
+        <h4 data-i18n="equipped">已装备</h4>
+        <div class="gear-mini" id="gear-mini"></div>
+      </div>
+      <div class="card tip-card">
+        <h4 data-i18n="tips">深渊手记</h4>
+        <p id="tip-line" data-i18n="tip1">暗金装备有独特词条，光柱越粗越稀有。</p>
+      </div>
+    </aside>
+  </section>
+
+  <details class="card seo-about">
+    <summary data-i18n="aboutTitle">📖 关于这款游戏</summary>
+    <p data-i18n="aboutBody">《深渊回响》是一款纯网页的暗黑式地牢 ARPG：随机生成的地牢、四种稀有度与随机词缀的装备、八件传奇、带词缀的精英怪与三种守层者。五职业、十层深渊，所有画面由 Canvas 程序化绘制，所有音效由 Web Audio 实时合成，无需下载素材，打开即玩。</p>
+  </details>
+  <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 键盘 / 触屏 · 四语言</footer>
+</main>
+
+<script src="../assets/i18n.js?v=20261023"></script>
+<script src="../assets/bgm.js?v=20261023"></script>
+<script src="../assets/touch.js?v=20261023"></script>
+<script src="strings.js?v=20261023"></script>
+<script src="data.js?v=20261023"></script>
+<script src="art.js?v=20261023"></script>
+<script src="audio.js?v=20261023"></script>
+<script src="game.js?v=20261023"></script>
+</body>
+</html>
