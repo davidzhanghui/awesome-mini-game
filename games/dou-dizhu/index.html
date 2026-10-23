@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="description" content="斗地主网页版：3 人对局，叫地主抢地主倍数翻番，顺子连对飞机炸弹王炸全牌型，聪明的电脑队友会配合，带记牌器、出牌提示和春天特效，打开即玩。">
+<link rel="canonical" href="https://awesome-mini-game.vercel.app/games/dou-dizhu/">
+<link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/dou-dizhu/">
+<link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/dou-dizhu/?lang=en">
+<link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/games/dou-dizhu/?lang=ja">
+<link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/games/dou-dizhu/?lang=ko">
+<link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/games/dou-dizhu/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Awesome Mini Game">
+<meta property="og:title" content="斗地主 · 欢乐对局">
+<meta property="og:description" content="叫地主、抢地主、炸弹王炸、记牌器与春天特效，和两位电脑玩家来一局欢乐斗地主。">
+<meta property="og:url" content="https://awesome-mini-game.vercel.app/games/dou-dizhu/">
+<meta property="og:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="斗地主 · 欢乐对局">
+<meta name="twitter:description" content="叫地主、抢地主、炸弹王炸、记牌器与春天特效，和两位电脑玩家来一局欢乐斗地主。">
+<meta name="twitter:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "斗地主 · 欢乐对局",
+  "description": "叫地主、抢地主、炸弹王炸、记牌器与春天特效，和两位电脑玩家来一局欢乐斗地主。",
+  "url": "https://awesome-mini-game.vercel.app/games/dou-dizhu/",
+  "genre": "棋牌",
+  "gamePlatform": "Web Browser",
+  "playMode": "SinglePlayer",
+  "inLanguage": ["zh-CN", "en", "ja", "ko"],
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CNY" }
+}
+</script>
+<link rel="icon" href="/favicon.svg" />
+<title>斗地主 · 欢乐对局</title>
+<link rel="stylesheet" href="../../assets/game-page.css?v=20261015" />
+<link rel="stylesheet" href="styles.css?v=20261015" />
+<link rel="stylesheet" href="../../assets/ui.css?v=20261015" />
+<script src="../../assets/theme.js"></script>
+</head>
+<body>
+<div class="bg-orbs"><span></span><span></span><span></span></div>
+<main class="page">
+  <header class="brand">
+    <div class="logo">🃏</div>
+    <div>
+      <h1><span data-i18n="name">斗地主</span> <em data-i18n="subtitle">欢乐对局</em></h1>
+      <p data-i18n="intro">叫地主、抢地主，炸弹王炸翻倍！和两位电脑玩家来一局，农民之间还会互相配合。</p>
+    </div>
+    <div class="brand-btns">
+      <button id="btn-mute" class="icon-btn">🔊</button>
+    </div>
+  </header>
+
+  <section class="cabinet wide">
+    <div class="col">
+      <div class="game-frame" id="frame">
+        <canvas id="game" class="stage"></canvas>
+        <div id="acts" class="acts hidden"></div>
+        <div id="toast" class="toast"></div>
+
+        <div id="screen-menu" class="screen clear-bg">
+          <div class="title-badge">DOU DIZHU</div>
+          <h2 class="game-title" data-i18n="name">斗地主</h2>
+          <div class="types"><span data-i18n="t1">顺子</span><span data-i18n="t2">连对</span><span data-i18n="t3">三带一/二</span><span data-i18n="t4">飞机</span><span data-i18n="t5">四带二</span><span data-i18n="t6">💣 炸弹</span><span data-i18n="t7">🚀 王炸</span></div>
+          <div class="seg-label" data-i18n="pickLv">电脑水平</div>
+          <div class="seg" id="lv-seg"><button data-l="0" data-i18n="lv0">🙂 休闲</button><button data-l="1" data-i18n="lv1">🧠 高手</button></div>
+          <div class="seg-label" data-i18n="pickRec">记牌器</div>
+          <div class="seg" id="rec-seg"><button data-r="1" data-i18n="recOn">🧮 开启</button><button data-r="0" data-i18n="recOff">关闭</button></div>
+          <button id="btn-start" class="btn primary" data-i18n="start">🃏 开始游戏</button>
+          <div id="menu-beans" class="mini-board"></div>
+        </div>
+
+        <div id="screen-end" class="screen dim hidden">
+          <div class="panel pop">
+            <div class="medal-big" id="end-emo">🎉</div>
+            <h3 id="end-title" class="clear-title"></h3>
+            <p class="over-sub" id="end-sub"></p>
+            <div class="stat-list" id="end-stats"></div>
+            <div class="row"><button id="btn-again" class="btn primary" data-i18n="again">🔄 再来一局</button><button id="btn-menu" class="btn ghost" data-i18n="menu">菜单</button></div>
+          </div>
+        </div>
+      </div>
+      <div class="toolbar">
+        <span class="tip kbd-only" data-i18n="tbTip">Space 出牌 · H 提示 · P 不出 · 拖动可连选</span>
+        <button id="btn-rec" data-i18n="recBtn">🧮 记牌器</button>
+        <button id="btn-home" data-i18n="home">☰ 菜单</button>
+      </div>
+    </div>
+
+    <aside class="side">
+      <div class="card"><h4 data-i18n="opTitle">🎮 操作</h4><ul>
+        <li data-i18n="op1">点击手牌选中 / 取消，按住滑动可以一次选多张</li>
+        <li data-i18n="op2">「提示」会依次推荐可出的牌，「出牌」打出选中的牌</li>
+        <li data-i18n="op3">键盘：Space 出牌 · H 提示 · P 不出 · Esc 取消选择</li>
+        <li><kbd>M</kbd> <span data-i18n="muteKw">静音</span> · <span data-i18n="op4">🧮 记牌器显示外面还剩几张</span></li>
+      </ul></div>
+      <div class="card"><h4 data-i18n="dexTitle">🃏 牌型速查</h4>
+        <div class="dex">
+          <div class="ic">🔢</div><span data-i18n="i1">顺子：5 张以上连续单牌（3 到 A，不含 2 和王）</span>
+          <div class="ic">👯</div><span data-i18n="i2">连对：3 对以上连续对子</span>
+          <div class="ic">🎯</div><span data-i18n="i3">三带一 / 三带二：三张相同点数带一张单牌或一对</span>
+          <div class="ic">✈️</div><span data-i18n="i4">飞机：2 组以上连续三张，可带同数量的单牌或对子</span>
+          <div class="ic">💣</div><span data-i18n="i5">炸弹：4 张相同点数，能压任何普通牌型，倍数 ×2</span>
+          <div class="ic">🚀</div><span data-i18n="i6">王炸：大小王一起出，天下无敌，倍数 ×2</span>
+        </div>
+      </div>
+      <div class="card diff"><h4 data-i18n="tipTitle">🧠 牌桌秘诀</h4>
+        <p data-i18n="tipBody">手里有双王、2 和炸弹再叫地主；抢地主每抢一次倍数翻倍。出牌前先把手牌拆成尽量少的几手——顺子和飞机一次能走很多张。当农民时别压队友的大牌，地主只剩一两张时要用大牌顶住。地主一手没让农民出牌就是「春天」，倍数再翻一番！</p></div>
+    </aside>
+  </section>
+
+  <details class="card seo-about"><summary data-i18n="aboutTitle">📖 关于这款游戏</summary><p data-i18n="aboutBody">斗地主网页版是一款经典 3 人扑克游戏：一副 54 张牌，每人 17 张，留 3 张底牌。玩家先叫地主、抢地主（每抢一次倍数翻倍），地主拿走底牌、一人对抗两位农民，先出完手牌的一方获胜。支持单牌、对子、三带一、三带二、顺子、连对、飞机带翅膀、四带二、炸弹和王炸全部牌型，炸弹、王炸、春天与反春都会让倍数翻番。两位电脑玩家会拆牌规划、判断何时压牌，农民之间还会互相配合。内置记牌器、出牌提示、拖动多选，以及炸弹爆炸、王炸火箭、飞机掠过等特效，用欢乐豆记分，完全免费。</p></details>
+  <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持触屏拖选</footer>
+</main>
+<script src="../../assets/i18n.js?v=20261015"></script>
+<script src="../../assets/touch.js?v=20261015"></script>
+<script>
+window.GAME_STR = {
+  zh: {
+    title: '斗地主 · 欢乐对局', name: '斗地主', subtitle: '欢乐对局', intro: '叫地主、抢地主，炸弹王炸翻倍！和两位电脑玩家来一局，农民之间还会互相配合。',
+    t1: '顺子', t2: '连对', t3: '三带一/二', t4: '飞机', t5: '四带二', t6: '💣 炸弹', t7: '🚀 王炸', pickLv: '电脑水平', lv0: '🙂 休闲', lv1: '🧠 高手', pickRec: '记牌器', recOn: '🧮 开启', recOff: '关闭',
+    start: '🃏 开始游戏', again: '🔄 再来一局', menu: '菜单', recBtn: '🧮 记牌器', home: '☰ 菜单', tbTip: 'Space 出牌 · H 提示 · P 不出 · 拖动可连选', muteKw: '静音',
+    opTitle: '🎮 操作', op1: '点击手牌选中 / 取消，按住滑动可以一次选多张', op2: '「提示」会依次推荐可出的牌，「出牌」打出选中的牌', op3: '键盘：Space 出牌 · H 提示 · P 不出 · Esc 取消选择', op4: '🧮 记牌器显示外面还剩几张',
+    dexTitle: '🃏 牌型速查', i1: '顺子：5 张以上连续单牌（3 到 A，不含 2 和王）', i2: '连对：3 对以上连续对子', i3: '三带一 / 三带二：三张相同点数带一张单牌或一对', i4: '飞机：2 组以上连续三张，可带同数量的单牌或对子', i5: '炸弹：4 张相同点数，能压任何普通牌型，倍数 ×2', i6: '王炸：大小王一起出，天下无敌，倍数 ×2',
+    tipTitle: '🧠 牌桌秘诀', tipBody: '手里有双王、2 和炸弹再叫地主；抢地主每抢一次倍数翻倍。出牌前先把手牌拆成尽量少的几手——顺子和飞机一次能走很多张。当农民时别压队友的大牌，地主只剩一两张时要用大牌顶住。地主一手没让农民出牌就是「春天」，倍数再翻一番！',
+    aboutTitle: '📖 关于这款游戏',
+    aboutBody: '斗地主网页版是一款经典 3 人扑克游戏：一副 54 张牌，每人 17 张，留 3 张底牌。玩家先叫地主、抢地主（每抢一次倍数翻倍），地主拿走底牌、一人对抗两位农民，先出完手牌的一方获胜。支持单牌、对子、三带一、三带二、顺子、连对、飞机带翅膀、四带二、炸弹和王炸全部牌型，炸弹、王炸、春天与反春都会让倍数翻番。两位电脑玩家会拆牌规划、判断何时压牌，农民之间还会互相配合。内置记牌器、出牌提示、拖动多选，以及炸弹爆炸、王炸火箭、飞机掠过等特效，用欢乐豆记分，完全免费。',
+    footer: '🕹️ 打开即玩 · 完全免费 · 支持触屏拖选', muteTitle: '声音开 / 关 (M)',
+    names: ['你', '阿强', '小美'], tableLogo: '欢乐斗地主', refill: '🎁 送你 10000 欢乐豆！', redeal: '没人叫地主，重新发牌', bCall: '叫地主', bNo: '不叫', bRob: '抢地主', bNoRob: '不抢',
+    youLandlord: '👑 你是地主！', isLandlord: n => '👑 ' + n + ' 当地主', passWords: ['不要', '要不起', '过'], cantBeat: '要不起', passBtn: '不出', hintBtn: '提示', playBtn: '出牌',
+    badType: '这不是有效的牌型', cantBeatMsg: '压不过上家', fxBomb: '炸弹', fxRocket: '王炸', fxPlane: '飞机', fxStraight: '顺子', fxDouble: '连对', fxFour: '四带二', fxSpring: '春天', fxAntiSpring: '反春',
+    hudBase: n => '底分 ' + n, hudMult: '倍数', rLandlord: '地主', rFarmer: '农民', nCards: n => '剩 ' + n + ' 张',
+    youWin: '你赢了！', youLose: '你输了', llWins: '地主获胜', farmersWin: '农民获胜', multDetail: (r, b) => '倍数（抢 ' + r + ' 次 · 炸 ' + b + ' 次）', recLbl: '战绩 胜 / 负', beansLbl: v => '🫘 欢乐豆 ' + v
+  },
+  en: {
+    title: 'Dou Dizhu · Fight the Landlord', name: 'DOU DIZHU', subtitle: 'Fight the Landlord', intro: 'Bid, steal the landlord, double up with bombs and rockets! Two computer players — and the farmers team up.',
+    t1: 'Straight', t2: 'Pair chain', t3: 'Trio + kicker', t4: 'Airplane', t5: 'Four + two', t6: '💣 Bomb', t7: '🚀 Rocket', pickLv: 'COMPUTER', lv0: '🙂 Casual', lv1: '🧠 Expert', pickRec: 'CARD COUNTER', recOn: '🧮 On', recOff: 'Off',
+    start: '🃏 Deal', again: '🔄 Next Round', menu: 'Menu', recBtn: '🧮 Counter', home: '☰ Menu', tbTip: 'Space play · H hint · P pass · drag to multi-select', muteKw: 'mute',
+    opTitle: '🎮 Controls', op1: 'Tap cards to select / deselect; press and slide to select several', op2: '"Hint" cycles through playable sets, "Play" plays the selection', op3: 'Keyboard: Space play · H hint · P pass · Esc clear', op4: '🧮 The counter shows how many of each rank are still out',
+    dexTitle: '🃏 Card Combos', i1: 'Straight: 5+ consecutive singles (3 to A, no 2s or jokers)', i2: 'Pair chain: 3+ consecutive pairs', i3: 'Trio with kicker: three of a kind plus a single or a pair', i4: 'Airplane: 2+ consecutive trios, optionally with as many singles or pairs', i5: 'Bomb: four of a kind — beats any normal combo, doubles the stakes', i6: 'Rocket: both jokers — beats everything, doubles the stakes',
+    tipTitle: '🧠 Table Tips', tipBody: 'Bid when you hold jokers, 2s and bombs; every steal doubles the stakes. Plan your hand into as few sets as possible — straights and airplanes shed many cards at once. As a farmer, don\'t overtake your partner\'s big plays, and block hard when the landlord is down to one or two cards. If the landlord wins before the farmers play a card, it\'s a "Spring" — stakes double again!',
+    aboutTitle: '📖 About this game',
+    aboutBody: 'Dou Dizhu (Fight the Landlord) is China\'s most popular 3-player card game. A 54-card deck is dealt 17 cards each with 3 left face down. Players bid and steal for the landlord role (each steal doubles the stakes); the landlord takes the 3 extra cards and plays alone against two farmers — first to empty their hand wins. All combos are supported: singles, pairs, trios with kickers, straights, pair chains, airplanes with wings, four-with-two, bombs and the rocket, with bombs, rockets and Springs doubling the stakes. The two AI players plan their hands, choose when to fight, and the farmers cooperate. Includes a card counter, hints, drag-to-select and flashy bomb, rocket and airplane effects, scored with beans.',
+    footer: '🕹️ Play instantly · Free · Touch drag-select', muteTitle: 'Sound on/off (M)',
+    names: ['You', 'Max', 'Mia'], tableLogo: 'DOU DIZHU', refill: '🎁 Here are 10,000 free beans!', redeal: 'Nobody bid — redealing', bCall: 'Bid', bNo: 'No bid', bRob: 'Steal', bNoRob: 'Pass',
+    youLandlord: '👑 You are the landlord!', isLandlord: n => '👑 ' + n + ' is the landlord', passWords: ['Pass', 'Can\'t beat', 'Pass'], cantBeat: 'Can\'t beat', passBtn: 'Pass', hintBtn: 'Hint', playBtn: 'Play',
+    badType: 'Not a valid combo', cantBeatMsg: 'Doesn\'t beat the last play', fxBomb: 'BOMB', fxRocket: 'ROCKET', fxPlane: 'AIRPLANE', fxStraight: 'STRAIGHT', fxDouble: 'PAIR CHAIN', fxFour: 'FOUR + TWO', fxSpring: 'SPRING', fxAntiSpring: 'ANTI-SPRING',
+    hudBase: n => 'Base ' + n, hudMult: 'Stake', rLandlord: 'Landlord', rFarmer: 'Farmer', nCards: n => n + ' cards',
+    youWin: 'You win!', youLose: 'You lose', llWins: 'Landlord wins', farmersWin: 'Farmers win', multDetail: (r, b) => 'Stake (' + r + ' steals · ' + b + ' bombs)', recLbl: 'Record W / L', beansLbl: v => '🫘 Beans ' + v
+  },
+  ja: {
+    title: '闘地主 · ドウディージュ', name: '闘地主', subtitle: 'ドウディージュ', intro: '地主をコール＆奪取、爆弾とロケットで倍率アップ！コンピュータ2人と対戦、農民同士は協力してくる。',
+    t1: '階段', t2: '連続ペア', t3: 'スリーカード+α', t4: '飛行機', t5: 'フォー+2', t6: '💣 爆弾', t7: '🚀 ロケット', pickLv: 'コンピュータ', lv0: '🙂 カジュアル', lv1: '🧠 上級', pickRec: 'カウンター', recOn: '🧮 オン', recOff: 'オフ',
+    start: '🃏 配る', again: '🔄 次の局', menu: 'メニュー', recBtn: '🧮 カウンター', home: '☰ メニュー', tbTip: 'Space 出す · H ヒント · P パス · ドラッグで複数選択', muteKw: 'ミュート',
+    opTitle: '🎮 操作', op1: 'カードをタップで選択/解除、押したままスライドで複数選択', op2: '「ヒント」で出せる組を順に提案、「出す」で選んだカードを出す', op3: 'キーボード：Space 出す · H ヒント · P パス · Esc 選択解除', op4: '🧮 カウンターで残り枚数を確認',
+    dexTitle: '🃏 役一覧', i1: '階段：5枚以上の連続した数字（3〜A、2とジョーカーは不可）', i2: '連続ペア：3組以上連続したペア', i3: 'スリーカード+1/+2：同じ数字3枚に単札かペアを付ける', i4: '飛行機：連続したスリーカード2組以上、同数の単札かペアを付けられる', i5: '爆弾：同じ数字4枚。どの役にも勝ち、倍率×2', i6: 'ロケット：ジョーカー2枚。最強、倍率×2',
+    tipTitle: '🧠 必勝のコツ', tipBody: 'ジョーカー・2・爆弾があれば地主をコールしよう。奪うたびに倍率は2倍。手札はできるだけ少ない組に分けて——階段や飛行機は一度に多く出せる。農民なら味方の強いカードを上書きしないこと。地主が残り1〜2枚なら強いカードで止めよう。農民に一度も出させずに地主が上がると「春」で倍率がさらに2倍！',
+    aboutTitle: '📖 このゲームについて',
+    aboutBody: '闘地主（ドウディージュ）は中国で最も人気のある3人用トランプゲーム。54枚を17枚ずつ配り、3枚を伏せて残す。地主をコール・奪取（奪うごとに倍率2倍）し、地主は伏せ札を取って1人で農民2人と戦い、先に手札をなくした側の勝ち。単札・ペア・スリーカード+α・階段・連続ペア・飛行機・フォー+2・爆弾・ロケットの全役に対応し、爆弾・ロケット・春・反春で倍率が上がる。コンピュータは手札を計画的に分け、出すタイミングを判断し、農民同士は協力する。カウンター、ヒント、ドラッグ選択、爆発・ロケット・飛行機の演出つき。豆でスコアを記録、完全無料。',
+    footer: '🕹️ すぐ遊べる · 完全無料 · タッチでドラッグ選択', muteTitle: 'サウンド ON/OFF (M)',
+    names: ['あなた', 'ケン', 'ミナ'], tableLogo: '闘地主', refill: '🎁 豆を 10000 プレゼント！', redeal: '誰もコールせず、配り直し', bCall: 'コール', bNo: 'パス', bRob: '奪う', bNoRob: '奪わない',
+    youLandlord: '👑 あなたが地主！', isLandlord: n => '👑 ' + n + ' が地主', passWords: ['パス', '出せない', 'いらない'], cantBeat: '出せない', passBtn: 'パス', hintBtn: 'ヒント', playBtn: '出す',
+    badType: '有効な役ではありません', cantBeatMsg: '前の札に勝てません', fxBomb: '爆弾', fxRocket: 'ロケット', fxPlane: '飛行機', fxStraight: '階段', fxDouble: '連続ペア', fxFour: 'フォー+2', fxSpring: '春', fxAntiSpring: '反春',
+    hudBase: n => '基本 ' + n, hudMult: '倍率', rLandlord: '地主', rFarmer: '農民', nCards: n => '残り ' + n + ' 枚',
+    youWin: 'あなたの勝ち！', youLose: 'あなたの負け', llWins: '地主の勝ち', farmersWin: '農民の勝ち', multDetail: (r, b) => '倍率（奪取 ' + r + ' 回 · 爆弾 ' + b + ' 回）', recLbl: '戦績 勝 / 負', beansLbl: v => '🫘 豆 ' + v
+  },
+  ko: {
+    title: '도우디주 · 지주 싸움', name: '도우디주', subtitle: '지주 싸움', intro: '지주 선언과 빼앗기, 폭탄과 로켓으로 배율 업! 컴퓨터 2명과 대결, 농민끼리는 서로 협력합니다.',
+    t1: '스트레이트', t2: '연속 페어', t3: '트리플+α', t4: '비행기', t5: '포+투', t6: '💣 폭탄', t7: '🚀 로켓', pickLv: '컴퓨터 수준', lv0: '🙂 캐주얼', lv1: '🧠 고수', pickRec: '카드 카운터', recOn: '🧮 켜기', recOff: '끄기',
+    start: '🃏 카드 나누기', again: '🔄 다음 판', menu: '메뉴', recBtn: '🧮 카운터', home: '☰ 메뉴', tbTip: 'Space 내기 · H 힌트 · P 패스 · 드래그로 여러 장 선택', muteKw: '음소거',
+    opTitle: '🎮 조작', op1: '카드를 눌러 선택/해제, 누른 채 밀면 여러 장 선택', op2: '「힌트」는 낼 수 있는 조합을 차례로 추천, 「내기」로 선택한 카드를 냅니다', op3: '키보드: Space 내기 · H 힌트 · P 패스 · Esc 선택 해제', op4: '🧮 카운터로 남은 장 수 확인',
+    dexTitle: '🃏 조합 요약', i1: '스트레이트: 5장 이상 연속(3~A, 2와 조커 불가)', i2: '연속 페어: 3쌍 이상 연속', i3: '트리플+1/+2: 같은 숫자 3장에 한 장 또는 한 쌍', i4: '비행기: 연속 트리플 2조 이상, 같은 수의 단장 또는 페어 첨부 가능', i5: '폭탄: 같은 숫자 4장. 모든 일반 조합을 이기고 배율 ×2', i6: '로켓: 조커 두 장. 최강, 배율 ×2',
+    tipTitle: '🧠 승리 팁', tipBody: '조커, 2, 폭탄이 있을 때 지주를 선언하세요. 빼앗을 때마다 배율이 두 배. 손패를 최대한 적은 조합으로 나누세요——스트레이트와 비행기는 한 번에 많이 냅니다. 농민이라면 동료의 큰 카드를 덮지 말고, 지주가 1~2장 남으면 큰 카드로 막으세요. 농민이 한 장도 못 내고 지주가 이기면 「봄」, 배율이 또 두 배!',
+    aboutTitle: '📖 게임 소개',
+    aboutBody: '도우디주(지주 싸움)는 중국에서 가장 인기 있는 3인 카드 게임입니다. 54장을 17장씩 나누고 3장을 뒤집어 남깁니다. 지주를 선언·빼앗기(빼앗을 때마다 배율 2배)하고, 지주는 남은 3장을 가져가 혼자서 농민 둘과 싸우며 먼저 손패를 모두 낸 쪽이 이깁니다. 단장, 페어, 트리플+α, 스트레이트, 연속 페어, 비행기, 포+투, 폭탄, 로켓 모든 조합을 지원하며 폭탄·로켓·봄·역봄으로 배율이 오릅니다. 컴퓨터는 손패를 계획적으로 나누고 낼 때를 판단하며 농민끼리 협력합니다. 카드 카운터, 힌트, 드래그 선택, 폭발·로켓·비행기 연출, 콩 점수 기록. 완전 무료.',
+    footer: '🕹️ 바로 플레이 · 완전 무료 · 터치 드래그 선택', muteTitle: '사운드 켜기/끄기 (M)',
+    names: ['나', '민준', '서연'], tableLogo: '도우디주', refill: '🎁 콩 10000개 선물!', redeal: '아무도 선언하지 않아 다시 나눕니다', bCall: '지주 선언', bNo: '패스', bRob: '빼앗기', bNoRob: '안 빼앗기',
+    youLandlord: '👑 당신이 지주!', isLandlord: n => '👑 ' + n + ' 지주', passWords: ['패스', '못 내요', '통과'], cantBeat: '못 내요', passBtn: '패스', hintBtn: '힌트', playBtn: '내기',
+    badType: '올바른 조합이 아닙니다', cantBeatMsg: '앞 패를 이길 수 없습니다', fxBomb: '폭탄', fxRocket: '로켓', fxPlane: '비행기', fxStraight: '스트레이트', fxDouble: '연속 페어', fxFour: '포+투', fxSpring: '봄', fxAntiSpring: '역봄',
+    hudBase: n => '기본 ' + n, hudMult: '배율', rLandlord: '지주', rFarmer: '농민', nCards: n => n + '장 남음',
+    youWin: '승리!', youLose: '패배', llWins: '지주 승리', farmersWin: '농민 승리', multDetail: (r, b) => '배율 (빼앗기 ' + r + '회 · 폭탄 ' + b + '회)', recLbl: '전적 승 / 패', beansLbl: v => '🫘 콩 ' + v
+  }
+};
+</script>
+<script src="../../assets/bgm.js?v=20261015"></script>
+<script src="../../assets/kit.js?v=20261015"></script>
+<script src="rules.js?v=20261015"></script>
+<script src="game.js?v=20261015"></script>
+</body>
+</html>

@@ -4,7 +4,7 @@
  * overlay even when the `(pointer:coarse)` media query doesn't match
  * (e.g. touch laptops, some devtools emulation, hybrid devices).
  * Include after i18n.js on pages that have a #touch overlay:
- *   <script src="../assets/touch.js?v=20260908"></script>
+ *   <script src="../../assets/touch.js?v=20260908"></script>
  */
 (function () {
   'use strict';

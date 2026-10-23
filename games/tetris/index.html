@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="description" content="俄罗斯方块网页版：现代规则 7-bag、SRS 旋转踢墙、暂存与 5 个预览、影子、T-Spin、B2B、连击与全消，马拉松、40 行冲刺、2 分钟限时三种模式，支持手柄与触屏手势。">
+<link rel="canonical" href="https://awesome-mini-game.vercel.app/games/tetris/">
+<link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/tetris/">
+<link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/tetris/?lang=en">
+<link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/games/tetris/?lang=ja">
+<link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/games/tetris/?lang=ko">
+<link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/games/tetris/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Awesome Mini Game">
+<meta property="og:title" content="俄罗斯方块 · 方块狂潮">
+<meta property="og:description" content="SRS 旋转、暂存、T-Spin、B2B 与全消，马拉松 / 冲刺 / 限时三种模式的现代俄罗斯方块。">
+<meta property="og:url" content="https://awesome-mini-game.vercel.app/games/tetris/">
+<meta property="og:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="俄罗斯方块 · 方块狂潮">
+<meta name="twitter:description" content="SRS 旋转、暂存、T-Spin、B2B 与全消，马拉松 / 冲刺 / 限时三种模式的现代俄罗斯方块。">
+<meta name="twitter:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "俄罗斯方块 · 方块狂潮",
+  "description": "SRS 旋转、暂存、T-Spin、B2B 与全消，马拉松 / 冲刺 / 限时三种模式的现代俄罗斯方块。",
+  "url": "https://awesome-mini-game.vercel.app/games/tetris/",
+  "genre": "益智",
+  "gamePlatform": "Web Browser",
+  "playMode": "SinglePlayer",
+  "inLanguage": ["zh-CN", "en", "ja", "ko"],
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CNY" }
+}
+</script>
+<link rel="icon" href="/favicon.svg" />
+<title>俄罗斯方块 · 方块狂潮</title>
+<link rel="stylesheet" href="../../assets/game-page.css?v=20261015" />
+<link rel="stylesheet" href="styles.css?v=20261015" />
+<link rel="stylesheet" href="../../assets/ui.css?v=20261015" />
+<script src="../../assets/theme.js"></script>
+</head>
+<body>
+<div class="bg-orbs"><span></span><span></span><span></span></div>
+<main class="page">
+  <header class="brand">
+    <div class="logo">🧱</div>
+    <div>
+      <h1><span data-i18n="name">俄罗斯方块</span> <em data-i18n="subtitle">方块狂潮</em></h1>
+      <p data-i18n="intro">现代规则：SRS 旋转、暂存、5 个预览、T-Spin 与全消，三种模式等你挑战。</p>
+    </div>
+    <div class="brand-btns">
+      <button id="btn-mute" class="icon-btn">🔊</button>
+    </div>
+  </header>
+
+  <section class="cabinet">
+    <div class="col">
+      <div class="game-frame" id="frame">
+        <canvas id="game" class="stage"></canvas>
+
+        <div id="screen-menu" class="screen clear-bg">
+          <div class="title-badge">TETRIS</div>
+          <h2 class="game-title" data-i18n="name">俄罗斯方块</h2>
+          <div class="blocks-deco"><i style="background:#31c7ef"></i><i style="background:#f7d308"></i><i style="background:#b04fd0"></i><i style="background:#42c24a"></i><i style="background:#ef2a35"></i><i style="background:#3f6bff"></i><i style="background:#ff8a1e"></i></div>
+          <div class="seg" id="mode-seg"><button data-m="marathon" data-i18n="mMarathon">🏃 马拉松</button><button data-m="sprint" data-i18n="mSprint">⚡ 40 行冲刺</button><button data-m="ultra" data-i18n="mUltra">⏱️ 2 分钟</button></div>
+          <p class="mode-desc" id="mode-desc"></p>
+          <div class="opts" id="lv-wrap">
+            <div class="seg-label" data-i18n="pickLv">起始等级</div>
+            <div class="seg" id="lv-seg"><button data-l="1">1</button><button data-l="5">5</button><button data-l="10">10</button><button data-l="15">15</button></div>
+          </div>
+          <div class="seg-label" data-i18n="pickFeel">操作手感</div>
+          <div class="seg" id="feel-seg"><button data-f="0" data-i18n="fNormal">标准</button><button data-f="1" data-i18n="fFast">⚡ 极速</button></div>
+          <button id="btn-start" class="btn primary" data-i18n="start">▶ 开始游戏</button>
+          <p class="hint"><kbd>←</kbd><kbd>→</kbd> <span data-i18n="hMove">移动</span> · <kbd>↑</kbd>/<kbd>X</kbd> <span data-i18n="hRot">旋转</span> · <kbd>Space</kbd> <span data-i18n="hHard">硬降</span> · <kbd>C</kbd> <span data-i18n="hHold">暂存</span></p>
+          <div id="menu-best" class="mini-board"></div>
+        </div>
+
+        <div id="screen-pause" class="screen dim hidden">
+          <div class="panel pop">
+            <h3 data-i18n="paused">⏸ 暂停中</h3>
+            <div class="row" style="margin-top:14px"><button id="btn-resume" class="btn primary" data-i18n="resume">▶ 继续</button><button id="btn-restart" class="btn ghost" data-i18n="restart">🔄 重新开始</button><button id="btn-quit" class="btn ghost" data-i18n="menu">菜单</button></div>
+          </div>
+        </div>
+
+        <div id="screen-over" class="screen dim hidden">
+          <div class="panel pop">
+            <div class="medal-big" id="over-emo">🧱</div>
+            <h3 id="over-title" class="over-title">GAME OVER</h3>
+            <div id="over-record" class="new-record hidden" data-i18n="newRecord">新纪录！</div>
+            <div class="stat-list" id="over-stats"></div>
+            <div class="row"><button id="btn-retry" class="btn primary" data-i18n="retry">🔄 再来一局</button><button id="btn-menu" class="btn ghost" data-i18n="menu">菜单</button></div>
+          </div>
+        </div>
+      </div>
+      <div class="pad" id="pad">
+        <button data-a="hold" data-i18n="pHold">暂存</button>
+        <button data-a="ccw">⟲</button>
+        <button data-a="cw">⟳</button>
+        <button data-a="hard" class="hard">⤓</button>
+        <button data-a="pause" class="small">⏸</button>
+      </div>
+    </div>
+
+    <aside class="side">
+      <div class="card"><h4 data-i18n="opTitle">🎮 操作</h4><ul>
+        <li data-i18n="op1">← → 移动 · ↓ 软降 · Space 硬降</li>
+        <li data-i18n="op2">↑ / X 顺时针 · Z / Ctrl 逆时针 · Q 旋转 180°</li>
+        <li data-i18n="op3">C / Shift 暂存方块（每块只能换一次）</li>
+        <li data-i18n="op4">👆 触屏：左右拖动移动 · 轻点旋转 · 快速下划硬降 · 上划暂存</li>
+        <li><kbd>P</kbd> <span data-i18n="pauseKw">暂停</span> · <kbd>M</kbd> <span data-i18n="muteKw">静音</span> · <span data-i18n="op5">🎮 支持手柄</span></li>
+      </ul></div>
+      <div class="card"><h4 data-i18n="dexTitle">🏆 得分招式</h4>
+        <div class="dex">
+          <div class="ic">4️⃣</div><span data-i18n="i1">Tetris：一次消 4 行，800 × 等级</span>
+          <div class="ic">🌀</div><span data-i18n="i2">T-Spin：T 块旋转卡进缝隙再消行，最高 1600 × 等级</span>
+          <div class="ic">🔗</div><span data-i18n="i3">B2B：连续打出 Tetris / T-Spin，得分 ×1.5</span>
+          <div class="ic">🔥</div><span data-i18n="i4">连击：每块都消行，连击越多加分越多</span>
+          <div class="ic">✨</div><span data-i18n="i5">全消：清空整个场地，额外奖励最高 2000 × 等级</span>
+        </div>
+      </div>
+      <div class="card diff"><h4 data-i18n="tipTitle">🧠 高手秘诀</h4>
+        <p data-i18n="tipBody">把右侧（或左侧）留出一列，等长条 I 块一次消 4 行。善用暂存：把 I 块和 T 块存起来留给关键时刻。贴地后还有半秒锁定时间，可以左右滑动或旋转把方块塞进缝里。冲刺模式试试“极速”手感，长按方向键会直接滑到底。</p></div>
+    </aside>
+  </section>
+
+  <details class="card seo-about"><summary data-i18n="aboutTitle">📖 关于这款游戏</summary><p data-i18n="aboutBody">俄罗斯方块网页版采用现代竞技规则：7-bag 随机、SRS 旋转系统与踢墙、暂存、5 个预览、影子落点和 15 次重置的锁定延迟。完整支持 T-Spin（含 Mini）、Back-to-Back、连击与全消计分，并有消行闪光、硬降拖影、震屏和招式弹字等特效。提供马拉松（每 10 行升一级）、40 行冲刺计时和 2 分钟限时得分三种模式，可选起始等级与 DAS/ARR 操作手感，记录各模式最佳成绩与每秒方块数（PPS）。支持键盘、手柄和触屏手势，完全免费。</p></details>
+  <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持手柄和触屏手势</footer>
+</main>
+<script src="../../assets/i18n.js?v=20261015"></script>
+<script src="../../assets/touch.js?v=20261015"></script>
+<script>
+window.GAME_STR = {
+  zh: {
+    title: '俄罗斯方块 · 方块狂潮', name: '俄罗斯方块', subtitle: '方块狂潮', intro: '现代规则：SRS 旋转、暂存、5 个预览、T-Spin 与全消，三种模式等你挑战。',
+    mMarathon: '🏃 马拉松', mSprint: '⚡ 40 行冲刺', mUltra: '⏱️ 2 分钟', pickLv: '起始等级', pickFeel: '操作手感', fNormal: '标准', fFast: '⚡ 极速',
+    start: '▶ 开始游戏', hMove: '移动', hRot: '旋转', hHard: '硬降', hHold: '暂存', paused: '⏸ 暂停中', resume: '▶ 继续', restart: '🔄 重新开始', menu: '菜单', newRecord: '新纪录！', retry: '🔄 再来一局',
+    pHold: '暂存', pauseKw: '暂停', muteKw: '静音',
+    opTitle: '🎮 操作', op1: '← → 移动 · ↓ 软降 · Space 硬降', op2: '↑ / X 顺时针 · Z / Ctrl 逆时针 · Q 旋转 180°', op3: 'C / Shift 暂存方块（每块只能换一次）', op4: '👆 触屏：左右拖动移动 · 轻点旋转 · 快速下划硬降 · 上划暂存', op5: '🎮 支持手柄',
+    dexTitle: '🏆 得分招式', i1: 'Tetris：一次消 4 行，800 × 等级', i2: 'T-Spin：T 块旋转卡进缝隙再消行，最高 1600 × 等级', i3: 'B2B：连续打出 Tetris / T-Spin，得分 ×1.5', i4: '连击：每块都消行，连击越多加分越多', i5: '全消：清空整个场地，额外奖励最高 2000 × 等级',
+    tipTitle: '🧠 高手秘诀', tipBody: '把右侧（或左侧）留出一列，等长条 I 块一次消 4 行。善用暂存：把 I 块和 T 块存起来留给关键时刻。贴地后还有半秒锁定时间，可以左右滑动或旋转把方块塞进缝里。冲刺模式试试“极速”手感，长按方向键会直接滑到底。',
+    aboutTitle: '📖 关于这款游戏',
+    aboutBody: '俄罗斯方块网页版采用现代竞技规则：7-bag 随机、SRS 旋转系统与踢墙、暂存、5 个预览、影子落点和 15 次重置的锁定延迟。完整支持 T-Spin（含 Mini）、Back-to-Back、连击与全消计分，并有消行闪光、硬降拖影、震屏和招式弹字等特效。提供马拉松（每 10 行升一级）、40 行冲刺计时和 2 分钟限时得分三种模式，可选起始等级与 DAS/ARR 操作手感，记录各模式最佳成绩与每秒方块数（PPS）。支持键盘、手柄和触屏手势，完全免费。',
+    footer: '🕹️ 打开即玩 · 完全免费 · 支持手柄和触屏手势', muteTitle: '声音开 / 关 (M)',
+    modeNames: { marathon: '马拉松', sprint: '40 行冲刺', ultra: '2 分钟' },
+    modeDesc: { marathon: '每消 10 行升一级，速度越来越快，坚持得越久分越高。', sprint: '用最短时间消除 40 行，挑战你的极限速度。', ultra: '2 分钟内尽可能拿高分，多打 Tetris 和 T-Spin！' },
+    combo: n => n + ' 连击', levelUp: n => '等级 ' + n, sprintDone: '冲刺完成！', timeUp: '时间到！',
+    stScore: '得分', stLevel: '等级', stLines: '消除行数', stTime: '用时', stTetris: 'Tetris 次数', stTspin: 'T-Spin 次数', stCombo: '最大连击', stBest: '最佳', bestLbl: v => '🏆 最佳 ' + v
+  },
+  en: {
+    title: 'Tetris · Block Rush', name: 'TETRIS', subtitle: 'Block Rush', intro: 'Modern rules: SRS rotation, hold, 5-piece preview, T-Spins and Perfect Clears — three modes to master.',
+    mMarathon: '🏃 Marathon', mSprint: '⚡ Sprint 40L', mUltra: '⏱️ Ultra 2:00', pickLv: 'START LEVEL', pickFeel: 'HANDLING', fNormal: 'Standard', fFast: '⚡ Fast',
+    start: '▶ Start', hMove: 'move', hRot: 'rotate', hHard: 'hard drop', hHold: 'hold', paused: '⏸ Paused', resume: '▶ Resume', restart: '🔄 Restart', menu: 'Menu', newRecord: 'NEW RECORD!', retry: '🔄 Play Again',
+    pHold: 'Hold', pauseKw: 'pause', muteKw: 'mute',
+    opTitle: '🎮 Controls', op1: '← → move · ↓ soft drop · Space hard drop', op2: '↑ / X rotate CW · Z / Ctrl CCW · Q 180°', op3: 'C / Shift hold (once per piece)', op4: '👆 Touch: drag to move · tap to rotate · flick down to hard drop · swipe up to hold', op5: '🎮 Gamepad supported',
+    dexTitle: '🏆 Scoring Moves', i1: 'Tetris: clear 4 lines at once, 800 × level', i2: 'T-Spin: rotate a T into a slot and clear lines, up to 1600 × level', i3: 'Back-to-Back: chain Tetrises / T-Spins for ×1.5', i4: 'Combo: clear lines with consecutive pieces for growing bonuses', i5: 'Perfect Clear: empty the whole board for up to 2000 × level',
+    tipTitle: '🧠 Pro Tips', tipBody: 'Keep one column open on the side and wait for the I piece to score a Tetris. Use hold to save I and T pieces for the right moment. After touching down you get half a second of lock delay — slide or spin the piece into gaps. In Sprint try the Fast handling: holding a direction slides pieces straight to the wall.',
+    aboutTitle: '📖 About this game',
+    aboutBody: 'Tetris · Block Rush follows modern guideline rules: 7-bag randomizer, the SRS rotation system with wall kicks, hold, a 5-piece preview, ghost piece and lock delay with 15 resets. Full scoring for T-Spins (including Minis), Back-to-Back, combos and Perfect Clears, with line-clear flashes, hard-drop trails, screen shake and move callouts. Play Marathon (level up every 10 lines), Sprint 40 lines against the clock or Ultra 2-minute score attack, pick a start level and DAS/ARR handling, and track your best per mode plus pieces per second. Keyboard, gamepad and touch gestures.',
+    footer: '🕹️ Play instantly · Free · Gamepad & touch gestures', muteTitle: 'Sound on/off (M)',
+    modeNames: { marathon: 'Marathon', sprint: 'Sprint 40L', ultra: 'Ultra 2:00' },
+    modeDesc: { marathon: 'Level up every 10 lines as the speed keeps rising. Survive as long as you can.', sprint: 'Clear 40 lines as fast as possible.', ultra: 'Score as much as you can in 2 minutes — go for Tetrises and T-Spins!' },
+    combo: n => n + ' COMBO', levelUp: n => 'LEVEL ' + n, sprintDone: 'SPRINT COMPLETE!', timeUp: 'TIME UP!',
+    stScore: 'Score', stLevel: 'Level', stLines: 'Lines', stTime: 'Time', stTetris: 'Tetrises', stTspin: 'T-Spins', stCombo: 'Max combo', stBest: 'Best', bestLbl: v => '🏆 Best ' + v
+  },
+  ja: {
+    title: 'テトリス · ブロックラッシュ', name: 'テトリス', subtitle: 'ブロックラッシュ', intro: 'モダンルール：SRS回転、ホールド、5つのネクスト、Tスピンにパーフェクトクリア。3つのモードに挑戦。',
+    mMarathon: '🏃 マラソン', mSprint: '⚡ 40ライン', mUltra: '⏱️ 2分', pickLv: '開始レベル', pickFeel: '操作感', fNormal: '標準', fFast: '⚡ 高速',
+    start: '▶ スタート', hMove: '移動', hRot: '回転', hHard: 'ハードドロップ', hHold: 'ホールド', paused: '⏸ 一時停止中', resume: '▶ 再開', restart: '🔄 やり直す', menu: 'メニュー', newRecord: '新記録！', retry: '🔄 もう一度',
+    pHold: 'ホールド', pauseKw: '一時停止', muteKw: 'ミュート',
+    opTitle: '🎮 操作', op1: '← → 移動 · ↓ ソフトドロップ · Space ハードドロップ', op2: '↑ / X 右回転 · Z / Ctrl 左回転 · Q 180°回転', op3: 'C / Shift ホールド（1ミノにつき1回）', op4: '👆 タッチ：ドラッグで移動 · タップで回転 · 下にはじいてハードドロップ · 上スワイプでホールド', op5: '🎮 ゲームパッド対応',
+    dexTitle: '🏆 得点テクニック', i1: 'テトリス：4ライン同時消し、800 × レベル', i2: 'Tスピン：Tミノを回転で隙間に入れて消す、最大 1600 × レベル', i3: 'B2B：テトリス/Tスピンを連続で決めると ×1.5', i4: 'REN：連続で消すほどボーナス増加', i5: 'パーフェクトクリア：盤面を空にすると最大 2000 × レベル',
+    tipTitle: '🧠 上達のコツ', tipBody: '端の1列を空けておき、Iミノでテトリスを狙おう。ホールドでIミノやTミノを大事な場面に取っておく。接地後も0.5秒のロック猶予があるので、スライドや回転で隙間にねじ込める。40ラインでは「高速」操作感を試そう。方向キー長押しで壁まで一気に移動する。',
+    aboutTitle: '📖 このゲームについて',
+    aboutBody: 'テトリス · ブロックラッシュはモダンなガイドラインルールを採用：7種1巡の乱数、SRS回転と壁蹴り、ホールド、5つのネクスト、ゴースト、15回リセットのロックディレイ。Tスピン（Mini含む）・Back-to-Back・REN・パーフェクトクリアの得点に対応し、ライン消去の光、ハードドロップの残像、画面振動、技名表示などの演出つき。マラソン（10ラインごとにレベルアップ）、40ラインのタイムアタック、2分間のスコアアタックの3モード。開始レベルとDAS/ARRの操作感を選べ、モード別ベストとPPSを記録。キーボード・ゲームパッド・タッチ操作に対応、完全無料。',
+    footer: '🕹️ すぐ遊べる · 完全無料 · ゲームパッド・タッチ対応', muteTitle: 'サウンド ON/OFF (M)',
+    modeNames: { marathon: 'マラソン', sprint: '40ライン', ultra: '2分' },
+    modeDesc: { marathon: '10ラインごとにレベルアップ、どんどん速くなる。どこまで粘れるか！', sprint: '40ラインをできるだけ速く消そう。', ultra: '2分間でできるだけ高得点を。テトリスとTスピンを狙え！' },
+    combo: n => n + ' REN', levelUp: n => 'レベル ' + n, sprintDone: '40ライン達成！', timeUp: 'タイムアップ！',
+    stScore: 'スコア', stLevel: 'レベル', stLines: 'ライン', stTime: 'タイム', stTetris: 'テトリス回数', stTspin: 'Tスピン回数', stCombo: '最大REN', stBest: 'ベスト', bestLbl: v => '🏆 ベスト ' + v
+  },
+  ko: {
+    title: '테트리스 · 블록 러시', name: '테트리스', subtitle: '블록 러시', intro: '모던 규칙: SRS 회전, 홀드, 5개 미리보기, T-스핀과 퍼펙트 클리어. 세 가지 모드에 도전하세요.',
+    mMarathon: '🏃 마라톤', mSprint: '⚡ 40줄 스프린트', mUltra: '⏱️ 2분', pickLv: '시작 레벨', pickFeel: '조작감', fNormal: '표준', fFast: '⚡ 고속',
+    start: '▶ 시작', hMove: '이동', hRot: '회전', hHard: '하드 드롭', hHold: '홀드', paused: '⏸ 일시정지', resume: '▶ 계속', restart: '🔄 다시 시작', menu: '메뉴', newRecord: '신기록!', retry: '🔄 다시 하기',
+    pHold: '홀드', pauseKw: '일시정지', muteKw: '음소거',
+    opTitle: '🎮 조작', op1: '← → 이동 · ↓ 소프트 드롭 · Space 하드 드롭', op2: '↑ / X 시계 방향 · Z / Ctrl 반시계 · Q 180° 회전', op3: 'C / Shift 홀드 (블록당 한 번)', op4: '👆 터치: 드래그로 이동 · 탭으로 회전 · 아래로 튕기면 하드 드롭 · 위로 밀면 홀드', op5: '🎮 게임패드 지원',
+    dexTitle: '🏆 득점 기술', i1: '테트리스: 한 번에 4줄, 800 × 레벨', i2: 'T-스핀: T 블록을 회전으로 틈에 끼워 줄 삭제, 최대 1600 × 레벨', i3: 'B2B: 테트리스/T-스핀을 연속하면 ×1.5', i4: '콤보: 연속으로 줄을 지울수록 보너스 증가', i5: '퍼펙트 클리어: 판을 전부 비우면 최대 2000 × 레벨',
+    tipTitle: '🧠 고수의 비결', tipBody: '한쪽 끝 한 줄을 비워 두고 I 블록으로 테트리스를 노리세요. 홀드로 I·T 블록을 결정적인 순간까지 아껴 두세요. 바닥에 닿은 뒤에도 0.5초 고정 지연이 있어 밀거나 돌려서 틈에 넣을 수 있습니다. 스프린트에선 "고속" 조작감을 써 보세요. 방향키를 누르고 있으면 벽까지 바로 미끄러집니다.',
+    aboutTitle: '📖 게임 소개',
+    aboutBody: '테트리스 · 블록 러시는 모던 가이드라인 규칙을 따릅니다: 7-백 랜덤, SRS 회전과 월킥, 홀드, 5개 미리보기, 고스트, 15회 리셋 고정 지연. T-스핀(미니 포함), 백투백, 콤보, 퍼펙트 클리어 점수를 모두 지원하며 줄 삭제 섬광, 하드 드롭 잔상, 화면 흔들림, 기술명 연출이 있습니다. 마라톤(10줄마다 레벨 업), 40줄 타임어택, 2분 점수 경쟁 세 가지 모드와 시작 레벨·DAS/ARR 조작감 선택, 모드별 최고 기록과 PPS 기록을 제공합니다. 키보드·게임패드·터치 제스처 지원, 완전 무료.',
+    footer: '🕹️ 바로 플레이 · 완전 무료 · 게임패드·터치 제스처', muteTitle: '사운드 켜기/끄기 (M)',
+    modeNames: { marathon: '마라톤', sprint: '40줄', ultra: '2분' },
+    modeDesc: { marathon: '10줄마다 레벨 업, 점점 빨라집니다. 최대한 오래 버티세요!', sprint: '40줄을 가장 빠르게 지우세요.', ultra: '2분 안에 최고 점수를! 테트리스와 T-스핀을 노리세요.' },
+    combo: n => n + ' 콤보', levelUp: n => '레벨 ' + n, sprintDone: '스프린트 완료!', timeUp: '시간 종료!',
+    stScore: '점수', stLevel: '레벨', stLines: '지운 줄', stTime: '시간', stTetris: '테트리스 횟수', stTspin: 'T-스핀 횟수', stCombo: '최대 콤보', stBest: '최고', bestLbl: v => '🏆 최고 ' + v
+  }
+};
+</script>
+<script src="../../assets/bgm.js?v=20261015"></script>
+<script src="../../assets/kit.js?v=20261015"></script>
+<script src="game.js?v=20261015"></script>
+</body>
+</html>

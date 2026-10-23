@@ -2,7 +2,7 @@
 
 ## 分支与修改流程
 
-- **`main`**：纯网页源码（游戏 + 落地页 + assets），不含桌面壳。
+- **`main`**：纯网页源码（`games/` 下的游戏 + 落地页 + assets），不含桌面壳。
 - **`feat/tauri-desktop`**：main 的超集，额外包含 Tauri 桌面壳、CI 发版流水线、desktop/ 页面。
 
 **标准改动流程（务必遵循）**：
@@ -13,6 +13,22 @@
 4. tag 推送成功后立刻 `git checkout main`。工作区不要留在 `feat/tauri-desktop`，否则下一次加游戏会直接落在桌面分支上。修桌面壳或 workflow 时再临时切回去，改完推送后再次切回 `main`。
 
 **禁止**：不要把 `feat/tauri-desktop` 合回 `main`（main 只留纯网页源码）；desktop 相关文件只在 feat 分支维护。
+
+## 目录结构
+
+```
+index.html / favicon.svg / sitemap.xml / robots.txt / vercel.json   # 落地页与站点文件
+assets/      # 共享 ui.css、theme.js、i18n.js、kit.js、bgm.js、touch.js、字体
+games/<name>/  # 所有游戏，一款一个目录（index.html + game.js + styles.css …）
+```
+
+- **新增游戏**：建 `games/<name>/`；页面内引用共享资源用 `../../assets/...`；
+  `index.html` 的游戏数据数组加 `{dir:"<name>", ...}`（卡片链接自动拼成 `games/<dir>/index.html`）；
+  canonical / hreflang / og:url / JSON-LD 用 `https://awesome-mini-game.vercel.app/games/<name>/`；
+  `sitemap.xml` 加对应条目；README 四语言的游戏表（目录列写 `games/<name>/`）与数量同步。
+- `vercel.json` 把旧路径 `/<name>/` 301 到 `/games/<name>/`；新增游戏无需改它（只服务历史链接）。
+- 返回首页链接由 `assets/i18n.js` 注入（`../../?lang=`）。
+- ⚠️ `feat/tauri-desktop` 合并 main 后，需检查桌面壳/`desktop/` 页面/CI 中是否仍引用旧的 `<name>/` 顶层路径。
 
 ## 发版
 

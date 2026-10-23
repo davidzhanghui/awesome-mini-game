@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="description" content="Flappy Bird 网页版：点一下拍一下翅膀，穿过水管越飞越远！三档难度、会上下移动的水管、铜银金白金奖牌，白天黑夜跟随主题切换。">
+<link rel="canonical" href="https://awesome-mini-game.vercel.app/games/flappy-bird/">
+<link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/flappy-bird/">
+<link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/flappy-bird/?lang=en">
+<link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/games/flappy-bird/?lang=ja">
+<link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/games/flappy-bird/?lang=ko">
+<link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/games/flappy-bird/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Awesome Mini Game">
+<meta property="og:title" content="Flappy Bird · 一指飞行">
+<meta property="og:description" content="Flappy Bird 网页版：点一下拍一下翅膀，穿过水管越飞越远！三档难度与奖牌系统。">
+<meta property="og:url" content="https://awesome-mini-game.vercel.app/games/flappy-bird/">
+<meta property="og:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Flappy Bird · 一指飞行">
+<meta name="twitter:description" content="Flappy Bird 网页版：点一下拍一下翅膀，穿过水管越飞越远！三档难度与奖牌系统。">
+<meta name="twitter:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "Flappy Bird · 一指飞行",
+  "description": "Flappy Bird 网页版：点一下拍一下翅膀，穿过水管越飞越远！三档难度与奖牌系统。",
+  "url": "https://awesome-mini-game.vercel.app/games/flappy-bird/",
+  "genre": "休闲",
+  "gamePlatform": "Web Browser",
+  "inLanguage": ["zh-CN", "en", "ja", "ko"],
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CNY" }
+}
+</script>
+<link rel="icon" href="/favicon.svg" />
+<title>Flappy Bird · 一指飞行</title>
+<link rel="stylesheet" href="../../assets/game-page.css?v=20261015" />
+<link rel="stylesheet" href="styles.css?v=20261015" />
+<link rel="stylesheet" href="../../assets/ui.css?v=20261015" />
+<script src="../../assets/theme.js"></script>
+</head>
+<body>
+<div class="bg-orbs"><span></span><span></span><span></span></div>
+<main class="page">
+  <header class="brand">
+    <div class="logo">🐤</div>
+    <div>
+      <h1><span data-i18n="name">Flappy Bird</span> <em data-i18n="subtitle">一指飞行</em></h1>
+      <p data-i18n="intro">点一下扑一下，穿过水管，看你能飞多远！</p>
+    </div>
+    <div class="brand-btns">
+      <button id="btn-mute" class="icon-btn">🔊</button>
+    </div>
+  </header>
+
+  <section class="cabinet">
+    <div class="game-frame" id="frame">
+      <canvas id="game" class="stage"></canvas>
+
+      <div id="screen-menu" class="screen clear">
+        <div class="title-badge">FLAPPY</div>
+        <h2 class="game-title" data-i18n="name">Flappy Bird</h2>
+        <div class="seg-label" data-i18n="pickLevel">选择难度</div>
+        <div class="seg" id="lv-seg">
+          <button data-lv="easy" data-i18n="lvEasy">🐣 轻松</button><button data-lv="normal" data-i18n="lvNormal">🐤 经典</button><button data-lv="hard" data-i18n="lvHard">🦅 疯狂</button>
+        </div>
+        <p class="hint" id="lv-desc"></p>
+        <button id="btn-start" class="btn primary" data-i18n="start">🚀 开始飞行</button>
+        <p class="hint"><kbd>Space</kbd> / <kbd>↑</kbd> / <span data-i18n="hintTap">点击屏幕</span> <span data-i18n="hintFlap">拍翅膀</span></p>
+        <div id="menu-best" class="mini-board"></div>
+      </div>
+
+      <div id="screen-over" class="screen dim hidden">
+        <div class="panel pop">
+          <h3 class="over-title" data-i18n="overTitle">游戏结束</h3>
+          <div class="medal-row">
+            <div class="medal-slot" id="medal">🥚</div>
+            <div class="stat-list" id="over-stats"></div>
+          </div>
+          <div id="over-record" class="new-record hidden" data-i18n="newRecord">新纪录！</div>
+          <div id="medal-name" class="over-sub"></div>
+          <div class="row"><button id="btn-retry" class="btn primary" data-i18n="retry">🔄 再飞一次</button><button id="btn-menu" class="btn ghost" data-i18n="menu">菜单</button></div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="side">
+      <div class="card"><h4 data-i18n="opTitle">🎮 操作</h4><ul>
+        <li data-i18n="op1">👆 点击或轻触画面：小鸟向上扑一下</li>
+        <li><kbd>Space</kbd> / <kbd>↑</kbd> / <kbd>W</kbd> <span data-i18n="op2">拍翅膀</span> · <kbd>P</kbd> <span data-i18n="pauseKw">暂停</span> · <kbd>M</kbd> <span data-i18n="muteKw">静音</span></li>
+        <li data-i18n="op3">🌗 右上角切换白天 / 黑夜场景</li>
+      </ul></div>
+      <div class="card"><h4 data-i18n="dexTitle">🏅 奖牌图鉴</h4>
+        <div class="dex">
+          <div class="ic">🥉</div><span data-i18n="m1">铜牌：穿过 10 根水管</span>
+          <div class="ic">🥈</div><span data-i18n="m2">银牌：穿过 20 根水管</span>
+          <div class="ic">🥇</div><span data-i18n="m3">金牌：穿过 30 根水管</span>
+          <div class="ic">💎</div><span data-i18n="m4">白金：穿过 50 根水管，真正的飞行大师</span>
+        </div>
+      </div>
+      <div class="card diff"><h4 data-i18n="tipTitle">🧠 飞行秘诀</h4>
+        <p data-i18n="tipBody">别一直狂点！小鸟快掉到缺口下沿时再点一下最稳。保持节奏，眼睛看下一根水管的缺口高度；20 分以后水管会开始上下移动，提前预判它的方向。</p></div>
+    </aside>
+  </section>
+
+  <details class="card seo-about"><summary data-i18n="aboutTitle">📖 关于这款游戏</summary><p data-i18n="aboutBody">Flappy Bird 网页版：点击屏幕或按空格让小鸟拍翅膀，穿过一根根水管之间的缺口，撞到水管或地面就结束。提供轻松、经典、疯狂三档难度，分数越高水管越难，还会上下移动；按分数获得铜、银、金、白金奖牌，白天黑夜场景跟随网站主题。支持键盘、鼠标和触屏，完全免费。</p></details>
+  <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持键盘、鼠标和触屏</footer>
+</main>
+<script src="../../assets/i18n.js?v=20261015"></script>
+<script>
+window.GAME_STR = {
+  zh: {
+    title: 'Flappy Bird · 一指飞行', name: 'Flappy Bird', subtitle: '一指飞行', intro: '点一下扑一下，穿过水管，看你能飞多远！',
+    pickLevel: '选择难度', lvEasy: '🐣 轻松', lvNormal: '🐤 经典', lvHard: '🦅 疯狂', start: '🚀 开始飞行', hintTap: '点击屏幕', hintFlap: '拍翅膀',
+    overTitle: '游戏结束', newRecord: '新纪录！', retry: '🔄 再飞一次', menu: '菜单',
+    opTitle: '🎮 操作', op1: '👆 点击或轻触画面：小鸟向上扑一下', op2: '拍翅膀', op3: '🌗 右上角切换白天 / 黑夜场景', pauseKw: '暂停', muteKw: '静音',
+    dexTitle: '🏅 奖牌图鉴', m1: '铜牌：穿过 10 根水管', m2: '银牌：穿过 20 根水管', m3: '金牌：穿过 30 根水管', m4: '白金：穿过 50 根水管，真正的飞行大师',
+    tipTitle: '🧠 飞行秘诀', tipBody: '别一直狂点！小鸟快掉到缺口下沿时再点一下最稳。保持节奏，眼睛看下一根水管的缺口高度；20 分以后水管会开始上下移动，提前预判它的方向。',
+    aboutTitle: '📖 关于这款游戏',
+    aboutBody: 'Flappy Bird 网页版：点击屏幕或按空格让小鸟拍翅膀，穿过一根根水管之间的缺口，撞到水管或地面就结束。提供轻松、经典、疯狂三档难度，分数越高水管越难，还会上下移动；按分数获得铜、银、金、白金奖牌，白天黑夜场景跟随网站主题。支持键盘、鼠标和触屏，完全免费。',
+    footer: '🕹️ 打开即玩 · 完全免费 · 支持键盘、鼠标和触屏', muteTitle: '声音开 / 关 (M)',
+    lvDesc: { easy: '缺口超大、飞得慢，适合热身', normal: '原汁原味的经典手感', hard: '缺口窄、速度快，水管一开始就会动' },
+    best: v => '🏆 最高分：' + v, getReady: '准备好了吗？', tapToFlap: '点一下开始', paused: '⏸ 暂停 · 点击继续',
+    stScore: '分数', stBest: '最高', medals: { none: '再接再厉，10 分拿铜牌！', bronze: '🥉 铜牌！', silver: '🥈 银牌！', gold: '🥇 金牌！', plat: '💎 白金大师！' }
+  },
+  en: {
+    title: 'Flappy Bird · One Tap', name: 'Flappy Bird', subtitle: 'One-Tap Flight', intro: 'Tap to flap, slip through the pipes — how far can you fly?',
+    pickLevel: 'DIFFICULTY', lvEasy: '🐣 Easy', lvNormal: '🐤 Classic', lvHard: '🦅 Crazy', start: '🚀 Take Off', hintTap: 'tap', hintFlap: 'to flap',
+    overTitle: 'Game Over', newRecord: 'NEW RECORD!', retry: '🔄 Fly Again', menu: 'Menu',
+    opTitle: '🎮 Controls', op1: '👆 Click or tap the screen: the bird flaps up', op2: 'flap', op3: '🌗 Toggle day / night with the button at top right', pauseKw: 'pause', muteKw: 'mute',
+    dexTitle: '🏅 Medals', m1: 'Bronze: pass 10 pipes', m2: 'Silver: pass 20 pipes', m3: 'Gold: pass 30 pipes', m4: 'Platinum: pass 50 pipes — true flight master',
+    tipTitle: '🧠 Flight Tips', tipBody: 'Do not spam taps! Flap when the bird is about to drop to the bottom of the gap. Keep a rhythm and watch the next gap. After 20 points the pipes start moving — read their direction early.',
+    aboutTitle: '📖 About this game',
+    aboutBody: 'Flappy Bird in your browser: tap or press Space to flap through the gaps between pipes; hitting a pipe or the ground ends the run. Easy, Classic and Crazy difficulties, pipes that get tighter and start moving as you score, bronze to platinum medals and day/night scenes following the site theme. Keyboard, mouse and touch, completely free.',
+    footer: '🕹️ Play instantly · Free · Keyboard, mouse & touch', muteTitle: 'Sound on/off (M)',
+    lvDesc: { easy: 'Huge gaps, slow pace — a gentle warm-up', normal: 'The original classic feel', hard: 'Tight gaps, fast pace, moving pipes from the start' },
+    best: v => '🏆 Best: ' + v, getReady: 'Get Ready!', tapToFlap: 'Tap to start', paused: '⏸ Paused · tap to resume',
+    stScore: 'Score', stBest: 'Best', medals: { none: 'Keep going — 10 points for bronze!', bronze: '🥉 Bronze!', silver: '🥈 Silver!', gold: '🥇 Gold!', plat: '💎 Platinum master!' }
+  },
+  ja: {
+    title: 'Flappy Bird · ワンタップ', name: 'Flappy Bird', subtitle: 'ワンタップ飛行', intro: 'タップで羽ばたいて土管をすり抜けよう、どこまで飛べる？',
+    pickLevel: '難易度', lvEasy: '🐣 かんたん', lvNormal: '🐤 クラシック', lvHard: '🦅 クレイジー', start: '🚀 飛び立つ', hintTap: 'タップ', hintFlap: 'で羽ばたく',
+    overTitle: 'ゲームオーバー', newRecord: '新記録！', retry: '🔄 もう一回', menu: 'メニュー',
+    opTitle: '🎮 操作', op1: '👆 画面をクリック・タップで羽ばたく', op2: '羽ばたく', op3: '🌗 右上ボタンで昼／夜を切り替え', pauseKw: '一時停止', muteKw: 'ミュート',
+    dexTitle: '🏅 メダル図鑑', m1: '銅：土管 10 本通過', m2: '銀：土管 20 本通過', m3: '金：土管 30 本通過', m4: 'プラチナ：土管 50 本通過、飛行マスター',
+    tipTitle: '🧠 飛行のコツ', tipBody: '連打は禁物！隙間の下端に落ちそうになったら1回タップが一番安定。リズムを保ち、次の土管の隙間の高さを見よう。20点を超えると土管が上下に動き出すので早めに読もう。',
+    aboutTitle: '📖 このゲームについて',
+    aboutBody: 'ブラウザで遊べるFlappy Bird：タップかスペースで羽ばたき、土管の隙間を通り抜けよう。土管や地面に当たると終了。かんたん・クラシック・クレイジーの3難易度、スコアが上がると隙間が狭く土管が動き出す。銅〜プラチナのメダル、サイトのテーマに合わせた昼夜の背景。キーボード・マウス・タッチ対応、完全無料。',
+    footer: '🕹️ すぐ遊べる · 完全無料 · キーボード・マウス・タッチ対応', muteTitle: 'サウンド ON/OFF (M)',
+    lvDesc: { easy: '隙間が広くゆっくり、ウォームアップに', normal: 'オリジナルそのままの手触り', hard: '隙間が狭く高速、最初から土管が動く' },
+    best: v => '🏆 ベスト：' + v, getReady: '準備はいい？', tapToFlap: 'タップでスタート', paused: '⏸ 一時停止 · タップで再開',
+    stScore: 'スコア', stBest: 'ベスト', medals: { none: '10点で銅メダル、がんばろう！', bronze: '🥉 銅メダル！', silver: '🥈 銀メダル！', gold: '🥇 金メダル！', plat: '💎 プラチナマスター！' }
+  },
+  ko: {
+    title: 'Flappy Bird · 원탭', name: 'Flappy Bird', subtitle: '원탭 비행', intro: '탭해서 날갯짓, 파이프 사이를 통과해 얼마나 멀리 갈까요?',
+    pickLevel: '난이도', lvEasy: '🐣 쉬움', lvNormal: '🐤 클래식', lvHard: '🦅 크레이지', start: '🚀 이륙', hintTap: '탭', hintFlap: '으로 날갯짓',
+    overTitle: '게임 오버', newRecord: '신기록!', retry: '🔄 다시 날기', menu: '메뉴',
+    opTitle: '🎮 조작', op1: '👆 화면을 클릭·탭하면 새가 위로 퍼덕', op2: '날갯짓', op3: '🌗 오른쪽 위 버튼으로 낮/밤 전환', pauseKw: '일시정지', muteKw: '음소거',
+    dexTitle: '🏅 메달 도감', m1: '동메달: 파이프 10개 통과', m2: '은메달: 파이프 20개 통과', m3: '금메달: 파이프 30개 통과', m4: '플래티넘: 파이프 50개 통과, 진정한 비행 마스터',
+    tipTitle: '🧠 비행 비결', tipBody: '연타는 금물! 틈 아래쪽에 닿기 직전에 한 번 탭하는 게 가장 안정적이에요. 리듬을 지키며 다음 파이프 틈 높이를 보세요. 20점 이후엔 파이프가 위아래로 움직이니 미리 예측하세요.',
+    aboutTitle: '📖 게임 소개',
+    aboutBody: '브라우저에서 즐기는 Flappy Bird: 탭하거나 스페이스를 눌러 날갯짓하며 파이프 사이 틈을 통과하세요. 파이프나 땅에 부딪히면 끝. 쉬움·클래식·크레이지 3단계 난이도, 점수가 오를수록 틈이 좁아지고 파이프가 움직입니다. 동~플래티넘 메달, 사이트 테마를 따르는 낮/밤 배경. 키보드·마우스·터치 지원, 완전 무료.',
+    footer: '🕹️ 바로 플레이 · 완전 무료 · 키보드·마우스·터치 지원', muteTitle: '사운드 켜기/끄기 (M)',
+    lvDesc: { easy: '틈이 넓고 느려서 몸풀기에 딱', normal: '오리지널 그대로의 손맛', hard: '좁은 틈, 빠른 속도, 처음부터 움직이는 파이프' },
+    best: v => '🏆 최고: ' + v, getReady: '준비됐나요?', tapToFlap: '탭해서 시작', paused: '⏸ 일시정지 · 탭해서 계속',
+    stScore: '점수', stBest: '최고', medals: { none: '10점이면 동메달, 힘내요!', bronze: '🥉 동메달!', silver: '🥈 은메달!', gold: '🥇 금메달!', plat: '💎 플래티넘 마스터!' }
+  }
+};
+</script>
+<script src="../../assets/bgm.js?v=20261015"></script>
+<script src="../../assets/kit.js?v=20261015"></script>
+<script src="game.js?v=20261015"></script>
+</body>
+</html>
