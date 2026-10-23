@@ -6,7 +6,7 @@
 
 ```
 awesome-mini-game/
-├── index.html / tetris/ / raiden/ …   # 网页本体（浏览器和桌面版共用）
+├── index.html / assets/ / games/ …    # 网页本体（浏览器和桌面版共用）
 ├── desktop/
 │   ├── about.html                      # 关于页（随包发布，同步进 dist/desktop/）
 │   ├── settings.html                   # 偏好设置页（随包发布）
