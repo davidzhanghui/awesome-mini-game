@@ -2,7 +2,7 @@
    AMG Design System · 暖色系游戏大厅皮肤
    参考：字节 aiforce「游戏大厅」—— 奶油底 / 焦糖橙 / 大圆角 / 圆胖展示字
    用法：各游戏页在自身 styles.css 之后加
-     <link rel="stylesheet" href="../assets/ui.css">
+     <link rel="stylesheet" href="../../assets/ui.css">
    本文件后加载，同名变量与同优先级规则自动覆盖游戏旧配色；
    画布（canvas）内部像素画面不动，只统一页面骨架与菜单/弹窗。
    ========================================================================== */

@@ -1,0 +1,6 @@
+{
+  "redirects": [
+    { "source": "/:game(abyss|breakout|bubble-dragon|chinese-chess|dou-dizhu|flappy-bird|fruit-ninja|galaga|game-2048|gomoku|idiom-guess|match3|memory|minesweeper|pacman|pvz-moe|pvz|raiden|snake|sokoban|suika|super-mario-bros|talking-cat|tank-battle|tetris|tower-defense)", "destination": "/games/:game/", "permanent": true },
+    { "source": "/:game(abyss|breakout|bubble-dragon|chinese-chess|dou-dizhu|flappy-bird|fruit-ninja|galaga|game-2048|gomoku|idiom-guess|match3|memory|minesweeper|pacman|pvz-moe|pvz|raiden|snake|sokoban|suika|super-mario-bros|talking-cat|tank-battle|tetris|tower-defense)/:path*", "destination": "/games/:game/:path*", "permanent": true }
+  ]
+}

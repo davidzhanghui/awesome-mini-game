@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="description" content="泡泡龙网页版：瞄准发射彩色泡泡，三个同色就消除，悬空的泡泡一起掉落！带反弹瞄准线、交换备用泡泡、炸弹和彩虹泡泡，12 个关卡加无尽模式。">
+<link rel="canonical" href="https://awesome-mini-game.vercel.app/games/bubble-dragon/">
+<link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/bubble-dragon/">
+<link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/bubble-dragon/?lang=en">
+<link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/games/bubble-dragon/?lang=ja">
+<link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/games/bubble-dragon/?lang=ko">
+<link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/games/bubble-dragon/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Awesome Mini Game">
+<meta property="og:title" content="泡泡龙 · 瞄准消除">
+<meta property="og:description" content="泡泡龙网页版：瞄准发射彩色泡泡，三个同色就消除，悬空的泡泡一起掉落！12 个关卡加无尽模式。">
+<meta property="og:url" content="https://awesome-mini-game.vercel.app/games/bubble-dragon/">
+<meta property="og:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="泡泡龙 · 瞄准消除">
+<meta name="twitter:description" content="泡泡龙网页版：瞄准发射彩色泡泡，三个同色就消除，悬空的泡泡一起掉落！12 个关卡加无尽模式。">
+<meta name="twitter:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "泡泡龙 · 瞄准消除",
+  "description": "泡泡龙网页版：瞄准发射彩色泡泡，三个同色就消除，悬空的泡泡一起掉落！12 个关卡加无尽模式。",
+  "url": "https://awesome-mini-game.vercel.app/games/bubble-dragon/",
+  "genre": "益智解谜",
+  "gamePlatform": "Web Browser",
+  "inLanguage": ["zh-CN", "en", "ja", "ko"],
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CNY" }
+}
+</script>
+<link rel="icon" href="/favicon.svg" />
+<title>泡泡龙 · 瞄准消除</title>
+<link rel="stylesheet" href="../../assets/game-page.css?v=20261015" />
+<link rel="stylesheet" href="styles.css?v=20261015" />
+<link rel="stylesheet" href="../../assets/ui.css?v=20261015" />
+<script src="../../assets/theme.js"></script>
+</head>
+<body>
+<div class="bg-orbs"><span></span><span></span><span></span></div>
+<main class="page">
+  <header class="brand">
+    <div class="logo">🫧</div>
+    <div>
+      <h1><span data-i18n="name">泡泡龙</span> <em data-i18n="subtitle">瞄准消除</em></h1>
+      <p data-i18n="intro">瞄准、发射、三连消，让泡泡哗啦啦掉下来！</p>
+    </div>
+    <div class="brand-btns">
+      <button id="btn-mute" class="icon-btn">🔊</button>
+    </div>
+  </header>
+
+  <section class="cabinet">
+    <div class="game-frame" id="frame">
+      <canvas id="game" class="stage"></canvas>
+      <button id="btn-pause" class="pause-btn" title="P">⏸</button>
+      <div class="toast" id="toast"></div>
+
+      <div id="screen-menu" class="screen">
+        <div class="title-badge">BUBBLE POP</div>
+        <h2 class="game-title" data-i18n="name">泡泡龙</h2>
+        <div class="hero-row"><span class="hero">🔴</span><span class="hero">🟡</span><span class="hero">🔵</span></div>
+        <div class="pick-hint" data-i18n="pickLevel">选择关卡</div>
+        <div class="level-select" id="levels"></div>
+        <div class="row">
+          <button id="btn-start" class="btn primary" data-i18n="start">🚀 开始闯关</button>
+          <button id="btn-endless" class="btn duel" data-i18n="endless">♾️ 无尽模式</button>
+        </div>
+        <p class="hint"><span data-i18n="hintAim">鼠标瞄准 · 点击发射</span> · <kbd>Space</kbd> <span data-i18n="hintSwap">换球</span></p>
+        <div id="menu-best" class="mini-board"></div>
+      </div>
+
+      <div id="screen-pause" class="screen dim hidden">
+        <div class="panel pop">
+          <h3 data-i18n="paused">⏸ 暂停中</h3>
+          <div class="row" style="margin-top:14px"><button id="btn-resume" class="btn primary" data-i18n="resume">▶ 继续</button><button id="btn-quit" class="btn ghost" data-i18n="menu">菜单</button></div>
+        </div>
+      </div>
+
+      <div id="screen-over" class="screen dim hidden">
+        <div class="panel pop">
+          <div class="medal-big" id="over-icon">🎉</div>
+          <h3 id="over-title"></h3>
+          <div id="over-stars" class="stars"></div>
+          <div id="over-record" class="new-record hidden" data-i18n="newRecord">新纪录！</div>
+          <div class="stat-list" id="over-stats"></div>
+          <div class="row"><button id="btn-retry" class="btn primary"></button><button id="btn-menu" class="btn ghost" data-i18n="menu">菜单</button></div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="side">
+      <div class="card"><h4 data-i18n="opTitle">🎮 操作</h4><ul>
+        <li data-i18n="op1">🖱️ 移动鼠标瞄准，点击发射</li>
+        <li data-i18n="op2">👆 触屏：按住拖动瞄准，松手发射</li>
+        <li><kbd>←</kbd><kbd>→</kbd> <span data-i18n="op3">微调角度</span> · <kbd>↑</kbd> <span data-i18n="op4">发射</span> · <kbd>Space</kbd> <span data-i18n="hintSwap">换球</span></li>
+        <li data-i18n="op5">🔁 点发射器旁边的小泡泡也能交换</li>
+      </ul></div>
+      <div class="card"><h4 data-i18n="dexTitle">🫧 泡泡图鉴</h4>
+        <div class="dex">
+          <div class="ic">🔴</div><span data-i18n="dex1">同色 3 个及以上连在一起就会爆掉</span>
+          <div class="ic">💣</div><span data-i18n="dex2">炸弹泡泡：粘上就炸掉周围一圈</span>
+          <div class="ic">🌈</div><span data-i18n="dex3">彩虹泡泡：变成碰到的颜色，一定能消</span>
+          <div class="ic">⬇️</div><span data-i18n="dex4">每打几发没消除，天花板就压下来一行</span>
+        </div>
+      </div>
+      <div class="card diff"><h4 data-i18n="tipTitle">🧠 消除秘诀</h4>
+        <p data-i18n="tipBody">别只盯着同色——打掉一串泡泡的「根」，下面挂着的整片都会掉下来，掉落的泡泡分数翻倍！利用墙壁反弹能打到绕不过去的角落。</p></div>
+    </aside>
+  </section>
+
+  <details class="card seo-about"><summary data-i18n="aboutTitle">📖 关于这款游戏</summary><p data-i18n="aboutBody">泡泡龙（Puzzle Bobble / 泡泡射手）网页版：瞄准并发射彩色泡泡，三个或以上同色相连就会消除，失去支撑的泡泡会一起掉落。带墙壁反弹瞄准线、备用泡泡交换、炸弹泡泡和彩虹泡泡，共 12 个关卡并附带无尽模式，连击和掉落都有额外加分。支持鼠标、键盘和触屏，完全免费。</p></details>
+  <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持鼠标、键盘和触屏</footer>
+</main>
+<script src="../../assets/i18n.js?v=20261015"></script>
+<script src="../../assets/touch.js?v=20261015"></script>
+<script>
+window.GAME_STR = {
+  zh: {
+    title: '泡泡龙 · 瞄准消除', name: '泡泡龙', subtitle: '瞄准消除', intro: '瞄准、发射、三连消，让泡泡哗啦啦掉下来！',
+    pickLevel: '选择关卡', start: '🚀 开始闯关', endless: '♾️ 无尽模式', hintAim: '鼠标瞄准 · 点击发射', hintSwap: '换球',
+    paused: '⏸ 暂停中', resume: '▶ 继续', menu: '菜单', newRecord: '新纪录！',
+    opTitle: '🎮 操作', op1: '🖱️ 移动鼠标瞄准，点击发射', op2: '👆 触屏：按住拖动瞄准，松手发射', op3: '微调角度', op4: '发射', op5: '🔁 点发射器旁边的小泡泡也能交换',
+    dexTitle: '🫧 泡泡图鉴', dex1: '同色 3 个及以上连在一起就会爆掉', dex2: '炸弹泡泡：粘上就炸掉周围一圈', dex3: '彩虹泡泡：变成碰到的颜色，一定能消', dex4: '每打几发没消除，天花板就压下来一行',
+    tipTitle: '🧠 消除秘诀', tipBody: '别只盯着同色——打掉一串泡泡的「根」，下面挂着的整片都会掉下来，掉落的泡泡分数翻倍！利用墙壁反弹能打到绕不过去的角落。',
+    aboutTitle: '📖 关于这款游戏',
+    aboutBody: '泡泡龙（Puzzle Bobble / 泡泡射手）网页版：瞄准并发射彩色泡泡，三个或以上同色相连就会消除，失去支撑的泡泡会一起掉落。带墙壁反弹瞄准线、备用泡泡交换、炸弹泡泡和彩虹泡泡，共 12 个关卡并附带无尽模式，连击和掉落都有额外加分。支持鼠标、键盘和触屏，完全免费。',
+    footer: '🕹️ 打开即玩 · 完全免费 · 支持鼠标、键盘和触屏', muteTitle: '声音开 / 关 (M)',
+    best: v => '🏆 无尽最高分：' + v, hudScore: '分数', hudLevel: '关卡', hudEndless: '无尽', hudDrop: '下压',
+    clearTitle: n => '第 ' + n + ' 关完成！', overTitle: '泡泡压到底线了', winTitle: '全部通关！',
+    next: '▶ 下一关', retry: '🔄 再试一次', again: '🔄 从头再来',
+    stScore: '分数', stShots: '发射次数', stPopped: '消除泡泡', stDropped: '掉落泡泡', stBest: '最高分', stLevel: '关卡',
+    combo: n => '连消 ×' + n, drop: n => '掉落 +' + n, nice: ['不错！', '漂亮！', '太棒了！', '无敌了！'], warn: '⚠️ 天花板要下来了',
+    endlessRow: '新的一行来了！'
+  },
+  en: {
+    title: 'Bubble Dragon · Shooter', name: 'Bubble Dragon', subtitle: 'Bubble Shooter', intro: 'Aim, shoot, match three — and watch them all fall!',
+    pickLevel: 'SELECT LEVEL', start: '🚀 Start', endless: '♾️ Endless', hintAim: 'Aim with mouse · click to shoot', hintSwap: 'swap',
+    paused: '⏸ Paused', resume: '▶ Resume', menu: 'Menu', newRecord: 'NEW RECORD!',
+    opTitle: '🎮 Controls', op1: '🖱️ Move the mouse to aim, click to shoot', op2: '👆 Touch: drag to aim, release to shoot', op3: 'fine aim', op4: 'shoot', op5: '🔁 Tap the small bubble next to the launcher to swap',
+    dexTitle: '🫧 Bubble Guide', dex1: 'Connect 3+ of the same color to pop them', dex2: 'Bomb bubble: blasts everything around it', dex3: 'Rainbow bubble: takes the color it touches — always pops', dex4: 'Miss a few times and the ceiling drops a row',
+    tipTitle: '🧠 Pro Tips', tipBody: 'Do not just chase colors — pop the "root" of a cluster and everything hanging below falls, worth double points! Bank shots off the walls reach the tricky corners.',
+    aboutTitle: '📖 About this game',
+    aboutBody: 'Bubble shooter (Puzzle Bobble style) in your browser: aim and fire colored bubbles, connect three or more of the same color to pop them, and unsupported bubbles fall away. Wall-bounce aiming guide, swap bubble, bomb and rainbow bubbles, 12 levels plus an endless mode, with combo and drop bonuses. Mouse, keyboard and touch, completely free.',
+    footer: '🕹️ Play instantly · Free · Mouse, keyboard & touch', muteTitle: 'Sound on/off (M)',
+    best: v => '🏆 Endless best: ' + v, hudScore: 'SCORE', hudLevel: 'LEVEL', hudEndless: 'ENDLESS', hudDrop: 'DROP',
+    clearTitle: n => 'Level ' + n + ' cleared!', overTitle: 'Bubbles hit the line', winTitle: 'All levels cleared!',
+    next: '▶ Next Level', retry: '🔄 Try Again', again: '🔄 Play Again',
+    stScore: 'Score', stShots: 'Shots', stPopped: 'Popped', stDropped: 'Dropped', stBest: 'Best', stLevel: 'Level',
+    combo: n => 'COMBO ×' + n, drop: n => 'DROP +' + n, nice: ['Nice!', 'Great!', 'Awesome!', 'Unstoppable!'], warn: '⚠️ Ceiling incoming',
+    endlessRow: 'New row incoming!'
+  },
+  ja: {
+    title: 'バブルドラゴン · シューター', name: 'バブルドラゴン', subtitle: 'バブルシューター', intro: '狙って撃って3つ揃え、泡をまとめて落とそう！',
+    pickLevel: 'ステージ選択', start: '🚀 スタート', endless: '♾️ エンドレス', hintAim: 'マウスで狙ってクリックで発射', hintSwap: '入れ替え',
+    paused: '⏸ 一時停止中', resume: '▶ 再開', menu: 'メニュー', newRecord: '新記録！',
+    opTitle: '🎮 操作', op1: '🖱️ マウスで狙ってクリックで発射', op2: '👆 タッチ：ドラッグで狙って離して発射', op3: '角度微調整', op4: '発射', op5: '🔁 発射台の横の泡をタップでも入れ替え',
+    dexTitle: '🫧 バブル図鑑', dex1: '同じ色が3つ以上つながると消える', dex2: 'ボム：くっつくと周りを一気に爆破', dex3: 'レインボー：触れた色に変身、必ず消える', dex4: '何発か外すと天井が1段下がる',
+    tipTitle: '🧠 攻略のコツ', tipBody: '色だけを追わないで——泡の「根元」を消せば下にぶら下がった泡がまとめて落ち、落下分は得点2倍！壁の反射で届きにくい角も狙える。',
+    aboutTitle: '📖 このゲームについて',
+    aboutBody: 'ブラウザで遊べるバブルシューター：色付きの泡を狙って発射し、同じ色を3つ以上つなげると消え、支えを失った泡は落下。壁反射の照準ガイド、ストック入れ替え、ボム泡とレインボー泡、12ステージ＋エンドレスモード、コンボ・落下ボーナス付き。マウス・キーボード・タッチ対応、完全無料。',
+    footer: '🕹️ すぐ遊べる · 完全無料 · マウス・キーボード・タッチ対応', muteTitle: 'サウンド ON/OFF (M)',
+    best: v => '🏆 エンドレス最高：' + v, hudScore: 'スコア', hudLevel: 'ステージ', hudEndless: 'エンドレス', hudDrop: '下降',
+    clearTitle: n => 'ステージ ' + n + ' クリア！', overTitle: '泡がラインに届いた', winTitle: '全ステージクリア！',
+    next: '▶ 次へ', retry: '🔄 もう一回', again: '🔄 最初から',
+    stScore: 'スコア', stShots: '発射数', stPopped: '消した泡', stDropped: '落とした泡', stBest: 'ベスト', stLevel: 'ステージ',
+    combo: n => 'コンボ ×' + n, drop: n => '落下 +' + n, nice: ['いいね！', 'お見事！', 'すごい！', '無敵！'], warn: '⚠️ 天井が下がるよ',
+    endlessRow: '新しい列が来た！'
+  },
+  ko: {
+    title: '버블 드래곤 · 슈터', name: '버블 드래곤', subtitle: '버블 슈터', intro: '조준하고 쏘고 세 개 맞추기, 버블을 와르르 떨어뜨리자!',
+    pickLevel: '스테이지 선택', start: '🚀 시작', endless: '♾️ 무한 모드', hintAim: '마우스로 조준 · 클릭해서 발사', hintSwap: '교체',
+    paused: '⏸ 일시정지', resume: '▶ 계속', menu: '메뉴', newRecord: '신기록!',
+    opTitle: '🎮 조작', op1: '🖱️ 마우스로 조준, 클릭해서 발사', op2: '👆 터치: 드래그로 조준, 손 떼면 발사', op3: '각도 미세 조정', op4: '발사', op5: '🔁 발사대 옆 작은 버블을 눌러도 교체',
+    dexTitle: '🫧 버블 도감', dex1: '같은 색 3개 이상이 이어지면 터져요', dex2: '폭탄 버블: 붙으면 주변을 한꺼번에 폭파', dex3: '무지개 버블: 닿은 색으로 변해 반드시 터짐', dex4: '몇 번 못 맞히면 천장이 한 줄 내려와요',
+    tipTitle: '🧠 공략 비결', tipBody: '색만 쫓지 마세요 — 버블 무리의 "뿌리"를 터뜨리면 아래 매달린 버블이 통째로 떨어지고 점수는 두 배! 벽 반사로 닿기 힘든 구석도 노려요.',
+    aboutTitle: '📖 게임 소개',
+    aboutBody: '브라우저에서 즐기는 버블 슈터: 색깔 버블을 조준해 쏘고, 같은 색 3개 이상을 이으면 터지며 받침을 잃은 버블은 떨어집니다. 벽 반사 조준선, 예비 버블 교체, 폭탄·무지개 버블, 12개 스테이지와 무한 모드, 콤보·낙하 보너스. 마우스·키보드·터치 지원, 완전 무료.',
+    footer: '🕹️ 바로 플레이 · 완전 무료 · 마우스·키보드·터치 지원', muteTitle: '사운드 켜기/끄기 (M)',
+    best: v => '🏆 무한 모드 최고: ' + v, hudScore: '점수', hudLevel: '스테이지', hudEndless: '무한', hudDrop: '하강',
+    clearTitle: n => '스테이지 ' + n + ' 클리어!', overTitle: '버블이 선에 닿았어요', winTitle: '전 스테이지 클리어!',
+    next: '▶ 다음', retry: '🔄 다시 하기', again: '🔄 처음부터',
+    stScore: '점수', stShots: '발사 수', stPopped: '터뜨린 버블', stDropped: '떨어뜨린 버블', stBest: '최고', stLevel: '스테이지',
+    combo: n => '콤보 ×' + n, drop: n => '낙하 +' + n, nice: ['좋아요!', '멋져요!', '대단해요!', '무적!'], warn: '⚠️ 천장이 내려와요',
+    endlessRow: '새 줄이 내려와요!'
+  }
+};
+</script>
+<script src="../../assets/bgm.js?v=20261015"></script>
+<script src="../../assets/kit.js?v=20261015"></script>
+<script src="game.js?v=20261015"></script>
+</body>
+</html>

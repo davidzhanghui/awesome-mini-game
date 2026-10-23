@@ -1,7 +1,7 @@
 /* AMG game kit — shared helpers for the rebuilt games. Zero dependencies.
  * Load after i18n.js and bgm.js, before the game's own script:
- *   <script src="../assets/bgm.js"></script>
- *   <script src="../assets/kit.js"></script>
+ *   <script src="../../assets/bgm.js"></script>
+ *   <script src="../../assets/kit.js"></script>
  *
  *   KIT.$(id)                          getElementById
  *   KIT.T(key, ...args)                AMG.tf(window.GAME_STR, ...)

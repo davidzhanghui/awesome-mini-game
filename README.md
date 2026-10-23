@@ -1,6 +1,6 @@
 # 🎮 Awesome Mini Game
 
-14 classic mini-games rebuilt with pure HTML + CSS + JS — zero dependencies, playable out of the box.
+26 mini-games rebuilt with pure HTML + CSS + JS — zero dependencies, playable out of the box.
 
 [中文版](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
 
@@ -16,24 +16,36 @@ python3 -m http.server 8000
 
 Press `/` on the home page to search games.
 
-## Games (14)
+## Games (26)
 
 | Game | Folder | Highlights |
 |---|---|---|
-| 🚀 Raiden | `raiden/` | 6 war zones + 6 multi-phase bosses, 3 switchable weapons, thunder bombs, 2P co-op |
-| 🍄 Super Mario Bros | `super-mario-bros/` | 8 levels, power-ups, secret pipe rooms, flagpole & castle bosses |
-| 🪖 Tank Battle | `tank-battle/` | 12 battlefields incl. night ops, 2P co-op, 6 power-ups, map workshop |
-| 🐝 Galaga | `galaga/` | Formation dives, tractor beam capture & dual-fighter rescue, challenging stages |
-| ♞ Chinese Chess | `chinese-chess/` | Full rules, 3-level Web Worker AI, hints/undo, 12 endgame puzzles |
-| 🃏 Dou Dizhu | `dou-dizhu/` | Bid & steal, all combos, teamwork AI, card counter, bomb/rocket effects |
-| ⚫ Gomoku | `gomoku/` | 3-level AI, PvP, optional Renju forbidden moves, hints/undo |
-| 🧱 Tetris | `tetris/` | SRS, hold, T-Spin/B2B/Perfect Clear, Marathon / Sprint 40L / Ultra |
-| 🔢 2048 | `game-2048/` | 4 board sizes, undo, auto-save |
-| 💣 Minesweeper | `minesweeper/` | 3 difficulties, safe first click, chording, hints |
-| 🎯 Breakout | `breakout/` | 10 levels, steel/TNT bricks, 8 power-ups |
-| 🫧 Bubble Dragon | `bubble-dragon/` | Bounce aiming, drops, 12 levels + endless |
-| 💎 Match 3 | `match3/` | Striped/bomb/rainbow gems, 15 levels + blitz |
-| 🐤 Flappy Bird | `flappy-bird/` | 3 difficulties, moving pipes, medals, day/night |
+| 🚀 Raiden | `games/raiden/` | 6 war zones + 6 multi-phase bosses, 3 switchable weapons, thunder bombs, 2P co-op |
+| 🍄 Super Mario Bros | `games/super-mario-bros/` | 8 levels, power-ups, secret pipe rooms, flagpole & castle bosses |
+| 🪖 Tank Battle | `games/tank-battle/` | 12 battlefields incl. night ops, 2P co-op, 6 power-ups, map workshop |
+| 🐝 Galaga | `games/galaga/` | Formation dives, tractor beam capture & dual-fighter rescue, challenging stages |
+| ♞ Chinese Chess | `games/chinese-chess/` | Full rules, 3-level Web Worker AI, hints/undo, 12 endgame puzzles |
+| 🃏 Dou Dizhu | `games/dou-dizhu/` | Bid & steal, all combos, teamwork AI, card counter, bomb/rocket effects |
+| ⚫ Gomoku | `games/gomoku/` | 3-level AI, PvP, optional Renju forbidden moves, hints/undo |
+| 🧱 Tetris | `games/tetris/` | SRS, hold, T-Spin/B2B/Perfect Clear, Marathon / Sprint 40L / Ultra |
+| 🔢 2048 | `games/game-2048/` | 4 board sizes, undo, auto-save |
+| 💣 Minesweeper | `games/minesweeper/` | 3 difficulties, safe first click, chording, hints |
+| 🎯 Breakout | `games/breakout/` | 10 levels, steel/TNT bricks, 8 power-ups |
+| 🫧 Bubble Dragon | `games/bubble-dragon/` | Bounce aiming, drops, 12 levels + endless |
+| 💎 Match 3 | `games/match3/` | Striped/bomb/rainbow gems, 15 levels + blitz |
+| 🐤 Flappy Bird | `games/flappy-bird/` | 3 difficulties, moving pipes, medals, day/night |
+| 🕯️ Echoes of the Abyss | `games/abyss/` | Dungeon ARPG · Dungeons, Legendaries, Boss |
+| 🐍 Snake | `games/snake/` | Arcade Classic · 3 Modes, Items, Arcade |
+| 🃏 Memory Match | `games/memory/` | Find the Pairs · Memory, 2P, Family |
+| 🐱 Talking Cat | `games/talking-cat/` | Pet Sim · 3D, Pet, Voice |
+| 🌻 Plants vs. Zombies | `games/pvz/` | Tower Defense · Tower Defense, Deck, Endless |
+| 🍬 Moe Garden | `games/pvz-moe/` | Kawaii Tower Defense · Tower Defense, Kawaii, VFX |
+| 💎 Crystal Guardians | `games/tower-defense/` | Strategy TD · TD, Upgrade, Boss |
+| 🟡 Pac-Man | `games/pacman/` | Maze Arcade · Maze, Ghost AI, Arcade |
+| 🍉 Watermelon Merge | `games/suika/` | Physics Merge · Merge, Physics, Relaxing |
+| 🀄 Idiom Wordle | `games/idiom-guess/` | Word Puzzle · Idioms, Daily, Pinyin |
+| 🥷 Fruit Ninja | `games/fruit-ninja/` | Swipe & Slice · Slice, Combo, Juicy |
+| 📦 Sokoban | `games/sokoban/` | Brain Puzzle · Push, Levels, Undo |
 
 ## Tech
 
@@ -49,15 +61,17 @@ Press `/` on the home page to search games.
 awesome-mini-game/
 ├── index.html          # home page (search + filters + game cards)
 ├── favicon.svg
-├── raiden/             # each game: index.html + game.js (+ styles.css)
-│   ├── index.html
-│   ├── game.js
-│   └── ...
-├── tetris/
-└── ...
+├── assets/             # shared UI / i18n / audio / touch scripts
+└── games/              # all games, one folder each
+    ├── raiden/         # each game: index.html + game.js (+ styles.css)
+    │   ├── index.html
+    │   ├── game.js
+    │   └── ...
+    ├── tetris/
+    └── ...
 ```
 
-Each game folder is self-contained — open any `index.html` to play that game alone.
+Each game folder holds one game and loads shared styles/scripts from `assets/` — serve the repo root (see Play) and open `games/<name>/`.
 
 ## Contributing
 

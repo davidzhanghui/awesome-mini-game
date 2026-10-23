@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="description" content="水果忍者：划动手指或鼠标切开飞起的水果，一刀多切拿连击，小心别碰炸弹！经典与 60 秒街机双模式。">
+<link rel="canonical" href="https://awesome-mini-game.vercel.app/games/fruit-ninja/">
+<link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/fruit-ninja/">
+<link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/fruit-ninja/?lang=en">
+<link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/games/fruit-ninja/?lang=ja">
+<link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/games/fruit-ninja/?lang=ko">
+<link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/games/fruit-ninja/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Awesome Mini Game">
+<meta property="og:title" content="水果忍者 · 划屏切水果">
+<meta property="og:description" content="水果忍者：划动手指或鼠标切开飞起的水果，一刀多切拿连击，小心别碰炸弹！经典与 60 秒街机双模式。">
+<meta property="og:url" content="https://awesome-mini-game.vercel.app/games/fruit-ninja/">
+<meta property="og:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="水果忍者 · 划屏切水果">
+<meta name="twitter:description" content="水果忍者：划动手指或鼠标切开飞起的水果，一刀多切拿连击，小心别碰炸弹！经典与 60 秒街机双模式。">
+<meta name="twitter:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "水果忍者 · 划屏切水果",
+  "description": "水果忍者：划动手指或鼠标切开飞起的水果，一刀多切拿连击，小心别碰炸弹！经典与 60 秒街机双模式。",
+  "url": "https://awesome-mini-game.vercel.app/games/fruit-ninja/",
+  "genre": "敏捷休闲",
+  "gamePlatform": "Web Browser",
+  "inLanguage": ["zh-CN", "en", "ja", "ko"],
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CNY" }
+}
+</script>
+<link rel="icon" href="/favicon.svg" />
+<title>水果忍者 · 划屏切水果</title>
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="../../assets/ui.css?v=20260915" />
+<script src="../../assets/theme.js"></script>
+</head>
+<body>
+<div class="bg-orbs"><span></span><span></span><span></span></div>
+<main class="page">
+  <header class="brand">
+    <div class="logo">🥷</div>
+    <div>
+      <h1><span data-i18n="name">水果忍者</span> <em data-i18n="subtitle">划屏切水果</em></h1>
+      <p data-i18n="intro">一刀切开飞起的水果，千万别碰炸弹！</p>
+    </div>
+    <div class="brand-btns">
+      <button id="btn-mute" class="icon-btn" title="声音开 / 关 (M)">🔊</button>
+    </div>
+  </header>
+  <section class="cabinet">
+    <div class="game-frame">
+      <canvas id="game" width="480" height="620"></canvas>
+      <div id="screen-menu" class="screen">
+        <div class="title-badge">FRUIT NINJA</div>
+        <h2 class="game-title" data-i18n="menuTitle">水果忍者</h2>
+        <div class="hero-row"><span class="hero">🍉</span><span class="hero f">🔪</span><span class="hero">🍍</span></div>
+        <div class="menu-modes">
+          <button id="btn-classic" class="btn primary" data-i18n="classic">⚔️ 经典模式</button>
+          <button id="btn-arcade" class="btn ghost" data-i18n="arcade">⏱ 街机 60 秒</button>
+        </div>
+        <p class="hint" data-i18n="hint">按住鼠标或手指划过水果即可切开</p>
+        <div id="menu-best" class="mini-board">🏆</div>
+      </div>
+      <div id="screen-over" class="screen dim hidden">
+        <div class="panel pop">
+          <h3 id="over-title" class="over-title">游戏结束</h3>
+          <div id="over-sub" class="over-sub"></div>
+          <div class="row"><button id="btn-retry" class="btn primary" data-i18n="retry">🔄 再来一局 (R)</button><button id="btn-menu" class="btn ghost" data-i18n="menu">菜单</button></div>
+        </div>
+      </div>
+    </div>
+    <aside class="side">
+      <div class="card"><h4 data-i18n="opTitle">🎮 操作</h4><ul>
+        <li data-i18n="op1">🖱️ 按住鼠标左键划过水果</li><li data-i18n="op2">👆 手指在屏幕上快速划动</li><li><kbd>P</kbd> <span data-i18n="pauseKw">暂停</span> · <kbd>M</kbd> <span data-i18n="muteKw">静音</span> · <kbd>R</kbd> <span data-i18n="restartKw">重开</span></li></ul></div>
+      <div class="card"><h4 data-i18n="goalTitle">🍌 模式与道具</h4><ul class="medals">
+        <li data-i18n="goal1">⚔️ 经典：漏掉 3 个水果或切到炸弹即结束</li><li data-i18n="goal2">⏱ 街机：60 秒拼分数，炸弹扣 10 分</li><li data-i18n="goal3">❄️ 蓝香蕉冰冻减速 · 🔥 橙香蕉狂热水果雨 · 💜 紫香蕉双倍得分</li></ul></div>
+      <div class="card diff"><h4 data-i18n="tipTitle">🥷 忍者心法</h4>
+        <p data-i18n="tipBody">别看见水果就切，等它们飞到最高点聚在一起时一刀划过——一刀切 3 个以上就有连击奖励，切得越多加得越多！</p></div>
+    </aside>
+  </section>
+  <details class="card seo-about"><summary data-i18n="aboutTitle">📖 关于这款游戏</summary><p data-i18n="aboutBody">水果忍者网页版：划动鼠标或手指切开飞起的水果，一刀多切获得连击奖励，避开炸弹。提供经典模式和 60 秒街机模式，街机模式还有冰冻、狂热、双倍三种香蕉道具。浏览器打开即玩，完全免费。</p></details>
+
+  <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持鼠标和触屏</footer>
+</main>
+<script src="../../assets/i18n.js?v=20260915"></script>
+<script>
+window.GAME_STR = {
+  zh: {
+    title: '水果忍者 · 划屏切水果', name: '水果忍者', subtitle: '划屏切水果', menuTitle: '水果忍者',
+    intro: '一刀切开飞起的水果，千万别碰炸弹！',
+    classic: '⚔️ 经典模式', arcade: '⏱ 街机 60 秒', hint: '按住鼠标或手指划过水果即可切开',
+    retry: '🔄 再来一局 (R)', menu: '菜单',
+    opTitle: '🎮 操作', op1: '🖱️ 按住鼠标左键划过水果', op2: '👆 手指在屏幕上快速划动', pauseKw: '暂停', muteKw: '静音', restartKw: '重开',
+    goalTitle: '🍌 模式与道具', goal1: '⚔️ 经典：漏掉 3 个水果或切到炸弹即结束', goal2: '⏱ 街机：60 秒拼分数，炸弹扣 10 分', goal3: '❄️ 蓝香蕉冰冻减速 · 🔥 橙香蕉狂热水果雨 · 💜 紫香蕉双倍得分',
+    tipTitle: '🥷 忍者心法', tipBody: '别看见水果就切，等它们飞到最高点聚在一起时一刀划过——一刀切 3 个以上就有连击奖励，切得越多加得越多！',
+    footer: '🕹️ 打开即玩 · 完全免费 · 支持鼠标和触屏',
+    muteTitle: '声音开 / 关 (M)', paused: '⏸ 暂停', hudBest: '最高',
+    overBomb: '💥 切到炸弹了！', overMiss: '🍉 漏掉太多水果', overTime: '⏱ 时间到！',
+    overSub: (s, n, c) => '得分 ' + s + ' · 切开 ' + n + ' 个 · 最高 ' + c + ' 连击',
+    newBest: ' · 🏆 新纪录！',
+    combo: (n, b) => n + ' 连击 +' + b,
+    pw_freeze: '❄️ 冰冻', pw_frenzy: '🔥 狂热', pw_double: '✖2 双倍',
+    best: (a, b) => '🏆 经典 ' + a + ' · 街机 ' + b,
+    aboutTitle: '📖 关于这款游戏',
+    aboutBody: '水果忍者网页版：划动鼠标或手指切开飞起的水果，一刀多切获得连击奖励，避开炸弹。提供经典模式和 60 秒街机模式，街机模式还有冰冻、狂热、双倍三种香蕉道具。浏览器打开即玩，完全免费。',
+  },
+  en: {
+    title: 'Fruit Ninja · Slice!', name: 'Fruit Ninja', subtitle: 'Swipe & Slice', menuTitle: 'FRUIT NINJA',
+    intro: 'Slice the flying fruit — and never touch a bomb!',
+    classic: '⚔️ Classic', arcade: '⏱ Arcade 60s', hint: 'Hold the mouse or drag a finger across fruit to slice',
+    retry: '🔄 Play Again (R)', menu: 'Menu',
+    opTitle: '🎮 Controls', op1: '🖱️ Hold left mouse button and swipe', op2: '👆 Swipe quickly with your finger', pauseKw: 'pause', muteKw: 'mute', restartKw: 'restart',
+    goalTitle: '🍌 Modes & Power-ups', goal1: '⚔️ Classic: miss 3 fruits or slice a bomb and it\'s over', goal2: '⏱ Arcade: score big in 60s, bombs cost 10 points', goal3: '❄️ Blue banana freezes time · 🔥 Orange banana fruit frenzy · 💜 Purple banana double score',
+    tipTitle: '🥷 Ninja Wisdom', tipBody: 'Don\'t slash at every fruit. Wait until they bunch up at the top of their arc, then cut through them all — 3+ fruits in one swipe earns a combo bonus!',
+    footer: '🕹️ Play instantly · Free · Mouse & touch friendly',
+    muteTitle: 'Sound on/off (M)', paused: '⏸ Paused', hudBest: 'BEST',
+    overBomb: '💥 You hit a bomb!', overMiss: '🍉 Too many missed', overTime: '⏱ Time\'s up!',
+    overSub: (s, n, c) => 'Score ' + s + ' · ' + n + ' sliced · best combo ' + c,
+    newBest: ' · 🏆 New record!',
+    combo: (n, b) => n + ' COMBO +' + b,
+    pw_freeze: '❄️ FREEZE', pw_frenzy: '🔥 FRENZY', pw_double: '✖2 DOUBLE',
+    best: (a, b) => '🏆 Classic ' + a + ' · Arcade ' + b,
+    aboutTitle: '📖 About this game',
+    aboutBody: 'Fruit Ninja in your browser: swipe with the mouse or your finger to slice flying fruit, chain combos and dodge bombs. Classic mode and a 60-second Arcade mode with freeze, frenzy and double-score bananas. Completely free.',
+  },
+  ja: {
+    title: 'フルーツニンジャ · スワイプ斬り', name: 'フルーツニンジャ', subtitle: 'スワイプ斬り', menuTitle: 'フルーツ忍者',
+    intro: '飛んでくるフルーツを斬れ、爆弾には触るな！',
+    classic: '⚔️ クラシック', arcade: '⏱ アーケード60秒', hint: 'マウスを押したまま、または指でなぞって斬る',
+    retry: '🔄 もう一回 (R)', menu: 'メニュー',
+    opTitle: '🎮 操作', op1: '🖱️ 左クリックを押したままなぞる', op2: '👆 指で素早くスワイプ', pauseKw: '一時停止', muteKw: 'ミュート', restartKw: 'リスタート',
+    goalTitle: '🍌 モードとアイテム', goal1: '⚔️ クラシック：3個見逃すか爆弾を斬ると終了', goal2: '⏱ アーケード：60秒でスコア勝負、爆弾は -10 点', goal3: '❄️ 青バナナで時間スロー · 🔥 橙バナナでフルーツ祭り · 💜 紫バナナで得点2倍',
+    tipTitle: '🥷 忍の心得', tipBody: '見えたらすぐ斬るのではなく、頂点で集まった瞬間にまとめて斬ろう。1回で3個以上斬るとコンボボーナス！',
+    footer: '🕹️ すぐ遊べる · 完全無料 · マウス＆タッチ対応',
+    muteTitle: 'サウンド ON/OFF (M)', paused: '⏸ 一時停止中', hudBest: '最高',
+    overBomb: '💥 爆弾を斬った！', overMiss: '🍉 見逃しすぎ', overTime: '⏱ タイムアップ！',
+    overSub: (s, n, c) => 'スコア ' + s + ' · ' + n + ' 個斬った · 最大 ' + c + ' コンボ',
+    newBest: ' · 🏆 新記録！',
+    combo: (n, b) => n + ' コンボ +' + b,
+    pw_freeze: '❄️ フリーズ', pw_frenzy: '🔥 フレンジー', pw_double: '✖2 ダブル',
+    best: (a, b) => '🏆 クラシック ' + a + ' · アーケード ' + b,
+    aboutTitle: '📖 このゲームについて',
+    aboutBody: 'ブラウザで遊べるフルーツニンジャ：マウスや指でなぞって飛んでくるフルーツを斬り、コンボを決め、爆弾をかわそう。クラシックと60秒アーケードの2モード、フリーズ・フレンジー・ダブルのバナナアイテム付き。完全無料。',
+  },
+  ko: {
+    title: '과일 닌자 · 스와이프 베기', name: '과일 닌자', subtitle: '스와이프 베기', menuTitle: '과일 닌자',
+    intro: '날아오는 과일을 베고, 폭탄은 절대 건드리지 마세요!',
+    classic: '⚔️ 클래식', arcade: '⏱ 아케이드 60초', hint: '마우스를 누른 채로 또는 손가락으로 과일을 그어 베세요',
+    retry: '🔄 다시 하기 (R)', menu: '메뉴',
+    opTitle: '🎮 조작', op1: '🖱️ 왼쪽 버튼을 누른 채로 긋기', op2: '👆 손가락으로 빠르게 스와이프', pauseKw: '일시정지', muteKw: '음소거', restartKw: '다시 시작',
+    goalTitle: '🍌 모드와 아이템', goal1: '⚔️ 클래식: 과일 3개를 놓치거나 폭탄을 베면 끝', goal2: '⏱ 아케이드: 60초 점수 대결, 폭탄은 -10점', goal3: '❄️ 파란 바나나 시간 감속 · 🔥 주황 바나나 과일 폭풍 · 💜 보라 바나나 점수 2배',
+    tipTitle: '🥷 닌자 비법', tipBody: '보이는 대로 베지 말고, 과일이 꼭대기에서 모일 때 한 번에 그으세요. 한 번에 3개 이상 베면 콤보 보너스!',
+    footer: '🕹️ 바로 플레이 · 완전 무료 · 마우스 & 터치 지원',
+    muteTitle: '사운드 켜기/끄기 (M)', paused: '⏸ 일시정지', hudBest: '최고',
+    overBomb: '💥 폭탄을 베었어요!', overMiss: '🍉 너무 많이 놓쳤어요', overTime: '⏱ 시간 종료!',
+    overSub: (s, n, c) => '점수 ' + s + ' · ' + n + '개 베기 · 최고 ' + c + ' 콤보',
+    newBest: ' · 🏆 신기록!',
+    combo: (n, b) => n + ' 콤보 +' + b,
+    pw_freeze: '❄️ 프리즈', pw_frenzy: '🔥 프렌지', pw_double: '✖2 더블',
+    best: (a, b) => '🏆 클래식 ' + a + ' · 아케이드 ' + b,
+    aboutTitle: '📖 게임 소개',
+    aboutBody: '브라우저에서 즐기는 과일 닌자: 마우스나 손가락으로 날아오는 과일을 베고, 콤보를 이어가며 폭탄을 피하세요. 클래식과 60초 아케이드 모드, 프리즈·프렌지·더블 바나나 아이템. 완전 무료.',
+  }
+};
+</script>
+<script src="game.js?v=20261015"></script>
+</body>
+</html>

@@ -6,7 +6,7 @@
  * game links, so a game opened from the landing page always matches it.
  *
  * Usage in a game (before game.js):
- *   <script src="../assets/i18n.js"></script>
+ *   <script src="../../assets/i18n.js"></script>
  *   <script>window.GAME_STR = { zh: {...}, en: {...} };</script>
  *
  * Then in game.js:  AMG.t(GAME_STR, "key")  or  AMG.tf(GAME_STR, "key", arg)
@@ -14,7 +14,7 @@
  * Toggle button: AMG.mountBtn() appends an EN/中文 button into .brand-btns
  *   (falls back to a fixed corner button). Switching reloads with ?lang=.
  * Home button: AMG.mountHome() inserts a 🏠 link to the landing page
- *   ("../") into .brand-btns (or a legacy .top-links bar), carrying ?lang=
+ *   ("../../") into .brand-btns (or a legacy .top-links bar), carrying ?lang=
  *   so the landing page keeps the same language. It is ALSO auto-mounted
  *   on DOMContentLoaded, so individual games need zero edits.
  */
@@ -156,7 +156,7 @@
     if (document.querySelector('.amg-home')) return null;
     injectHomeCss();
     var a = document.createElement('a');
-    a.href = '../?lang=' + lang;
+    a.href = '../../?lang=' + lang;
     a.textContent = '🏠';
     var label = lang === 'zh' ? '返回游戏库' : lang === 'ja' ? 'ゲーム一覧へ戻る' :
       lang === 'ko' ? '게임 목록으로' : 'Back to game library';

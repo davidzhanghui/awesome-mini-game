@@ -1,0 +1,1887 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>水晶守卫 · 策略塔防</title>
+<meta name="description" content="Canvas 程序化绘制的策略塔防：4 大防御塔三级升级、索敌优先级切换、陨石与超频指挥官技能、6 种敌人与 3 场 Boss 战，打开即玩。">
+<link rel="canonical" href="https://awesome-mini-game.vercel.app/games/tower-defense/">
+<link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/tower-defense/">
+<link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/tower-defense/?lang=en">
+<link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/games/tower-defense/?lang=ja">
+<link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/games/tower-defense/?lang=ko">
+<link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/games/tower-defense/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Awesome Mini Game">
+<meta property="og:title" content="水晶守卫 · 策略塔防">
+<meta property="og:description" content="4 大防御塔、索敌优先级、指挥官技能、15 波与 3 场 Boss 战。">
+<meta property="og:url" content="https://awesome-mini-game.vercel.app/games/tower-defense/">
+<meta property="og:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"VideoGame","name":"水晶守卫 · 策略塔防","description":"4 大防御塔、索敌优先级、指挥官技能、15 波与 3 场 Boss 战。","url":"https://awesome-mini-game.vercel.app/games/tower-defense/","genre":"塔防策略","gamePlatform":"Web Browser","inLanguage":["zh-CN","en","ja","ko"],"isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"}}
+</script>
+<link rel="icon" href="/favicon.svg" />
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="../../assets/ui.css?v=20260915" />
+<script src="../../assets/theme.js"></script>
+</head>
+<body>
+<div class="bg-orbs"><span></span><span></span><span></span></div>
+<main class="page">
+  <header class="brand">
+    <div class="logo">💎</div>
+    <div>
+      <h1><span data-i18n="gameTitle">水晶守卫</span> <em data-i18n="subtitle">策略塔防</em></h1>
+      <p data-i18n="intro">布置防御塔，守住水晶，挡住 15 波敌人与 3 场 Boss 战！</p>
+    </div>
+    <div class="brand-btns">
+      <input type="range" id="vol" class="vol" min="0" max="100" step="5" aria-label="Volume" title="Volume">
+      <button id="btnMute" class="icon-btn" title="声音开 / 关 (M)">🔊</button>
+    </div>
+  </header>
+  <section class="cabinet">
+    <div class="td-main">
+      <div class="hud" id="top">
+        <div class="chip" id="gold">💰 <span id="vGold">0</span></div>
+        <div class="chip" id="lives">❤️ <span id="vLives">20</span></div>
+        <div class="chip">🌊 <span id="vWave">0</span><small>/ 15</small></div>
+        <div class="sp"></div>
+        <div class="seg" id="speedSeg"><button data-s="1" class="on">1x</button><button data-s="2">2x</button><button data-s="3">3x</button></div>
+        <button class="tb" id="btnAuto">自动下一波：关</button>
+        <button class="tb" id="btnPause">⏸ 暂停</button>
+      </div>
+      <div class="game-frame">
+        <canvas id="c" width="1280" height="720"></canvas>
+        <div id="ov" class="screen"></div>
+      </div>
+      <div class="skillbar" id="bottom">
+        <button class="skill" id="skMeteor"><span class="ico">☄️</span><span><span data-i18n="skMeteor">天基陨石</span> <kbd style="font-size:11px">Q</kbd><small data-i18n="skMeteorSub">3 连轰 · 范围巨伤 + 眩晕</small></span><i class="cdm"></i><em class="cdt"></em></button>
+        <button class="skill" id="skOver"><span class="ico">⚡</span><span><span data-i18n="skOver">超频增幅</span> <kbd style="font-size:11px">W</kbd><small data-i18n="skOverSub">全塔攻速 +50% · 6 秒</small></span><i class="cdm"></i><em class="cdt"></em></button>
+        <button id="btnEarly">⚔ 提前迎战</button>
+      </div>
+    </div>
+    <aside class="side">
+      <div class="card" id="panel">
+        <div id="pIdle">
+          <h4 style="margin-top:0;font-size:15px;color:var(--ui-text)" data-i18n="intelTitle">📡 战场情报</h4>
+          <div id="nextWave"></div>
+          <h4 data-i18n="enemyTitle">敌人图鉴</h4>
+          <div class="enl"><i>👺</i><div><b data-i18n="en_goblin">哥布林步兵</b><span data-i18n="ed_goblin">属性均衡的基础炮灰</span></div></div>
+          <div class="enl"><i>🐺</i><div><b data-i18n="en_hound">疾风猎犬</b><span data-i18n="ed_hound"></span></div></div>
+          <div class="enl"><i>🛡️</i><div><b data-i18n="en_guard">重甲铁卫</b><span data-i18n="ed_guard"></span></div></div>
+          <div class="enl"><i>🧙</i><div><b data-i18n="en_shaman">暗影萨满</b><span data-i18n="ed_shaman"></span></div></div>
+          <div class="enl"><i>🟢</i><div><b data-i18n="en_slime">分裂史莱姆</b><span data-i18n="ed_slime"></span></div></div>
+          <div class="enl"><i>👹</i><div><b data-i18n="en_boss">深渊攻城巨兽</b><span data-i18n="ed_boss"></span></div></div>
+        </div>
+        <div id="pTower" hidden>
+          <div class="tname"><span id="tIcon"></span><b id="tName"></b><span class="lv" id="tLv"></span></div>
+          <div class="tstats" id="tStats"></div>
+          <div class="tstats"><div><span data-i18n="totalDmg">累计伤害</span><b id="tDmg">0</b></div><div><span data-i18n="kills">击杀数</span><b id="tKills">0</b></div></div>
+          <h4 style="margin-top:6px" data-i18n="prioTitle">索敌优先级</h4>
+          <div class="prio" id="prio">
+            <button data-m="first" data-i18n="m_first"></button><button data-m="strong" data-i18n="m_strong"></button>
+            <button data-m="weak" data-i18n="m_weak"></button><button data-m="close" data-i18n="m_close"></button>
+          </div>
+          <button class="act" id="btnUp"></button>
+          <button class="act sell" id="btnSell"></button>
+          <p id="tDesc"></p>
+        </div>
+      </div>
+      <div class="card"><h4 data-i18n="opTitle">🎮 操作</h4><ul>
+        <li data-i18n="op1"></li><li data-i18n="op2"></li>
+        <li><kbd>1</kbd>–<kbd>4</kbd> <span data-i18n="op3a"></span> · <kbd>U</kbd> <span data-i18n="op3b"></span> · <kbd>X</kbd> <span data-i18n="op3c"></span></li>
+        <li><kbd>Q</kbd> <span data-i18n="op4a"></span> · <kbd>W</kbd> <span data-i18n="op4b"></span> · <kbd>N</kbd> <span data-i18n="op4c"></span></li>
+        <li><kbd>Space</kbd> <span data-i18n="op5a"></span> · <kbd>Esc</kbd> <span data-i18n="op5b"></span> · <kbd>M</kbd> <span data-i18n="op5c"></span></li></ul></div>
+      <div class="card diff"><h4 data-i18n="tipTitle">💡 通关秘籍</h4><p data-i18n="tipBody"></p></div>
+    </aside>
+  </section>
+  <details class="card seo-about"><summary data-i18n="aboutTitle">📖 关于这款游戏</summary><p data-i18n="aboutBody"></p></details>
+  <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏</footer>
+</main>
+<script src="../../assets/i18n.js?v=20260915"></script>
+<script src="../../assets/bgm.js?v=20261014"></script>
+<script>
+window.GAME_STR = {
+ "zh": {
+  "title": "水晶守卫 · 策略塔防",
+  "subtitle": "策略塔防",
+  "gameTitle": "水晶守卫",
+  "intro": "布置防御塔，守住水晶，挡住 15 波敌人与 3 场 Boss 战！",
+  "muteTitle": "声音开 / 关 (M)",
+  "hpLbl": "生命",
+  "autoOff": "自动下一波：关",
+  "autoOn": "自动下一波：开",
+  "autoTitle": "自动开启下一波",
+  "pause": "⏸ 暂停",
+  "resumeBtn": "▶ 继续",
+  "pauseTitle": "暂停 (空格)",
+  "skMeteor": "天基陨石",
+  "skMeteorSub": "3 连轰 · 范围巨伤 + 眩晕",
+  "skOver": "超频增幅",
+  "skOverSub": "全塔攻速 +50% · 6 秒",
+  "intelTitle": "📡 战场情报",
+  "enemyTitle": "敌人图鉴",
+  "nwNext": "下一波（第 {0} 波）",
+  "nwFirst": "第 {0} 波",
+  "nwFinal": "最终波已开始！",
+  "en_goblin": "哥布林步兵",
+  "en_hound": "疾风猎犬",
+  "en_guard": "重甲铁卫",
+  "en_shaman": "暗影萨满",
+  "en_slime": "分裂史莱姆",
+  "en_mini": "小史莱姆",
+  "en_boss": "深渊攻城巨兽",
+  "ed_goblin": "属性均衡的基础炮灰",
+  "ed_hound": "极快、15% 闪避；速射塔 + 寒霜减速",
+  "ed_guard": "物理减免 70%；用奥术塔 / 迫击炮",
+  "ed_shaman": "每 4 秒群体治疗；优先点杀",
+  "ed_slime": "死亡裂成 3 只小史莱姆；用 AOE",
+  "ed_boss": "第 5/10/15 波 Boss；免疫眩晕、减速减半",
+  "tn_arrow": "速射箭塔",
+  "tn_arcane": "奥术激光塔",
+  "tn_mortar": "重型迫击炮塔",
+  "tn_frost": "寒霜电磁塔",
+  "ts_arrow": "高攻速单体物理输出，克制高速轻甲单位",
+  "ts_arcane": "无视护甲的真实伤害，克制重甲",
+  "ts_mortar": "慢速超远射程范围溅射，克制集群",
+  "ts_frost": "冰霜脉冲群体减速，Lv.3 冻结并易伤",
+  "td_arrow": "高攻速单体物理输出，克制高速轻甲单位。Lv.3 觉醒：连续攻击同一目标伤害叠加 +15%（最多 5 层），发射穿甲弹（无视 50% 护甲）。",
+  "td_arcane": "无视护甲的真实伤害。Lv.1 持续光束；Lv.2 闪电链（2 目标）；Lv.3 闪电链跳跃 3 个目标。克制重甲。",
+  "td_mortar": "慢速、超远射程、范围溅射，对护甲有 60% 穿透。克制集群敌人。Lv.3 落点附带持续燃烧地面。",
+  "td_frost": "周期性释放冰霜脉冲，范围内敌人减速 40%（2.5 秒）。Lv.3：20% 概率冻结眩晕，并使受影响敌人受到的伤害 +20%。",
+  "m_first": "最前 First",
+  "m_strong": "最强 Strongest",
+  "m_weak": "最弱 Weakest",
+  "m_close": "最近 Closest",
+  "prioTitle": "索敌优先级",
+  "totalDmg": "累计伤害",
+  "kills": "击杀数",
+  "awaken": " 觉醒",
+  "maxed": "✨ 已满级",
+  "upTo": "⬆ 升级到 Lv.{0}  · 💰{1}",
+  "sellBtn": "💰 出售 +{0} (75%)",
+  "sl_dmg": "伤害",
+  "sl_rate": "攻速",
+  "sl_range": "射程",
+  "sl_form": "形式",
+  "sl_chain": "闪电链",
+  "sl_radius": "半径",
+  "sl_interval": "间隔",
+  "sl_pulse": "脉冲间隔",
+  "sl_area": "范围",
+  "sl_slow": "减速",
+  "sl_freeze": "冻结/易伤",
+  "sl_streak": "连击叠加",
+  "v_phys": "{0} 物理",
+  "v_true": "{0} 真实",
+  "v_splash": "{0} 溅射",
+  "v_rate": "{0} 次/秒",
+  "v_dps": "28 /秒 真实",
+  "v_beam": "持续光束",
+  "v_targets": "{0} 目标",
+  "v_secs": "{0} 秒",
+  "v_slow": "40% · 2.5 秒",
+  "opTitle": "🎮 操作",
+  "op1": "点击空基座 → 选择防御塔建造",
+  "op2": "点击防御塔 → 升级 / 出售 / 切换索敌",
+  "op3a": "建造",
+  "op3b": "升级",
+  "op3c": "出售",
+  "op4a": "陨石",
+  "op4b": "超频",
+  "op4c": "提前迎战",
+  "op5a": "暂停",
+  "op5b": "取消",
+  "op5c": "静音",
+  "tipTitle": "💡 通关秘籍",
+  "tipBody": "铁卫怕奥术 / 迫击炮，猎犬怕速射 + 寒霜，史莱姆怕 AOE，萨满用「最强 / 最弱」优先点杀；Boss 来前攒好陨石。",
+  "aboutTitle": "📖 关于这款游戏",
+  "aboutBody": "布置 4 种防御塔、三级升级与索敌切换，用陨石和超频技能守住水晶，挡住 15 波敌人与 3 场 Boss 战。浏览器打开即玩，支持键盘和触屏，无需下载安装，完全免费。",
+  "footer": "🕹️ 打开即玩 · 完全免费 · 支持键盘和触屏",
+  "readyTitle": "水晶守卫",
+  "readyBadge": "CRYSTAL GUARD",
+  "readyBody": "在 S 型要道上布置防御塔，守住终点水晶（20 点生命），挡住 15 波敌人与 3 场 Boss 战。",
+  "readyKeys": "<kbd>点击基座</kbd> 建塔 · <kbd>点击塔</kbd> 升级/出售/切换索敌<br><kbd>Q</kbd> 天基陨石 · <kbd>W</kbd> 超频增幅 · <kbd>N</kbd> 提前迎战 · <kbd>空格</kbd> 暂停",
+  "readyTip": "提示：铁卫怕奥术/迫击炮，猎犬怕速射+寒霜，史莱姆怕 AOE，萨满用「最强/最弱」优先点杀。",
+  "startBtn": "🚀 开始守卫",
+  "paused": "⏸ 已暂停",
+  "pausedSub": "喘口气，布置一下战术。",
+  "resume": "继续",
+  "restart": "重新开始",
+  "winTitle": "🏆 守卫成功！",
+  "winStat": "剩余生命 {0}/20 · 击败敌人 {1} · 防御塔 {2} 座",
+  "again": "再战一局",
+  "loseTitle": "💔 水晶被摧毁",
+  "loseStat": "坚持到第 {0} 波 · 击败敌人 {1}",
+  "bnBoss": "⚠ 深渊攻城巨兽来袭！",
+  "bnBossSub": "第 {0} 波 · Boss",
+  "bnWave": "第 {0} 波",
+  "bnStart": "建造防御塔，准备迎敌！",
+  "bnKilled": "巨兽已被击溃！",
+  "bnAwake": "{0} 觉醒！",
+  "bnOver": "⚡ 超频增幅！",
+  "frozen": "冻结!",
+  "earlyPlus": "提前迎战 +{0}",
+  "clearPlus": "波次清除 +{0}",
+  "aimTip": "点击地图释放陨石 · 右键/Esc 取消",
+  "eFinal": "最终波进行中",
+  "eAttack": "第 {0} 波进攻中…",
+  "eEarly": "⚔ 提前迎战 第{0}波 +{1}💰 ({2}s)",
+  "eStart": "⚔ 开始第 {0} 波"
+ },
+ "en": {
+  "title": "Crystal Guard · Tower Defense",
+  "subtitle": "Tower Defense",
+  "gameTitle": "Crystal Guard",
+  "intro": "Build towers, guard the crystal, survive 15 waves and 3 boss fights!",
+  "muteTitle": "Sound on/off (M)",
+  "hpLbl": "Lives",
+  "autoOff": "Auto next wave: off",
+  "autoOn": "Auto next wave: on",
+  "autoTitle": "Auto-start the next wave",
+  "pause": "⏸ Pause",
+  "resumeBtn": "▶ Resume",
+  "pauseTitle": "Pause (Space)",
+  "skMeteor": "Orbital Meteor",
+  "skMeteorSub": "3 strikes · big AoE + stun",
+  "skOver": "Overclock",
+  "skOverSub": "All towers +50% speed · 6 s",
+  "intelTitle": "📡 Battle Intel",
+  "enemyTitle": "Enemy Guide",
+  "nwNext": "Next wave (Wave {0})",
+  "nwFirst": "Wave {0}",
+  "nwFinal": "The final wave has begun!",
+  "en_goblin": "Goblin Grunt",
+  "en_hound": "Gale Hound",
+  "en_guard": "Iron Guard",
+  "en_shaman": "Shadow Shaman",
+  "en_slime": "Splitting Slime",
+  "en_mini": "Mini Slime",
+  "en_boss": "Abyssal Siege Beast",
+  "ed_goblin": "Balanced cannon fodder",
+  "ed_hound": "Very fast, 15% dodge; use rapid fire + frost",
+  "ed_guard": "70% physical resist; use Arcane / Mortar",
+  "ed_shaman": "Heals allies every 4 s; focus it down",
+  "ed_slime": "Splits into 3 minis; use AoE",
+  "ed_boss": "Boss on waves 5/10/15; stun-immune, half slow",
+  "tn_arrow": "Rapid Archer Tower",
+  "tn_arcane": "Arcane Laser Tower",
+  "tn_mortar": "Heavy Mortar Tower",
+  "tn_frost": "Frost Pulse Tower",
+  "ts_arrow": "Fast single-target physical damage; great vs. light armor",
+  "ts_arcane": "True damage ignoring armor; counters heavy armor",
+  "ts_mortar": "Slow, long-range splash; counters groups",
+  "ts_frost": "Frost pulse slows all; Lv.3 freezes and weakens",
+  "td_arrow": "Fast single-target physical damage, great against fast light units. Lv.3 awakening: consecutive hits on one target stack +15% damage (max 5) and fire armor-piercing shots (ignore 50% armor).",
+  "td_arcane": "True damage that ignores armor. Lv.1 continuous beam; Lv.2 chain lightning (2 targets); Lv.3 chains to 3 targets. Counters heavy armor.",
+  "td_mortar": "Slow, very long range splash damage with 60% armor penetration. Counters crowds. Lv.3 leaves burning ground.",
+  "td_frost": "Periodic frost pulse slows enemies in range by 40% (2.5 s). Lv.3: 20% chance to freeze-stun and +20% damage taken by affected enemies.",
+  "m_first": "First",
+  "m_strong": "Strongest",
+  "m_weak": "Weakest",
+  "m_close": "Closest",
+  "prioTitle": "Targeting priority",
+  "totalDmg": "Total damage",
+  "kills": "Kills",
+  "awaken": " Awakened",
+  "maxed": "✨ Max level",
+  "upTo": "⬆ Upgrade to Lv.{0}  · 💰{1}",
+  "sellBtn": "💰 Sell +{0} (75%)",
+  "sl_dmg": "Damage",
+  "sl_rate": "Fire rate",
+  "sl_range": "Range",
+  "sl_form": "Form",
+  "sl_chain": "Chain",
+  "sl_radius": "Radius",
+  "sl_interval": "Interval",
+  "sl_pulse": "Pulse interval",
+  "sl_area": "Area",
+  "sl_slow": "Slow",
+  "sl_freeze": "Freeze / Vuln.",
+  "sl_streak": "Combo stack",
+  "v_phys": "{0} phys",
+  "v_true": "{0} true",
+  "v_splash": "{0} splash",
+  "v_rate": "{0} /s",
+  "v_dps": "28 /s true",
+  "v_beam": "Continuous beam",
+  "v_targets": "{0} targets",
+  "v_secs": "{0} s",
+  "v_slow": "40% · 2.5 s",
+  "opTitle": "🎮 Controls",
+  "op1": "Click an empty pad → pick a tower to build",
+  "op2": "Click a tower → upgrade / sell / change targeting",
+  "op3a": "build",
+  "op3b": "upgrade",
+  "op3c": "sell",
+  "op4a": "meteor",
+  "op4b": "overclock",
+  "op4c": "early wave",
+  "op5a": "pause",
+  "op5b": "cancel",
+  "op5c": "mute",
+  "tipTitle": "💡 Pro Tips",
+  "tipBody": "Iron Guards fear Arcane / Mortar, hounds fear rapid fire + frost, slimes fear AoE, shamans: use Strongest / Weakest to focus. Save the meteor for bosses.",
+  "aboutTitle": "📖 About this game",
+  "aboutBody": "Build 4 tower types with 3 upgrade levels and switchable targeting, use meteor and overclock skills to guard the crystal through 15 waves and 3 boss fights. Play instantly in your browser — keyboard and touch supported, no download needed, completely free.",
+  "footer": "🕹️ Play instantly · Free · Keyboard & touch friendly",
+  "readyTitle": "Crystal Guard",
+  "readyBadge": "CRYSTAL GUARD",
+  "readyBody": "Place towers along the winding road, protect the crystal (20 lives) and survive 15 waves with 3 boss fights.",
+  "readyKeys": "<kbd>Click pad</kbd> build · <kbd>Click tower</kbd> upgrade/sell/targeting<br><kbd>Q</kbd> meteor · <kbd>W</kbd> overclock · <kbd>N</kbd> early wave · <kbd>Space</kbd> pause",
+  "readyTip": "Tip: Iron Guards fear Arcane/Mortar, hounds fear rapid fire + frost, slimes fear AoE; focus shamans with Strongest/Weakest.",
+  "startBtn": "🚀 Start Defending",
+  "paused": "⏸ Paused",
+  "pausedSub": "Catch your breath and plan your tactics.",
+  "resume": "Resume",
+  "restart": "Restart",
+  "winTitle": "🏆 Victory!",
+  "winStat": "Lives left {0}/20 · Enemies defeated {1} · Towers {2}",
+  "again": "Play Again",
+  "loseTitle": "💔 The crystal fell",
+  "loseStat": "Reached wave {0} · Enemies defeated {1}",
+  "bnBoss": "⚠ The Abyssal Siege Beast attacks!",
+  "bnBossSub": "Wave {0} · Boss",
+  "bnWave": "Wave {0}",
+  "bnStart": "Build towers and prepare for battle!",
+  "bnKilled": "The beast has fallen!",
+  "bnAwake": "{0} awakened!",
+  "bnOver": "⚡ Overclock!",
+  "frozen": "Frozen!",
+  "earlyPlus": "Early call +{0}",
+  "clearPlus": "Wave clear +{0}",
+  "aimTip": "Click the map to call a meteor · Right-click/Esc to cancel",
+  "eFinal": "Final wave in progress",
+  "eAttack": "Wave {0} attacking…",
+  "eEarly": "⚔ Call wave {0} early +{1}💰 ({2}s)",
+  "eStart": "⚔ Start wave {0}"
+ },
+ "ja": {
+  "title": "クリスタルガード · 戦略タワーディフェンス",
+  "subtitle": "戦略タワーディフェンス",
+  "gameTitle": "クリスタルガード",
+  "intro": "防衛塔を築いてクリスタルを守り、15ウェーブと3体のボスを乗り切れ！",
+  "muteTitle": "サウンド ON/OFF (M)",
+  "hpLbl": "ライフ",
+  "autoOff": "自動次ウェーブ：OFF",
+  "autoOn": "自動次ウェーブ：ON",
+  "autoTitle": "次のウェーブを自動開始",
+  "pause": "⏸ 一時停止",
+  "resumeBtn": "▶ 再開",
+  "pauseTitle": "一時停止 (スペース)",
+  "skMeteor": "軌道隕石",
+  "skMeteorSub": "3連撃 · 広範囲大ダメージ＋スタン",
+  "skOver": "オーバークロック",
+  "skOverSub": "全塔の攻撃速度 +50% · 6秒",
+  "intelTitle": "📡 戦況情報",
+  "enemyTitle": "敵図鑑",
+  "nwNext": "次のウェーブ（第{0}波）",
+  "nwFirst": "第{0}波",
+  "nwFinal": "最終ウェーブ開始！",
+  "en_goblin": "ゴブリン兵",
+  "en_hound": "疾風ハウンド",
+  "en_guard": "重装鉄衛",
+  "en_shaman": "闇のシャーマン",
+  "en_slime": "分裂スライム",
+  "en_mini": "ミニスライム",
+  "en_boss": "深淵の攻城獣",
+  "ed_goblin": "バランス型の雑兵",
+  "ed_hound": "超高速・回避15%；速射塔＋氷結で対処",
+  "ed_guard": "物理軽減70%；アーケイン／迫撃砲で",
+  "ed_shaman": "4秒ごとに全体回復；優先して倒す",
+  "ed_slime": "倒すと3匹に分裂；範囲攻撃で",
+  "ed_boss": "5/10/15波のボス；スタン無効・減速半減",
+  "tn_arrow": "速射アーチャー塔",
+  "tn_arcane": "アーケインレーザー塔",
+  "tn_mortar": "重迫撃砲塔",
+  "tn_frost": "フロスト電磁塔",
+  "ts_arrow": "高速単体物理ダメージ、軽装甲に強い",
+  "ts_arcane": "装甲無視の確定ダメージ、重装甲に強い",
+  "ts_mortar": "低速・超長射程の範囲攻撃、集団に強い",
+  "ts_frost": "冷気パルスで減速、Lv.3で凍結＋脆弱",
+  "td_arrow": "高速の単体物理ダメージ。軽装甲の素早い敵に強い。Lv.3覚醒：同じ目標への連続攻撃でダメージ+15%（最大5層）、徹甲弾（装甲50%無視）を発射。",
+  "td_arcane": "装甲を無視する確定ダメージ。Lv.1は持続ビーム、Lv.2は連鎖雷（2体）、Lv.3は3体に連鎖。重装甲に強い。",
+  "td_mortar": "低速・超長射程の範囲攻撃、装甲を60%貫通。集団に強い。Lv.3は着弾点が燃え続ける。",
+  "td_frost": "定期的に冷気パルスを放ち、範囲内の敵を40%減速（2.5秒）。Lv.3：20%で凍結スタン、さらに被ダメージ+20%。",
+  "m_first": "最前 First",
+  "m_strong": "最強 Strongest",
+  "m_weak": "最弱 Weakest",
+  "m_close": "最寄 Closest",
+  "prioTitle": "ターゲット優先度",
+  "totalDmg": "累計ダメージ",
+  "kills": "撃破数",
+  "awaken": " 覚醒",
+  "maxed": "✨ 最大レベル",
+  "upTo": "⬆ Lv.{0}へ強化  · 💰{1}",
+  "sellBtn": "💰 売却 +{0} (75%)",
+  "sl_dmg": "ダメージ",
+  "sl_rate": "攻撃速度",
+  "sl_range": "射程",
+  "sl_form": "形式",
+  "sl_chain": "連鎖雷",
+  "sl_radius": "半径",
+  "sl_interval": "間隔",
+  "sl_pulse": "パルス間隔",
+  "sl_area": "範囲",
+  "sl_slow": "減速",
+  "sl_freeze": "凍結/脆弱",
+  "sl_streak": "連撃スタック",
+  "v_phys": "{0} 物理",
+  "v_true": "{0} 確定",
+  "v_splash": "{0} 範囲",
+  "v_rate": "{0} 回/秒",
+  "v_dps": "28 /秒 確定",
+  "v_beam": "持続ビーム",
+  "v_targets": "{0} 体",
+  "v_secs": "{0} 秒",
+  "v_slow": "40% · 2.5秒",
+  "opTitle": "🎮 操作",
+  "op1": "空き基座をクリック → 防衛塔を選んで建設",
+  "op2": "防衛塔をクリック → 強化 / 売却 / 索敵切替",
+  "op3a": "建設",
+  "op3b": "強化",
+  "op3c": "売却",
+  "op4a": "隕石",
+  "op4b": "オーバークロック",
+  "op4c": "早期出撃",
+  "op5a": "一時停止",
+  "op5b": "キャンセル",
+  "op5c": "ミュート",
+  "tipTitle": "💡 攻略メモ",
+  "tipBody": "鉄衛はアーケイン／迫撃砲、ハウンドは速射＋氷結、スライムは範囲攻撃、シャーマンは「最強／最弱」で優先撃破。ボス前に隕石を温存。",
+  "aboutTitle": "📖 このゲームについて",
+  "aboutBody": "4種類の防衛塔を3段階で強化し、索敵切替・隕石・オーバークロックでクリスタルを守り、15ウェーブと3体のボスに挑もう。ブラウザですぐ遊べます。キーボード・タッチ対応、ダウンロード不要・完全無料。",
+  "footer": "🕹️ すぐ遊べる · 完全無料 · キーボード＆タッチ対応",
+  "readyTitle": "クリスタルガード",
+  "readyBadge": "CRYSTAL GUARD",
+  "readyBody": "S字の道に防衛塔を配置し、終点のクリスタル（ライフ20）を守って15ウェーブと3体のボスを退けよう。",
+  "readyKeys": "<kbd>基座クリック</kbd> 建設 · <kbd>塔クリック</kbd> 強化/売却/索敵<br><kbd>Q</kbd> 隕石 · <kbd>W</kbd> オーバークロック · <kbd>N</kbd> 早期出撃 · <kbd>スペース</kbd> 一時停止",
+  "readyTip": "ヒント：鉄衛はアーケイン/迫撃砲、ハウンドは速射＋氷結、スライムは範囲攻撃。シャーマンは最強/最弱で優先撃破。",
+  "startBtn": "🚀 防衛開始",
+  "paused": "⏸ 一時停止中",
+  "pausedSub": "一息ついて作戦を練ろう。",
+  "resume": "再開",
+  "restart": "リスタート",
+  "winTitle": "🏆 防衛成功！",
+  "winStat": "残りライフ {0}/20 · 撃破 {1} · 防衛塔 {2} 基",
+  "again": "もう一度",
+  "loseTitle": "💔 クリスタル崩壊",
+  "loseStat": "第{0}波まで到達 · 撃破 {1}",
+  "bnBoss": "⚠ 深淵の攻城獣が襲来！",
+  "bnBossSub": "第{0}波 · ボス",
+  "bnWave": "第{0}波",
+  "bnStart": "防衛塔を建てて迎撃準備！",
+  "bnKilled": "攻城獣を撃破！",
+  "bnAwake": "{0} 覚醒！",
+  "bnOver": "⚡ オーバークロック！",
+  "frozen": "凍結!",
+  "earlyPlus": "早期出撃 +{0}",
+  "clearPlus": "ウェーブ達成 +{0}",
+  "aimTip": "マップをクリックで隕石投下 · 右クリック/Escで取消",
+  "eFinal": "最終ウェーブ進行中",
+  "eAttack": "第{0}波 侵攻中…",
+  "eEarly": "⚔ 第{0}波を早期出撃 +{1}💰 ({2}秒)",
+  "eStart": "⚔ 第{0}波を開始"
+ },
+ "ko": {
+  "title": "크리스탈 가드 · 전략 타워 디펜스",
+  "subtitle": "전략 타워 디펜스",
+  "gameTitle": "크리스탈 가드",
+  "intro": "방어탑을 세워 크리스탈을 지키고 15웨이브와 보스 3번을 막아내세요!",
+  "muteTitle": "사운드 켜기/끄기 (M)",
+  "hpLbl": "생명",
+  "autoOff": "자동 다음 웨이브: 끔",
+  "autoOn": "자동 다음 웨이브: 켬",
+  "autoTitle": "다음 웨이브 자동 시작",
+  "pause": "⏸ 일시정지",
+  "resumeBtn": "▶ 계속",
+  "pauseTitle": "일시정지 (스페이스)",
+  "skMeteor": "궤도 운석",
+  "skMeteorSub": "3연타 · 광역 대미지 + 기절",
+  "skOver": "오버클럭",
+  "skOverSub": "전 타워 공속 +50% · 6초",
+  "intelTitle": "📡 전장 정보",
+  "enemyTitle": "적 도감",
+  "nwNext": "다음 웨이브 ({0}웨이브)",
+  "nwFirst": "{0}웨이브",
+  "nwFinal": "마지막 웨이브 시작!",
+  "en_goblin": "고블린 보병",
+  "en_hound": "질풍 사냥개",
+  "en_guard": "중갑 철위",
+  "en_shaman": "그림자 주술사",
+  "en_slime": "분열 슬라임",
+  "en_mini": "미니 슬라임",
+  "en_boss": "심연의 공성 거수",
+  "ed_goblin": "능력치가 균형 잡힌 기본 졸개",
+  "ed_hound": "매우 빠르고 회피 15%; 속사탑 + 서리 감속",
+  "ed_guard": "물리 피해 70% 감소; 아케인/박격포로",
+  "ed_shaman": "4초마다 범위 치유; 우선 처치",
+  "ed_slime": "죽으면 3마리로 분열; 광역기로",
+  "ed_boss": "5/10/15웨이브 보스; 기절 면역, 감속 절반",
+  "tn_arrow": "속사 궁수탑",
+  "tn_arcane": "아케인 레이저탑",
+  "tn_mortar": "중형 박격포탑",
+  "tn_frost": "서리 전자탑",
+  "ts_arrow": "빠른 단일 물리 피해, 경갑에 강함",
+  "ts_arcane": "방어 무시 고정 피해, 중갑에 강함",
+  "ts_mortar": "느리고 초장거리 광역, 무리에 강함",
+  "ts_frost": "서리 파동 감속, Lv.3 빙결+취약",
+  "td_arrow": "빠른 단일 대상 물리 피해로 빠른 경갑 적에 강합니다. Lv.3 각성: 같은 대상 연속 공격 시 피해 +15%(최대 5중첩), 방어구 관통탄(방어 50% 무시) 발사.",
+  "td_arcane": "방어를 무시하는 고정 피해. Lv.1 지속 광선, Lv.2 체인 라이트닝(2명), Lv.3 3명에게 연쇄. 중갑에 강함.",
+  "td_mortar": "느리고 초장거리 광역 피해, 방어 60% 관통. 무리에 강함. Lv.3은 착탄 지점이 계속 불탐.",
+  "td_frost": "주기적으로 서리 파동을 방출해 범위 내 적을 40% 감속(2.5초). Lv.3: 20% 확률로 빙결 기절, 영향받은 적의 받는 피해 +20%.",
+  "m_first": "선두 First",
+  "m_strong": "최강 Strongest",
+  "m_weak": "최약 Weakest",
+  "m_close": "최근접 Closest",
+  "prioTitle": "타겟 우선순위",
+  "totalDmg": "누적 피해",
+  "kills": "처치 수",
+  "awaken": " 각성",
+  "maxed": "✨ 최대 레벨",
+  "upTo": "⬆ Lv.{0}로 업그레이드  · 💰{1}",
+  "sellBtn": "💰 판매 +{0} (75%)",
+  "sl_dmg": "피해",
+  "sl_rate": "공속",
+  "sl_range": "사거리",
+  "sl_form": "형태",
+  "sl_chain": "체인",
+  "sl_radius": "반경",
+  "sl_interval": "간격",
+  "sl_pulse": "파동 간격",
+  "sl_area": "범위",
+  "sl_slow": "감속",
+  "sl_freeze": "빙결/취약",
+  "sl_streak": "연타 중첩",
+  "v_phys": "{0} 물리",
+  "v_true": "{0} 고정",
+  "v_splash": "{0} 광역",
+  "v_rate": "{0} 회/초",
+  "v_dps": "28 /초 고정",
+  "v_beam": "지속 광선",
+  "v_targets": "{0} 명",
+  "v_secs": "{0} 초",
+  "v_slow": "40% · 2.5초",
+  "opTitle": "🎮 조작",
+  "op1": "빈 기지 클릭 → 방어탑 선택 후 건설",
+  "op2": "방어탑 클릭 → 업그레이드 / 판매 / 타겟 변경",
+  "op3a": "건설",
+  "op3b": "업그레이드",
+  "op3c": "판매",
+  "op4a": "운석",
+  "op4b": "오버클럭",
+  "op4c": "조기 호출",
+  "op5a": "일시정지",
+  "op5b": "취소",
+  "op5c": "음소거",
+  "tipTitle": "💡 공략 비결",
+  "tipBody": "철위는 아케인/박격포, 사냥개는 속사+서리, 슬라임은 광역기, 주술사는 \"최강/최약\"으로 우선 처치. 보스 전에 운석을 아껴두세요.",
+  "aboutTitle": "📖 게임 소개",
+  "aboutBody": "4종 방어탑을 3단계로 업그레이드하고 타겟 변경, 운석·오버클럭 스킬로 크리스탈을 지키며 15웨이브와 보스 3번을 막아내세요. 브라우저에서 바로 플레이 — 키보드와 터치 지원, 다운로드 불필요, 완전 무료.",
+  "footer": "🕹️ 바로 플레이 · 완전 무료 · 키보드 & 터치 지원",
+  "readyTitle": "크리스탈 가드",
+  "readyBadge": "CRYSTAL GUARD",
+  "readyBody": "S자 길에 방어탑을 배치해 종점의 크리스탈(생명 20)을 지키고 15웨이브와 보스 3번을 막아내세요.",
+  "readyKeys": "<kbd>기지 클릭</kbd> 건설 · <kbd>탑 클릭</kbd> 업그레이드/판매/타겟<br><kbd>Q</kbd> 운석 · <kbd>W</kbd> 오버클럭 · <kbd>N</kbd> 조기 호출 · <kbd>스페이스</kbd> 일시정지",
+  "readyTip": "팁: 철위는 아케인/박격포, 사냥개는 속사+서리, 슬라임은 광역기. 주술사는 최강/최약으로 우선 처치.",
+  "startBtn": "🚀 수비 시작",
+  "paused": "⏸ 일시정지",
+  "pausedSub": "숨을 고르고 전술을 가다듬어요.",
+  "resume": "계속",
+  "restart": "다시 시작",
+  "winTitle": "🏆 수비 성공!",
+  "winStat": "남은 생명 {0}/20 · 처치 {1} · 방어탑 {2}기",
+  "again": "다시 하기",
+  "loseTitle": "💔 크리스탈 붕괴",
+  "loseStat": "{0}웨이브 도달 · 처치 {1}",
+  "bnBoss": "⚠ 심연의 공성 거수 습격!",
+  "bnBossSub": "{0}웨이브 · 보스",
+  "bnWave": "{0}웨이브",
+  "bnStart": "방어탑을 세우고 적을 맞이하세요!",
+  "bnKilled": "거수를 쓰러뜨렸다!",
+  "bnAwake": "{0} 각성!",
+  "bnOver": "⚡ 오버클럭!",
+  "frozen": "빙결!",
+  "earlyPlus": "조기 호출 +{0}",
+  "clearPlus": "웨이브 클리어 +{0}",
+  "aimTip": "지도를 클릭해 운석 투하 · 우클릭/Esc 취소",
+  "eFinal": "마지막 웨이브 진행 중",
+  "eAttack": "{0}웨이브 공격 중…",
+  "eEarly": "⚔ {0}웨이브 조기 호출 +{1}💰 ({2}초)",
+  "eStart": "⚔ {0}웨이브 시작"
+ }
+};
+</script>
+<script>
+(() => {
+'use strict';
+/* ============================================================
+ * 水晶守卫 — Canvas 程序化绘图 + Web Audio 合成音效的策略塔防
+ * ============================================================ */
+const W = 1280, H = 720, TAU = Math.PI * 2, STEP = 1 / 60;
+const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+const $ = id => document.getElementById(id);
+const S_ = k => AMG.t(GAME_STR, k);
+const SF_ = (k, ...a) => String(AMG.t(GAME_STR, k)).replace(/\{(\d)\}/g, (m, i) => a[i]);
+const rnd = (a, b) => a + Math.random() * (b - a);
+const rint = (a, b) => Math.floor(rnd(a, b + 1));
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+const angDiff = (a, b) => { let d = (b - a) % TAU; if (d > Math.PI) d -= TAU; if (d < -Math.PI) d += TAU; return d; };
+
+/* ---------------- 地图 ---------------- */
+const PATH = [[-30, 130], [1050, 130], [1050, 300], [230, 300], [230, 470], [1050, 470], [1050, 620], [150, 620]];
+const SEGL = [], CUM = [0];
+for (let i = 0; i < PATH.length - 1; i++) {
+  const l = Math.hypot(PATH[i + 1][0] - PATH[i][0], PATH[i + 1][1] - PATH[i][1]);
+  SEGL.push(l); CUM.push(CUM[i] + l);
+}
+const TOTAL = CUM[CUM.length - 1];
+function posAt(d) {
+  d = clamp(d, 0, TOTAL);
+  let i = 0; while (i < SEGL.length - 1 && d > CUM[i + 1]) i++;
+  const t = (d - CUM[i]) / SEGL[i], a = PATH[i], b = PATH[i + 1];
+  return { x: lerp(a[0], b[0], t), y: lerp(a[1], b[1], t), dx: (b[0] - a[0]) / SEGL[i], dy: (b[1] - a[1]) / SEGL[i] };
+}
+const PADS = [
+  [250, 62], [520, 62], [800, 62],
+  [330, 215], [600, 215], [880, 215], [1130, 215],
+  [150, 385], [330, 385], [620, 385], [900, 385],
+  [420, 545], [700, 545], [900, 545], [1130, 545],
+].map(([x, y], i) => ({ x, y, i, tower: null }));
+const CRYSTAL = { x: 96, y: 620 }, PORTAL = { x: 34, y: 130 };
+
+/* ---------------- 数据 ---------------- */
+const TD = {
+  arrow: {
+    name: '速射箭塔', icon: '🏹', cost: 100, up: [90, 150], key: '1',
+    rng: [150, 168, 186], rate: [0.42, 0.32, 0.24], dmg: [11, 16, 22],
+    desc: '高攻速单体物理输出，克制高速轻甲单位。Lv.3 觉醒：连续攻击同一目标伤害叠加 +15%（最多 5 层），发射穿甲弹（无视 50% 护甲）。',
+  },
+  arcane: {
+    name: '奥术激光塔', icon: '🔮', cost: 140, up: [120, 200], key: '2',
+    rng: [155, 172, 190], rate: [0, 0.8, 0.62], dmg: [30, 30, 40],
+    desc: '无视护甲的真实伤害。Lv.1 持续光束；Lv.2 闪电链（2 目标）；Lv.3 闪电链跳跃 3 个目标。克制重甲。',
+  },
+  mortar: {
+    name: '重型迫击炮塔', icon: '💣', cost: 160, up: [140, 220], key: '3',
+    rng: [270, 300, 330], rate: [2.8, 2.4, 2.0], dmg: [55, 90, 130], rad: [58, 68, 80],
+    desc: '慢速、超远射程、范围溅射，对护甲有 60% 穿透。克制集群敌人。Lv.3 落点附带持续燃烧地面。',
+  },
+  frost: {
+    name: '寒霜电磁塔', icon: '❄️', cost: 120, up: [100, 170], key: '4',
+    rng: [115, 130, 145], rate: [2.6, 2.3, 2.0], dmg: [6, 6, 6],
+    desc: '周期性释放冰霜脉冲，范围内敌人减速 40%（2.5 秒）。Lv.3：20% 概率冻结眩晕，并使受影响敌人受到的伤害 +20%。',
+  },
+};
+const TKEYS = ['arrow', 'arcane', 'mortar', 'frost'];
+const MODES = { first: '最前', strong: '最强', weak: '最弱', close: '最近' };
+const EN = {
+  goblin: { name: '哥布林步兵', hp: 48, spd: 54, armor: 0, reward: 5, leak: 1, r: 12 },
+  hound:  { name: '疾风猎犬', hp: 30, spd: 112, armor: 0, dodge: 0.15, reward: 6, leak: 1, r: 12 },
+  guard:  { name: '重甲铁卫', hp: 210, spd: 36, armor: 0.7, reward: 13, leak: 1, r: 15 },
+  shaman: { name: '暗影萨满', hp: 80, spd: 46, armor: 0, reward: 11, leak: 1, r: 12 },
+  slime:  { name: '分裂史莱姆', hp: 100, spd: 48, armor: 0, reward: 7, leak: 1, r: 14 },
+  mini:   { name: '小史莱姆', hp: 26, spd: 92, armor: 0, reward: 2, leak: 1, r: 8 },
+  boss:   { name: '深渊攻城巨兽', hp: 0, spd: 26, armor: 0.25, reward: 120, leak: 5, r: 32 },
+};
+const BOSS = { 5: [1800, 500], 10: [4200, 1200], 15: [8000, 2500] };
+const WV = [
+  { goblin: 8 }, { goblin: 10, hound: 3 }, { goblin: 8, hound: 5, guard: 1 }, { goblin: 10, hound: 6, shaman: 2 },
+  { boss: 1, goblin: 10, hound: 4 },
+  { slime: 6, goblin: 10, hound: 6 }, { guard: 4, shaman: 3, goblin: 10 }, { slime: 8, hound: 10, shaman: 2, guard: 3 },
+  { guard: 6, shaman: 4, slime: 8, hound: 8 }, { boss: 1, guard: 6, shaman: 3, slime: 8, goblin: 10 },
+  { slime: 10, hound: 12, guard: 6, shaman: 4 }, { guard: 9, shaman: 5, slime: 10, goblin: 16 },
+  { guard: 10, slime: 12, hound: 14, shaman: 6 }, { guard: 12, shaman: 6, slime: 14, hound: 16, goblin: 14 },
+  { boss: 1, guard: 12, shaman: 6, slime: 12, hound: 12, goblin: 14 },
+];
+TKEYS.forEach(k => {
+  Object.defineProperty(TD[k], 'name', { get: () => S_('tn_' + k) });
+  Object.defineProperty(TD[k], 'desc', { get: () => S_('td_' + k) });
+});
+Object.keys(EN).forEach(k => Object.defineProperty(EN[k], 'name', { get: () => S_('en_' + k) }));
+const EMO = { goblin: '👺', hound: '🐺', guard: '🛡️', shaman: '🧙', slime: '🟢', boss: '👹' };
+const GAP = 25;
+const hpScale = w => 1 + 0.15 * (w - 1) + 0.012 * (w - 1) * (w - 1);
+
+/* ---------------- 音频 ---------------- */
+let AC = null, MG = null, muted = AMG_AUDIO.muted, noiseBuf = null;
+const masterVol = () => (muted ? 0 : AMG_AUDIO.vol * 0.62);
+const lastSfx = {};
+function audio() {
+  if (!AC) {
+    try {
+      AC = new (window.AudioContext || window.webkitAudioContext)();
+      MG = AC.createGain(); MG.gain.value = masterVol(); MG.connect(AC.destination);
+      AMG_BGM.init(AC, MG);
+      noiseBuf = AC.createBuffer(1, AC.sampleRate, AC.sampleRate);
+      const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    } catch (e) { AC = null; }
+  }
+  if (AC && AC.state === 'suspended') AC.resume();
+  return AC;
+}
+function tone(f, d, type, v, slide, delay) {
+  if (!AC || muted) return;
+  const t = AC.currentTime + (delay || 0), o = AC.createOscillator(), g = AC.createGain();
+  o.type = type || 'sine'; o.frequency.setValueAtTime(f, t);
+  if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(20, f * slide), t + d);
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v || 0.2, t + 0.008); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+  o.connect(g); g.connect(MG); o.start(t); o.stop(t + d + 0.03);
+}
+function noise(d, v, f0, f1, delay) {
+  if (!AC || muted) return;
+  const t = AC.currentTime + (delay || 0), s = AC.createBufferSource(); s.buffer = noiseBuf;
+  const fl = AC.createBiquadFilter(); fl.type = 'lowpass';
+  fl.frequency.setValueAtTime(f0, t); fl.frequency.exponentialRampToValueAtTime(Math.max(30, f1), t + d);
+  const g = AC.createGain(); g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+  s.connect(fl); fl.connect(g); g.connect(MG); s.start(t); s.stop(t + d + 0.03);
+}
+const GAPS = { shoot: 45, laser: 70, beam: 220, coin: 50, hit: 40, frost: 120, boom: 60, heal: 200 };
+function sfx(n) {
+  if (!AC || muted) return;
+  const now = performance.now();
+  if (lastSfx[n] && now - lastSfx[n] < (GAPS[n] || 0)) return;
+  lastSfx[n] = now;
+  switch (n) {
+    case 'shoot': tone(760, .06, 'square', .05, .45); noise(.04, .04, 4000, 900); break;
+    case 'laser': tone(1100, .16, 'sawtooth', .05, 1.9); tone(2200, .12, 'sine', .04, .8, .02); break;
+    case 'beam': tone(420, .24, 'sawtooth', .025, 1.25); break;
+    case 'mortar': noise(.2, .22, 900, 150); tone(110, .25, 'sine', .3, .4); break;
+    case 'boom': noise(.6, .5, 1800, 70); tone(100, .45, 'sine', .45, .25); break;
+    case 'frost': noise(.35, .12, 4000, 400); tone(1400, .35, 'sine', .06, .5); tone(2100, .25, 'triangle', .04, .6, .04); break;
+    case 'coin': tone(1320, .08, 'square', .045, 1); tone(1760, .12, 'square', .045, 1, .06); break;
+    case 'build': tone(160, .14, 'sine', .3, .6); noise(.08, .12, 900, 200); tone(520, .1, 'triangle', .1, 1.3, .08); break;
+    case 'upgrade': [523, 659, 784, 1046].forEach((f, i) => tone(f, .16, 'triangle', .13, 1, i * .07)); break;
+    case 'sell': tone(900, .1, 'square', .07, .6); tone(600, .14, 'square', .07, .6, .08); break;
+    case 'alarm': for (let i = 0; i < 6; i++) tone(i % 2 ? 480 : 640, .26, 'sawtooth', .09, 1, i * .3); break;
+    case 'meteor': tone(1500, .8, 'sine', .08, .12); noise(.7, .1, 3000, 300); break;
+    case 'over': tone(300, .5, 'sawtooth', .08, 3.2); tone(600, .5, 'triangle', .07, 2.5, .05); break;
+    case 'leak': tone(90, .4, 'sine', .5, .5); noise(.3, .3, 600, 80); break;
+    case 'heal': tone(660, .18, 'sine', .06, 1.5); tone(990, .2, 'sine', .05, 1.4, .08); break;
+    case 'hit': tone(200, .05, 'square', .03, .6); break;
+    case 'bad': tone(150, .18, 'square', .09, .7); break;
+    case 'win': [523, 659, 784, 1046, 1318, 1568].forEach((f, i) => tone(f, .35, 'triangle', .18, 1, i * .13)); break;
+    case 'lose': [392, 349, 311, 262, 196].forEach((f, i) => tone(f, .55, 'sawtooth', .12, .98, i * .24)); break;
+  }
+}
+
+/* ---------------- 工具绘制 ---------------- */
+const mixCache = {};
+function mixHex(a, b, t) {
+  const k = a + b + t; if (mixCache[k]) return mixCache[k];
+  const p = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+  const A = p(a), B = p(b), r = A.map((v, i) => Math.round(lerp(v, B[i], t)));
+  return (mixCache[k] = `rgb(${r[0]},${r[1]},${r[2]})`);
+}
+const C = (x, y, r, c) => { ctx.fillStyle = c; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill(); };
+const E = (x, y, rx, ry, c, rot) => { ctx.fillStyle = c; ctx.beginPath(); ctx.ellipse(x, y, rx, ry, rot || 0, 0, TAU); ctx.fill(); };
+const L = (x1, y1, x2, y2, w, c) => { ctx.strokeStyle = c; ctx.lineWidth = w; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); };
+function rr(x, y, w, h, r) {
+  ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+}
+function wrapText(txt, maxW, size) {
+  ctx.font = `${size}px sans-serif`;
+  const sp = /\s/.test(txt), toks = sp ? txt.split(/\s+/) : [...txt], lines = []; let cur = '';
+  for (const t of toks) {
+    const nx = cur ? (sp ? cur + ' ' + t : cur + t) : t;
+    if (ctx.measureText(nx).width > maxW && cur) { lines.push(cur); cur = t; } else cur = nx;
+  }
+  if (cur) lines.push(cur); return lines;
+}
+function Tx(txt, x, y, size, fill, stroke, align, lw) {
+  ctx.font = `800 ${size}px "PingFang SC","Microsoft YaHei",system-ui,sans-serif`;
+  ctx.textAlign = align || 'center'; ctx.textBaseline = 'middle';
+  if (stroke) { ctx.lineJoin = 'round'; ctx.lineWidth = lw || 4; ctx.strokeStyle = stroke; ctx.strokeText(txt, x, y); }
+  ctx.fillStyle = fill; ctx.fillText(txt, x, y);
+}
+function bolt(pts, color, w) {
+  ctx.save(); ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.globalCompositeOperation = 'lighter';
+  for (const [lw, c] of [[w * 3.2, color.glow], [w, color.core]]) {
+    ctx.strokeStyle = c; ctx.lineWidth = lw; ctx.beginPath();
+    pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.stroke();
+  }
+  ctx.restore();
+}
+function jag(x1, y1, x2, y2, amp) {
+  const n = Math.max(3, Math.floor(Math.hypot(x2 - x1, y2 - y1) / 22)), pts = [[x1, y1]];
+  const nx = -(y2 - y1), ny = x2 - x1, nl = Math.hypot(nx, ny) || 1;
+  for (let i = 1; i < n; i++) {
+    const t = i / n, o = rnd(-amp, amp);
+    pts.push([lerp(x1, x2, t) + nx / nl * o, lerp(y1, y2, t) + ny / nl * o]);
+  }
+  pts.push([x2, y2]); return pts;
+}
+
+/* ---------------- 状态 ---------------- */
+let G, bg = null, DPR = 1, nextId = 1;
+function newGame() {
+  PADS.forEach(p => p.tower = null);
+  G = {
+    state: 'ready', time: 0, gold: 260, lives: 20, wave: 0, countdown: 22, spawning: false, queue: [], paid: true,
+    autoNext: false, speed: 1, towers: [], enemies: [], bullets: [], shells: [], bolts: [], fx: [], texts: [], parts: [],
+    scorches: [], fires: [], meteors: [], shake: 0, kills: 0, leakFlash: 0, banner: null,
+    skills: { meteor: { cd: 0, max: 35 }, over: { cd: 0, max: 45, active: 0 } },
+    aim: false, ring: null, sel: null, mouse: { x: -99, y: -99, in: false }, hoverPad: null, hoverOpt: -1,
+  };
+  refreshAll();
+}
+
+/* ---------------- 敌人 ---------------- */
+function spawnEnemy(type, d0, wave) {
+  const def = EN[type], hs = type === 'boss' ? 1 : hpScale(wave);
+  let hp = Math.round(def.hp * hs), shield = 0;
+  if (type === 'boss') { [hp, shield] = BOSS[wave] || BOSS[15]; }
+  const p = posAt(d0 || 0);
+  const e = {
+    id: nextId++, type, def, hp, max: hp, shield, shieldMax: shield, d: d0 || 0, x: p.x, y: p.y, face: 1, r: def.r,
+    slowT: 0, slowM: 1, stunT: 0, vulnT: 0, flash: 0, t: rnd(0, 6), healT: rnd(1, 4), dead: false, wave, spdNow: def.spd,
+    reward: Math.round(def.reward * (1 + 0.05 * (wave - 1))),
+  };
+  G.enemies.push(e); return e;
+}
+function applySlow(e, m, t) {
+  if (e.type === 'boss') m = 1 - (1 - m) * 0.5;
+  if (e.slowT <= 0 || m < e.slowM) e.slowM = m;
+  e.slowT = Math.max(e.slowT, t);
+}
+function applyStun(e, t) { if (e.type === 'boss') return false; e.stunT = Math.max(e.stunT, t); return true; }
+
+function dealDmg(e, amount, kind, src, o) {
+  if (e.dead) return 0;
+  o = o || {};
+  if (kind === 'phys' && e.def.dodge && Math.random() < e.def.dodge) { addText(e.x, e.y - e.r - 6, 'MISS', '#9fb2d6', 13); return 0; }
+  let a = amount;
+  const ar = e.def.armor;
+  if (kind === 'phys') a *= 1 - ar * (1 - (o.pierce || 0));
+  else if (kind === 'siege') a *= 1 - ar * 0.4;
+  if (e.vulnT > 0) a *= 1.2;
+  const applied = a;
+  if (e.shield > 0) { const tk = Math.min(a, e.shield); e.shield -= tk; a -= tk; if (e.shield <= 0) { burst(e.x, e.y, 14, ['#7fe3ff', '#ffffff'], { min: 60, max: 180 }); } }
+  e.hp -= a; e.flash = 0.08;
+  if (src) src.dmg += applied;
+  if (!o.quiet) {
+    const col = o.crit ? '#ffcf3a' : kind === 'true' ? '#c28bff' : kind === 'fire' ? '#ff9a3a' : kind === 'siege' ? '#ffb86a' : '#ffffff';
+    addText(e.x + rnd(-8, 8), e.y - e.r - 8, String(Math.max(1, Math.round(applied))), col, o.crit ? 24 : 14, o.crit);
+  }
+  if (e.hp <= 0) killEnemy(e, src);
+  return applied;
+}
+function killEnemy(e, src) {
+  if (e.dead) return;
+  e.dead = true; G.kills++;
+  if (src) src.kills++;
+  G.gold += e.reward; goldUp();
+  G.texts.push({ x: e.x, y: e.y - e.r - 14, txt: '+' + e.reward, color: '#ffd25a', size: 16, t: 0, life: 0.9, coin: true, vy: -34 });
+  sfx('coin');
+  const col = { goblin: '#6aa84f', hound: '#8a93a8', guard: '#8b95a1', shaman: '#6a3a9a', slime: '#4ec9a7', mini: '#4ec9a7', boss: '#a0402a' }[e.type];
+  burst(e.x, e.y, e.type === 'boss' ? 40 : 10, [col, mixHex(col, '#000000', .3), '#ffffff'], { min: 40, max: e.type === 'boss' ? 260 : 150 });
+  if (e.type === 'slime') {
+    for (let i = -1; i <= 1; i++) { const m = spawnEnemy('mini', clamp(e.d + i * 16, 0, TOTAL), e.wave); m.slowT = e.slowT * 0; }
+    burst(e.x, e.y, 14, ['#4ec9a7', '#9ff0d6'], { min: 50, max: 160 });
+  }
+  if (e.type === 'boss') { shake(14); sfx('boom'); G.banner = { txt: S_('bnKilled'), t: 2.4, color: '#ffd25a' }; }
+}
+
+/* ---------------- 粒子 / 文字 ---------------- */
+function burst(x, y, n, colors, o) {
+  o = o || {};
+  for (let i = 0; i < n; i++) {
+    const a = rnd(0, TAU), sp = rnd(o.min || 30, o.max || 120);
+    G.parts.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - (o.up || 0), life: rnd(.3, .75), g: o.g == null ? 260 : o.g, size: rnd(o.s0 || 1.6, o.s1 || 4), color: colors[rint(0, colors.length - 1)] });
+  }
+}
+function addText(x, y, txt, color, size, crit) { G.texts.push({ x, y, txt, color, size, t: 0, life: crit ? 0.95 : 0.7, crit, vy: crit ? -46 : -34 }); }
+function shake(v) { G.shake = Math.max(G.shake, v); }
+
+/* ---------------- 塔数值 ---------------- */
+const invested = tw => tw.invested;
+const sellValue = tw => Math.floor(tw.invested * 0.75);
+const upCost = tw => tw.lvl >= 2 ? null : TD[tw.type].up[tw.lvl];
+function statLines(type, lvl) {
+  const d = TD[type], r = d.rng[lvl], rate = (1 / d.rate[lvl]).toFixed(1);
+  switch (type) {
+    case 'arrow': return [[S_('sl_dmg'), SF_('v_phys', d.dmg[lvl])], [S_('sl_rate'), SF_('v_rate', rate)], [S_('sl_range'), r]];
+    case 'arcane': return lvl === 0 ? [[S_('sl_dmg'), S_('v_dps')], [S_('sl_form'), S_('v_beam')], [S_('sl_range'), r]]
+      : [[S_('sl_dmg'), SF_('v_true', d.dmg[lvl])], [S_('sl_rate'), SF_('v_rate', rate)], [S_('sl_chain'), SF_('v_targets', lvl + 1)], [S_('sl_range'), r]];
+    case 'mortar': return [[S_('sl_dmg'), SF_('v_splash', d.dmg[lvl])], [S_('sl_radius'), d.rad[lvl]], [S_('sl_interval'), SF_('v_secs', d.rate[lvl].toFixed(1))], [S_('sl_range'), r]];
+    case 'frost': return [[S_('sl_pulse'), SF_('v_secs', d.rate[lvl].toFixed(1))], [S_('sl_area'), r], [S_('sl_slow'), S_('v_slow')], [S_('sl_freeze'), lvl === 2 ? '20% / +20%' : '—']];
+  }
+}
+
+/* ---------------- 建造 / 升级 / 出售 ---------------- */
+function build(pad, type) {
+  const d = TD[type];
+  if (pad.tower || G.gold < d.cost) { sfx('bad'); return; }
+  G.gold -= d.cost; goldUp();
+  const tw = { pad, x: pad.x, y: pad.y, type, lvl: 0, invested: d.cost, mode: 'first', ang: -Math.PI / 2, cool: 0.3, dmg: 0, kills: 0, rec: 0, streak: 0, streakId: -1, t: rnd(0, 6), tg: null, beam: null, accT: 0, accD: 0, side: 1, pulse: 0 };
+  pad.tower = tw; G.towers.push(tw); G.ring = null; G.sel = tw;
+  sfx('build'); burst(pad.x, pad.y, 14, ['#9a8a6a', '#6a5a3a', '#ffffff'], { min: 30, max: 120 });
+  refreshAll();
+}
+function upgrade(tw) {
+  const c = upCost(tw);
+  if (c == null || G.gold < c) { sfx('bad'); return; }
+  G.gold -= c; tw.invested += c; tw.lvl++; goldUp();
+  sfx('upgrade'); G.fx.push({ k: 'up', x: tw.x, y: tw.y, t: 0, life: 0.7, lvl: tw.lvl });
+  burst(tw.x, tw.y, 22, tw.lvl === 2 ? ['#ffd25a', '#fff3b0', '#ffffff'] : ['#7fd0ff', '#ffffff'], { min: 50, max: 190, up: 40 });
+  if (tw.lvl === 2) { shake(4); G.banner = { txt: SF_('bnAwake', TD[tw.type].name), t: 1.6, color: '#ffd25a' }; }
+  refreshAll();
+}
+function sell(tw) {
+  G.gold += sellValue(tw); goldUp(); sfx('sell');
+  addText(tw.x, tw.y - 26, '+' + sellValue(tw), '#ffd25a', 18);
+  burst(tw.x, tw.y, 16, ['#ffd25a', '#9a8a6a'], { min: 40, max: 140 });
+  tw.pad.tower = null; G.towers.splice(G.towers.indexOf(tw), 1);
+  if (G.sel === tw) G.sel = null;
+  refreshAll();
+}
+
+/* ---------------- 索敌 ---------------- */
+function pick(tw, rng, minR) {
+  let best = null, bv = 0;
+  for (const e of G.enemies) {
+    if (e.dead) continue;
+    const dd = Math.hypot(e.x - tw.x, e.y - tw.y);
+    if (dd > rng + e.r * 0.4 || dd < (minR || 0)) continue;
+    let v;
+    switch (tw.mode) {
+      case 'first': v = e.d; break;
+      case 'strong': v = e.hp + e.shield; break;
+      case 'weak': v = -(e.hp + e.shield); break;
+      default: v = -dd;
+    }
+    if (!best || v > bv) { best = e; bv = v; }
+  }
+  return best;
+}
+const turn = (a, b, mx) => { const d = angDiff(a, b); return Math.abs(d) <= mx ? b : a + Math.sign(d) * mx; };
+
+/* ---------------- 防御塔逻辑 ---------------- */
+function updTowers(dt) {
+  const over = G.skills.over.active > 0, sp = over ? 1.5 : 1;
+  for (const tw of G.towers) {
+    tw.t += dt; tw.rec = Math.max(0, tw.rec - dt * 7); tw.cool -= dt * sp;
+    const d = TD[tw.type], rng = d.rng[tw.lvl], lv = tw.lvl;
+    if (tw.type === 'frost') {
+      tw.pulse = Math.max(0, tw.pulse - dt * 3);
+      if (tw.cool <= 0 && G.enemies.some(e => !e.dead && Math.hypot(e.x - tw.x, e.y - tw.y) <= rng + e.r * .4)) frostPulse(tw, rng);
+      continue;
+    }
+    const tg = pick(tw, rng, tw.type === 'mortar' ? 60 : 0);
+    tw.tg = tg;
+    if (!tg) { tw.beam = null; continue; }
+    if (tw.type === 'arrow') {
+      tw.ang = turn(tw.ang, Math.atan2(tg.y - tw.y, tg.x - tw.x), dt * 10);
+      if (tw.cool <= 0 && Math.abs(angDiff(tw.ang, Math.atan2(tg.y - tw.y, tg.x - tw.x))) < 0.3) {
+        tw.cool = d.rate[lv]; tw.rec = 1; tw.side *= -1;
+        const nx = -Math.sin(tw.ang), ny = Math.cos(tw.ang);
+        G.bullets.push({ x: tw.x + Math.cos(tw.ang) * 24 + nx * 5 * tw.side, y: tw.y + Math.sin(tw.ang) * 24 + ny * 5 * tw.side, tgt: tg, lx: tg.x, ly: tg.y, src: tw, lvl: lv, trail: [] });
+        sfx('shoot');
+      }
+    } else if (tw.type === 'arcane') {
+      tw.ang = turn(tw.ang, Math.atan2(tg.y - tw.y, tg.x - tw.x), dt * 9);
+      if (lv === 0) {
+        tw.beam = tg;
+        const a = 28 * dt * sp;
+        dealDmg(tg, a, 'true', tw, { quiet: true });
+        tw.accD += a; tw.accT += dt;
+        if (tw.accT >= 0.5) { if (!tg.dead || true) addText(tg.x + rnd(-6, 6), tg.y - tg.r - 8, String(Math.round(tw.accD)), '#c28bff', 14); tw.accT = 0; tw.accD = 0; }
+        sfx('beam');
+      } else if (tw.cool <= 0) {
+        tw.cool = d.rate[lv]; tw.rec = 1;
+        const hit = [tg]; let last = tg;
+        const maxN = lv === 1 ? 2 : 3;
+        while (hit.length < maxN) {
+          let nb = null, nd = 125;
+          for (const e of G.enemies) { if (e.dead || hit.includes(e)) continue; const dd = dist(e, last); if (dd < nd) { nd = dd; nb = e; } }
+          if (!nb) break; hit.push(nb); last = nb;
+        }
+        let px = tw.x + Math.cos(tw.ang) * 18, py = tw.y + Math.sin(tw.ang) * 18 - 10;
+        const segs = [];
+        hit.forEach(e => { segs.push([px, py, e.x, e.y]); px = e.x; py = e.y; });
+        G.bolts.push({ segs, t: 0, life: 0.2 });
+        hit.forEach(e => { dealDmg(e, d.dmg[lv], 'true', tw); burst(e.x, e.y, 5, ['#c28bff', '#7ff0ff'], { min: 30, max: 110 }); });
+        sfx('laser');
+      }
+    } else if (tw.type === 'mortar') {
+      const T = 1.0;
+      const pe = tg.stunT > 0 ? posAt(tg.d) : posAt(tg.d + tg.spdNow * T);
+      tw.ang = turn(tw.ang, Math.atan2(pe.y - tw.y, pe.x - tw.x), dt * 6);
+      if (tw.cool <= 0 && Math.abs(angDiff(tw.ang, Math.atan2(pe.y - tw.y, pe.x - tw.x))) < 0.25) {
+        tw.cool = d.rate[lv]; tw.rec = 1;
+        const crit = Math.random() < 0.08;
+        G.shells.push({ sx: tw.x + Math.cos(tw.ang) * 24, sy: tw.y + Math.sin(tw.ang) * 24, tx: pe.x, ty: pe.y, t: 0, T, src: tw, lvl: lv, crit });
+        burst(tw.x + Math.cos(tw.ang) * 28, tw.y + Math.sin(tw.ang) * 28, 6, ['#ffd25a', '#aaaaaa', '#ffffff'], { min: 20, max: 80, g: -20 });
+        sfx('mortar');
+      }
+    }
+  }
+}
+function frostPulse(tw, rng) {
+  const lv = tw.lvl, d = TD.frost;
+  tw.cool = d.rate[lv]; tw.pulse = 1; sfx('frost');
+  G.fx.push({ k: 'frost', x: tw.x, y: tw.y, t: 0, life: 0.6, r: rng });
+  for (const e of G.enemies) {
+    if (e.dead || Math.hypot(e.x - tw.x, e.y - tw.y) > rng + e.r * .4) continue;
+    applySlow(e, 0.6, 2.5);
+    if (lv === 2) {
+      e.vulnT = 3;
+      if (Math.random() < 0.2 && applyStun(e, 1.1)) addText(e.x, e.y - e.r - 20, S_('frozen'), '#9fe3ff', 15);
+    }
+    burst(e.x, e.y, 3, ['#bfe9ff', '#ffffff'], { min: 20, max: 70 });
+    dealDmg(e, d.dmg[lv], 'true', tw, { quiet: true });
+  }
+}
+
+/* ---------------- 子弹 / 炮弹 / 陨石 ---------------- */
+function updBullets(dt) {
+  for (const b of G.bullets) {
+    if (b.tgt && !b.tgt.dead) { b.lx = b.tgt.x; b.ly = b.tgt.y; }
+    const dx = b.lx - b.x, dy = b.ly - b.y, dd = Math.hypot(dx, dy), step = 820 * dt;
+    b.trail.push([b.x, b.y]); if (b.trail.length > (b.lvl === 2 ? 9 : 4)) b.trail.shift();
+    if (dd <= step + 6) {
+      b.dead = true;
+      const e = b.tgt;
+      if (e && !e.dead) {
+        const src = b.src; let mult = 1;
+        if (b.lvl === 2) {
+          if (src.streakId === e.id) src.streak = Math.min(5, src.streak + 1); else { src.streakId = e.id; src.streak = 0; }
+          mult = 1 + 0.15 * src.streak;
+        }
+        const crit = Math.random() < 0.08;
+        dealDmg(e, TD.arrow.dmg[b.lvl] * mult * (crit ? 2 : 1), 'phys', src, { crit, pierce: b.lvl === 2 ? 0.5 : 0 });
+        burst(e.x, e.y, 3, ['#ffd25a', '#ffffff'], { min: 20, max: 80, g: 0 }); sfx('hit');
+      }
+    } else { b.x += dx / dd * step; b.y += dy / dd * step; }
+  }
+  G.bullets = G.bullets.filter(b => !b.dead);
+
+  for (const s of G.shells) {
+    s.t += dt;
+    if (s.t >= s.T) {
+      s.dead = true;
+      const d = TD.mortar, lv = s.lvl, rad = d.rad[lv];
+      G.fx.push({ k: 'ring', x: s.tx, y: s.ty, t: 0, life: 0.5, r: rad, color: '255,170,60' });
+      G.fx.push({ k: 'flash', x: s.tx, y: s.ty, t: 0, life: 0.3, r: rad });
+      G.scorches.push({ x: s.tx, y: s.ty, r: rad * 0.7, t: 0, life: 14 });
+      burst(s.tx, s.ty, 18, ['#ffb03a', '#ff6a2a', '#3a3a3a'], { min: 40, max: 170, g: 120, s0: 2, s1: 6 });
+      shake(3); sfx('boom');
+      for (const e of G.enemies) {
+        if (e.dead) continue;
+        const dd = Math.hypot(e.x - s.tx, e.y - s.ty);
+        if (dd <= rad + e.r * 0.5) dealDmg(e, d.dmg[lv] * (1 - 0.4 * clamp(dd / rad, 0, 1)) * (s.crit ? 1.8 : 1), 'siege', s.src, { crit: s.crit });
+      }
+      if (lv === 2) G.fires.push({ x: s.tx, y: s.ty, r: rad * 0.85, t: 0, life: 4, tick: 0, src: s.src });
+    }
+  }
+  G.shells = G.shells.filter(s => !s.dead);
+
+  for (const f of G.fires) {
+    f.t += dt; f.tick += dt;
+    if (f.tick >= 0.5) {
+      f.tick = 0;
+      for (const e of G.enemies) if (!e.dead && Math.hypot(e.x - f.x, e.y - f.y) <= f.r + e.r * .4) dealDmg(e, 10, 'fire', f.src);
+    }
+  }
+  G.fires = G.fires.filter(f => f.t < f.life);
+
+  for (const m of G.meteors) {
+    m.t += dt;
+    if (!m.hit && m.t >= m.delay + m.T) {
+      m.hit = true;
+      G.fx.push({ k: 'ring', x: m.x, y: m.y, t: 0, life: 0.7, r: 100, color: '255,110,50' });
+      G.fx.push({ k: 'flash', x: m.x, y: m.y, t: 0, life: 0.45, r: 110 });
+      G.scorches.push({ x: m.x, y: m.y, r: 60, t: 0, life: 18 });
+      burst(m.x, m.y, 40, ['#ffb03a', '#ff5a2a', '#ffe08a', '#3a2a2a'], { min: 60, max: 300, g: 160, s0: 2, s1: 7 });
+      shake(11); sfx('boom');
+      for (const e of G.enemies) {
+        if (e.dead) continue;
+        const dd = Math.hypot(e.x - m.x, e.y - m.y);
+        if (dd <= 96 + e.r * .5) {
+          dealDmg(e, 240 * (1 - 0.3 * dd / 96), 'true', null, {});
+          if (!applyStun(e, 1.3)) applySlow(e, 0.5, 2);
+        }
+      }
+    }
+  }
+  G.meteors = G.meteors.filter(m => !m.hit);
+}
+
+/* ---------------- 敌人更新 ---------------- */
+function updEnemies(dt) {
+  for (const e of G.enemies) {
+    if (e.dead) continue;
+    e.t += dt;
+    if (e.flash > 0) e.flash -= dt;
+    if (e.slowT > 0) { e.slowT -= dt; if (e.slowT <= 0) e.slowM = 1; }
+    if (e.vulnT > 0) e.vulnT -= dt;
+    if (e.stunT > 0) e.stunT -= dt;
+    const eff = e.stunT > 0 ? 0 : (e.slowT > 0 ? e.slowM : 1);
+    e.spdNow = e.def.spd * eff;
+    e.d += e.spdNow * dt;
+    const p = posAt(e.d); e.x = p.x; e.y = p.y;
+    if (Math.abs(p.dx) > 0.3) e.face = p.dx > 0 ? 1 : -1;
+    if (e.type === 'shaman') {
+      e.healT -= dt;
+      if (e.healT <= 0) {
+        e.healT = 4;
+        G.fx.push({ k: 'heal', x: e.x, y: e.y, t: 0, life: 0.7, r: 120 });
+        sfx('heal');
+        for (const o of G.enemies) {
+          if (o.dead || o === e || dist(o, e) > 120 || o.hp >= o.max) continue;
+          const h = Math.min(o.max - o.hp, o.max * 0.15); o.hp += h;
+          addText(o.x, o.y - o.r - 8, '+' + Math.round(h), '#6bff9a', 13);
+        }
+      }
+    }
+    if (e.d >= TOTAL) {
+      e.dead = true; e.leaked = true;
+      G.lives = Math.max(0, G.lives - e.def.leak); G.leakFlash = 0.5; shake(6 + e.def.leak); sfx('leak');
+      addText(CRYSTAL.x + 40, CRYSTAL.y - 40, '-' + e.def.leak, '#ff6b6b', 26);
+      burst(CRYSTAL.x, CRYSTAL.y, 14, ['#7fd0ff', '#ffffff'], { min: 40, max: 160 });
+      refreshHud();
+      if (G.lives <= 0 && G.state === 'play') endGame(false);
+    }
+  }
+  G.enemies = G.enemies.filter(e => !e.dead);
+}
+
+/* ---------------- 波次 ---------------- */
+function waveInfo(w) {
+  const spec = WV[w - 1]; if (!spec) return '';
+  return Object.entries(spec).map(([k, n]) => `${EMO[k]} ${EN[k].name} ×${n}`).join('<br>');
+}
+let nwWave = 0;
+function setNextWave(w) {
+  nwWave = w;
+  $('nextWave').innerHTML = w < 15 ? `<b>${S_(w === 0 ? 'nwFirst' : 'nwNext') && SF_(w === 0 ? 'nwFirst' : 'nwNext', w + 1)}</b><br>${waveInfo(w + 1)}` : `<b>${S_('nwFinal')}</b>`;
+}
+function launchWave(early) {
+  if (G.wave >= 15 || G.spawning) return;
+  if (early) {
+    const bonus = Math.round(G.countdown * 1.5);
+    if (bonus > 0) { G.gold += bonus; goldUp(); G.texts.push({ x: 640, y: 80, txt: SF_('earlyPlus', bonus), color: '#ffd25a', size: 22, t: 0, life: 1.4, vy: -20 }); sfx('coin'); }
+  }
+  G.wave++;
+  const w = G.wave, spec = WV[w - 1], list = [];
+  for (const [k, n] of Object.entries(spec)) for (let i = 0; i < n; i++) list.push(k);
+  for (let i = list.length - 1; i > 0; i--) { const j = rint(0, i); [list[i], list[j]] = [list[j], list[i]]; }
+  const bi = list.indexOf('boss'); if (bi > 0) { list.splice(bi, 1); list.unshift('boss'); }
+  const iv = list.length > 40 ? 0.62 : 0.8;
+  list.forEach((t, i) => G.queue.push({ t: G.time + i * iv * (t === 'hound' ? .8 : 1) + (t === 'boss' ? 0 : (bi >= 0 ? 3 : 0)), type: t, wave: w }));
+  G.queue.sort((a, b) => a.t - b.t);
+  G.spawning = true; G.paid = false;
+  if (spec.boss) { G.banner = { txt: S_('bnBoss'), sub: SF_('bnBossSub', w), t: 3.2, color: '#ff5a4a', big: true }; sfx('alarm'); shake(6); }
+  else G.banner = { txt: SF_('bnWave', w), t: 1.6, color: '#e7ecf6' };
+  setNextWave(w);
+  refreshHud();
+}
+
+/* ---------------- 主更新 ---------------- */
+function step(dt) {
+  G.time += dt;
+  if (G.leakFlash > 0) G.leakFlash -= dt;
+  if (G.banner && (G.banner.t -= dt) <= 0) G.banner = null;
+  const sk = G.skills;
+  if (sk.meteor.cd > 0) sk.meteor.cd -= dt;
+  if (sk.over.cd > 0) sk.over.cd -= dt;
+  if (sk.over.active > 0) sk.over.active -= dt;
+
+  while (G.queue.length && G.queue[0].t <= G.time) { const q = G.queue.shift(); spawnEnemy(q.type, 0, q.wave); }
+  if (G.spawning && G.queue.length === 0) { G.spawning = false; G.countdown = G.wave < 15 ? GAP : 0; }
+  if (!G.spawning && G.countdown > 0 && G.wave < 15) G.countdown = Math.max(0, G.countdown - dt);
+  if (G.autoNext && !G.spawning && G.countdown <= 0 && G.wave < 15) launchWave(false);
+  if (!G.spawning && !G.paid && G.enemies.length === 0 && G.wave > 0) {
+    G.paid = true; const b = 20 + 3 * G.wave; G.gold += b; goldUp();
+    G.texts.push({ x: 640, y: 80, txt: SF_('clearPlus', b), color: '#ffd25a', size: 22, t: 0, life: 1.4, vy: -20 }); sfx('coin');
+  }
+
+  updTowers(dt); updEnemies(dt); updBullets(dt);
+
+  for (const p of G.parts) { p.life -= dt; p.vy += p.g * dt; p.x += p.vx * dt; p.y += p.vy * dt; }
+  G.parts = G.parts.filter(p => p.life > 0);
+  for (const t of G.texts) { t.t += dt; t.y += t.vy * dt; }
+  G.texts = G.texts.filter(t => t.t < t.life);
+  for (const f of G.fx) f.t += dt; G.fx = G.fx.filter(f => f.t < f.life);
+  for (const b of G.bolts) b.t += dt; G.bolts = G.bolts.filter(b => b.t < b.life);
+  for (const s of G.scorches) s.t += dt; G.scorches = G.scorches.filter(s => s.t < s.life);
+  if (G.shake > 0) G.shake = Math.max(0, G.shake - 26 * dt);
+
+  if (G.state === 'play' && G.wave >= 15 && !G.spawning && G.enemies.length === 0) endGame(true);
+}
+
+function endGame(win) {
+  G.state = win ? 'win' : 'lose'; sfx(win ? 'win' : 'lose'); G.aim = false; showOverlay(win ? 'win' : 'lose');
+}
+
+/* ---------------- 绘制：背景 ---------------- */
+function buildBg() {
+  bg = document.createElement('canvas'); bg.width = Math.round(W * DPR); bg.height = Math.round(H * DPR);
+  const b = bg.getContext('2d'); b.setTransform(DPR, 0, 0, DPR, 0, 0);
+  let seed = 11; const rd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const g = b.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#2f5a33'); g.addColorStop(1, '#264a2c');
+  b.fillStyle = g; b.fillRect(0, 0, W, H);
+  for (let i = 0; i < 2600; i++) {
+    const x = rd() * W, y = rd() * H;
+    b.fillStyle = rd() > .5 ? 'rgba(255,255,255,.05)' : 'rgba(0,0,0,.09)'; b.fillRect(x, y, 2 + rd() * 3, 2 + rd() * 3);
+  }
+  for (let i = 0; i < 70; i++) {
+    const x = rd() * W, y = rd() * H; b.fillStyle = 'rgba(95,150,75,.35)'; b.beginPath(); b.ellipse(x, y, 30 + rd() * 50, 14 + rd() * 26, rd() * 3, 0, TAU); b.fill();
+  }
+  // 路径
+  const stroke = (w, c) => { b.strokeStyle = c; b.lineWidth = w; b.lineJoin = 'round'; b.lineCap = 'butt'; b.beginPath(); PATH.forEach((p, i) => i ? b.lineTo(p[0], p[1]) : b.moveTo(p[0], p[1])); b.stroke(); };
+  stroke(76, 'rgba(0,0,0,.25)'); stroke(70, '#4d3b27'); stroke(60, '#a58559');
+  stroke(46, '#b4946a');
+  for (let i = 0; i < 1800; i++) {
+    const d = rd() * TOTAL, p = posAt(d), o = (rd() - .5) * 56; const nx = -p.dy, ny = p.dx;
+    b.fillStyle = rd() > .5 ? 'rgba(80,60,36,.35)' : 'rgba(230,210,170,.28)';
+    b.beginPath(); b.arc(p.x + nx * o, p.y + ny * o, 0.8 + rd() * 2, 0, TAU); b.fill();
+  }
+  for (let d = 70; d < TOTAL - 60; d += 150) {
+    const p = posAt(d), a = Math.atan2(p.dy, p.dx);
+    b.save(); b.translate(p.x, p.y); b.rotate(a); b.fillStyle = 'rgba(70,50,28,.38)';
+    b.beginPath(); b.moveTo(-8, -12); b.lineTo(6, 0); b.lineTo(-8, 12); b.lineTo(-3, 0); b.closePath(); b.fill(); b.restore();
+  }
+  // 装饰
+  const nearPath = (x, y, m) => { for (let i = 0; i < PATH.length - 1; i++) { const A = PATH[i], B = PATH[i + 1]; const t = clamp(((x - A[0]) * (B[0] - A[0]) + (y - A[1]) * (B[1] - A[1])) / (SEGL[i] * SEGL[i]), 0, 1); if (Math.hypot(x - (A[0] + (B[0] - A[0]) * t), y - (A[1] + (B[1] - A[1]) * t)) < m) return true; } return false; };
+  const nearPad = (x, y, m) => PADS.some(p => Math.hypot(p.x - x, p.y - y) < m);
+  for (let i = 0, n = 0; i < 400 && n < 46; i++) {
+    const x = 20 + rd() * (W - 40), y = 20 + rd() * (H - 40);
+    if (nearPath(x, y, 62) || nearPad(x, y, 46) || (x < 190 && y > 570)) continue;
+    n++;
+    const k = rd();
+    if (k < 0.45) { // 树
+      b.fillStyle = 'rgba(0,0,0,.25)'; b.beginPath(); b.ellipse(x + 4, y + 16, 20, 8, 0, 0, TAU); b.fill();
+      b.fillStyle = '#5a3d22'; b.fillRect(x - 3, y + 2, 6, 14);
+      for (const [dx, dy, r, c] of [[0, -6, 17, '#2a7a3a'], [-9, 2, 12, '#2f8a40'], [9, 2, 12, '#33914a'], [0, -14, 11, '#3aa352']]) { b.fillStyle = c; b.beginPath(); b.arc(x + dx, y + dy, r, 0, TAU); b.fill(); }
+    } else if (k < 0.75) { // 石头
+      b.fillStyle = 'rgba(0,0,0,.22)'; b.beginPath(); b.ellipse(x + 2, y + 8, 14, 5, 0, 0, TAU); b.fill();
+      b.fillStyle = '#7d8590'; b.beginPath(); b.ellipse(x, y, 13, 9, 0, 0, TAU); b.fill(); b.fillStyle = '#a0a8b2'; b.beginPath(); b.ellipse(x - 3, y - 3, 7, 4, 0, 0, TAU); b.fill();
+    } else { // 花
+      for (let j = 0; j < 4; j++) { const fx = x + (rd() - .5) * 20, fy = y + (rd() - .5) * 14; b.fillStyle = ['#ffd25a', '#ff8fb0', '#ffffff', '#9fd0ff'][j]; b.beginPath(); b.arc(fx, fy, 2.4, 0, TAU); b.fill(); b.fillStyle = '#ffb02a'; b.beginPath(); b.arc(fx, fy, 0.9, 0, TAU); b.fill(); }
+    }
+  }
+  // 暗角
+  const vg = b.createRadialGradient(W / 2, H / 2, 300, W / 2, H / 2, 820); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.42)');
+  b.fillStyle = vg; b.fillRect(0, 0, W, H);
+}
+
+/* ---------------- 绘制：防御塔 ---------------- */
+function drawBase(x, y, lvl, scale) {
+  ctx.save(); ctx.translate(x, y); ctx.scale(scale, scale);
+  E(2, 6, 28, 12, 'rgba(0,0,0,.35)');
+  const g = ctx.createRadialGradient(-6, -6, 3, 0, 0, 28); g.addColorStop(0, '#b4b0a4'); g.addColorStop(1, '#6b685e');
+  ctx.fillStyle = g; ctx.beginPath(); for (let i = 0; i < 8; i++) { const a = i / 8 * TAU + TAU / 16; ctx.lineTo(Math.cos(a) * 25, Math.sin(a) * 25); } ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = lvl === 2 ? '#ffd25a' : '#4a483f'; ctx.lineWidth = lvl === 2 ? 3 : 2; ctx.stroke();
+  C(0, 0, 17, 'rgba(0,0,0,.22)');
+  ctx.restore();
+}
+function drawTowerHead(tw, x, y, scale, alpha) {
+  const lv = tw.lvl, t = tw.t || 0, a = tw.ang == null ? -Math.PI / 2 : tw.ang, rec = (tw.rec || 0) * 4;
+  ctx.save(); ctx.globalAlpha = alpha == null ? 1 : alpha; ctx.translate(x, y); ctx.scale(scale, scale);
+  const lc = ['#b88a4a', '#7aa8d8', '#f0c440'][lv];
+  if (tw.type === 'arrow') {
+    ctx.save(); ctx.rotate(a);
+    for (const s of [-1, 1]) { const rcl = rec * (tw.side === s ? 1 : 0.4); ctx.fillStyle = '#3a3d44'; ctx.fillRect(2 - rcl, s * 5 - 2.5, 24, 5); ctx.fillStyle = '#6a7078'; ctx.fillRect(2 - rcl, s * 5 - 2.5, 24, 1.8); ctx.fillStyle = '#1a1c20'; ctx.fillRect(24 - rcl, s * 5 - 3, 4, 6); }
+    ctx.restore();
+    const g = ctx.createRadialGradient(-4, -4, 2, 0, 0, 15); g.addColorStop(0, mixHex(lc, '#ffffff', .4)); g.addColorStop(1, lc);
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, 14, 0, TAU); ctx.fill(); ctx.strokeStyle = '#3a2a14'; ctx.lineWidth = 2; ctx.stroke();
+    C(0, 0, 5, '#2a2c32'); if (lv >= 1) { ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(0, 0, 9, 0, TAU); ctx.stroke(); }
+  } else if (tw.type === 'arcane') {
+    const fl = Math.sin(t * 2.4) * 3;
+    for (let i = 0; i < 3; i++) { const aa = i / 3 * TAU + t * 0.4; ctx.save(); ctx.translate(Math.cos(aa) * 15, Math.sin(aa) * 8); ctx.fillStyle = '#4a3a7a'; ctx.beginPath(); ctx.moveTo(-3, 8); ctx.lineTo(0, -10); ctx.lineTo(3, 8); ctx.fill(); ctx.restore(); }
+    ctx.save(); ctx.translate(0, -8 + fl);
+    const g = ctx.createRadialGradient(0, 0, 1, 0, 0, 22); g.addColorStop(0, 'rgba(160,255,255,.9)'); g.addColorStop(.5, 'rgba(160,100,255,.45)'); g.addColorStop(1, 'rgba(120,60,255,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, 22, 0, TAU); ctx.fill();
+    const g2 = ctx.createRadialGradient(-3, -3, 1, 0, 0, 11); g2.addColorStop(0, '#e8ffff'); g2.addColorStop(.5, '#9a6aff'); g2.addColorStop(1, '#5a2aa8');
+    ctx.fillStyle = g2; ctx.beginPath(); ctx.arc(0, 0, 10 + Math.sin(t * 5) * 0.8, 0, TAU); ctx.fill();
+    ctx.strokeStyle = lv === 2 ? '#ffd25a' : '#7ff0ff'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(0, 0, 17, 5.5, t * 0.8, 0, TAU); ctx.stroke();
+    if (lv >= 1) { ctx.strokeStyle = 'rgba(190,150,255,.8)'; ctx.beginPath(); ctx.ellipse(0, 0, 5.5, 17, -t * 0.6, 0, TAU); ctx.stroke(); }
+    if (lv === 2) for (let i = 0; i < 3; i++) { const aa = t * 2 + i * TAU / 3; C(Math.cos(aa) * 20, Math.sin(aa) * 8, 2.4, '#ffd25a'); }
+    ctx.restore();
+  } else if (tw.type === 'mortar') {
+    ctx.save(); ctx.rotate(a);
+    const L0 = 22 - rec * 1.2;
+    ctx.fillStyle = '#4a5058'; ctx.beginPath(); ctx.moveTo(-6, -9); ctx.lineTo(L0, -7); ctx.lineTo(L0, 7); ctx.lineTo(-6, 9); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#22262b'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.fillStyle = '#6a7078'; ctx.fillRect(2 - rec, -8, 5, 16); ctx.fillRect(12 - rec, -7.5, 4, 15);
+    ctx.fillStyle = '#16181b'; ctx.beginPath(); ctx.ellipse(L0 + 1, 0, 3.5, 8, 0, 0, TAU); ctx.fill();
+    ctx.fillStyle = lv === 2 ? '#ff7a2a' : '#b8a060'; ctx.fillRect(-8, -3, 4, 6);
+    ctx.restore();
+    const g = ctx.createRadialGradient(-4, -4, 2, 0, 0, 14); g.addColorStop(0, mixHex(lc, '#ffffff', .25)); g.addColorStop(1, mixHex(lc, '#000000', .35));
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(-2, 0, 12, 0, TAU); ctx.fill(); ctx.strokeStyle = '#2a2a2a'; ctx.lineWidth = 2; ctx.stroke();
+    C(-2, 0, 4, '#2a2c32');
+  } else if (tw.type === 'frost') {
+    const pu = tw.pulse || 0;
+    ctx.fillStyle = '#5a6a88'; ctx.beginPath(); ctx.moveTo(-8, 4); ctx.lineTo(-3, -22); ctx.lineTo(3, -22); ctx.lineTo(8, 4); ctx.fill();
+    for (let i = 0; i < 1 + lv; i++) { ctx.strokeStyle = i % 2 ? '#7fd0ff' : '#bfe9ff'; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(0, -4 - i * 7, 12 - i * 2, 4, 0, 0, TAU); ctx.stroke(); }
+    const R = 9 + pu * 3;
+    const g = ctx.createRadialGradient(0, -28, 1, 0, -28, R + 12); g.addColorStop(0, 'rgba(220,250,255,.95)'); g.addColorStop(.5, `rgba(100,200,255,${.5 + pu * .4})`); g.addColorStop(1, 'rgba(80,170,255,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, -28, R + 12, 0, TAU); ctx.fill();
+    C(0, -28, R, '#dff6ff'); C(-2, -30, R * .4, '#ffffff');
+    if (lv === 2) for (let i = 0; i < 6; i++) { const aa = i / 6 * TAU + t; ctx.fillStyle = '#e6f8ff'; ctx.save(); ctx.translate(0, -28); ctx.rotate(aa); ctx.beginPath(); ctx.moveTo(R, -2.5); ctx.lineTo(R + 9, 0); ctx.lineTo(R, 2.5); ctx.fill(); ctx.restore(); }
+    if (Math.sin(t * 3) > .6) { const a2 = rnd(0, TAU); L(Math.cos(a2) * R, -28 + Math.sin(a2) * R, Math.cos(a2) * (R + 8), -28 + Math.sin(a2) * (R + 8), 1.5, '#bfe9ff'); }
+  }
+  ctx.restore();
+}
+function drawTower(tw) {
+  drawBase(tw.x, tw.y, tw.lvl, 1);
+  // 等级点
+  for (let i = 0; i <= tw.lvl; i++) C(tw.x - tw.lvl * 5 + i * 10, tw.y + 29, 3, tw.lvl === 2 ? '#ffd25a' : '#e8e0c0');
+  if (tw.lvl === 2) { // 觉醒光环
+    const g = ctx.createRadialGradient(tw.x, tw.y, 10, tw.x, tw.y, 46); g.addColorStop(0, 'rgba(255,215,90,0)'); g.addColorStop(.7, `rgba(255,215,90,${.16 + Math.sin(G.time * 4 + tw.x) * .06})`); g.addColorStop(1, 'rgba(255,215,90,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(tw.x, tw.y, 46, 0, TAU); ctx.fill();
+  }
+  drawTowerHead(tw, tw.x, tw.y, 1);
+  if (G.skills.over.active > 0) {
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    for (let i = 0; i < 3; i++) {
+      const a1 = rnd(0, TAU), a2 = a1 + rnd(.6, 1.4);
+      bolt(jag(tw.x + Math.cos(a1) * 28, tw.y + Math.sin(a1) * 28, tw.x + Math.cos(a2) * 28, tw.y + Math.sin(a2) * 28, 6), { glow: 'rgba(255,200,60,.35)', core: 'rgba(255,245,170,.95)' }, 1.4);
+    }
+    ctx.restore();
+  }
+}
+
+/* ---------------- 绘制：敌人 ---------------- */
+function drawEnemy(e) {
+  const K = c => e.flash > 0 ? mixHex(c, '#ffffff', .8) : e.slowT > 0 || e.vulnT > 0 ? mixHex(c, e.vulnT > 0 && e.slowT <= 0 ? '#ff6a6a' : '#5aaeff', .4) : c;
+  const t = e.t * (e.stunT > 0 ? 0 : (e.type === 'hound' ? 14 : e.type === 'boss' ? 4 : 9) * (e.slowT > 0 ? e.slowM : 1));
+  const bob = Math.abs(Math.sin(t)) * (e.type === 'boss' ? 3 : 2);
+  ctx.save(); ctx.globalAlpha = 0.28; E(e.x, e.y + e.r * .75, e.r * 1.1, e.r * .38, '#000'); ctx.restore();
+  ctx.save(); ctx.translate(e.x, e.y); ctx.scale(e.face, 1);
+  switch (e.type) {
+    case 'goblin': {
+      const s = Math.sin(t) * 5;
+      L(-3, 6, -3 + s, 15, 4, K('#4e7a38')); L(4, 6, 4 - s, 15, 4, K('#4e7a38'));
+      ctx.translate(0, -bob);
+      E(0, 2, 8, 9, K('#8a5a2a')); E(0, 0, 8, 6, K('#a9763a'));
+      L(6, 0, 15, -3 + s * .3, 3, K('#6aa84f')); L(14, -3 + s * .3, 21, -6 + s * .3, 2.4, K('#dfe6ee'));
+      C(0, -9, 8.5, K('#6aa84f')); ctx.fillStyle = K('#6aa84f'); ctx.beginPath(); ctx.moveTo(-6, -11); ctx.lineTo(-15, -15); ctx.lineTo(-6, -6); ctx.fill(); ctx.beginPath(); ctx.moveTo(6, -11); ctx.lineTo(14, -16); ctx.lineTo(6, -6); ctx.fill();
+      C(-3, -10, 2.2, '#fff6a0'); C(4, -10, 2.2, '#fff6a0'); C(-2.6, -10, 1, '#222'); C(4.4, -10, 1, '#222');
+      ctx.strokeStyle = '#2a3a1a'; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.arc(1, -5, 3, .2, Math.PI - .2); ctx.stroke();
+      break;
+    }
+    case 'hound': {
+      const s = Math.sin(t) * 7;
+      for (const [lx, ph] of [[-11, 0], [-6, Math.PI], [8, Math.PI * .5], [12, Math.PI * 1.5]]) L(lx, 4, lx + Math.sin(t + ph) * 7, 13, 3.4, K('#6b7388'));
+      ctx.translate(0, -bob * .8);
+      E(0, 0, 19, 8.5, K('#8a93a8')); E(-2, 2, 14, 5, K('#aab2c4'));
+      L(-17, -1, -26, -6 + Math.sin(t * 1.5) * 3, 3.4, K('#8a93a8'));
+      ctx.fillStyle = K('#8a93a8'); ctx.beginPath(); ctx.ellipse(18, -5, 9, 7, -0.2, 0, TAU); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(14, -10); ctx.lineTo(16, -19); ctx.lineTo(21, -11); ctx.fill(); ctx.beginPath(); ctx.moveTo(8, -9); ctx.lineTo(8, -18); ctx.lineTo(13, -10); ctx.fill();
+      E(26, -3, 4, 3, K('#5a6278')); C(26.5, -4.5, 1.4, '#111'); C(19, -7, 2.2, '#ffd25a'); C(19.5, -7, 1, '#111');
+      ctx.fillStyle = '#fff'; ctx.fillRect(24, -1, 1.6, 2.5); ctx.fillRect(27.5, -1, 1.6, 2.5);
+      break;
+    }
+    case 'guard': {
+      const s = Math.sin(t) * 4;
+      L(-4, 8, -4 + s, 17, 5.5, K('#5a636d')); L(5, 8, 5 - s, 17, 5.5, K('#5a636d'));
+      ctx.translate(0, -bob * .6);
+      rr(-11, -9, 22, 20, 5); ctx.fillStyle = K('#8b95a1'); ctx.fill(); ctx.strokeStyle = K('#4a525b'); ctx.lineWidth = 2; ctx.stroke();
+      L(-9, -2, 9, -2, 1.5, K('#5a636d')); L(0, -9, 0, 11, 1.5, K('#5a636d'));
+      C(-12, -8, 6, K('#a0aab6')); C(12, -8, 6, K('#a0aab6'));
+      ctx.fillStyle = K('#a0aab6'); ctx.beginPath(); ctx.arc(0, -15, 9.5, Math.PI, 0); ctx.lineTo(9.5, -10); ctx.lineTo(-9.5, -10); ctx.fill(); ctx.strokeStyle = K('#4a525b'); ctx.lineWidth = 1.8; ctx.stroke();
+      ctx.fillStyle = '#16181b'; ctx.fillRect(-7, -14, 14, 3.4); C(-2.5, -12.3, 1.2, '#ff5a3a'); C(3, -12.3, 1.2, '#ff5a3a');
+      ctx.fillStyle = K('#cc3a3a'); ctx.beginPath(); ctx.moveTo(-2, -24); ctx.lineTo(2, -24); ctx.lineTo(3, -19); ctx.lineTo(-3, -19); ctx.fill();
+      // 盾
+      ctx.fillStyle = K('#6a737d'); ctx.beginPath(); ctx.moveTo(10, -9); ctx.lineTo(22, -6); ctx.lineTo(22, 6); ctx.lineTo(16, 14); ctx.lineTo(10, 6); ctx.closePath(); ctx.fill(); ctx.strokeStyle = K('#3a424b'); ctx.lineWidth = 2; ctx.stroke();
+      C(16, -2, 2, K('#c0c8d2')); C(16, 6, 2, K('#c0c8d2'));
+      break;
+    }
+    case 'shaman': {
+      const fl = Math.sin(e.t * 3) * 2.5;
+      ctx.translate(0, -4 + fl);
+      ctx.fillStyle = K('#4a2a6a'); ctx.beginPath(); ctx.moveTo(-4, -10); ctx.lineTo(4, -10); ctx.lineTo(13, 14); ctx.quadraticCurveTo(0, 18 + Math.sin(e.t * 5) * 1.5, -13, 14); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = K('#2e1a45'); ctx.beginPath(); ctx.moveTo(-11, -4); ctx.lineTo(0, -22); ctx.lineTo(11, -4); ctx.quadraticCurveTo(0, 2, -11, -4); ctx.fill();
+      E(0, -9, 6, 6.5, '#120a1c'); C(-2.5, -9, 1.8, '#7bff9a'); C(2.8, -9, 1.8, '#7bff9a');
+      L(10, 8, 15, -12, 2.4, K('#6a4a2a'));
+      const pu = 1 + Math.sin(e.t * 4) * .15;
+      const g = ctx.createRadialGradient(15, -15, 1, 15, -15, 12 * pu); g.addColorStop(0, 'rgba(180,255,190,.95)'); g.addColorStop(1, 'rgba(60,220,120,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(15, -15, 12 * pu, 0, TAU); ctx.fill(); C(15, -15, 4.2, '#bfffd0');
+      break;
+    }
+    case 'slime': case 'mini': {
+      const m = e.type === 'mini', sq = 1 + Math.sin(t * .8) * 0.12, r = e.r;
+      ctx.translate(0, 2); ctx.scale(1 / sq, sq);
+      const g = ctx.createRadialGradient(-r * .3, -r * .5, 1, 0, 0, r * 1.2); g.addColorStop(0, K('#b6ffe6')); g.addColorStop(.6, K('#4ec9a7')); g.addColorStop(1, K('#2a8f78'));
+      ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(-r, r * .6); ctx.quadraticCurveTo(-r * 1.1, -r * 1.1, 0, -r * 1.05); ctx.quadraticCurveTo(r * 1.1, -r * 1.1, r, r * .6); ctx.quadraticCurveTo(0, r * .95, -r, r * .6); ctx.fill();
+      ctx.strokeStyle = K('#1e6a58'); ctx.lineWidth = 1.6; ctx.stroke();
+      E(-r * .35, -r * .55, r * .28, r * .15, 'rgba(255,255,255,.65)', -.5);
+      const er = m ? 2 : 3; C(-r * .32, -r * .1, er, '#fff'); C(r * .32, -r * .1, er, '#fff'); C(-r * .28, -r * .08, er * .45, '#111'); C(r * .36, -r * .08, er * .45, '#111');
+      break;
+    }
+    case 'boss': {
+      const s = Math.sin(t) * 6, r = e.r;
+      L(-16, 14, -16 + s, 34, 12, K('#5a2a20')); L(14, 14, 14 - s, 34, 12, K('#5a2a20')); E(-16 + s, 35, 12, 5, K('#2a1410')); E(14 - s, 35, 12, 5, K('#2a1410'));
+      ctx.translate(0, -bob * 1.4);
+      E(0, 0, 34, 28, K('#7a3a28')); E(2, 8, 24, 17, K('#a0583c'));
+      ctx.fillStyle = K('#3a1a14'); for (let i = -2; i <= 2; i++) { ctx.beginPath(); ctx.moveTo(i * 11 - 6, -22); ctx.lineTo(i * 11, -36 + Math.abs(i) * 3); ctx.lineTo(i * 11 + 6, -22); ctx.fill(); }
+      L(-28, -2, -38, 10 + s * .5, 11, K('#6a3020')); C(-38, 12 + s * .5, 8, K('#4a2218'));
+      L(26, 0, 38, 12 - s * .5, 11, K('#6a3020')); C(38, 14 - s * .5, 8, K('#4a2218'));
+      ctx.fillStyle = K('#8a4630'); ctx.beginPath(); ctx.ellipse(18, -14, 19, 17, 0, 0, TAU); ctx.fill();
+      ctx.fillStyle = '#efe6cf'; ctx.beginPath(); ctx.moveTo(14, -24); ctx.lineTo(8, -46); ctx.lineTo(22, -26); ctx.fill(); ctx.beginPath(); ctx.moveTo(26, -26); ctx.lineTo(36, -44); ctx.lineTo(32, -22); ctx.fill();
+      ctx.fillStyle = K('#e8dfc4'); ctx.beginPath(); ctx.moveTo(24, -6); ctx.lineTo(30, 6); ctx.lineTo(19, -1); ctx.fill(); ctx.beginPath(); ctx.moveTo(10, -6); ctx.lineTo(10, 6); ctx.lineTo(16, -2); ctx.fill();
+      C(14, -17, 4.6, '#ffd25a'); C(25, -17, 4.6, '#ffd25a'); C(15, -17, 2, '#a01010'); C(26, -17, 2, '#a01010');
+      L(9, -23, 18, -20, 2.4, '#2a0c08'); L(31, -23, 22, -20, 2.4, '#2a0c08');
+      break;
+    }
+  }
+  ctx.restore();
+  // 护盾
+  if (e.shield > 0) {
+    const a = 0.25 + 0.15 * Math.sin(G.time * 5);
+    const g = ctx.createRadialGradient(e.x, e.y, e.r * .8, e.x, e.y, e.r * 1.9); g.addColorStop(0, 'rgba(120,230,255,0)'); g.addColorStop(.85, `rgba(120,230,255,${a})`); g.addColorStop(1, `rgba(200,250,255,${a + .25})`);
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(e.x, e.y, e.r * 1.9, 0, TAU); ctx.fill();
+  }
+  // 冰冻 / 眩晕
+  if (e.stunT > 0) {
+    if (e.slowT > 0 || e.vulnT > 0) { ctx.fillStyle = 'rgba(170,230,255,.5)'; rr(e.x - e.r - 2, e.y - e.r - 4, e.r * 2 + 4, e.r * 2 + 8, 6); ctx.fill(); ctx.strokeStyle = '#e6f8ff'; ctx.lineWidth = 1.6; ctx.stroke(); }
+    for (let i = 0; i < 3; i++) { const a = G.time * 5 + i * TAU / 3; Tx('★', e.x + Math.cos(a) * 11, e.y - e.r - 14 + Math.sin(a) * 3, 11, '#ffe45a'); }
+  }
+  // 血条
+  const w = Math.max(24, e.r * 2.2), by = e.y - e.r - (e.type === 'boss' ? 26 : 14);
+  if (e.hp < e.max || e.shield > 0 || e.type === 'boss') {
+    ctx.fillStyle = 'rgba(0,0,0,.7)'; rr(e.x - w / 2 - 1, by - 1, w + 2, 6, 3); ctx.fill();
+    const r = clamp(e.hp / e.max, 0, 1); ctx.fillStyle = r > .5 ? '#5fd35f' : r > .25 ? '#f0c43a' : '#e8483a'; rr(e.x - w / 2, by, Math.max(2, w * r), 4, 2); ctx.fill();
+    if (e.shieldMax > 0 && e.shield > 0) { ctx.fillStyle = 'rgba(0,0,0,.7)'; rr(e.x - w / 2 - 1, by - 8, w + 2, 6, 3); ctx.fill(); ctx.fillStyle = '#7fe3ff'; rr(e.x - w / 2, by - 7, Math.max(2, w * e.shield / e.shieldMax), 4, 2); ctx.fill(); }
+  }
+}
+
+/* ---------------- 绘制：场景 ---------------- */
+function drawRange(x, y, r, color, a) {
+  ctx.save(); ctx.fillStyle = `rgba(${color},${a * .5})`; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
+  ctx.strokeStyle = `rgba(${color},${a * 2.2})`; ctx.lineWidth = 2; ctx.setLineDash([8, 6]); ctx.lineDashOffset = -G.time * 20; ctx.stroke(); ctx.restore();
+}
+const RING_OFF = [[-44, -44], [44, -44], [-44, 44], [44, 44]];
+function ringBtn(i) { const p = G.ring; return { x: p.x + RING_OFF[i][0], y: p.y + RING_OFF[i][1], r: 25 }; }
+
+function render() {
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  if (bg) ctx.drawImage(bg, 0, 0, W, H);
+  ctx.save();
+  if (G.shake > 0) ctx.translate(rnd(-G.shake, G.shake) * .5, rnd(-G.shake, G.shake) * .5);
+  const T = G.time;
+
+  // 焦痕
+  for (const s of G.scorches) {
+    const a = 0.5 * clamp(1 - (s.t - (s.life - 3)) / 3, 0, 1) * clamp(s.t / .1, 0, 1);
+    const g = ctx.createRadialGradient(s.x, s.y, 2, s.x, s.y, s.r); g.addColorStop(0, `rgba(20,12,8,${a})`); g.addColorStop(1, 'rgba(20,12,8,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, TAU); ctx.fill();
+  }
+  // 火焰区
+  for (const f of G.fires) {
+    const a = clamp((f.life - f.t) / 1, 0, 1);
+    const g = ctx.createRadialGradient(f.x, f.y, 4, f.x, f.y, f.r); g.addColorStop(0, `rgba(255,140,40,${.45 * a})`); g.addColorStop(1, 'rgba(255,60,20,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, TAU); ctx.fill();
+    for (let i = 0; i < 6; i++) {
+      const aa = i / 6 * TAU + T * 1.5, rr2 = f.r * (.25 + .5 * ((i * 37 % 10) / 10)), fx = f.x + Math.cos(aa) * rr2, fy = f.y + Math.sin(aa) * rr2 * .8, h = 10 + 6 * Math.sin(T * 9 + i);
+      ctx.globalAlpha = a; ctx.fillStyle = '#ff8a2a'; ctx.beginPath(); ctx.moveTo(fx - 4, fy); ctx.quadraticCurveTo(fx, fy - h * 1.4, fx + 4, fy); ctx.fill();
+      ctx.fillStyle = '#ffd25a'; ctx.beginPath(); ctx.moveTo(fx - 2, fy); ctx.quadraticCurveTo(fx, fy - h * .8, fx + 2, fy); ctx.fill(); ctx.globalAlpha = 1;
+    }
+  }
+  // 传送门
+  ctx.save(); ctx.translate(PORTAL.x, PORTAL.y);
+  const pg = ctx.createRadialGradient(0, 0, 4, 0, 0, 56); pg.addColorStop(0, 'rgba(210,150,255,.9)'); pg.addColorStop(.6, 'rgba(120,50,200,.5)'); pg.addColorStop(1, 'rgba(80,20,160,0)');
+  ctx.fillStyle = pg; ctx.beginPath(); ctx.arc(0, 0, 56, 0, TAU); ctx.fill();
+  for (let i = 0; i < 3; i++) { ctx.save(); ctx.rotate(T * (1.2 + i * .5) * (i % 2 ? -1 : 1)); ctx.strokeStyle = ['#e0b0ff', '#b070ff', '#7a3ad0'][i]; ctx.lineWidth = 3 - i * .6; ctx.beginPath(); ctx.ellipse(0, 0, 18 + i * 8, 40 - i * 6, 0, 0.3, TAU - 0.3); ctx.stroke(); ctx.restore(); }
+  ctx.restore();
+  // 水晶基地
+  ctx.save(); ctx.translate(CRYSTAL.x, CRYSTAL.y);
+  const lf = G.leakFlash > 0 ? G.leakFlash / .5 : 0, fl = Math.sin(T * 2) * 4;
+  const cg = ctx.createRadialGradient(0, 0, 6, 0, 0, 80); cg.addColorStop(0, `rgba(${lf ? '255,120,120' : '120,220,255'},${.55 + lf * .3})`); cg.addColorStop(1, 'rgba(80,160,255,0)');
+  ctx.fillStyle = cg; ctx.beginPath(); ctx.arc(0, 0, 80, 0, TAU); ctx.fill();
+  E(0, 30, 34, 11, 'rgba(0,0,0,.35)'); E(0, 26, 30, 9, '#5a6070');
+  ctx.translate(0, fl - 6);
+  const base = lf ? '#ff8a8a' : '#6fd4ff';
+  ctx.fillStyle = mixHex(base, '#000000', .25); ctx.beginPath(); ctx.moveTo(0, -42); ctx.lineTo(-20, -6); ctx.lineTo(0, 30); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = base; ctx.beginPath(); ctx.moveTo(0, -42); ctx.lineTo(20, -6); ctx.lineTo(0, 30); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.beginPath(); ctx.moveTo(0, -42); ctx.lineTo(8, -8); ctx.lineTo(0, 6); ctx.lineTo(-6, -10); ctx.closePath(); ctx.fill();
+  ctx.restore();
+  Tx('❤ ' + G.lives, CRYSTAL.x, CRYSTAL.y + 52, 15, '#ffd0d0', '#2a0a0a', 'center', 4);
+
+  // 基座
+  for (const p of PADS) {
+    if (p.tower) continue;
+    const hov = G.hoverPad === p || G.ring === p;
+    ctx.save(); ctx.translate(p.x, p.y);
+    E(1, 4, 25, 11, 'rgba(0,0,0,.3)');
+    const g = ctx.createRadialGradient(-6, -6, 2, 0, 0, 26); g.addColorStop(0, hov ? '#d8d2bd' : '#b4b0a0'); g.addColorStop(1, hov ? '#8f8a74' : '#6f6c60');
+    ctx.fillStyle = g; ctx.beginPath(); for (let i = 0; i < 8; i++) { const a = i / 8 * TAU + TAU / 16; ctx.lineTo(Math.cos(a) * 24, Math.sin(a) * 24); } ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = hov ? '#ffd25a' : '#4a483f'; ctx.lineWidth = hov ? 3 : 2; ctx.stroke();
+    ctx.strokeStyle = hov ? 'rgba(255,210,90,.9)' : 'rgba(255,255,255,.35)'; ctx.lineWidth = 2.6; ctx.beginPath(); ctx.moveTo(-8, 0); ctx.lineTo(8, 0); ctx.moveTo(0, -8); ctx.lineTo(0, 8); ctx.stroke();
+    ctx.restore();
+  }
+
+  // 悬停 / 选中范围
+  if (G.sel) drawRange(G.sel.x, G.sel.y, TD[G.sel.type].rng[G.sel.lvl], '120,200,255', .1);
+  if (G.ring && G.hoverOpt >= 0) drawRange(G.ring.x, G.ring.y, TD[TKEYS[G.hoverOpt]].rng[0], '255,230,120', .1);
+  else if (G.hoverPad && !G.hoverPad.tower && !G.ring) { /* 仅提示 */ }
+  else if (G.mouse.in && G.hoverTower && !G.sel) drawRange(G.hoverTower.x, G.hoverTower.y, TD[G.hoverTower.type].rng[G.hoverTower.lvl], '255,255,255', .06);
+
+  // 激光光束 (Lv1)
+  for (const tw of G.towers) if (tw.type === 'arcane' && tw.lvl === 0 && tw.beam && !tw.beam.dead && tw.tg) {
+    const e = tw.beam, sx = tw.x + Math.cos(tw.ang) * 16, sy = tw.y - 8 + Math.sin(tw.ang) * 8;
+    bolt(jag(sx, sy, e.x, e.y, 3), { glow: 'rgba(170,90,255,.35)', core: 'rgba(200,255,255,.95)' }, 2);
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; C(e.x, e.y, 6 + Math.sin(T * 30) * 2, 'rgba(180,120,255,.7)'); ctx.restore();
+  }
+
+  // 排序绘制: 塔 + 敌人
+  const draws = [];
+  for (const tw of G.towers) draws.push([tw.y + 12, () => drawTower(tw)]);
+  for (const e of G.enemies) draws.push([e.y + (e.type === 'boss' ? 20 : 0), () => drawEnemy(e)]);
+  draws.sort((a, b) => a[0] - b[0]).forEach(d => d[1]());
+
+  // 子弹
+  for (const b of G.bullets) {
+    const lv3 = b.lvl === 2;
+    if (b.trail.length) {
+      ctx.save(); ctx.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < b.trail.length; i++) { const p = b.trail[i], a = (i + 1) / b.trail.length; C(p[0], p[1], (lv3 ? 3.4 : 2.2) * a, lv3 ? `rgba(255,190,60,${a * .6})` : `rgba(255,240,170,${a * .5})`); }
+      ctx.restore();
+    }
+    C(b.x, b.y, lv3 ? 3.4 : 2.6, lv3 ? '#fff0b0' : '#ffe9a0');
+  }
+  // 炮弹 (抛物线 + 缩放阴影)
+  for (const s of G.shells) {
+    const k = s.t / s.T, x = lerp(s.sx, s.tx, k), y0 = lerp(s.sy, s.ty, k), h = Math.sin(k * Math.PI) * 120;
+    ctx.save(); ctx.globalAlpha = .35; E(x, y0 + 2, 9 - h * .035, 4 - h * .016, '#000'); ctx.restore();
+    ctx.save(); ctx.globalAlpha = .5; E(s.tx, s.ty, 24 * (0.5 + k * .5), 11 * (0.5 + k * .5), 'rgba(255,80,40,.0)'); ctx.strokeStyle = 'rgba(255,90,50,.55)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.ellipse(s.tx, s.ty, 22 * k + 6, 10 * k + 3, 0, 0, TAU); ctx.stroke(); ctx.restore();
+    const sc = 1 + h / 120 * 0.5;
+    C(x, y0 - h, 6 * sc, '#2a2c32'); C(x - 1.5 * sc, y0 - h - 1.5 * sc, 2.2 * sc, '#8a9098');
+    if (h > 5) { C(x, y0 - h + 7, 2.5, 'rgba(255,170,60,.7)'); }
+  }
+  // 陨石
+  for (const m of G.meteors) {
+    const k = m.t - m.delay;
+    if (k < 0) { ctx.strokeStyle = 'rgba(255,80,50,.5)'; ctx.setLineDash([6, 6]); ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(m.x, m.y, 96, 0, TAU); ctx.stroke(); ctx.setLineDash([]); continue; }
+    const f = k / m.T;
+    ctx.strokeStyle = `rgba(255,${80 + f * 100},50,${.4 + f * .5})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(m.x, m.y, 96 * (1 - f * .15), 0, TAU); ctx.stroke();
+    ctx.fillStyle = `rgba(255,60,40,${.1 + f * .12})`; ctx.fill();
+    const mx = m.x + (1 - f) * 380, my = m.y - (1 - f) * 620;
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    const tg = ctx.createLinearGradient(mx, my, mx + 160 * .52, my - 160 * .85); tg.addColorStop(0, 'rgba(255,200,80,.9)'); tg.addColorStop(1, 'rgba(255,80,20,0)');
+    ctx.strokeStyle = tg; ctx.lineWidth = 22; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(mx, my); ctx.lineTo(mx + 120, my - 200); ctx.stroke();
+    ctx.restore();
+    const rg = ctx.createRadialGradient(mx, my, 2, mx, my, 24); rg.addColorStop(0, '#ffe9a0'); rg.addColorStop(.5, '#ff7a2a'); rg.addColorStop(1, '#5a1a10');
+    ctx.fillStyle = rg; ctx.beginPath(); ctx.arc(mx, my, 20, 0, TAU); ctx.fill();
+  }
+  // 闪电链
+  for (const b of G.bolts) {
+    const a = 1 - b.t / b.life;
+    ctx.globalAlpha = a;
+    for (const s of b.segs) bolt(jag(s[0], s[1], s[2], s[3], 9), { glow: 'rgba(160,90,255,.4)', core: 'rgba(210,255,255,.95)' }, 2.2);
+    ctx.globalAlpha = 1;
+  }
+  // 特效
+  for (const f of G.fx) {
+    const k = f.t / f.life;
+    if (f.k === 'ring') { ctx.strokeStyle = `rgba(${f.color},${1 - k})`; ctx.lineWidth = 7 * (1 - k) + 1; ctx.beginPath(); ctx.arc(f.x, f.y, f.r * (0.2 + k * 0.9), 0, TAU); ctx.stroke(); }
+    else if (f.k === 'flash') { const g = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r); g.addColorStop(0, `rgba(255,240,180,${.9 * (1 - k)})`); g.addColorStop(.5, `rgba(255,140,50,${.6 * (1 - k)})`); g.addColorStop(1, 'rgba(255,60,20,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, TAU); ctx.fill(); }
+    else if (f.k === 'frost') {
+      const r = f.r * (0.15 + k * .9); ctx.strokeStyle = `rgba(160,225,255,${.9 * (1 - k)})`; ctx.lineWidth = 6 * (1 - k) + 1.5; ctx.beginPath(); ctx.arc(f.x, f.y, r, 0, TAU); ctx.stroke();
+      const g = ctx.createRadialGradient(f.x, f.y, r * .5, f.x, f.y, r); g.addColorStop(0, 'rgba(160,225,255,0)'); g.addColorStop(1, `rgba(160,225,255,${.28 * (1 - k)})`); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(f.x, f.y, r, 0, TAU); ctx.fill();
+      for (let i = 0; i < 8; i++) { const a = i / 8 * TAU + k; C(f.x + Math.cos(a) * r, f.y + Math.sin(a) * r, 2.5 * (1 - k) + .5, '#e6f8ff'); }
+    } else if (f.k === 'heal') { ctx.strokeStyle = `rgba(100,255,150,${.8 * (1 - k)})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(f.x, f.y, f.r * k, 0, TAU); ctx.stroke(); for (let i = 0; i < 4; i++) Tx('+', f.x + Math.cos(i * 1.6 + k) * f.r * k * .7, f.y + Math.sin(i * 1.6 + k) * f.r * k * .7 - k * 10, 14, `rgba(120,255,160,${1 - k})`); }
+    else if (f.k === 'up') {
+      const col = f.lvl === 2 ? '255,215,90' : '120,210,255';
+      ctx.strokeStyle = `rgba(${col},${1 - k})`; ctx.lineWidth = 5 * (1 - k) + 1; ctx.beginPath(); ctx.arc(f.x, f.y, 14 + k * 46, 0, TAU); ctx.stroke();
+      const g = ctx.createLinearGradient(0, f.y + 30, 0, f.y - 80); g.addColorStop(0, `rgba(${col},${.6 * (1 - k)})`); g.addColorStop(1, `rgba(${col},0)`);
+      ctx.fillStyle = g; ctx.fillRect(f.x - 20, f.y - 80 - k * 30, 40, 110);
+    }
+  }
+  for (const p of G.parts) { ctx.globalAlpha = clamp(p.life / .3, 0, 1); C(p.x, p.y, p.size, p.color); ctx.globalAlpha = 1; }
+
+  // 超频全屏微光
+  if (G.skills.over.active > 0) { ctx.fillStyle = `rgba(255,200,60,${.05 + Math.sin(T * 12) * .02})`; ctx.fillRect(0, 0, W, H); }
+  ctx.restore();
+
+  // 建造环形菜单
+  if (G.ring) {
+    const p = G.ring;
+    ctx.fillStyle = 'rgba(10,14,24,.45)'; ctx.beginPath(); ctx.arc(p.x, p.y, 78, 0, TAU); ctx.fill();
+    TKEYS.forEach((k, i) => {
+      const b = ringBtn(i), d = TD[k], ok = G.gold >= d.cost, hov = G.hoverOpt === i;
+      ctx.save(); ctx.globalAlpha = ok ? 1 : .5;
+      const g = ctx.createRadialGradient(b.x - 6, b.y - 6, 2, b.x, b.y, b.r); g.addColorStop(0, hov ? '#4a5a82' : '#303c5a'); g.addColorStop(1, '#161d30');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(b.x, b.y, b.r + (hov ? 3 : 0), 0, TAU); ctx.fill();
+      ctx.strokeStyle = hov ? '#ffd25a' : ok ? '#8a9ac0' : '#555e72'; ctx.lineWidth = hov ? 3.5 : 2.5; ctx.stroke();
+      ctx.save(); ctx.beginPath(); ctx.arc(b.x, b.y, b.r - 2, 0, TAU); ctx.clip();
+      drawTowerHead({ type: k, lvl: 0, t: G.time, ang: -Math.PI / 4, rec: 0, side: 1, pulse: 0 }, b.x, b.y + (k === 'frost' ? 14 : 2), 0.78);
+      ctx.restore(); ctx.restore();
+      Tx(String(d.cost), b.x, b.y + b.r + 12, 14, ok ? '#ffd25a' : '#ff8d8d', '#0a0e18', 'center', 4);
+      Tx(d.key, b.x - b.r + 6, b.y - b.r + 6, 11, '#fff', '#0a0e18', 'center', 3);
+    });
+    if (G.hoverOpt >= 0) {
+      const d = TD[TKEYS[G.hoverOpt]], tx = clamp(p.x - 120, 8, W - 248), ty = p.y > 560 ? p.y - 170 : p.y + 82;
+      ctx.fillStyle = 'rgba(14,19,32,.94)'; rr(tx, ty, 240, 82, 10); ctx.fill(); ctx.strokeStyle = '#4b5c85'; ctx.lineWidth = 2; ctx.stroke();
+      Tx(`${d.icon} ${d.name}`, tx + 12, ty + 18, 16, '#ffd25a', null, 'left');
+      const lines = wrapText(S_('ts_' + TKEYS[G.hoverOpt]), 218, 12);
+      lines.slice(0, 3).forEach((s, i) => Tx(s, tx + 12, ty + 40 + i * 15, 12, '#c6d0e6', null, 'left'));
+    }
+  }
+
+  // 陨石瞄准
+  if (G.aim && G.mouse.in) {
+    const m = G.mouse;
+    ctx.strokeStyle = 'rgba(255,90,60,.9)'; ctx.lineWidth = 3; ctx.setLineDash([10, 7]); ctx.lineDashOffset = -G.time * 30; ctx.beginPath(); ctx.arc(m.x, m.y, 96, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = 'rgba(255,60,40,.12)'; ctx.fill();
+    L(m.x - 14, m.y, m.x + 14, m.y, 2, '#ff6a4a'); L(m.x, m.y - 14, m.x, m.y + 14, 2, '#ff6a4a');
+    Tx(S_('aimTip'), m.x, m.y - 112, 15, '#ffd0c0', '#2a0a05', 'center', 4);
+  }
+
+  // 浮动文字
+  for (const t of G.texts) {
+    const k = t.t / t.life; ctx.globalAlpha = clamp((1 - k) * 2, 0, 1);
+    const sc = t.crit ? 1 + Math.max(0, .5 - k * 2.2) + Math.sin(k * 14) * .05 : 1;
+    if (t.coin) { C(t.x - ctx.measureText(t.txt).width / 2 - 10, t.y, 6, '#ffd25a'); C(t.x - ctx.measureText(t.txt).width / 2 - 10, t.y, 3.6, '#e8a82a'); }
+    Tx(t.crit ? t.txt + '!' : t.txt, t.x, t.y, t.size * sc, t.color, '#10141e', 'center', t.crit ? 5 : 3.5);
+    ctx.globalAlpha = 1;
+  }
+  // 横幅
+  if (G.banner) {
+    const b = G.banner, a = clamp(b.t / .5, 0, 1) * clamp((b.big ? 3.2 : 1.6) - b.t > 0 ? ((b.big ? 3.2 : 1.6) - b.t) / .25 : 1, 0, 1);
+    ctx.save(); ctx.globalAlpha = a;
+    if (b.big) { ctx.fillStyle = 'rgba(70,0,0,.5)'; ctx.fillRect(0, 280, W, 130); }
+    Tx(b.txt, W / 2, 330, b.big ? 52 + Math.sin(G.time * 10) * 2 : 38, b.color, '#10141e', 'center', 8);
+    if (b.sub) Tx(b.sub, W / 2, 382, 24, '#ffd7d0', '#10141e', 'center', 6);
+    ctx.restore();
+  }
+  if (G.state === 'ready') return;
+}
+
+/* ---------------- 输入 ---------------- */
+function toLogical(e) { const rc = cv.getBoundingClientRect(); return { x: (e.clientX - rc.left) * W / rc.width, y: (e.clientY - rc.top) * H / rc.height }; }
+function padAt(m) { return PADS.find(p => Math.hypot(p.x - m.x, p.y - m.y) <= 28) || null; }
+function updateHover(m) {
+  G.mouse = { x: m.x, y: m.y, in: true };
+  G.hoverPad = padAt(m); G.hoverTower = G.hoverPad && G.hoverPad.tower;
+  G.hoverOpt = -1;
+  if (G.ring) for (let i = 0; i < 4; i++) { const b = ringBtn(i); if (Math.hypot(b.x - m.x, b.y - m.y) <= b.r + 3) G.hoverOpt = i; }
+  cv.style.cursor = (G.aim || G.hoverPad || G.hoverOpt >= 0) ? 'pointer' : 'default';
+}
+cv.addEventListener('pointermove', e => updateHover(toLogical(e)));
+cv.addEventListener('pointerleave', () => { G.mouse.in = false; G.hoverOpt = -1; });
+cv.addEventListener('contextmenu', e => { e.preventDefault(); cancelAll(); });
+cv.addEventListener('pointerdown', e => {
+  audio();
+  if (G.state !== 'play') return;
+  const m = toLogical(e); updateHover(m);
+  if (e.button === 2) { cancelAll(); return; }
+  if (G.aim) { castMeteor(m); return; }
+  if (G.ring) {
+    if (G.hoverOpt >= 0) { build(G.ring, TKEYS[G.hoverOpt]); return; }
+    const pd = padAt(m);
+    if (pd === G.ring) { G.ring = null; return; }
+    G.ring = null;
+    if (!pd) { G.sel = null; refreshAll(); return; }
+  }
+  const pad = padAt(m);
+  if (!pad) { G.sel = null; refreshAll(); return; }
+  if (pad.tower) { G.sel = pad.tower; G.ring = null; sfx('hit'); }
+  else { G.ring = pad; G.sel = null; }
+  refreshAll();
+});
+function cancelAll() { G.ring = null; G.sel = null; G.aim = false; refreshAll(); }
+
+function castMeteor(m) {
+  const s = G.skills.meteor;
+  G.aim = false;
+  if (s.cd > 0) return;
+  s.cd = s.max; sfx('meteor');
+  for (let i = 0; i < 3; i++) G.meteors.push({ x: m.x + (i ? rnd(-55, 55) : 0), y: m.y + (i ? rnd(-45, 45) : 0), t: 0, delay: i * 0.55, T: 0.9, hit: false });
+  refreshAll();
+}
+function skMeteor() {
+  if (G.state !== 'play') return;
+  if (G.skills.meteor.cd > 0) { sfx('bad'); return; }
+  G.aim = !G.aim; G.ring = null; G.sel = null; refreshAll();
+}
+function skOver() {
+  if (G.state !== 'play') return;
+  const s = G.skills.over;
+  if (s.cd > 0) { sfx('bad'); return; }
+  s.cd = s.max; s.active = 6; sfx('over'); shake(3);
+  G.banner = { txt: S_('bnOver'), t: 1.4, color: '#ffd25a' };
+}
+function earlyCall() {
+  if (G.state !== 'play' || G.spawning || G.wave >= 15) return;
+  launchWave(true);
+}
+function togglePause() {
+  if (G.state === 'play') { G.state = 'pause'; showOverlay('pause'); }
+  else if (G.state === 'pause') { G.state = 'play'; hideOverlay(); }
+  $('btnPause').textContent = G.state === 'pause' ? S_('resumeBtn') : S_('pause');
+}
+window.addEventListener('keydown', e => {
+  const k = e.key.toLowerCase();
+  if (k === ' ') { e.preventDefault(); togglePause(); return; }
+  if (G.state !== 'play') { if (k === 'r' && (G.state === 'win' || G.state === 'lose')) startGame(); return; }
+  if (k >= '1' && k <= '4' && G.ring) build(G.ring, TKEYS[+k - 1]);
+  else if (k === 'u' && G.sel) upgrade(G.sel);
+  else if (k === 'x' && G.sel) sell(G.sel);
+  else if (k === 'q') skMeteor();
+  else if (k === 'w') skOver();
+  else if (k === 'n') earlyCall();
+  else if (k === 'escape') cancelAll();
+  else if (k === 'm') toggleMute();
+});
+
+/* ---------------- DOM / HUD ---------------- */
+const speedBtns = [...document.querySelectorAll('#speedSeg button')];
+speedBtns.forEach(b => b.onclick = () => { G.speed = +b.dataset.s; speedBtns.forEach(x => x.classList.toggle('on', x === b)); });
+$('btnAuto').onclick = () => { G.autoNext = !G.autoNext; refreshHud(); };
+$('btnPause').onclick = () => { audio(); togglePause(); };
+function syncAudioUi() {
+  if (MG) MG.gain.value = masterVol();
+  $('btnMute').textContent = muted || AMG_AUDIO.vol === 0 ? '🔇' : '🔊';
+  $('vol').value = Math.round(AMG_AUDIO.vol * 100);
+}
+function toggleMute() { muted = !muted; if (!muted && AMG_AUDIO.vol === 0) AMG_AUDIO.vol = 0.5; AMG_AUDIO.muted = muted; AMG_AUDIO.save(); syncAudioUi(); }
+$('vol').oninput = () => { audio(); AMG_AUDIO.vol = $('vol').value / 100; muted = AMG_AUDIO.muted = false; AMG_AUDIO.save(); syncAudioUi(); };
+$('btnMute').onclick = () => { audio(); toggleMute(); };
+syncAudioUi();
+// 背景音乐：战斗中循环，Boss 或大军压境时切到紧张曲目
+let tenseBgm = false, lastBgm = '';
+function updateBgm() {
+  let want = '';
+  if (G.state === 'play') {
+    const n = G.enemies.length, boss = G.enemies.some(e => e.type === 'boss');
+    if (!tenseBgm && (boss || n >= 25)) tenseBgm = true;
+    else if (tenseBgm && !boss && n <= 6) tenseBgm = false;
+    want = tenseBgm ? 'td-tense' : 'td-calm';
+  } else tenseBgm = false;
+  if (want !== lastBgm && AC) { lastBgm = want; if (want) AMG_BGM.play(want); else AMG_BGM.stop(); }
+}
+$('skMeteor').onclick = () => { audio(); skMeteor(); };
+$('skOver').onclick = () => { audio(); skOver(); };
+$('btnEarly').onclick = () => { audio(); earlyCall(); };
+document.querySelectorAll('#prio button').forEach(b => b.onclick = () => { if (G.sel) { G.sel.mode = b.dataset.m; refreshPanel(); } });
+$('btnUp').onclick = () => { if (G.sel) upgrade(G.sel); };
+$('btnSell').onclick = () => { if (G.sel) sell(G.sel); };
+
+let goldPop = 0;
+function goldUp() { goldPop = 1; }
+function refreshHud() {
+  $('vGold').textContent = Math.floor(G.gold);
+  $('vLives').textContent = G.lives;
+  $('vWave').textContent = G.wave;
+  $('btnAuto').textContent = S_(G.autoNext ? 'autoOn' : 'autoOff');
+  $('btnAuto').classList.toggle('on', G.autoNext);
+}
+function refreshPanel() {
+  const tw = G.sel;
+  $('pIdle').hidden = !!tw; $('pTower').hidden = !tw;
+  if (!tw) return;
+  const d = TD[tw.type];
+  $('tIcon').textContent = d.icon; $('tName').textContent = d.name; $('tLv').textContent = 'Lv.' + (tw.lvl + 1) + (tw.lvl === 2 ? S_('awaken') : '');
+  const cur = statLines(tw.type, tw.lvl), nx = tw.lvl < 2 ? statLines(tw.type, tw.lvl + 1) : null;
+  $('tStats').innerHTML = cur.map((r, i) => {
+    const n = nx && nx[i] && String(nx[i][1]) !== String(r[1]) ? `<span class="nx"> → ${nx[i][1]}</span>` : '';
+    return `<div><span>${r[0]}</span><span>${r[1]}${n}</span></div>`;
+  }).join('') + (tw.type === 'arrow' && tw.lvl === 2 ? `<div><span>${S_('sl_streak')}</span><span id="tStreak">+${tw.streak * 15}%</span></div>` : '');
+  document.querySelectorAll('#prio button').forEach(b => b.classList.toggle('on', b.dataset.m === tw.mode));
+  $('tDesc').textContent = d.desc;
+  refreshPanelDyn();
+}
+function refreshPanelDyn() {
+  const tw = G.sel; if (!tw) return;
+  $('tDmg').textContent = Math.round(tw.dmg).toLocaleString(); $('tKills').textContent = tw.kills;
+  const c = upCost(tw);
+  $('btnUp').textContent = c == null ? S_('maxed') : SF_('upTo', tw.lvl + 2, c);
+  $('btnUp').disabled = c == null || G.gold < c;
+  $('btnSell').textContent = SF_('sellBtn', sellValue(tw));
+  const st = document.getElementById('tStreak'); if (st) st.textContent = '+' + tw.streak * 15 + '%';
+}
+function refreshAll() { refreshHud(); refreshPanel(); }
+let lastUi = 0, lastEarly = '';
+function updateUi() {
+  const now = performance.now();
+  if (now - lastUi < 120) return; lastUi = now;
+  $('vGold').textContent = Math.floor(G.gold);
+  $('vLives').textContent = G.lives;
+  refreshPanelDyn();
+  const sk = G.skills;
+  for (const [id, s, act] of [['skMeteor', sk.meteor, G.aim], ['skOver', sk.over, sk.over.active > 0]]) {
+    const el = $(id);
+    el.querySelector('.cdm').style.height = (s.cd > 0 ? (s.cd / s.max * 100) : 0) + '%';
+    el.querySelector('.cdt').textContent = s.cd > 0 ? Math.ceil(s.cd) : (id === 'skOver' && s.active > 0 ? Math.ceil(s.active) : '');
+    el.classList.toggle('rdy', s.cd <= 0 && !act); el.classList.toggle('aim', id === 'skMeteor' && act); el.classList.toggle('act2', id === 'skOver' && act);
+  }
+  const be = $('btnEarly'); let txt, dis = false, pulse = false;
+  if (G.wave >= 15) { txt = S_('eFinal'); dis = true; }
+  else if (G.spawning) { txt = SF_('eAttack', G.wave); dis = true; }
+  else if (G.countdown > 0) { txt = SF_('eEarly', G.wave + 1, Math.round(G.countdown * 1.5), Math.ceil(G.countdown)); }
+  else { txt = SF_('eStart', G.wave + 1); pulse = true; }
+  if (txt !== lastEarly) { be.textContent = txt; lastEarly = txt; }
+  be.disabled = dis || G.state !== 'play'; be.classList.toggle('pulse', pulse && G.state === 'play');
+}
+
+/* ---------------- 覆盖层 ---------------- */
+let ovKind = 'ready';
+function showOverlay(kind) {
+  ovKind = kind;
+  const ov = $('ov'); let h = ''; ov.className = 'screen dim';
+  if (kind === 'ready') {
+    ov.className = 'screen';
+    h = `<div class="title-badge">${S_('readyBadge')}</div>
+      <h2 class="game-title">${S_('readyTitle')}</h2>
+      <div class="hero-row"><span class="hero">🏹</span><span class="hero f">💎</span><span class="hero">👹</span></div>
+      <button class="btn primary" id="o-start">${S_('startBtn')}</button>
+      <p class="hint">${S_('readyBody')}<br>${S_('readyKeys')}<br><span class="tip-s">${S_('readyTip')}</span></p>`;
+  } else if (kind === 'pause') h = `<div class="panel"><h3>${S_('paused')}</h3><p>${S_('pausedSub')}</p><div class="row"><button class="btn primary" id="o-resume">${S_('resume')}</button><button class="btn ghost" id="o-restart">${S_('restart')}</button></div></div>`;
+  else if (kind === 'win') {
+    const st = G.lives >= 18 ? 3 : G.lives >= 10 ? 2 : 1;
+    h = `<div class="panel pop"><h3 class="clear-title">${S_('winTitle')}</h3><div class="stars">${'★'.repeat(st)}${'☆'.repeat(3 - st)}</div><p>${SF_('winStat', G.lives, G.kills, G.towers.length)}</p><div class="row"><button class="btn primary" id="o-restart">${S_('again')}</button></div></div>`;
+  } else if (kind === 'lose') h = `<div class="panel pop"><h3 class="over-title">${S_('loseTitle')}</h3><p>${SF_('loseStat', G.wave, G.kills)}</p><div class="row"><button class="btn primary" id="o-restart">${S_('restart')}</button></div></div>`;
+  ov.innerHTML = h; ov.classList.remove('hidden');
+  const on = (id, fn) => { const b = document.getElementById(id); if (b) b.onclick = () => { audio(); fn(); }; };
+  on('o-start', startGame); on('o-resume', togglePause); on('o-restart', startGame);
+}
+function hideOverlay() { $('ov').classList.add('hidden'); ovKind = ''; }
+function startGame() {
+  const sp = G.speed, auto = G.autoNext; newGame(); G.speed = sp; G.autoNext = auto; G.state = 'play';
+  $('btnPause').textContent = S_('pause'); hideOverlay();
+  setNextWave(0);
+  G.banner = { txt: S_('bnStart'), t: 3, color: '#ffd25a' };
+  refreshAll();
+}
+
+/* ---------------- 主循环 ---------------- */
+let lastTs = 0, acc = 0;
+function frame(ts) {
+  requestAnimationFrame(frame);
+  const rd = Math.min(0.1, (ts - lastTs) / 1000 || 0); lastTs = ts;
+  if (G.state === 'play') {
+    acc += rd * G.speed; let n = 0;
+    while (acc >= STEP && n < 12) { step(STEP); acc -= STEP; n++; if (G.state !== 'play') break; }
+    if (n >= 12) acc = 0;
+  } else if (G.state !== 'pause') G.time += rd;
+  updateBgm(); render(); updateUi();
+}
+function fit() {
+  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  const pw = Math.round(W * DPR); if (cv.width !== pw) { cv.width = pw; cv.height = Math.round(H * DPR); buildBg(); }
+}
+window.addEventListener('resize', fit);
+const muteBtn = $('btnMute');
+window.__refreshLang = () => {
+  AMG.apply(GAME_STR);
+  muteBtn.title = S_('muteTitle'); $('btnAuto').title = S_('autoTitle'); $('btnPause').title = S_('pauseTitle');
+  setNextWave(nwWave); lastEarly = ''; refreshAll(); updateUi();
+  if (ovKind) showOverlay(ovKind);
+};
+window.__td = { get G() { return G; }, startGame, build, upgrade, sell, step, PADS, launchWave };
+
+DPR = Math.min(window.devicePixelRatio || 1, 2);
+newGame(); fit(); buildBg(); AMG.mountBtn(); window.__refreshLang(); showOverlay('ready');
+setNextWave(0);
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
