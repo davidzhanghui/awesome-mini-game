@@ -6,6 +6,8 @@
  *   KIT.$(id)                          getElementById
  *   KIT.T(key, ...args)                AMG.tf(window.GAME_STR, ...)
  *   KIT.store(ns)                      { get(k, def), set(k, v) } JSON localStorage, never throws
+ *   KIT.ls                             { get(k, def), set(k, v) } raw string localStorage, never throws
+ *   KIT.onHide(fn)                     fn() when the tab goes to background (auto-pause)
  *   KIT.canvas(el, W, H)               HiDPI-scaled 2d context in logical W×H units
  *   KIT.point(el, e, W, H)             pointer/touch event → logical coords
  *   KIT.swipe(el, cb)                  cb('up'|'down'|'left'|'right') on touch swipe
@@ -36,6 +38,15 @@
       },
       set: function (k, v) { try { localStorage.setItem(ns + ':' + k, JSON.stringify(v)); } catch (e) {} }
     };
+  };
+
+  K.ls = {
+    get: function (k, def) { try { var v = localStorage.getItem(k); return v == null ? def : v; } catch (e) { return def; } },
+    set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  };
+
+  K.onHide = function (fn) {
+    document.addEventListener('visibilitychange', function () { if (document.hidden) fn(); });
   };
 
   K.canvas = function (el, W, H) {

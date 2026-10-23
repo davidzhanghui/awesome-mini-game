@@ -1,6 +1,46 @@
 {
   "redirects": [
-    { "source": "/:game(abyss|breakout|bubble-dragon|chinese-chess|dou-dizhu|flappy-bird|fruit-ninja|galaga|game-2048|gomoku|idiom-guess|match3|memory|minesweeper|pacman|pvz-moe|pvz|raiden|snake|sokoban|suika|super-mario-bros|talking-cat|tank-battle|tetris|tower-defense)", "destination": "/games/:game/", "permanent": true },
-    { "source": "/:game(abyss|breakout|bubble-dragon|chinese-chess|dou-dizhu|flappy-bird|fruit-ninja|galaga|game-2048|gomoku|idiom-guess|match3|memory|minesweeper|pacman|pvz-moe|pvz|raiden|snake|sokoban|suika|super-mario-bros|talking-cat|tank-battle|tetris|tower-defense)/:path*", "destination": "/games/:game/:path*", "permanent": true }
+    {
+      "source": "/:game(super-mario-bros|bubble-dragon|chinese-chess|tower-defense|flappy-bird|fruit-ninja|idiom-guess|minesweeper|talking-cat|tank-battle|dou-dizhu|game-2048|breakout|pvz-moe|sokoban|galaga|gomoku|match3|memory|pacman|raiden|tetris|abyss|snake|suika|pvz)/:path*",
+      "destination": "/games/:game/:path*",
+      "permanent": true
+    }
+  ],
+  "headers": [
+    {
+      "source": "/assets/(.*)\\.(js|css|woff2|jpg|svg)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/games/(.*)\\.(js|css)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), geolocation=(), microphone=(self)"
+        }
+      ]
+    }
   ]
 }

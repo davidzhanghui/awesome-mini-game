@@ -1427,6 +1427,7 @@ document.addEventListener('keydown', e => {
 });
 document.addEventListener('keyup', e => keys.delete(e.code));
 window.addEventListener('blur', () => { keys.clear(); if (state === 'play') togglePause(); });
+document.addEventListener('visibilitychange', () => { if (document.hidden && state === 'play') togglePause(); });
 document.querySelectorAll('#pad [data-k]').forEach(b => {
   const k = b.dataset.k;
   const on = e => { e.preventDefault(); touchHeld[k] = 1; b.classList.add('on'); KIT.audio(); };

@@ -55,11 +55,15 @@ const GHOST_DEF = [
 const FRUITS = [['🍒', 100], ['🍓', 300], ['🍊', 500], ['🍊', 500], ['🍎', 700], ['🍎', 700], ['🍈', 1000], ['🍈', 1000], ['🔔', 2000], ['🔑', 5000]];
 const MODES = [7, 20, 7, 20, 5, 20, 5, Infinity]; // 偶数下标 scatter，奇数 chase
 
+const LS = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : v; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+};
 const store = {
-  get best() { return +(localStorage.getItem('pac-best') || 0); },
-  set best(v) { localStorage.setItem('pac-best', v); },
-  get muted() { return localStorage.getItem('pac-muted') === '1'; },
-  set muted(v) { localStorage.setItem('pac-muted', v ? '1' : '0'); }
+  get best() { return +(LS.get('pac-best', 0)); },
+  set best(v) { LS.set('pac-best', v); },
+  get muted() { return LS.get('pac-muted', '') === '1'; },
+  set muted(v) { LS.set('pac-muted', v ? '1' : '0'); }
 };
 let actx = null, muted = store.muted;
 function ac() {
@@ -553,3 +557,4 @@ window.__gameApi = { startGame, update, open, MAP };
 window.__gameErrors = [];
 window.addEventListener('error', e => window.__gameErrors.push(String(e.message)));
 })();
+document.addEventListener('visibilitychange', () => { if (document.hidden && (G.state === 'play' || G.state === 'ready')) togglePause(); });

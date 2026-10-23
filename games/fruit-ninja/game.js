@@ -19,11 +19,15 @@ const FRUITS = [
 ];
 const BANANAS = { freeze: '#38bdf8', frenzy: '#f97316', double: '#a855f7' };
 
+const LS = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : v; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+};
 const store = {
-  best(m) { return +(localStorage.getItem('fn-best-' + m) || 0); },
-  setBest(m, v) { localStorage.setItem('fn-best-' + m, v); },
-  get muted() { return localStorage.getItem('fn-muted') === '1'; },
-  set muted(v) { localStorage.setItem('fn-muted', v ? '1' : '0'); }
+  best(m) { return +(LS.get('fn-best-' + m, 0)); },
+  setBest(m, v) { LS.set('fn-best-' + m, v); },
+  get muted() { return LS.get('fn-muted', '') === '1'; },
+  set muted(v) { LS.set('fn-muted', v ? '1' : '0'); }
 };
 let actx = null, muted = store.muted, noise = null;
 function ac() {
@@ -507,3 +511,4 @@ window.__gameApi = { startGame, launch, cutCheck, update };
 window.__gameErrors = [];
 window.addEventListener('error', e => window.__gameErrors.push(String(e.message)));
 })();
+document.addEventListener('visibilitychange', () => { if (document.hidden && (G.state === 'play')) togglePause(); });

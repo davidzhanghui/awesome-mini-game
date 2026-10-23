@@ -30,6 +30,12 @@ games/<name>/  # 所有游戏，一款一个目录（index.html + game.js + styl
 - 返回首页链接由 `assets/i18n.js` 注入（`../../?lang=`）。
 - ⚠️ `feat/tauri-desktop` 合并 main 后，需检查桌面壳/`desktop/` 页面/CI 中是否仍引用旧的 `<name>/` 顶层路径。
 
+## 静态资源版本号与缓存
+
+- `vercel.json` 给 `assets/*` 和 `games/**/*.js|css` 设了 `immutable` 长缓存，靠 URL 里的 `?v=<内容hash>` 失效。
+- **改了任何 js/css 后，提交前运行** `.venv/bin/python scripts/bump-versions.py`（新增游戏同理），否则用户会拿到旧缓存。
+- 新游戏页的存储统一用 `KIT.store` / `KIT.ls`（不抛异常）；实时类游戏切后台要自动暂停（`KIT.onHide` 或 `visibilitychange`）。
+
 ## 发版
 
 使用 `david-mini-game-release` skill 的流水线：推 tag → 立刻切回 `main` → CI 4 平台构建 → draft → 校验 latest.json → 中英分段说明 → publish。签名私钥 `~/.tauri/awesome-mini-game.key` 绝不进 git。

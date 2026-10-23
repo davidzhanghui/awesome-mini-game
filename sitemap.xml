@@ -1,30 +1,273 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://awesome-mini-game.vercel.app/</loc><lastmod>2026-10-15</lastmod><priority>1.0</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/games/raiden/</loc><lastmod>2026-10-15</lastmod><priority>0.8</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/games/tetris/</loc><lastmod>2026-10-15</lastmod><priority>0.8</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/games/super-mario-bros/</loc><lastmod>2026-10-15</lastmod><priority>0.8</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/games/tank-battle/</loc><lastmod>2026-10-15</lastmod><priority>0.8</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/games/chinese-chess/</loc><lastmod>2026-10-15</lastmod><priority>0.7</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/games/dou-dizhu/</loc><lastmod>2026-10-15</lastmod><priority>0.7</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/games/gomoku/</loc><lastmod>2026-10-15</lastmod><priority>0.7</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/games/game-2048/</loc><lastmod>2026-10-15</lastmod><priority>0.8</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/games/minesweeper/</loc><lastmod>2026-10-15</lastmod><priority>0.8</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/games/breakout/</loc><lastmod>2026-10-15</lastmod><priority>0.7</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/games/bubble-dragon/</loc><lastmod>2026-10-15</lastmod><priority>0.7</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/games/galaga/</loc><lastmod>2026-10-15</lastmod><priority>0.7</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/games/match3/</loc><lastmod>2026-10-15</lastmod><priority>0.7</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/games/snake/</loc><lastmod>2026-10-15</lastmod><priority>0.8</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/games/memory/</loc><lastmod>2026-10-15</lastmod><priority>0.7</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/games/talking-cat/</loc><lastmod>2026-09-29</lastmod><priority>0.8</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/games/flappy-bird/</loc><lastmod>2026-10-15</lastmod><priority>0.7</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/games/pvz/</loc><lastmod>2026-10-20</lastmod><priority>0.8</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/games/pvz-moe/</loc><lastmod>2026-10-21</lastmod><priority>0.8</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/games/abyss/</loc><lastmod>2026-10-20</lastmod><priority>0.9</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/games/tower-defense/</loc><lastmod>2026-10-14</lastmod><priority>0.8</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/games/pacman/</loc><lastmod>2026-10-15</lastmod><priority>0.8</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/games/suika/</loc><lastmod>2026-10-15</lastmod><priority>0.8</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/games/idiom-guess/</loc><lastmod>2026-10-15</lastmod><priority>0.8</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/games/fruit-ninja/</loc><lastmod>2026-10-15</lastmod><priority>0.8</priority></url>
-  <url><loc>https://awesome-mini-game.vercel.app/games/sokoban/</loc><lastmod>2026-10-15</lastmod><priority>0.8</priority></url>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://awesome-mini-game.vercel.app/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/?lang=ja"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/?lang=ko"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/"/>
+    <lastmod>2026-10-23</lastmod>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://awesome-mini-game.vercel.app/games/abyss/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/abyss/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/abyss/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/games/abyss/?lang=ja"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/games/abyss/?lang=ko"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/games/abyss/"/>
+    <lastmod>2026-10-23</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://awesome-mini-game.vercel.app/games/breakout/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/breakout/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/breakout/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/games/breakout/?lang=ja"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/games/breakout/?lang=ko"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/games/breakout/"/>
+    <lastmod>2026-10-23</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://awesome-mini-game.vercel.app/games/bubble-dragon/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/bubble-dragon/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/bubble-dragon/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/games/bubble-dragon/?lang=ja"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/games/bubble-dragon/?lang=ko"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/games/bubble-dragon/"/>
+    <lastmod>2026-10-23</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://awesome-mini-game.vercel.app/games/chinese-chess/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/chinese-chess/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/chinese-chess/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/games/chinese-chess/?lang=ja"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/games/chinese-chess/?lang=ko"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/games/chinese-chess/"/>
+    <lastmod>2026-10-23</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://awesome-mini-game.vercel.app/games/dou-dizhu/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/dou-dizhu/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/dou-dizhu/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/games/dou-dizhu/?lang=ja"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/games/dou-dizhu/?lang=ko"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/games/dou-dizhu/"/>
+    <lastmod>2026-10-23</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://awesome-mini-game.vercel.app/games/flappy-bird/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/flappy-bird/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/flappy-bird/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/games/flappy-bird/?lang=ja"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/games/flappy-bird/?lang=ko"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/games/flappy-bird/"/>
+    <lastmod>2026-10-23</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://awesome-mini-game.vercel.app/games/fruit-ninja/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/fruit-ninja/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/fruit-ninja/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/games/fruit-ninja/?lang=ja"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/games/fruit-ninja/?lang=ko"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/games/fruit-ninja/"/>
+    <lastmod>2026-10-23</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://awesome-mini-game.vercel.app/games/galaga/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/galaga/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/galaga/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/games/galaga/?lang=ja"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/games/galaga/?lang=ko"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/games/galaga/"/>
+    <lastmod>2026-10-23</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://awesome-mini-game.vercel.app/games/game-2048/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/game-2048/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/game-2048/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/games/game-2048/?lang=ja"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/games/game-2048/?lang=ko"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/games/game-2048/"/>
+    <lastmod>2026-10-23</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://awesome-mini-game.vercel.app/games/gomoku/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/gomoku/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/gomoku/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/games/gomoku/?lang=ja"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/games/gomoku/?lang=ko"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/games/gomoku/"/>
+    <lastmod>2026-10-23</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://awesome-mini-game.vercel.app/games/idiom-guess/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/idiom-guess/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/idiom-guess/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/games/idiom-guess/?lang=ja"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/games/idiom-guess/?lang=ko"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/games/idiom-guess/"/>
+    <lastmod>2026-10-23</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://awesome-mini-game.vercel.app/games/match3/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/match3/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/match3/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/games/match3/?lang=ja"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/games/match3/?lang=ko"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/games/match3/"/>
+    <lastmod>2026-10-23</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://awesome-mini-game.vercel.app/games/memory/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/memory/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/memory/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/games/memory/?lang=ja"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/games/memory/?lang=ko"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/games/memory/"/>
+    <lastmod>2026-10-23</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://awesome-mini-game.vercel.app/games/minesweeper/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/minesweeper/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/minesweeper/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/games/minesweeper/?lang=ja"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/games/minesweeper/?lang=ko"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/games/minesweeper/"/>
+    <lastmod>2026-10-23</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://awesome-mini-game.vercel.app/games/pacman/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/pacman/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/pacman/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/games/pacman/?lang=ja"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/games/pacman/?lang=ko"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/games/pacman/"/>
+    <lastmod>2026-10-23</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://awesome-mini-game.vercel.app/games/pvz/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/pvz/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/pvz/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/games/pvz/?lang=ja"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/games/pvz/?lang=ko"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/games/pvz/"/>
+    <lastmod>2026-10-23</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://awesome-mini-game.vercel.app/games/pvz-moe/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/pvz-moe/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/pvz-moe/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/games/pvz-moe/?lang=ja"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/games/pvz-moe/?lang=ko"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/games/pvz-moe/"/>
+    <lastmod>2026-10-23</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://awesome-mini-game.vercel.app/games/raiden/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/raiden/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/raiden/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/games/raiden/?lang=ja"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/games/raiden/?lang=ko"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/games/raiden/"/>
+    <lastmod>2026-10-23</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://awesome-mini-game.vercel.app/games/snake/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/snake/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/snake/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/games/snake/?lang=ja"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/games/snake/?lang=ko"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/games/snake/"/>
+    <lastmod>2026-10-23</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://awesome-mini-game.vercel.app/games/sokoban/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/sokoban/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/sokoban/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/games/sokoban/?lang=ja"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/games/sokoban/?lang=ko"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/games/sokoban/"/>
+    <lastmod>2026-10-23</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://awesome-mini-game.vercel.app/games/suika/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/suika/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/suika/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/games/suika/?lang=ja"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/games/suika/?lang=ko"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/games/suika/"/>
+    <lastmod>2026-10-23</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://awesome-mini-game.vercel.app/games/super-mario-bros/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/super-mario-bros/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/super-mario-bros/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/games/super-mario-bros/?lang=ja"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/games/super-mario-bros/?lang=ko"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/games/super-mario-bros/"/>
+    <lastmod>2026-10-23</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://awesome-mini-game.vercel.app/games/talking-cat/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/talking-cat/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/talking-cat/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/games/talking-cat/?lang=ja"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/games/talking-cat/?lang=ko"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/games/talking-cat/"/>
+    <lastmod>2026-10-23</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://awesome-mini-game.vercel.app/games/tank-battle/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/tank-battle/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/tank-battle/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/games/tank-battle/?lang=ja"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/games/tank-battle/?lang=ko"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/games/tank-battle/"/>
+    <lastmod>2026-10-23</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://awesome-mini-game.vercel.app/games/tetris/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/tetris/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/tetris/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/games/tetris/?lang=ja"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/games/tetris/?lang=ko"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/games/tetris/"/>
+    <lastmod>2026-10-23</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://awesome-mini-game.vercel.app/games/tower-defense/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/tower-defense/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/tower-defense/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/games/tower-defense/?lang=ja"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/games/tower-defense/?lang=ko"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/games/tower-defense/"/>
+    <lastmod>2026-10-23</lastmod>
+    <priority>0.8</priority>
+  </url>
 </urlset>
