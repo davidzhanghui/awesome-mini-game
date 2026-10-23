@@ -393,3 +393,13 @@ details.seo-about summary::after {
 }
 details.seo-about[open] summary::after { transform: rotate(180deg); }
 details.seo-about p { margin-top: 10px; font-size: 13px; line-height: 1.8; color: var(--ui-text-soft) !important; }
+
+/* 尊重系统“减少动态效果”偏好 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

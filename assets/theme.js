@@ -60,9 +60,44 @@
 
   window.AMG_THEME = { apply: apply, effective: effective };
 
+  // ---- a11y：给纯符号按钮补 aria-label，画布标 role=img ----
+  var SYM = {
+    '▲': { zh: '上', en: 'Up', ja: '上', ko: '위' },
+    '▼': { zh: '下', en: 'Down', ja: '下', ko: '아래' },
+    '◀': { zh: '左', en: 'Left', ja: '左', ko: '왼쪽' },
+    '▶': { zh: '右', en: 'Right', ja: '右', ko: '오른쪽' },
+    '⏸': { zh: '暂停', en: 'Pause', ja: '一時停止', ko: '일시정지' },
+    '🔊': { zh: '声音', en: 'Sound', ja: 'サウンド', ko: '소리' },
+    '🔇': { zh: '声音', en: 'Sound', ja: 'サウンド', ko: '소리' },
+    '☀️': { zh: '主题', en: 'Theme', ja: 'テーマ', ko: '테마' },
+    '🌙': { zh: '主题', en: 'Theme', ja: 'テーマ', ko: '테마' }
+  };
+  function a11y() {
+    var lang = (window.AMG && AMG.lang) || 'zh';
+    var btns = document.querySelectorAll('button:not([aria-label])');
+    for (var i = 0; i < btns.length; i++) {
+      var b = btns[i], txt = (b.textContent || '').trim();
+      if (b.title) b.setAttribute('aria-label', b.title);
+      else if (SYM[txt]) b.setAttribute('aria-label', SYM[txt][lang] || SYM[txt].en);
+    }
+    var pads = document.querySelectorAll('.touch-pad:not([role])');
+    for (var j = 0; j < pads.length; j++) pads[j].setAttribute('role', 'group');
+    var cvs = document.querySelectorAll('canvas:not([role])');
+    for (var k = 0; k < cvs.length; k++) {
+      cvs[k].setAttribute('role', 'img');
+      if (document.title) cvs[k].setAttribute('aria-label', document.title);
+    }
+  }
+
+  // 全局兜底：未捕获异常只记录，不打断页面其余部分
+  window.addEventListener('unhandledrejection', function (e) {
+    try { console.warn('[amg] unhandled rejection:', e.reason); } catch (_) {}
+  });
+
+  function ready() { mount(); a11y(); window.addEventListener('load', a11y); }
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', mount);
+    document.addEventListener('DOMContentLoaded', ready);
   } else {
-    mount();
+    ready();
   }
 })();

@@ -24,11 +24,15 @@ const FRUITS = [
 const SCORES = [1, 3, 6, 10, 15, 21, 28, 36, 45, 55, 66];
 const MAX_LV = FRUITS.length - 1;
 
+const LS = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : v; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+};
 const store = {
-  get best() { return +(localStorage.getItem('suika-best') || 0); },
-  set best(v) { localStorage.setItem('suika-best', v); },
-  get muted() { return localStorage.getItem('suika-muted') === '1'; },
-  set muted(v) { localStorage.setItem('suika-muted', v ? '1' : '0'); }
+  get best() { return +(LS.get('suika-best', 0)); },
+  set best(v) { LS.set('suika-best', v); },
+  get muted() { return LS.get('suika-muted', '') === '1'; },
+  set muted(v) { LS.set('suika-muted', v ? '1' : '0'); }
 };
 let actx = null, muted = store.muted;
 function tone(f, dur, type, vol, f2) {
@@ -377,3 +381,4 @@ window.__gameApi = { startGame, drop, physics, addBody, FRUITS, DANGER };
 window.__gameErrors = [];
 window.addEventListener('error', e => window.__gameErrors.push(String(e.message)));
 })();
+document.addEventListener('visibilitychange', () => { if (document.hidden && (G.state === 'play')) togglePause(); });
