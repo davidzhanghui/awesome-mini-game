@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>机甲大作战 · Mecha Strike</title>
+<meta name="description" content="网页版 3D 机甲射击：24 关、24 场 Boss 战，脉冲炮 / 霰弹炮 / 等离子炮 / 光矛激光四把主武器，追踪导弹、冲刺闪避与超载爆发。Three.js 实时渲染，打开即玩。" />
+<link rel="canonical" href="https://awesome-mini-game.vercel.app/games/mecha-strike/" />
+<link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/mecha-strike/" />
+<link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/mecha-strike/?lang=en" />
+<link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/games/mecha-strike/?lang=ja" />
+<link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/games/mecha-strike/?lang=ko" />
+<link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/games/mecha-strike/" />
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Awesome Mini Game">
+<meta property="og:title" content="机甲大作战 · Mecha Strike">
+<meta property="og:description" content="3D 俯视角机甲射击：6 大战区 24 关，每关一场 Boss 战，四把可升级主武器与超载爆发。">
+<meta property="og:url" content="https://awesome-mini-game.vercel.app/games/mecha-strike/">
+<meta property="og:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="机甲大作战 · Mecha Strike">
+<meta name="twitter:description" content="3D 俯视角机甲射击：6 大战区 24 关，每关一场 Boss 战，四把可升级主武器与超载爆发。">
+<meta name="twitter:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.jpg">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"VideoGame","name":"机甲大作战 · Mecha Strike","description":"3D 俯视角机甲射击：6 大战区 24 关，每关一场 Boss 战，四把可升级主武器、追踪导弹与超载爆发。","url":"https://awesome-mini-game.vercel.app/games/mecha-strike/","genre":"射击","gamePlatform":"Web Browser","playMode":"SinglePlayer","inLanguage":["zh-CN","en","ja","ko"],"isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"}}
+</script>
+<link rel="icon" href="/favicon.svg" />
+<link rel="preload" href="../../assets/fonts/zcool-qkhy-subset.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../assets/game-page.css?v=bb426f56" />
+<link rel="stylesheet" href="styles.css?v=fd99cf3d" />
+<link rel="stylesheet" href="../../assets/ui.css?v=af398126" />
+<script src="../../assets/theme.js?v=d0556948"></script>
+</head>
+<body>
+<div class="bg-orbs"><span></span><span></span><span></span></div>
+<main class="page ms-page">
+  <header class="brand">
+    <div class="logo">🤖</div>
+    <div class="brand-text">
+      <h1><span data-i18n="name">机甲大作战</span> <em data-i18n="subtitle">Mecha Strike</em></h1>
+      <p data-i18n="intro">3D 俯视角机甲射击：6 大战区 24 关，每关都有 Boss。四把可升级主武器、追踪导弹、冲刺闪避与超载爆发。</p>
+    </div>
+    <div class="brand-btns">
+      <button id="btnFs" class="icon-btn" type="button" title="全屏">⛶</button>
+      <button id="btnMute" class="icon-btn" type="button">🔊</button>
+    </div>
+  </header>
+
+  <section class="cabinet ms-cabinet">
+    <div class="game-frame ms-frame" id="frame">
+      <div id="game"></div>
+      <div id="vig"></div>
+      <div id="lowhp"></div>
+      <div id="dmgnums"></div>
+
+      <!-- ================= HUD ================= -->
+      <div id="hud">
+        <div id="vitals" class="plate">
+          <div class="mech-row">
+            <div class="mech-name">RX-78 <b data-i18n="mechName">「雷霆」</b></div>
+            <div id="lives"><span id="livesIcons"></span><b class="num" id="livesNum">×3</b></div>
+          </div>
+          <div class="bar hp" id="hpBar"><i></i><span class="num" id="hpTxt">100 / 100</span></div>
+          <div class="bar sh" id="shBar"><i></i></div>
+          <div class="bar en" id="enBar"><i></i></div>
+          <div class="bar od" id="odBar"><i></i></div>
+          <div id="skills">
+            <div class="skill" id="skMissile"><div class="k"><span data-i18n="skMissile">导弹</span><kbd>Q</kbd></div><div class="v num" id="skMissileV"></div><div class="cd"></div></div>
+            <div class="skill" id="skDash"><div class="k"><span data-i18n="skDash">冲刺</span><kbd>␣</kbd></div><div class="v num" id="skDashV"></div><div class="cd"></div></div>
+            <div class="skill od" id="skOd"><div class="k"><span data-i18n="skOd">超载</span><kbd>E</kbd></div><div class="v num" id="skOdV"></div><div class="cd"></div></div>
+          </div>
+        </div>
+        <div id="objective" class="plate">
+          <div class="lv" id="lvName">1-1</div>
+          <div class="wave"><span data-i18n="wave">波次</span> <b class="num" id="waveNum">1</b></div>
+          <div id="enemiesLeft"><span data-i18n="enemiesLeft">剩余敌机</span> <span class="num" id="leftNum">0</span></div>
+        </div>
+        <div id="scorebox" class="plate">
+          <div class="lab" data-i18n="scoreLab">SCORE</div>
+          <div id="scoreVal" class="num">0</div>
+          <div id="killVal"><span data-i18n="kills">击毁</span> <b class="num" id="killNum">0</b> · <span class="num" id="timeVal">00:00</span></div>
+        </div>
+        <canvas id="minimap" width="118" height="118"></canvas>
+        <div id="bossbar">
+          <div class="bn" id="bossName"></div>
+          <div class="bar"><i id="bossFill"></i></div>
+        </div>
+        <div id="weapons"></div>
+        <div id="hints" class="plate">
+          <div data-i18n="hint1">WASD 移动 · 鼠标瞄准 · 左键开火 · 1-4 / 滚轮换枪</div>
+          <div data-i18n="hint2">右键 / Q 导弹 · 空格 冲刺 · E 超载 · P 暂停</div>
+        </div>
+      </div>
+      <div id="sysbtns">
+        <button class="sysbtn" id="btnPause" type="button" aria-label="Pause"><svg viewBox="0 0 24 24"><path d="M9 5v14M15 5v14"/></svg></button>
+        <button class="sysbtn" id="btnFs2" type="button" aria-label="Fullscreen"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+      </div>
+
+      <div id="cross">
+        <svg viewBox="0 0 34 34"><g stroke="#29e6ff" stroke-width="2" fill="none">
+          <circle cx="17" cy="17" r="9" stroke-opacity=".85"/>
+          <path d="M17 1v8M17 25v8M1 17h8M25 17h8"/></g>
+          <circle cx="17" cy="17" r="1.6" fill="#ffb02e" stroke="none"/>
+          <path class="hm" d="M9 9l5 5M25 9l-5 5M9 25l5-5M25 25l-5-5" stroke="#fff" stroke-width="2.4"/></svg>
+      </div>
+
+      <div id="banner"><div class="big" id="bannerBig"></div><div class="sub" id="bannerSub"></div></div>
+      <div id="mtoast"></div>
+
+      <!-- ================= 触屏 ================= -->
+      <div id="touch">
+        <div id="stick"><div id="stickBase"></div><div id="stickKnob"></div></div>
+        <div class="tbtns">
+          <button class="tbtn sm" id="btnSwap" type="button"><svg viewBox="0 0 24 24"><path d="M4 8h13l-3-3M20 16H7l3 3"/></svg><small data-i18n="tSwap">换枪</small></button>
+          <button class="tbtn sm od" id="btnOd" type="button"><svg viewBox="0 0 24 24"><path d="M12 2l2.6 6.4L21 9l-5 4.4L17.6 20 12 16.6 6.4 20 8 13.4 3 9l6.4-.6L12 2z"/></svg><small data-i18n="skOd">超载</small></button>
+          <button class="tbtn" id="btnMissile" type="button"><svg viewBox="0 0 24 24"><path d="M12 2.5c2 2.5 3 5.5 3 8.5l3.5 4h-13L9 11c0-3 1-6 3-8.5z"/><circle cx="12" cy="9" r="1.6"/></svg><small data-i18n="skMissile">导弹</small></button>
+          <button class="tbtn" id="btnDash" type="button"><svg viewBox="0 0 24 24"><path d="M3 8h10M3 12h13M3 16h10"/><path d="M15 5l6 7-6 7"/></svg><small data-i18n="skDash">冲刺</small></button>
+          <button class="tbtn fire" id="btnFire" type="button"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg><small data-i18n="tFire">开火</small></button>
+        </div>
+      </div>
+
+      <!-- ================= 主菜单 ================= -->
+      <div class="ms-screen" id="menu">
+        <div class="ms-panel menu-panel">
+          <div class="ms-title"><span data-i18n="titleA">机甲</span><em data-i18n="titleB">大作战</em></div>
+          <div class="ms-tag">MECHA STRIKE · 3D</div>
+          <p class="ms-brief" data-i18n="brief">敌方机械军团兵分六路压境。驾驶重装机甲「雷霆」逐关清剿，每一关的尽头都有一台 Boss 机甲在等你。</p>
+          <p class="ms-brief hidden" id="webglMsg" data-i18n="noWebgl">你的浏览器不支持 WebGL，无法运行 3D 画面。</p>
+          <div class="ms-sec" data-i18n="diffLab">难度</div>
+          <div class="ms-row" id="diffs"></div>
+          <button class="ms-btn big" id="btnStart" type="button" data-i18n="start">出击</button>
+          <div class="ms-sec"><span data-i18n="sectorLab">战区（通关后可直接从该战区出发）</span></div>
+          <div class="ms-levels" id="sectors"></div>
+          <div class="ms-meta"><span id="menuProgress"></span><span id="menuBest"></span></div>
+          <div class="ms-controls kbd-only">
+            <div data-i18n="c1">WASD 移动 · 鼠标瞄准 · 左键开火</div>
+            <div data-i18n="c2">1-4 / 滚轮 切换武器</div>
+            <div data-i18n="c3">右键 / Q 追踪导弹 · 空格 冲刺无敌</div>
+            <div data-i18n="c4">E 超载爆发 · P / Esc 暂停 · M 静音</div>
+          </div>
+          <div class="ms-controls touch-show" data-i18n="cTouch">左侧拖动移动；按住开火自动瞄准最近敌人；右侧按钮放导弹、冲刺、换枪与超载。</div>
+        </div>
+      </div>
+
+      <!-- ================= 强化 ================= -->
+      <div class="ms-screen hidden" id="upgradeScr">
+        <div class="ms-panel wide">
+          <h2 class="ms-h cy" data-i18n="upTitle">战区清空</h2>
+          <p class="ms-brief" id="upBrief"></p>
+          <p class="ms-sub" data-i18n="upPick">后勤无人机送来强化模块，三选一（键盘 1 / 2 / 3）：</p>
+          <div class="upgrades" id="upCards"></div>
+        </div>
+      </div>
+
+      <!-- ================= 暂停 ================= -->
+      <div class="ms-screen hidden" id="pauseScr">
+        <div class="ms-panel">
+          <h2 class="ms-h" data-i18n="pauseTitle">已暂停</h2>
+          <p class="ms-brief" data-i18n="pauseBrief">机甲系统待机中，战场时间已冻结。</p>
+          <div class="ms-opts">
+            <label><span data-i18n="optQuality">画质</span> <select id="optQuality"></select></label>
+            <label><input type="checkbox" id="optShake" /> <span data-i18n="optShake">屏幕震动</span></label>
+          </div>
+          <button class="ms-btn big" id="btnResume" type="button" data-i18n="resume">继续战斗</button>
+          <div class="ms-row">
+            <button class="ms-btn ghost" id="btnRestart2" type="button" data-i18n="restartLevel">重开本关</button>
+            <button class="ms-btn ghost" id="btnMenu2" type="button" data-i18n="toMenu">主菜单</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= 结算 ================= -->
+      <div class="ms-screen hidden" id="endScr">
+        <div class="ms-panel">
+          <div class="ms-record hidden" id="endRecord" data-i18n="newRecord">新纪录！</div>
+          <h2 class="ms-h red" id="endTitle">机甲损毁</h2>
+          <p class="ms-brief" id="endBrief"></p>
+          <div class="statgrid">
+            <div class="stat"><div class="sv num" id="stScore">0</div><div class="sl" data-i18n="stScore">总战绩分</div></div>
+            <div class="stat"><div class="sv num" id="stKills">0</div><div class="sl" data-i18n="stKills">击毁敌机</div></div>
+            <div class="stat"><div class="sv num" id="stTime">00:00</div><div class="sl" data-i18n="stTime">作战用时</div></div>
+            <div class="stat"><div class="sv num" id="stLevel">1-1</div><div class="sl" data-i18n="stLevel">抵达关卡</div></div>
+            <div class="stat"><div class="sv num" id="stBest">0</div><div class="sl" data-i18n="stBest">最高分</div></div>
+          </div>
+          <button class="ms-btn big" id="btnContinue" type="button" data-i18n="continue">从本关继续</button>
+          <div class="ms-row">
+            <button class="ms-btn ghost" id="btnAgain" type="button" data-i18n="again">重新出击</button>
+            <button class="ms-btn ghost" id="btnMenu" type="button" data-i18n="toMenu">主菜单</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="errbox"></div>
+    </div>
+  </section>
+
+  <section class="ms-info">
+    <div class="card">
+      <h4 data-i18n="infoControls">操作</h4>
+      <ul>
+        <li class="kbd-only" data-i18n="c1">WASD 移动 · 鼠标瞄准 · 左键开火</li>
+        <li class="kbd-only" data-i18n="c2">1-4 / 滚轮 切换武器</li>
+        <li class="kbd-only" data-i18n="c3">右键 / Q 追踪导弹 · 空格 冲刺无敌</li>
+        <li class="kbd-only" data-i18n="c4">E 超载爆发 · P / Esc 暂停 · M 静音</li>
+        <li class="touch-item" data-i18n="cTouch">左侧拖动移动；按住开火自动瞄准最近敌人；右侧按钮放导弹、冲刺、换枪与超载。</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4 data-i18n="infoWeapons">武器库</h4>
+      <div class="dex">
+        <div class="ic">⚡</div><span><b data-i18n="w_pulse">脉冲机炮</b> · <span data-i18n="wd_pulse">高射速连射，升级后变为双管、三管齐射。</span></span>
+        <div class="ic">💥</div><span><b data-i18n="w_scatter">霰弹炮</b> · <span data-i18n="wd_scatter">近距离扇形弹幕，强力击退，第 2 关解锁。</span></span>
+        <div class="ic">🔮</div><span><b data-i18n="w_plasma">等离子炮</b> · <span data-i18n="wd_plasma">慢速能量球，命中后范围爆炸，第 4 关解锁。</span></span>
+        <div class="ic">🔦</div><span><b data-i18n="w_laser">光矛激光</b> · <span data-i18n="wd_laser">持续光束穿透一切，注意过热，第 7 关解锁。</span></span>
+      </div>
+    </div>
+    <div class="card">
+      <h4 data-i18n="infoTips">作战手册</h4>
+      <ul>
+        <li data-i18n="tip1">地面红圈是迫击炮落点，红线是冲锋 / 激光预警，看到就跑。</li>
+        <li data-i18n="tip2">冲刺有短暂无敌，可以穿过冲击波与弹幕。</li>
+        <li data-i18n="tip3">紫色追踪弹可以被击落。橙色芯片升级当前武器。</li>
+        <li data-i18n="tip4">每通过一个战区奖励 1 条命；零损毁通关额外 +1000 分。</li>
+      </ul>
+    </div>
+  </section>
+
+  <details class="card seo-about">
+    <summary data-i18n="aboutTitle">📖 关于这款游戏</summary>
+    <p data-i18n="aboutBody">《机甲大作战》是一款纯网页的 3D 俯视角机甲射击：六大战区、二十四关、八种 Boss 机甲（重锤、蜂后、堡垒、毁灭者、疾影、蝎王、雷神与终局的天灾），每一关都以 Boss 战收尾。四把可升级主武器、追踪导弹、冲刺闪避与超载爆发，十余种强化模块自由组合。所有模型由 Three.js 程序化拼装，所有音效由 Web Audio 实时合成，无需下载素材，打开即玩。</p>
+  </details>
+  <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 键鼠 / 触屏 · 四语言</footer>
+</main>
+
+<script src="three.min.js?v=91787256"></script>
+<script src="../../assets/i18n.js?v=55ab40c8"></script>
+<script src="../../assets/bgm.js?v=1fb3f4bf"></script>
+<script src="../../assets/kit.js?v=d7677fd9"></script>
+<script src="../../assets/touch.js?v=1a851412"></script>
+<script src="strings.js?v=c4c14348"></script>
+<script src="data.js?v=e8da48b7"></script>
+<script src="game.js?v=da9bb267"></script>
+</body>
+</html>
