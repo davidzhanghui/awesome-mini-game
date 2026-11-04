@@ -69,10 +69,12 @@ window.MS_DATA = (function () {
   // ---------- 玩家武器 ----------
   // unlock：从第几关（0 起）开始可用
   var WEAPONS = [
-    { id: 'pulse',   key: '1', unlock: 0, rate: 8,    dmg: 11, speed: 95, life: 0.85 },
-    { id: 'scatter', key: '2', unlock: 1, rate: 1.7,  dmg: 8,  pellets: 7, speed: 72, life: 0.36, spread: 0.55, knock: 2.6 },
+    // pulse：扇面扫射（每发 pellets 颗，沿 spread 弧线展开，并带左右摆动 sweep）
+    { id: 'pulse',   key: '1', unlock: 0, rate: 7,    dmg: 8,  pellets: 5, speed: 95, life: 0.8, spread: 0.5, sweep: 0.22 },
+    { id: 'scatter', key: '2', unlock: 1, rate: 1.7,  dmg: 8,  pellets: 11, speed: 72, life: 0.4, spread: 1.05, knock: 2.6 },
     { id: 'plasma',  key: '3', unlock: 3, rate: 1.25, dmg: 34, aoe: 22, radius: 5, speed: 46, life: 1.5 },
-    { id: 'laser',   key: '4', unlock: 6, dps: 95, width: 0.55, len: 46, heat: 4.5 }
+    // laser：扇形扫射，half = 扇面半角（弧度），对扇面内所有目标持续伤害
+    { id: 'laser',   key: '4', unlock: 6, dps: 70, width: 0.55, len: 40, heat: 4.5, half: 0.4 }
   ];
 
   // ---------- 关卡生成（固定种子，每次一样） ----------
@@ -91,12 +93,12 @@ window.MS_DATA = (function () {
     Object.keys(ENEMIES).forEach(function (k) { if (ENEMIES[k].from <= L) pool.push(k); });
     var total = 0; pool.forEach(function (k) { total += WEIGHTS[k]; });
     var counts = {}, n = 0, guard = 0;
-    while (budget > 0.5 && n < 18 && guard++ < 60) {
+    while (budget > 0.5 && n < 34 && guard++ < 120) {
       var x = r() * total, pick = pool[0];
       for (var i = 0; i < pool.length; i++) { x -= WEIGHTS[pool[i]]; if (x <= 0) { pick = pool[i]; break; } }
-      if (pick === 'turret' && (counts.turret || 0) >= 3) continue;
-      if (pick === 'artillery' && (counts.artillery || 0) >= 3) continue;
-      if (pick === 'heavy' && (counts.heavy || 0) >= 2 + Math.floor(L / 8)) continue;
+      if (pick === 'turret' && (counts.turret || 0) >= 5) continue;
+      if (pick === 'artillery' && (counts.artillery || 0) >= 4) continue;
+      if (pick === 'heavy' && (counts.heavy || 0) >= 3 + Math.floor(L / 6)) continue;
       counts[pick] = (counts[pick] || 0) + 1; n++;
       budget -= ENEMIES[pick].cost;
     }
@@ -106,9 +108,9 @@ window.MS_DATA = (function () {
   var LEVELS = [];
   for (var L = 0; L < 24; L++) {
     var r = rng(L * 9973 + 17);
-    var nW = L < 4 ? 2 : 3, waves = [];
-    for (var w = 0; w < nW; w++) waves.push(buildWave(L, 4.5 + L * 0.7 + w * 1.8, r));
-    var escorts = L < 2 ? [] : buildWave(Math.min(L, 4), 1 + L * 0.18, r);
+    var nW = L < 2 ? 3 : 4, waves = [];  // 每关 3~4 个小波 + Boss 波
+    for (var w = 0; w < nW; w++) waves.push(buildWave(L, (5 + L * 0.8 + w * 2.2) * 1.7, r));
+    var escorts = L < 2 ? [] : buildWave(Math.min(L, 4), (1 + L * 0.18) * 1.6, r);
     LEVELS.push({ sector: Math.floor(L / 4), sub: (L % 4) + 1, waves: waves, boss: BOSS_ORDER[L], escorts: escorts });
   }
 

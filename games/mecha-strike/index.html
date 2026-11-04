@@ -27,7 +27,7 @@
 <link rel="icon" href="/favicon.svg" />
 <link rel="preload" href="../../assets/fonts/zcool-qkhy-subset.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../../assets/game-page.css?v=bb426f56" />
-<link rel="stylesheet" href="styles.css?v=fd99cf3d" />
+<link rel="stylesheet" href="styles.css?v=91f81bb8" />
 <link rel="stylesheet" href="../../assets/ui.css?v=af398126" />
 <script src="../../assets/theme.js?v=d0556948"></script>
 </head>
@@ -93,6 +93,7 @@
       </div>
       <div id="sysbtns">
         <button class="sysbtn" id="btnPause" type="button" aria-label="Pause"><svg viewBox="0 0 24 24"><path d="M9 5v14M15 5v14"/></svg></button>
+        <button class="sysbtn" id="btnCam2" type="button" aria-label="View" title="切换视角 (Z/C/X/V)"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="9" ry="4"/><path d="M12 3v4M12 17v4M16.5 9.5l2-2"/></svg></button>
         <button class="sysbtn" id="btnFs2" type="button" aria-label="Fullscreen"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
       </div>
 
@@ -112,6 +113,7 @@
         <div id="stick"><div id="stickBase"></div><div id="stickKnob"></div></div>
         <div class="tbtns">
           <button class="tbtn sm" id="btnSwap" type="button"><svg viewBox="0 0 24 24"><path d="M4 8h13l-3-3M20 16H7l3 3"/></svg><small data-i18n="tSwap">换枪</small></button>
+          <button class="tbtn sm" id="btnCam" type="button"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="9" ry="4"/><path d="M12 3v4M12 17v4"/></svg><small data-i18n="tCam">视角</small></button>
           <button class="tbtn sm od" id="btnOd" type="button"><svg viewBox="0 0 24 24"><path d="M12 2l2.6 6.4L21 9l-5 4.4L17.6 20 12 16.6 6.4 20 8 13.4 3 9l6.4-.6L12 2z"/></svg><small data-i18n="skOd">超载</small></button>
           <button class="tbtn" id="btnMissile" type="button"><svg viewBox="0 0 24 24"><path d="M12 2.5c2 2.5 3 5.5 3 8.5l3.5 4h-13L9 11c0-3 1-6 3-8.5z"/><circle cx="12" cy="9" r="1.6"/></svg><small data-i18n="skMissile">导弹</small></button>
           <button class="tbtn" id="btnDash" type="button"><svg viewBox="0 0 24 24"><path d="M3 8h10M3 12h13M3 16h10"/><path d="M15 5l6 7-6 7"/></svg><small data-i18n="skDash">冲刺</small></button>
@@ -137,6 +139,7 @@
             <div data-i18n="c2">1-4 / 滚轮 切换武器</div>
             <div data-i18n="c3">右键 / Q 追踪导弹 · 空格 冲刺无敌</div>
             <div data-i18n="c4">E 超载爆发 · P / Esc 暂停 · M 静音</div>
+            <div data-i18n="c5">Z / C 旋转视角 · X / V 俯仰 · 鼠标中键拖动 · B 复位</div>
           </div>
           <div class="ms-controls touch-show" data-i18n="cTouch">左侧拖动移动；按住开火自动瞄准最近敌人；右侧按钮放导弹、冲刺、换枪与超载。</div>
         </div>
@@ -202,6 +205,7 @@
         <li class="kbd-only" data-i18n="c2">1-4 / 滚轮 切换武器</li>
         <li class="kbd-only" data-i18n="c3">右键 / Q 追踪导弹 · 空格 冲刺无敌</li>
         <li class="kbd-only" data-i18n="c4">E 超载爆发 · P / Esc 暂停 · M 静音</li>
+        <li class="kbd-only" data-i18n="c5">Z / C 旋转视角 · X / V 俯仰 · 鼠标中键拖动 · B 复位</li>
         <li class="touch-item" data-i18n="cTouch">左侧拖动移动；按住开火自动瞄准最近敌人；右侧按钮放导弹、冲刺、换枪与超载。</li>
       </ul>
     </div>
@@ -237,8 +241,8 @@
 <script src="../../assets/bgm.js?v=1fb3f4bf"></script>
 <script src="../../assets/kit.js?v=d7677fd9"></script>
 <script src="../../assets/touch.js?v=1a851412"></script>
-<script src="strings.js?v=c4c14348"></script>
-<script src="data.js?v=e8da48b7"></script>
-<script src="game.js?v=da9bb267"></script>
+<script src="strings.js?v=3a615ec0"></script>
+<script src="data.js?v=42f0e3da"></script>
+<script src="game.js?v=2f17d857"></script>
 </body>
 </html>

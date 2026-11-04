@@ -52,21 +52,43 @@
   ];
   function diff() { return DIFFS[G.diff]; }
 
-  /* ============ AUDIO: all synthesized ============ */
+  /* ============ AUDIO: all synthesized ============
+   * 信号链：voices → sfxGain / bgmGain → master → 压缩器(防爆音) → 输出
+   *        sfx / bgm 另有一路湿信号送入卷积混响，爆炸与枪声有空间感
+   * 战斗音效按屏幕位置做左右声像 + 距离衰减（at()）
+   */
   var AU = window.AMG_AUDIO || { vol: 0.8, muted: false };
   var AudioSys = {
-    ctx: null, master: null, sfxGain: null, bgmGain: null, noiseBuf: null, bgmTimer: null, bgmStep: 0,
-    nextNoteTime: 0, bossMode: false, transpose: 0, gates: {}, laser: null, _v: -1,
+    ctx: null, master: null, sfxGain: null, bgmGain: null, verb: null, noiseBuf: null, bgmTimer: null, bgmStep: 0,
+    nextNoteTime: 0, bossMode: false, transpose: 0, gates: {}, laser: null, _v: -1, _pv: null,
     init: function () {
       if (this.ctx) { if (this.ctx.state === 'suspended') { try { this.ctx.resume(); } catch (e) {} } return; }
       var ac = KIT.audio ? KIT.audio() : null; if (!ac) return;
       this.ctx = ac;
-      this.master = ac.createGain(); this.master.connect(ac.destination);
-      this.sfxGain = ac.createGain(); this.sfxGain.gain.value = 0.8; this.sfxGain.connect(this.master);
-      this.bgmGain = ac.createGain(); this.bgmGain.gain.value = 0.28; this.bgmGain.connect(this.master);
-      var len = ac.sampleRate; this.noiseBuf = ac.createBuffer(1, len, ac.sampleRate);
+      this.master = ac.createGain();
+      var comp = ac.createDynamicsCompressor();
+      comp.threshold.value = -16; comp.knee.value = 20; comp.ratio.value = 5; comp.attack.value = 0.004; comp.release.value = 0.22;
+      this.master.connect(comp); comp.connect(ac.destination);
+      this.sfxGain = ac.createGain(); this.sfxGain.gain.value = 0.85; this.sfxGain.connect(this.master);
+      this.bgmGain = ac.createGain(); this.bgmGain.gain.value = 0.3; this.bgmGain.connect(this.master);
+      var len = ac.sampleRate * 2; this.noiseBuf = ac.createBuffer(1, len, ac.sampleRate);
       var d = this.noiseBuf.getChannelData(0); for (var i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+      // 混响：程序生成的指数衰减噪声脉冲响应
+      try {
+        this.verb = ac.createConvolver(); this.verb.buffer = this.impulse(1.8, 2.8);
+        var wet = ac.createGain(); wet.gain.value = 0.55; this.verb.connect(wet); wet.connect(this.master);
+        var sS = ac.createGain(); sS.gain.value = 0.22; this.sfxGain.connect(sS); sS.connect(this.verb);
+        var sB = ac.createGain(); sB.gain.value = 0.16; this.bgmGain.connect(sB); sB.connect(this.verb);
+      } catch (e) { this.verb = null; }
       this.sync();
+    },
+    impulse: function (sec, decay) {
+      var ac = this.ctx, n = Math.floor(ac.sampleRate * sec), buf = ac.createBuffer(2, n, ac.sampleRate);
+      for (var c = 0; c < 2; c++) {
+        var ch = buf.getChannelData(c);
+        for (var i = 0; i < n; i++) ch[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, decay);
+      }
+      return buf;
     },
     sync: function () {
       if (!this.master) return;
@@ -76,76 +98,196 @@
     ok: function () { return this.ctx && !AU.muted && !SIM.on; },
     gate: function (k, ms) { var n = performance.now(); if (this.gates[k] && n - this.gates[k] < ms) return false; this.gates[k] = n; return true; },
     now: function () { return this.ctx ? this.ctx.currentTime : 0; },
+    // 世界坐标 → 声像（-1 左 .. 1 右）与距离衰减
+    at: function (pos) {
+      if (!pos || typeof camera === 'undefined' || !camera) return { p: 0, g: 1 };
+      var v = this._pv || (this._pv = new THREE.Vector3());
+      v.set(pos.x, pos.y || 0, pos.z).project(camera);
+      var d = player ? Math.sqrt(dist2(pos.x, pos.z, player.group.position.x, player.group.position.z)) : 0;
+      return { p: clamp(v.x * 0.8, -0.9, 0.9), g: clamp(1.15 - d / 90, 0.38, 1) };
+    },
     env: function (g, t, a, peak, dur) {
       g.gain.setValueAtTime(0.0001, t);
       g.gain.exponentialRampToValueAtTime(Math.max(peak, 0.0002), t + a);
       g.gain.exponentialRampToValueAtTime(0.0001, t + a + dur);
     },
+    // 末端接线：可选声像
+    out: function (node, o) {
+      var dest = o.dest || this.sfxGain;
+      if (o.pan && this.ctx.createStereoPanner) {
+        var pn = this.ctx.createStereoPanner(); pn.pan.value = clamp(o.pan, -1, 1); node.connect(pn); pn.connect(dest);
+      } else node.connect(dest);
+    },
     tone: function (o) {
       if (!this.ok()) return;
-      var t = (o.when || 0) + this.now(), osc = this.ctx.createOscillator(), g = this.ctx.createGain();
+      var ac = this.ctx, t = (o.when || 0) + this.now(), osc = ac.createOscillator(), g = ac.createGain(), dur = o.dur || 0.15;
       osc.type = o.type || 'square'; osc.frequency.setValueAtTime(o.freq, t);
-      if (o.freqEnd) osc.frequency.exponentialRampToValueAtTime(Math.max(o.freqEnd, 1), t + (o.dur || 0.15));
-      this.env(g, t, o.attack || 0.004, o.vol || 0.2, o.dur || 0.15);
-      osc.connect(g); g.connect(o.dest || this.sfxGain); osc.start(t); osc.stop(t + (o.dur || 0.15) + 0.1);
+      if (o.detune) osc.detune.value = o.detune;
+      if (o.freqEnd) osc.frequency.exponentialRampToValueAtTime(Math.max(o.freqEnd, 1), t + dur);
+      this.env(g, t, o.attack || 0.004, o.vol || 0.2, dur);
+      var node = osc;
+      if (o.lp) { var f = ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = o.lp; f.Q.value = o.Q || 0.8; osc.connect(f); node = f; }
+      node.connect(g); this.out(g, o); osc.start(t); osc.stop(t + (o.attack || 0.004) + dur + 0.1);
     },
     noise: function (o) {
       if (!this.ok()) return;
-      var t = (o.when || 0) + this.now(), src = this.ctx.createBufferSource(); src.buffer = this.noiseBuf; src.loop = true;
-      var f = this.ctx.createBiquadFilter(); f.type = o.type || 'lowpass'; f.frequency.setValueAtTime(o.filterFreq || 1000, t); f.Q.value = o.Q || 0.7;
+      var ac = this.ctx, t = (o.when || 0) + this.now(), src = ac.createBufferSource(); src.buffer = this.noiseBuf; src.loop = true;
+      var f = ac.createBiquadFilter(); f.type = o.type || 'lowpass'; f.frequency.setValueAtTime(o.filterFreq || 1000, t); f.Q.value = o.Q || 0.7;
       if (o.filterEnd) f.frequency.exponentialRampToValueAtTime(Math.max(o.filterEnd, 20), t + (o.dur || 0.3));
-      var g = this.ctx.createGain(); this.env(g, t, o.attack || 0.003, o.vol || 0.3, o.dur || 0.3);
-      src.connect(f); f.connect(g); g.connect(o.dest || this.sfxGain); src.start(t); src.stop(t + (o.dur || 0.3) + 0.15);
+      var g = ac.createGain(); this.env(g, t, o.attack || 0.003, o.vol || 0.3, o.dur || 0.3);
+      src.connect(f); f.connect(g); this.out(g, o); src.start(t, Math.random() * 1.5); src.stop(t + (o.attack || 0.003) + (o.dur || 0.3) + 0.15);
     },
-    shoot: function () { if (!this.gate('shoot', 40)) return; this.tone({ type: 'sawtooth', freq: rand(880, 990), freqEnd: 180, dur: 0.08, vol: 0.08 }); this.noise({ dur: 0.04, vol: 0.04, filterFreq: 3800, type: 'highpass' }); },
-    scatter: function () { this.noise({ dur: 0.22, vol: 0.32, filterFreq: 2600, filterEnd: 300 }); this.tone({ type: 'square', freq: 160, freqEnd: 50, dur: 0.18, vol: 0.2 }); },
-    plasma: function () { this.tone({ type: 'sine', freq: 300, freqEnd: 900, dur: 0.22, vol: 0.16 }); this.tone({ type: 'sawtooth', freq: 90, freqEnd: 60, dur: 0.25, vol: 0.08 }); },
-    plasmaBoom: function () { if (!this.gate('pboom', 60)) return; this.noise({ dur: 0.35, vol: 0.26, filterFreq: 1800, filterEnd: 90 }); this.tone({ type: 'sine', freq: 180, freqEnd: 40, dur: 0.3, vol: 0.22 }); },
+    /* ---- 玩家武器 ---- */
+    shoot: function () {
+      if (!this.gate('shoot', 38)) return;
+      var f = rand(1000, 1260);
+      this.tone({ type: 'sawtooth', freq: f, freqEnd: 240, dur: 0.07, vol: 0.07 });
+      this.tone({ type: 'square', freq: f * 0.5, freqEnd: 130, dur: 0.06, vol: 0.035, detune: rand(-25, 25) });
+      this.tone({ type: 'sine', freq: 190, freqEnd: 70, dur: 0.09, vol: 0.11 });
+      this.noise({ dur: 0.035, vol: 0.05, filterFreq: 4200, type: 'highpass' });
+    },
+    scatter: function () {
+      this.noise({ dur: 0.26, vol: 0.34, filterFreq: 3200, filterEnd: 260 });
+      this.tone({ type: 'square', freq: 170, freqEnd: 42, dur: 0.22, vol: 0.22 });
+      this.tone({ type: 'sine', freq: 90, freqEnd: 32, dur: 0.3, vol: 0.28 });
+      this.noise({ dur: 0.05, vol: 0.09, filterFreq: 2200, type: 'bandpass', Q: 3, when: 0.2 });   // 退壳 / 上膛
+      this.tone({ type: 'square', freq: 520, freqEnd: 300, dur: 0.04, vol: 0.05, when: 0.2 });
+    },
+    plasma: function () {
+      this.tone({ type: 'sine', freq: 260, freqEnd: 980, dur: 0.24, vol: 0.17 });
+      this.tone({ type: 'sawtooth', freq: 90, freqEnd: 58, dur: 0.28, vol: 0.09, lp: 600 });
+      this.tone({ type: 'triangle', freq: 1400, freqEnd: 500, dur: 0.18, vol: 0.05, when: 0.03 });
+      this.noise({ dur: 0.18, vol: 0.07, filterFreq: 600, filterEnd: 3000, type: 'bandpass', Q: 2 });
+    },
+    plasmaBoom: function (pos) {
+      if (!this.gate('pboom', 60)) return; var s = this.at(pos);
+      this.noise({ dur: 0.42, vol: 0.28 * s.g, filterFreq: 2200, filterEnd: 80, pan: s.p });
+      this.tone({ type: 'sine', freq: 200, freqEnd: 36, dur: 0.36, vol: 0.26 * s.g, pan: s.p });
+      this.tone({ type: 'sawtooth', freq: 700, freqEnd: 90, dur: 0.3, vol: 0.06 * s.g, lp: 1400, pan: s.p });
+    },
+    // 光矛：双锯齿微失谐 + 低音 + 颤动 LFO + 高频嘶声
     laserOn: function () {
       if (!this.ok() || this.laser) return;
       var c = this.ctx, t = c.currentTime;
-      var o = c.createOscillator(), o2 = c.createOscillator(), f = c.createBiquadFilter(), g = c.createGain();
-      o.type = 'sawtooth'; o.frequency.value = 180; o2.type = 'square'; o2.frequency.value = 271;
-      f.type = 'lowpass'; f.frequency.value = 1700; f.Q.value = 4;
-      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.07, t + 0.05);
-      o.connect(f); o2.connect(f); f.connect(g); g.connect(this.sfxGain); o.start(t); o2.start(t);
-      this.laser = { o: o, o2: o2, g: g, f: f };
+      var o = c.createOscillator(), o2 = c.createOscillator(), sub = c.createOscillator(), lfo = c.createOscillator();
+      var f = c.createBiquadFilter(), g = c.createGain(), trem = c.createGain(), lg = c.createGain();
+      o.type = 'sawtooth'; o.frequency.value = 150; o2.type = 'sawtooth'; o2.frequency.value = 150; o2.detune.value = 14;
+      sub.type = 'sine'; sub.frequency.value = 75; lfo.type = 'sine'; lfo.frequency.value = 13;
+      f.type = 'lowpass'; f.frequency.value = 1500; f.Q.value = 5;
+      trem.gain.value = 0.8; lg.gain.value = 0.2; lfo.connect(lg); lg.connect(trem.gain);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.075, t + 0.06);
+      o.connect(f); o2.connect(f); f.connect(trem); sub.connect(trem); trem.connect(g); g.connect(this.sfxGain);
+      var hs = c.createBufferSource(); hs.buffer = this.noiseBuf; hs.loop = true;
+      var hf = c.createBiquadFilter(); hf.type = 'bandpass'; hf.frequency.value = 3600; hf.Q.value = 1.2;
+      var hg = c.createGain(); hg.gain.value = 0.18; hs.connect(hf); hf.connect(hg); hg.connect(g);
+      o.start(t); o2.start(t); sub.start(t); lfo.start(t); hs.start(t, Math.random());
+      this.laser = { o: o, o2: o2, sub: sub, lfo: lfo, hs: hs, g: g, f: f };
+      // 起手“咔”
+      this.tone({ type: 'square', freq: 900, freqEnd: 200, dur: 0.06, vol: 0.08 });
     },
     laserOff: function () {
       if (!this.laser) return;
       var L = this.laser, t = this.now(); this.laser = null;
-      try { L.g.gain.setTargetAtTime(0.0001, t, 0.03); L.o.stop(t + 0.2); L.o2.stop(t + 0.2); } catch (e) {}
+      try {
+        L.g.gain.cancelScheduledValues(t); L.g.gain.setTargetAtTime(0.0001, t, 0.035);
+        [L.o, L.o2, L.sub, L.lfo, L.hs].forEach(function (n) { n.stop(t + 0.25); });
+      } catch (e) {}
     },
-    laserMod: function (heat) { if (this.laser) { var t = this.now(); this.laser.o.frequency.setTargetAtTime(180 + heat * 160, t, 0.05); this.laser.f.frequency.setTargetAtTime(1700 + heat * 1500, t, 0.05); } },
-    enemyShoot: function () { if (!this.gate('es', 70)) return; this.tone({ type: 'square', freq: rand(300, 340), freqEnd: 120, dur: 0.1, vol: 0.04 }); },
-    missile: function () { this.noise({ dur: 0.5, vol: 0.16, filterFreq: 500, filterEnd: 3200, type: 'bandpass', Q: 1.4 }); this.tone({ type: 'sawtooth', freq: 120, freqEnd: 420, dur: 0.4, vol: 0.06 }); },
-    dash: function () { this.noise({ dur: 0.22, vol: 0.13, filterFreq: 700, filterEnd: 2600, type: 'bandpass', Q: 1.1 }); },
-    hit: function () { if (!this.gate('hit', 35)) return; this.tone({ type: 'triangle', freq: rand(1500, 1900), dur: 0.04, vol: 0.06 }); },
-    hurt: function () { this.tone({ type: 'sawtooth', freq: 170, freqEnd: 60, dur: 0.18, vol: 0.22 }); this.noise({ dur: 0.14, vol: 0.14, filterFreq: 900 }); },
-    explosion: function (big) {
-      if (!big && !this.gate('boom', 45)) return;
-      this.noise({ dur: big ? 0.9 : 0.45, vol: big ? 0.5 : 0.28, filterFreq: big ? 2600 : 1700, filterEnd: 60 });
-      this.tone({ type: 'sine', freq: big ? 130 : 110, freqEnd: 32, dur: big ? 0.8 : 0.42, vol: big ? 0.5 : 0.28 });
-      if (big) this.noise({ dur: 1.1, vol: 0.2, filterFreq: 300, filterEnd: 40, when: 0.05 });
+    laserMod: function (heat, sweep) {
+      if (!this.laser) return; var t = this.now(), L = this.laser;
+      var f0 = 150 + heat * 120 + (sweep || 0) * 28;      // 随过热升调，随扫射摆动轻微颤音
+      L.o.frequency.setTargetAtTime(f0, t, 0.05); L.o2.frequency.setTargetAtTime(f0, t, 0.05); L.sub.frequency.setTargetAtTime(f0 / 2, t, 0.05);
+      L.f.frequency.setTargetAtTime(1500 + heat * 1700, t, 0.05); L.lfo.frequency.setTargetAtTime(13 + heat * 22, t, 0.1);
     },
-    spawnWarn: function () { this.tone({ type: 'square', freq: 520, dur: 0.09, vol: 0.08 }); this.tone({ type: 'square', freq: 520, dur: 0.09, vol: 0.08, when: 0.13 }); },
-    uiClick: function () { this.tone({ type: 'triangle', freq: 760, freqEnd: 980, dur: 0.07, vol: 0.12 }); },
-    pickup: function () { if (!this.gate('pick', 60)) return; this.tone({ type: 'triangle', freq: 880, freqEnd: 1760, dur: 0.12, vol: 0.12 }); },
-    oneUp: function () { var s = this; [659, 784, 1318, 1046, 1175, 1568].forEach(function (f, i) { s.tone({ type: 'square', freq: f, dur: 0.1, vol: 0.08, when: i * 0.08 }); }); },
-    overdrive: function () { this.tone({ type: 'sawtooth', freq: 110, freqEnd: 880, dur: 0.6, vol: 0.16 }); this.noise({ dur: 0.7, vol: 0.18, filterFreq: 400, filterEnd: 5000, type: 'bandpass', Q: 1.5 }); },
-    slamCharge: function () { this.tone({ type: 'sawtooth', freq: 80, freqEnd: 260, dur: 0.7, vol: 0.12 }); },
-    shockwave: function () { this.noise({ dur: 0.8, vol: 0.4, filterFreq: 600, filterEnd: 40 }); this.tone({ type: 'sine', freq: 70, freqEnd: 28, dur: 0.7, vol: 0.45 }); },
-    laserCharge: function () { this.tone({ type: 'sine', freq: 200, freqEnd: 1600, dur: 0.85, vol: 0.1 }); },
-    bossBeam: function () { this.noise({ dur: 1.6, vol: 0.2, filterFreq: 1200, type: 'bandpass', Q: 3 }); this.tone({ type: 'sawtooth', freq: 70, dur: 1.6, vol: 0.12 }); },
-    mortar: function () { if (!this.gate('mortar', 90)) return; this.tone({ type: 'sine', freq: 1500, freqEnd: 500, dur: 0.6, vol: 0.05 }); },
-    unlock: function () { var s = this; [523, 659, 784, 1046, 1318].forEach(function (f, i) { s.tone({ type: 'triangle', freq: f, dur: 0.2, vol: 0.12, when: i * 0.07 }); }); },
-    upgrade: function () { var n = [523, 659, 784, 1046], s = this; n.forEach(function (f, i) { s.tone({ type: 'triangle', freq: f, dur: 0.22, vol: 0.14, when: i * 0.09 }); }); },
-    levelClear: function () { var n = [392, 523, 659, 784, 1046], s = this; n.forEach(function (f, i) { s.tone({ type: 'square', freq: f, dur: 0.26, vol: 0.09, when: i * 0.11 }); }); },
-    lifeLost: function () { var n = [440, 349, 262], s = this; n.forEach(function (f, i) { s.tone({ type: 'sawtooth', freq: f, dur: 0.25, vol: 0.1, when: i * 0.15 }); }); },
-    gameOver: function () { var n = [330, 262, 196, 131], s = this; n.forEach(function (f, i) { s.tone({ type: 'sawtooth', freq: f, dur: 0.4, vol: 0.12, when: i * 0.22 }); }); },
-    victory: function () { var n = [523, 659, 784, 1046, 784, 1046, 1318], s = this; n.forEach(function (f, i) { s.tone({ type: 'triangle', freq: f, dur: 0.34, vol: 0.13, when: i * 0.13 }); }); },
-    bossAlarm: function () { for (var i = 0; i < 3; i++) { this.tone({ type: 'square', freq: 196, dur: 0.16, vol: 0.14, when: i * 0.34 }); this.tone({ type: 'square', freq: 147, dur: 0.16, vol: 0.14, when: i * 0.34 + 0.17 }); } },
-    /* --- BGM step sequencer: driving synth loop, A minor, transposed per sector --- */
+    missile: function () {
+      this.noise({ dur: 0.55, vol: 0.17, filterFreq: 500, filterEnd: 3400, type: 'bandpass', Q: 1.4 });
+      this.tone({ type: 'sawtooth', freq: 110, freqEnd: 440, dur: 0.45, vol: 0.06, lp: 1200 });
+      this.noise({ dur: 0.08, vol: 0.12, filterFreq: 1400, type: 'bandpass', Q: 2 });
+      this.tone({ type: 'sine', freq: 140, freqEnd: 50, dur: 0.18, vol: 0.18 });
+    },
+    dash: function () {
+      this.noise({ dur: 0.26, vol: 0.14, filterFreq: 600, filterEnd: 3000, type: 'bandpass', Q: 1.2 });
+      this.tone({ type: 'sine', freq: 420, freqEnd: 120, dur: 0.2, vol: 0.09 });
+    },
+    /* ---- 命中 / 爆炸 ---- */
+    enemyShoot: function (pos) {
+      if (!this.gate('es', 60)) return; var s = this.at(pos);
+      this.tone({ type: 'square', freq: rand(300, 360), freqEnd: 110, dur: 0.1, vol: 0.045 * s.g, pan: s.p });
+      this.tone({ type: 'sine', freq: 150, freqEnd: 70, dur: 0.08, vol: 0.05 * s.g, pan: s.p });
+    },
+    hit: function (pos, crit) {
+      if (!this.gate('hit', 30)) return; var s = this.at(pos), f = rand(1500, 2300);
+      this.tone({ type: 'triangle', freq: f, freqEnd: f * 0.7, dur: 0.045, vol: 0.055 * s.g, pan: s.p });
+      this.noise({ dur: 0.02, vol: 0.04 * s.g, filterFreq: 5000, type: 'highpass', pan: s.p });
+      if (crit) {
+        this.tone({ type: 'sine', freq: 2600, dur: 0.16, vol: 0.07 * s.g, pan: s.p });
+        this.tone({ type: 'sine', freq: 3900, dur: 0.12, vol: 0.04 * s.g, pan: s.p, when: 0.02 });
+      }
+    },
+    hurt: function () {
+      this.tone({ type: 'sawtooth', freq: 190, freqEnd: 55, dur: 0.2, vol: 0.24, lp: 1200 });
+      this.noise({ dur: 0.16, vol: 0.16, filterFreq: 1000, filterEnd: 200 });
+      this.tone({ type: 'sine', freq: 70, freqEnd: 35, dur: 0.25, vol: 0.28 });
+    },
+    explosion: function (big, pos) {
+      if (!big && !this.gate('boom', 45)) return; var s = this.at(pos), v = s.g, p = s.p;
+      this.noise({ dur: big ? 1.0 : 0.5, vol: (big ? 0.5 : 0.28) * v, filterFreq: big ? 3200 : 2000, filterEnd: 60, pan: p });
+      this.tone({ type: 'sine', freq: big ? 150 : 120, freqEnd: 28, dur: big ? 0.95 : 0.46, vol: (big ? 0.55 : 0.3) * v, pan: p });
+      this.tone({ type: 'triangle', freq: big ? 280 : 210, freqEnd: 50, dur: 0.22, vol: 0.12 * v, pan: p });
+      for (var i = 0; i < (big ? 5 : 2); i++)        // 碎片噼啪
+        this.noise({ dur: 0.04, vol: 0.07 * v, filterFreq: rand(2500, 6000), type: 'highpass', when: 0.1 + i * rand(0.07, 0.12), pan: p });
+      if (big) {
+        this.noise({ dur: 1.4, vol: 0.2 * v, filterFreq: 320, filterEnd: 40, when: 0.05, pan: p });
+        this.tone({ type: 'sine', freq: 55, freqEnd: 24, dur: 1.2, vol: 0.3 * v, when: 0.04, pan: p });
+      }
+    },
+    spawnWarn: function () {
+      this.tone({ type: 'square', freq: 520, freqEnd: 600, dur: 0.09, vol: 0.08, lp: 2400 }); this.tone({ type: 'square', freq: 520, freqEnd: 600, dur: 0.09, vol: 0.08, when: 0.13, lp: 2400 });
+      this.tone({ type: 'sine', freq: 260, dur: 0.25, vol: 0.1, when: 0.26 });
+    },
+    uiClick: function () { this.tone({ type: 'triangle', freq: 760, freqEnd: 1000, dur: 0.07, vol: 0.12 }); this.noise({ dur: 0.02, vol: 0.04, filterFreq: 5000, type: 'highpass' }); },
+    pickup: function () {
+      if (!this.gate('pick', 60)) return;
+      this.tone({ type: 'triangle', freq: 880, freqEnd: 1760, dur: 0.12, vol: 0.12 });
+      this.tone({ type: 'sine', freq: 2640, dur: 0.14, vol: 0.05, when: 0.05 });
+    },
+    oneUp: function () { var s = this; [659, 784, 1318, 1046, 1175, 1568].forEach(function (f, i) { s.tone({ type: 'square', freq: f, dur: 0.1, vol: 0.08, when: i * 0.08, lp: 3000 }); }); },
+    overdrive: function () {
+      this.tone({ type: 'sawtooth', freq: 110, freqEnd: 880, dur: 0.65, vol: 0.16, lp: 2400 });
+      this.noise({ dur: 0.75, vol: 0.2, filterFreq: 400, filterEnd: 5000, type: 'bandpass', Q: 1.5 });
+      this.tone({ type: 'sine', freq: 60, freqEnd: 30, dur: 0.5, vol: 0.3, when: 0.55 });
+      this.noise({ dur: 0.4, vol: 0.2, filterFreq: 3000, filterEnd: 200, when: 0.55 });
+    },
+    slamCharge: function () { this.tone({ type: 'sawtooth', freq: 80, freqEnd: 260, dur: 0.7, vol: 0.12, lp: 900 }); },
+    shockwave: function (pos) {
+      var s = this.at(pos);
+      this.noise({ dur: 0.9, vol: 0.4 * s.g, filterFreq: 700, filterEnd: 40, pan: s.p });
+      this.tone({ type: 'sine', freq: 75, freqEnd: 26, dur: 0.8, vol: 0.48 * s.g, pan: s.p });
+      this.noise({ dur: 0.3, vol: 0.18 * s.g, filterFreq: 4000, filterEnd: 400, pan: s.p });
+    },
+    laserCharge: function () {
+      this.tone({ type: 'sine', freq: 200, freqEnd: 1700, dur: 0.85, vol: 0.1 });
+      this.tone({ type: 'sawtooth', freq: 100, freqEnd: 850, dur: 0.85, vol: 0.05, lp: 1800 });
+    },
+    bossBeam: function () {
+      this.noise({ dur: 1.6, vol: 0.2, filterFreq: 1200, type: 'bandpass', Q: 3 });
+      this.tone({ type: 'sawtooth', freq: 70, dur: 1.6, vol: 0.12, lp: 500 });
+      this.tone({ type: 'sine', freq: 45, dur: 1.6, vol: 0.2 });
+    },
+    mortar: function () { if (!this.gate('mortar', 90)) return; this.tone({ type: 'sine', freq: 1500, freqEnd: 500, dur: 0.6, vol: 0.05 }); this.noise({ dur: 0.1, vol: 0.08, filterFreq: 800, type: 'bandpass', Q: 2 }); },
+    unlock: function () { var s = this; [523, 659, 784, 1046, 1318].forEach(function (f, i) { s.tone({ type: 'triangle', freq: f, dur: 0.22, vol: 0.12, when: i * 0.07 }); s.tone({ type: 'sine', freq: f * 2, dur: 0.18, vol: 0.04, when: i * 0.07 }); }); },
+    upgrade: function () { var s = this; [523, 659, 784, 1046].forEach(function (f, i) { s.tone({ type: 'triangle', freq: f, dur: 0.24, vol: 0.14, when: i * 0.09 }); s.tone({ type: 'sine', freq: f * 2, dur: 0.2, vol: 0.05, when: i * 0.09 }); }); },
+    levelClear: function () { var s = this; [392, 523, 659, 784, 1046].forEach(function (f, i) { s.tone({ type: 'square', freq: f, dur: 0.28, vol: 0.09, when: i * 0.11, lp: 3200 }); s.tone({ type: 'triangle', freq: f / 2, dur: 0.3, vol: 0.1, when: i * 0.11 }); }); },
+    lifeLost: function () { var s = this; [440, 349, 262].forEach(function (f, i) { s.tone({ type: 'sawtooth', freq: f, dur: 0.27, vol: 0.1, when: i * 0.15, lp: 1400 }); }); },
+    gameOver: function () { var s = this; [330, 262, 196, 131].forEach(function (f, i) { s.tone({ type: 'sawtooth', freq: f, dur: 0.45, vol: 0.12, when: i * 0.22, lp: 1100 }); }); },
+    victory: function () { var s = this; [523, 659, 784, 1046, 784, 1046, 1318].forEach(function (f, i) { s.tone({ type: 'triangle', freq: f, dur: 0.36, vol: 0.13, when: i * 0.13 }); s.tone({ type: 'sine', freq: f * 2, dur: 0.3, vol: 0.05, when: i * 0.13 }); }); },
+    bossAlarm: function () {
+      for (var i = 0; i < 3; i++) {
+        this.tone({ type: 'square', freq: 196, dur: 0.16, vol: 0.13, when: i * 0.34, lp: 1800 }); this.tone({ type: 'square', freq: 147, dur: 0.16, vol: 0.13, when: i * 0.34 + 0.17, lp: 1800 });
+        this.tone({ type: 'sine', freq: 49, dur: 0.3, vol: 0.2, when: i * 0.34 });
+      }
+    },
+    /* --- BGM：16 步×4 小节循环，分战区移调；平时 = 低音 + 琶音 + 垫音，Boss 战 = 加速 + 军鼓 + 主旋律 --- */
     startBGM: function () {
       if (!this.ctx || this.bgmTimer) return;
       this.bgmStep = 0; this.nextNoteTime = this.now() + 0.1;
@@ -162,20 +304,50 @@
     },
     playStep: function (step, t) {
       if (!this.ok()) return;
-      var k = Math.pow(2, this.transpose / 12), when = t - this.now();
-      var bar = Math.floor(step / 16), s16 = step % 16;
-      var roots = [55, 43.65, 65.41, 49];
-      if (s16 % 2 === 0) {
-        var f = roots[bar] * k * (s16 === 14 ? 1.5 : 1);
-        this.tone({ type: 'sawtooth', freq: f, dur: 0.16, vol: 0.15, when: when, dest: this.bgmGain });
-        this.tone({ type: 'square', freq: f * 2, dur: 0.1, vol: 0.045, when: when, dest: this.bgmGain });
+      var k = Math.pow(2, this.transpose / 12), when = t - this.now(), boss = this.bossMode, d = this.bgmGain;
+      var bar = Math.floor(step / 16), s16 = step % 16, spb = boss ? 0.15 : 0.19;
+      var roots = [55, 43.65, 65.41, 49], root = roots[bar] * k;
+      // 垫音：每小节一次和弦（根音 / 小三度 / 五度），缓起缓落
+      if (s16 === 0) {
+        [1, 1.19, 1.5].forEach(function (r, i) {
+          AudioSys.tone({ type: 'sawtooth', freq: root * 4 * r, dur: spb * 15, attack: spb * 5, vol: 0.022, when: when, dest: d, lp: 700 + (boss ? 500 : 0), detune: (i - 1) * 9 });
+        });
       }
-      if (s16 % 4 === 2) this.noise({ dur: 0.03, vol: 0.05, filterFreq: 6000, type: 'highpass', when: when, dest: this.bgmGain });
-      if (s16 === 0 || s16 === 8 || (this.bossMode && (s16 === 4 || s16 === 12))) this.tone({ type: 'sine', freq: 120, freqEnd: 40, dur: 0.14, vol: 0.3, when: when, dest: this.bgmGain });
-      if (this.bossMode && s16 % 8 === 4) this.noise({ dur: 0.09, vol: 0.09, filterFreq: 1800, type: 'bandpass', when: when, dest: this.bgmGain });
+      // 低音：八分音符 + 每半小节的八度跳
+      if (s16 % 2 === 0) {
+        var f = root * (s16 === 14 ? 1.5 : 1) * (s16 === 6 || s16 === 10 ? 2 : 1);
+        this.tone({ type: 'sawtooth', freq: f, dur: 0.16, vol: 0.14, when: when, dest: d, lp: 1100 });
+        this.tone({ type: 'square', freq: f * 2, dur: 0.1, vol: 0.04, when: when, dest: d, lp: 1800 });
+      }
+      // 底鼓
+      if (s16 === 0 || s16 === 8 || (boss && (s16 === 4 || s16 === 12)) || (!boss && s16 === 10 && bar % 2 === 1)) {
+        this.tone({ type: 'sine', freq: 135, freqEnd: 38, dur: 0.16, vol: 0.32, when: when, dest: d });
+        this.noise({ dur: 0.02, vol: 0.06, filterFreq: 1500, type: 'bandpass', when: when, dest: d });
+      }
+      // 军鼓
+      if (s16 === 12 || (boss && s16 === 4)) {
+        this.noise({ dur: 0.11, vol: boss ? 0.12 : 0.07, filterFreq: 1900, type: 'bandpass', Q: 0.9, when: when, dest: d });
+        this.tone({ type: 'triangle', freq: 210, freqEnd: 120, dur: 0.08, vol: 0.09, when: when, dest: d });
+      }
+      // 踩镲：闭镲 16 分，反拍开镲
+      if (s16 % 2 === 1) this.noise({ dur: 0.025, vol: boss ? 0.04 : 0.028, filterFreq: 7500, type: 'highpass', when: when, dest: d });
+      if (s16 % 4 === 2) this.noise({ dur: 0.09, vol: 0.045, filterFreq: 6500, type: 'highpass', when: when, dest: d });
+      // 琶音
       var arp = [440, 523.25, 659.25, 880, 349.23, 440, 523.25, 698.46, 523.25, 659.25, 783.99, 1046.5, 392, 493.88, 587.33, 783.99];
       if (s16 % 2 === 1 && Math.random() < 0.75) {
-        this.tone({ type: 'triangle', freq: arp[bar * 4 + (s16 >> 1) % 4] * k * (this.bossMode ? 1.0 : 0.5), dur: 0.12, vol: 0.05, when: when, dest: this.bgmGain });
+        this.tone({ type: 'triangle', freq: arp[bar * 4 + (s16 >> 1) % 4] * k * (boss ? 1.0 : 0.5), dur: 0.12, vol: 0.05, when: when, dest: d });
+      }
+      // 主旋律（A 小调五声音阶，Boss 战满播，平时只在后两小节偶尔点缀）
+      var LEAD = [
+        [0, -1, -1, 3, -1, 5, -1, -1, 7, -1, 5, -1, 3, -1, 0, -1],
+        [-1, 0, -1, 3, 5, -1, 7, -1, 10, -1, 7, -1, 5, 3, -1, -1],
+        [7, -1, -1, 10, -1, 12, -1, 10, 7, -1, -1, 5, -1, 3, -1, -1],
+        [5, -1, 7, -1, 10, -1, 12, 15, -1, 12, -1, 10, 7, -1, 5, -1]
+      ];
+      var ln = LEAD[bar][s16];
+      if (ln >= 0 && (boss || (bar >= 2 && Math.random() < 0.45))) {
+        var lf = 440 * k * Math.pow(2, ln / 12) * (boss ? 1 : 0.5);
+        this.tone({ type: boss ? 'square' : 'triangle', freq: lf, dur: 0.22, vol: boss ? 0.045 : 0.035, attack: 0.01, when: when, dest: d, lp: boss ? 3000 : 2200, detune: boss ? rand(-6, 6) : 0 });
       }
     }
   };
@@ -1060,7 +1232,11 @@
     var beamOuter = new THREE.Mesh(lgeo, new THREE.MeshBasicMaterial({ color: 0x29b6ff, transparent: true, opacity: 0.45, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }));
     var beamCore = new THREE.Mesh(lgeo, new THREE.MeshBasicMaterial({ color: 0xe8fdff, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }));
     beamOuter.visible = beamCore.visible = false; scene.add(beamOuter); scene.add(beamCore);
-    player.beam = { outer: beamOuter, core: beamCore };
+    var fgeo = new THREE.BufferGeometry();
+    fgeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array([0, 0, 0, -1, 0, 1, 1, 0, 1]), 3));
+    var fan = new THREE.Mesh(fgeo, new THREE.MeshBasicMaterial({ color: 0x29b6ff, transparent: true, opacity: 0.1, side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }));
+    fan.visible = false; fan.frustumCulled = false; scene.add(fan);
+    player.beam = { outer: beamOuter, core: beamCore, fan: fan };
     return player;
   }
   function drawPlayerBar() {
@@ -1160,7 +1336,7 @@
     eShots.push({ pos: new THREE.Vector3(from.x, from.y, from.z), vel: new THREE.Vector3(dx / len * speed, 0, dz / len * speed),
       life: o.life || 3.6, dmg: dmg, size: o.size || 1, col: o.col || COL.enemy, halo: o.halo || COL.enemyH,
       homing: o.homing || false, turn: o.turn || 0, speed: speed, hp: o.hp || 0 });
-    AudioSys.enemyShoot();
+    AudioSys.enemyShoot(from);
   }
   // aimed at the player with partial lead (accuracy grows with level)
   var _lt = new THREE.Vector3();
@@ -1205,7 +1381,7 @@
     var pos = p.mesh.position;
     explosionFX(pos, 1.0 + p.radius * 0.08, 0xb46aff, 0xffd0ff);
     Rings.burst(pos.x, pos.z, 0xd9a8ff, p.radius * 1.15, 0.4);
-    AudioSys.plasmaBoom(); shake(0.16, 0.6);
+    AudioSys.plasmaBoom(pos); shake(0.16, 0.6);
     aoeDamage(pos.x, pos.z, p.radius, p.aoe, pos);
     p.mesh.children.forEach(function (c) { if (c.material) c.material.dispose(); });
     scene.remove(p.mesh);
@@ -1561,7 +1737,7 @@
     e.hp -= dmg; e.flash = 0.09;
     if (player.odTime <= 0) player.od = Math.min(100, player.od + dmg * 0.01 * player.stats.odGain);
     drawHpBar(e);
-    AudioSys.hit();
+    AudioSys.hit(hitPos, crit);
     if (!SIM.on) {
       Particles.spawn(hitPos.x, hitPos.y, hitPos.z, { count: crit ? 7 : 3, color: 0xffd76a, color2: 0xff7a1a, speed: 5, life: 0.3, size: 0.7, gravity: 4 });
       if (o.quiet) { e.accum += dmg; }
@@ -1578,7 +1754,7 @@
     var big = e.boss || e.type === 'heavy' || e.elite;
     explosionFX(pos, e.boss ? 2.6 : (big ? 1.5 : 0.95), e.boss ? e.boss.def.glow : 0xffa63e, 0xffe9a8);
     spawnDebris(pos, e.boss ? e.boss.def.hull : 0x4a3138, e.boss ? 16 : (big ? 9 : 5), big ? 1.5 : 1);
-    AudioSys.explosion(big);
+    AudioSys.explosion(big, pos);
     shake(e.boss ? 1.0 : (big ? 0.45 : 0.16), 1.1);
     if (big && !REDUCED && !e.boss) G.hitStop = 0.07;
     G.combo++; G.comboTimer = 4;
@@ -1599,7 +1775,7 @@
   function kamikazeBlast(e) {
     var pos = e.group.position.clone(); pos.y = 1.5;
     explosionFX(pos, 1.3, 0xff5a2e, 0xffd76a);
-    AudioSys.explosion(false); shake(0.3, 0.8);
+    AudioSys.explosion(false, pos); shake(0.3, 0.8);
     if (player.dead <= 0 && dist2(pos.x, pos.z, player.group.position.x, player.group.position.z) < 4.2 * 4.2) damagePlayer(e.def.shotDmg * e.dmgMul);
     e.dying = true; disposeEnemy(e);
     var idx = enemies.indexOf(e); if (idx >= 0) enemies.splice(idx, 1);
@@ -2460,6 +2636,7 @@
     if (e.code === 'Space' || e.code === 'ShiftLeft' || e.code === 'ShiftRight') tryDash();
     else if (e.code === 'KeyQ') tryMissile();
     else if (e.code === 'KeyE' || e.code === 'KeyF') tryOverdrive();
+    else if (e.code === 'KeyB') camReset();
     else if (/^Digit[1-4]$/.test(e.code)) switchWeapon(+e.code.slice(5) - 1);
     else if (e.code === 'Tab') { e.preventDefault(); cycleWeapon(1); }
     touchMode = false;
@@ -2471,7 +2648,9 @@
   FRAME.addEventListener('mousemove', function (e) {
     if (fakeMouse()) return;
     var r = FRAME.getBoundingClientRect();
-    mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top; mouse.over = true;
+    var nx = e.clientX - r.left, ny = e.clientY - r.top;
+    if (CAM.drag) camRotate(-(nx - mouse.x) * 0.006, (ny - mouse.y) * 0.005);   // 中键拖动：左右旋转 / 上下俯仰
+    mouse.x = nx; mouse.y = ny; mouse.over = true;
     $('cross').style.transform = 'translate(' + mouse.x + 'px,' + mouse.y + 'px)';
     touchMode = false;
   });
@@ -2482,17 +2661,18 @@
     if (G.state !== 'playing') return;
     if (e.target.closest && e.target.closest('button, .upcard, .ms-screen, #touch')) return;
     if (e.button === 0) { mouse.down = true; touchMode = false; }
+    if (e.button === 1) CAM.drag = true;
     if (e.button === 2) tryMissile();
     e.preventDefault();
   });
-  addEventListener('mouseup', function (e) { if (e.button === 0) mouse.down = false; });
+  addEventListener('mouseup', function (e) { if (e.button === 0) mouse.down = false; if (e.button === 1) CAM.drag = false; });
   FRAME.addEventListener('contextmenu', function (e) { e.preventDefault(); });
   FRAME.addEventListener('wheel', function (e) {
     if (G.state !== 'playing') return;
     e.preventDefault();
     if (Math.abs(e.deltaY) > 4) cycleWeapon(e.deltaY > 0 ? 1 : -1);
   }, { passive: false });
-  addEventListener('blur', function () { keys = {}; mouse.down = false; if (G.state === 'playing') setPaused(true); });
+  addEventListener('blur', function () { keys = {}; mouse.down = false; CAM.drag = false; if (G.state === 'playing') setPaused(true); });
   KIT.onHide(function () { keys = {}; mouse.down = false; if (G.state === 'playing') setPaused(true); });
 
   function setupTouch() {
@@ -2521,7 +2701,7 @@
     bf.addEventListener('pointerdown', function (e) { e.preventDefault(); AudioSys.init(); touchMode = true; touchFiring = true; bf.classList.add('held'); try { bf.setPointerCapture(e.pointerId); } catch (er) {} });
     ['pointerup', 'pointercancel'].forEach(function (ev) { bf.addEventListener(ev, function () { touchFiring = false; bf.classList.remove('held'); }); });
     function tap(id, fn) { $(id).addEventListener('pointerdown', function (e) { e.preventDefault(); e.stopPropagation(); AudioSys.init(); if (G.state === 'playing') fn(); }); }
-    tap('btnMissile', tryMissile); tap('btnDash', tryDash); tap('btnSwap', function () { cycleWeapon(1); }); tap('btnOd', tryOverdrive);
+    tap('btnCam', camCycle); tap('btnMissile', tryMissile); tap('btnDash', tryDash); tap('btnSwap', function () { cycleWeapon(1); }); tap('btnOd', tryOverdrive);
   }
   function nearestEnemy(maxD, from) {
     var pp = from || player.group.position, best = null, bd = maxD * maxD;
@@ -2586,6 +2766,11 @@
     if (joyVec.x !== 0 || joyVec.y !== 0) { x = joyVec.x; y = joyVec.y; }
     var len = Math.sqrt(x * x + y * y);
     if (len > 1) { x /= len; y /= len; }
+    // 屏幕方向 → 世界方向（相机偏航后“向上”始终是屏幕上方）
+    if (x !== 0 || y !== 0) {
+      var c = Math.cos(CAM.yawCur), sn = Math.sin(CAM.yawCur), wx = x * c + y * sn, wz = -x * sn + y * c;
+      x = wx; y = wz;
+    }
     return { x: x, y: y };
   }
   var raycaster = new THREE.Raycaster(), groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -1.6), ndc = new THREE.Vector2(), _hit = new THREE.Vector3();
@@ -2605,7 +2790,7 @@
   function stopLaser() {
     if (!player) return;
     player.laser.on = false;
-    player.beam.outer.visible = player.beam.core.visible = false;
+    player.beam.outer.visible = player.beam.core.visible = player.beam.fan.visible = false;
     AudioSys.laserOff();
   }
   var _ad = new THREE.Vector3();
@@ -2690,24 +2875,22 @@
     var p = player, ud = p.group.userData, a = Math.atan2(dirX, dirZ);
     var bc = od ? COL.od : COL.pulse, bh = od ? COL.odH : COL.pulseH;
     if (w.id === 'pulse') {
+      // 扇面扫射：一次喷出 5~9 颗，沿弧线展开，扇面中心随时间左右摆动
       var dmg = w.dmg * (1 + 0.15 * (lv - 1)) * dmgMul;
-      var streams = lv >= 5 ? 3 : (lv >= 3 ? 2 : 1);
+      var pn = w.pellets + (lv - 1), spr = w.spread + 0.05 * (lv - 1);
+      var swp = Math.sin(G.time * 7.5) * w.sweep;
       p.useAlt = !p.useAlt;
-      var sides = streams === 1 ? [p.useAlt] : [false, true];
-      sides.forEach(function (alt) {
-        var from = muzzleWorld(alt).clone();
-        var sa = a + rand(-0.025, 0.025);
-        addPBullet(from, Math.sin(sa), Math.cos(sa), w.speed, w.life, dmg, 1, bc, bh, 0.4);
-        (alt ? ud.armL : ud.armR).position.z = -0.16;
-        muzzleFlash(from, od ? 0xffb02e : 0x54d8ff, 1);
-      });
-      if (streams === 3) {
-        var c = muzzleWorld(false).clone().lerp(muzzleWorld(true), 0.5);
-        [-0.09, 0.09].forEach(function (off) { addPBullet(c, Math.sin(a + off), Math.cos(a + off), w.speed, w.life * 0.9, dmg * 0.7, 0.85, bc, bh, 0.3); });
+      var from = muzzleWorld(p.useAlt).clone();
+      for (var pi = 0; pi < pn; pi++) {
+        var fr = pn === 1 ? 0 : pi / (pn - 1) - 0.5, sa = a + swp + fr * spr + rand(-0.02, 0.02);
+        var mid = Math.abs(fr) < 0.2;
+        addPBullet(from, Math.sin(sa), Math.cos(sa), w.speed * rand(0.94, 1.06), w.life, dmg * (mid ? 1.15 : 1), mid ? 1 : 0.85, bc, bh, 0.35);
       }
+      (p.useAlt ? ud.armL : ud.armR).position.z = -0.16;
+      muzzleFlash(from, od ? 0xffb02e : 0x54d8ff, 1.3);
       AudioSys.shoot();
     } else if (w.id === 'scatter') {
-      var n = w.pellets + (lv - 1), spread = w.spread - 0.03 * (lv - 1);
+      var n = w.pellets + 2 * (lv - 1), spread = w.spread + 0.03 * (lv - 1);
       var pd = w.dmg * (1 + 0.12 * (lv - 1)) * dmgMul;
       var from2 = muzzleWorld(false).clone();
       for (var i = 0; i < n; i++) {
@@ -2741,10 +2924,11 @@
     if (!L.on) { L.on = true; AudioSys.laserOn(); }
     if (!od) L.heat += dt;
     if (L.heat >= heatMax) { L.over = true; stopLaser(); showToast(T('overheat')); AudioSys.tone({ type: 'square', freq: 240, freqEnd: 90, dur: 0.3, vol: 0.12 }); return; }
-    AudioSys.laserMod(L.heat / heatMax);
+    // 扇形扫射：扇面半角随等级变宽，光束在扇面内来回扫动
+    var half = w.half + 0.04 * (lv - 1), tanH = Math.tan(half), len = w.len;
+    var sweepN = Math.sin(G.time * 8.5);
+    AudioSys.laserMod(L.heat / heatMax, sweepN);
     var from = muzzleWorld(false).clone(); from.y = clamp(from.y, 1.8, 2.8);
-    var len = w.len, width = w.width + 0.1 * (lv - 1);
-    var ex = from.x + dirX * len, ez = from.z + dirZ * len;
     L.tick -= dt;
     var hitAny = false;
     if (L.tick <= 0) {
@@ -2753,25 +2937,32 @@
       var list = enemies.slice();
       for (var i = 0; i < list.length; i++) {
         var e = list[i]; if (e.dying || e.spawnAnim > 0) continue;
-        var rr = e.radius + width;
-        if (segDist2(e.group.position.x, e.group.position.z, from.x, from.z, ex, ez) < rr * rr) {
+        var ex = e.group.position.x - from.x, ez = e.group.position.z - from.z;
+        var along = ex * dirX + ez * dirZ;
+        if (along < -e.radius || along > len + e.radius) continue;
+        if (Math.abs(ex * dirZ - ez * dirX) < Math.max(along, 0) * tanH + e.radius + 0.4) {
           damageEnemy(e, dps * 0.07, _v2.set(e.group.position.x, from.y, e.group.position.z), { quiet: true, knock: 0.15, kx: dirX, kz: dirZ });
           hitAny = true;
         }
       }
-      for (var k = eShots.length - 1; k >= 0; k--) if (eShots[k].hp > 0 && segDist2(eShots[k].pos.x, eShots[k].pos.z, from.x, from.z, ex, ez) < (width + 0.6) * (width + 0.6)) popOrb(k);
+      for (var k = eShots.length - 1; k >= 0; k--) {
+        var sx = eShots[k].pos.x - from.x, sz = eShots[k].pos.z - from.z, sa2 = sx * dirX + sz * dirZ;
+        if (eShots[k].hp > 0 && sa2 > 0 && sa2 < len && Math.abs(sx * dirZ - sz * dirX) < sa2 * tanH + 0.8) popOrb(k);
+      }
     }
-    // visuals
-    var bo = p.beam.outer, bcore = p.beam.core;
-    bo.visible = bcore.visible = !SIM.on;
-    var yaw = Math.atan2(dirX, dirZ), flick = 1 + Math.sin(G.time * 50) * 0.12;
+    // visuals：扇面底光 + 一道来回扫动的主光束
+    var bo = p.beam.outer, bcore = p.beam.core, fan = p.beam.fan;
+    bo.visible = bcore.visible = fan.visible = !SIM.on;
+    var base = Math.atan2(dirX, dirZ), yaw = base + sweepN * half * 0.85, flick = 1 + Math.sin(G.time * 50) * 0.12, width = w.width + 0.1 * (lv - 1);
     bo.position.copy(from); bo.rotation.set(0, yaw, 0); bo.scale.set(width * 1.6 * flick, width * 1.6 * flick, len);
     bcore.position.copy(from); bcore.rotation.set(0, yaw, 0); bcore.scale.set(width * 0.55, width * 0.55, len);
     bo.material.color.set(od ? 0xffb02e : 0x29b6ff);
+    fan.position.set(from.x, 0.3, from.z); fan.rotation.set(0, base, 0); fan.scale.set(len * tanH, 1, len);
+    fan.material.color.set(od ? 0xffb02e : 0x29b6ff); fan.material.opacity = 0.1 + Math.sin(G.time * 30) * 0.03;
     p.group.userData.armR.position.z = -0.08 + Math.sin(G.time * 60) * 0.03;
-    if (!SIM.on && Math.random() < 0.6) {
-      var t = rand(0.1, 1);
-      Particles.spawn(from.x + dirX * len * t, from.y, from.z + dirZ * len * t, { count: 1, color: 0x9df3ff, color2: 0xffffff, speed: 2, life: 0.25, size: 0.7, gravity: 0 });
+    if (!SIM.on && Math.random() < 0.8) {
+      var t = rand(0.1, 1), ang = base + rand(-half, half);
+      Particles.spawn(from.x + Math.sin(ang) * len * t, from.y, from.z + Math.cos(ang) * len * t, { count: 1, color: 0x9df3ff, color2: 0xffffff, speed: 2, life: 0.25, size: 0.7, gravity: 0 });
     }
     if (hitAny) shake(0.02, 0.25);
     muzzleFlash(from, od ? 0xffb02e : 0x54d8ff, 0.8);
@@ -2873,25 +3064,45 @@
     var g = mmCtx, S = 118, half = ARENA;
     g.clearRect(0, 0, S, S);
     g.fillStyle = 'rgba(6,16,26,0.9)'; g.fillRect(0, 0, S, S);
-    g.strokeStyle = 'rgba(41,230,255,0.25)'; g.strokeRect(4.5, 4.5, S - 9, S - 9);
-    function mx(x) { return 5 + (x + half) / (half * 2) * (S - 10); }
+    // 小地图随相机偏航旋转，保持“上 = 屏幕上方”
+    var cy = Math.cos(CAM.yawCur), sy = Math.sin(CAM.yawCur), kk = (S - 10) / (half * 2) / (Math.abs(cy) + Math.abs(sy));
+    function mxx(x, z) { return S / 2 + (x * cy - z * sy) * kk; }
+    function mzz(x, z) { return S / 2 + (x * sy + z * cy) * kk; }
+    g.strokeStyle = 'rgba(41,230,255,0.45)'; g.beginPath();
+    [[-half, -half], [half, -half], [half, half], [-half, half]].forEach(function (c, i) { var X = mxx(c[0], c[1]), Y = mzz(c[0], c[1]); if (i) g.lineTo(X, Y); else g.moveTo(X, Y); });
+    g.closePath(); g.stroke();
     g.fillStyle = 'rgba(160,180,200,0.5)';
-    obstacles.forEach(function (o) { g.fillRect(mx(o.x) - 2, mx(o.z) - 2, 4, 4); });
-    pickups.forEach(function (pk) { g.fillStyle = '#' + PICK[pk.type].color.toString(16).padStart(6, '0'); g.fillRect(mx(pk.g.position.x) - 1.5, mx(pk.g.position.z) - 1.5, 3, 3); });
+    obstacles.forEach(function (o) { g.fillRect(mxx(o.x, o.z) - 2, mzz(o.x, o.z) - 2, 4, 4); });
+    pickups.forEach(function (pk) { g.fillStyle = '#' + PICK[pk.type].color.toString(16).padStart(6, '0'); g.fillRect(mxx(pk.g.position.x, pk.g.position.z) - 1.5, mzz(pk.g.position.x, pk.g.position.z) - 1.5, 3, 3); });
     enemies.forEach(function (e) {
       g.fillStyle = e.boss ? '#ff4655' : (e.elite ? '#ffc21a' : '#ff8a5e');
       var r = e.boss ? 4.5 : 2.4;
-      g.beginPath(); g.arc(mx(e.group.position.x), mx(e.group.position.z), r, 0, 7); g.fill();
+      g.beginPath(); g.arc(mxx(e.group.position.x, e.group.position.z), mzz(e.group.position.x, e.group.position.z), r, 0, 7); g.fill();
     });
     if (player && player.dead <= 0) {
+      var px = mxx(player.group.position.x, player.group.position.z), pz = mzz(player.group.position.x, player.group.position.z);
       g.fillStyle = '#29e6ff';
-      g.beginPath(); g.arc(mx(player.group.position.x), mx(player.group.position.z), 3.4, 0, 7); g.fill();
-      g.strokeStyle = 'rgba(41,230,255,0.7)'; g.beginPath(); g.arc(mx(player.group.position.x), mx(player.group.position.z), 5.5, 0, 7); g.stroke();
+      g.beginPath(); g.arc(px, pz, 3.4, 0, 7); g.fill();
+      g.strokeStyle = 'rgba(41,230,255,0.7)'; g.beginPath(); g.arc(px, pz, 5.5, 0, 7); g.stroke();
     }
   }
 
   /* ============ camera ============ */
   var camTarget = new THREE.Vector3(), camPos = new THREE.Vector3(0, 30, 44), camBoss = 0;
+  // 全视角轨道相机：yaw 绕玩家 360° 旋转，pitch 从低角度平视到垂直俯视；*Cur 为平滑后的实际值
+  var CAM = { yaw: 0, pitch: 0.85, yawCur: 0, pitchCur: 0.85, drag: false };
+  var CAM_PITCH_MIN = 0.3, CAM_PITCH_MAX = 1.5;
+  var CAM_PRESETS = [[0, 0.85], [0, 1.5], [0, 0.32], [Math.PI / 2, 0.85], [Math.PI, 0.85], [-Math.PI / 2, 0.85]];
+  var camPresetIdx = 0;
+  function camRotate(dy, dp) { CAM.yaw += dy; CAM.pitch = clamp(CAM.pitch + dp, CAM_PITCH_MIN, CAM_PITCH_MAX); }
+  function camReset() { camPresetIdx = 0; CAM.yaw = CAM.yawCur = 0; CAM.pitch = 0.85; }
+  function camCycle() {
+    camPresetIdx = (camPresetIdx + 1) % CAM_PRESETS.length;
+    var pr = CAM_PRESETS[camPresetIdx];
+    CAM.yaw = pr[0] + Math.round((CAM.yawCur - pr[0]) / (Math.PI * 2)) * Math.PI * 2;   // 取最近的等价角，避免绕远路
+    CAM.pitch = pr[1];
+    AudioSys.uiClick();
+  }
   function updateCamera(dt) {
     if (G.state === 'menu') {
       var t = performance.now() * 0.00008;
@@ -2904,6 +3115,14 @@
     _v1.copy(pp);
     if (player.lastMove) { _v1.x += player.lastMove.x * 3.4; _v1.z += player.lastMove.y * 3.4; }
     var dist = VIEW.w < VIEW.h ? 40 : 30;
+    // 视角输入：键盘 Z/C 旋转、X/V 俯仰；平滑追到目标角度
+    if (!BOT.on && G.state === 'playing') {
+      if (keys.KeyZ) CAM.yaw -= dt * 1.9; if (keys.KeyC) CAM.yaw += dt * 1.9;
+      if (keys.KeyX) CAM.pitch = clamp(CAM.pitch + dt * 1.1, CAM_PITCH_MIN, CAM_PITCH_MAX);
+      if (keys.KeyV) CAM.pitch = clamp(CAM.pitch - dt * 1.1, CAM_PITCH_MIN, CAM_PITCH_MAX);
+    }
+    var ck = clamp(dt * 9, 0, 1);
+    CAM.yawCur += (CAM.yaw - CAM.yawCur) * ck; CAM.pitchCur += (CAM.pitch - CAM.pitchCur) * ck;
     // boss fights: pull back and lean toward the nearest boss so both stay on screen
     var fb = null, fd = 1e9;
     for (var i = 0; i < enemies.length; i++) {
@@ -2917,7 +3136,10 @@
     } else camBoss = lerp(camBoss, 0, clamp(dt * 2, 0, 1));
     camTarget.lerp(_v1, clamp(dt * 5, 0, 1));
     dist += camBoss;
-    camPos.set(camTarget.x, dist * 0.82, camTarget.z + dist * 0.72);
+    var R = dist * 1.09, cp = Math.cos(CAM.pitchCur);
+    // 低角度时拉近一点，避免被建筑挡；垂直俯视时略拉远以保持视野
+    R *= 1 + (CAM.pitchCur - 0.85) * 0.18;
+    camPos.set(camTarget.x + Math.sin(CAM.yawCur) * cp * R, Math.sin(CAM.pitchCur) * R + 0.5, camTarget.z + Math.cos(CAM.yawCur) * cp * R);
     camera.position.lerp(camPos, clamp(dt * 7, 0, 1));
     if (G.shake > 0.003) {
       var s = G.shake * (REDUCED ? 0.3 : 1);
@@ -3198,7 +3420,7 @@
 
   function refreshLang() {
     renderMenu(); renderPauseOpts();
-    $('btnFs').title = T('fsTitle');
+    $('btnFs').title = T('fsTitle'); $('btnCam2').title = T('camTitle');
     if (player) { updateWeaponBar(true); }
     if (G.state !== 'menu' && D.LEVELS[G.level]) {
       $('lvName').innerHTML = '';
@@ -3241,6 +3463,7 @@
     $('btnPause').addEventListener('click', function () { AudioSys.init(); if (G.state === 'playing') setPaused(true); else setPaused(false); });
     $('btnFs').addEventListener('click', function () { toggleFullscreen(); });
     $('btnFs2').addEventListener('click', function () { toggleFullscreen(); });
+    $('btnCam2').addEventListener('click', function () { AudioSys.init(); if (G.state === 'playing') camCycle(); });
     $('optQuality').addEventListener('change', function (e) {
       SAVE.quality = e.target.value; store.set('quality', SAVE.quality);
       qLevel = SAVE.quality === 'auto' ? (IS_TOUCH ? 'medium' : 'high') : SAVE.quality; applyQuality(); renderPauseOpts();

@@ -165,7 +165,7 @@ body.is-touch .ms-frame.playing #touch { display: block; }
 #stickBase, #stickKnob { position: absolute; left: 0; top: 0; display: none; border-radius: 50%; pointer-events: none; }
 #stickBase { width: 112px; height: 112px; border: 2px solid rgba(41, 230, 255, .45); background: rgba(41, 230, 255, .08); }
 #stickKnob { width: 52px; height: 52px; background: rgba(41, 230, 255, .55); box-shadow: 0 0 16px rgba(41, 230, 255, .6); }
-.tbtns { position: absolute; right: 12px; bottom: 14px; display: grid; grid-template-columns: repeat(3, auto); grid-template-areas: "swap od ." "missile dash fire"; gap: 10px; align-items: end; pointer-events: none; }
+.tbtns { position: absolute; right: 12px; bottom: 14px; display: grid; grid-template-columns: repeat(3, auto); grid-template-areas: "swap od cam" "missile dash fire"; gap: 10px; align-items: end; pointer-events: none; }
 .tbtn { pointer-events: auto; touch-action: none; width: 62px; height: 62px; border-radius: 50%; border: 2px solid rgba(41, 230, 255, .55); background: rgba(6, 18, 28, .66); color: var(--cy); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; padding: 0; }
 .tbtn svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .tbtn small { font-size: 10px; font-weight: 700; }
@@ -173,6 +173,7 @@ body.is-touch .ms-frame.playing #touch { display: block; }
 .tbtn.sm svg { width: 18px; height: 18px; }
 .tbtn.od { color: var(--od); border-color: rgba(255, 176, 46, .6); }
 #btnSwap { grid-area: swap; } #btnOd { grid-area: od; } #btnMissile { grid-area: missile; } #btnDash { grid-area: dash; }
+#btnCam { grid-area: cam; }
 .tbtn.fire { grid-area: fire; width: 84px; height: 84px; border-color: rgba(255, 176, 46, .7); color: var(--am); }
 .tbtn.fire svg { width: 32px; height: 32px; }
 .tbtn.held, .tbtn:active { background: rgba(41, 230, 255, .28); }
