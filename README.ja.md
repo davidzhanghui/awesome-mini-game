@@ -1,6 +1,6 @@
 # 🎮 Awesome Mini Game · クラシックミニゲーム集
 
-26 種類のクラシックミニゲームをピュア HTML + CSS + JS で再実装——ゼロ依存、開いてすぐ遊べます。
+27 種類のクラシックミニゲームをピュア HTML + CSS + JS で再実装——ゼロ依存、開いてすぐ遊べます。
 
 [English](README.md) | [中文版](README.zh-CN.md) | [한국어](README.ko.md)
 
@@ -16,7 +16,7 @@ python3 -m http.server 8000
 
 ホームページで `/` キーを押すとゲームを検索できます。
 
-## ゲーム一覧（26本）
+## ゲーム一覧（27本）
 
 | ゲーム | フォルダ | 特徴 |
 |---|---|---|
@@ -34,6 +34,7 @@ python3 -m http.server 8000
 | 🫧 バブルドラゴン | `games/bubble-dragon/` | 反射照準＋落下、12ステージ＋エンドレス |
 | 💎 マッチ3 | `games/match3/` | ストライプ/ボム/レインボー、15ステージ＋タイムアタック |
 | 🐤 Flappy Bird | `games/flappy-bird/` | 3難易度、動く土管、メダル、昼夜テーマ |
+| 🤖 Mecha Strike | `games/mecha-strike/` | 3Dメカシューター · Three.js 3D、24ステージ、全ステージにボス戦 |
 | 🕯️ Echoes of the Abyss | `games/abyss/` | ダンジョンARPG · ダンジョン、レジェンダリー、ボス戦 |
 | 🐍 Snake | `games/snake/` | 定番アーケード · 3モード、アイテム、アーケード |
 | 🃏 Memory Match | `games/memory/` | ペア探し · 記憶、2人、親子 |

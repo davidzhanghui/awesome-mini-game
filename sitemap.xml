@@ -131,6 +131,16 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://awesome-mini-game.vercel.app/games/mecha-strike/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/mecha-strike/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/mecha-strike/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/games/mecha-strike/?lang=ja"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/games/mecha-strike/?lang=ko"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/games/mecha-strike/"/>
+    <lastmod>2026-11-04</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://awesome-mini-game.vercel.app/games/memory/</loc>
     <xhtml:link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/memory/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/memory/?lang=en"/>

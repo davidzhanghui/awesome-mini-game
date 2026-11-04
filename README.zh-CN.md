@@ -1,6 +1,6 @@
 # 🎮 Awesome Mini Game · 经典小游戏合集
 
-26 款经典小游戏的纯原生 JS 复刻合集：俄罗斯方块、雷电、坦克大战、马里奥、中国象棋……零依赖，双击即玩。
+27 款经典小游戏的纯原生 JS 复刻合集：俄罗斯方块、雷电、坦克大战、马里奥、中国象棋……零依赖，双击即玩。
 
 [English](README.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
 
@@ -16,7 +16,7 @@ python3 -m http.server 8000
 
 首页按 `/` 可快速搜索游戏。
 
-## 游戏列表（26 款）
+## 游戏列表（27 款）
 
 | 游戏 | 目录 | 特色 |
 |---|---|---|
@@ -34,6 +34,7 @@ python3 -m http.server 8000
 | 🫧 泡泡龙 | `games/bubble-dragon/` | 反弹瞄准 + 悬空掉落，12 关 + 无尽 |
 | 💎 宝石消除 | `games/match3/` | 条纹/炸弹/彩虹宝石，15 关 + 限时 |
 | 🐤 Flappy Bird | `games/flappy-bird/` | 三档难度，移动水管，奖牌，昼夜主题 |
+| 🤖 机甲大作战 | `games/mecha-strike/` | 3D 机甲射击 · Three.js 3D、24 关、每关 Boss 战 |
 | 🕯️ 深渊回响 | `games/abyss/` | 暗黑式地牢 ARPG · 随机地牢、暗金装备、Boss战 |
 | 🐍 贪吃蛇 | `games/snake/` | 经典街机 · 三模式、道具、街机 |
 | 🃏 记忆翻牌 | `games/memory/` | 益智配对 · 记忆、双人、亲子 |
