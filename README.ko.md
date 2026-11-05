@@ -1,6 +1,6 @@
 # 🎮 Awesome Mini Game · 클래식 미니게임 모음
 
-순수 HTML + CSS + JS로 재구현한 클래식 미니게임 27종 — 의존성 제로, 열자마자 바로 플레이.
+순수 HTML + CSS + JS로 재구현한 클래식 미니게임 28종 — 의존성 제로, 열자마자 바로 플레이.
 
 [English](README.md) | [中文版](README.zh-CN.md) | [日本語](README.ja.md)
 
@@ -16,7 +16,7 @@ python3 -m http.server 8000
 
 홈페이지에서 `/` 키를 누르면 게임을 검색할 수 있습니다.
 
-## 게임 목록 (27종)
+## 게임 목록 (28종)
 
 | 게임 | 폴더 | 특징 |
 |---|---|---|
@@ -35,6 +35,7 @@ python3 -m http.server 8000
 | 💎 매치3 | `games/match3/` | 줄무늬/폭탄/무지개 보석, 15스테이지 + 타임어택 |
 | 🐤 Flappy Bird | `games/flappy-bird/` | 3단계 난이도, 움직이는 파이프, 메달, 주야 테마 |
 | 🤖 Mecha Strike | `games/mecha-strike/` | 3D 메카 슈팅 · Three.js 3D, 24스테이지, 매 스테이지 보스전 |
+| 🌾 Sky Farm | `games/sky-farm/` | 픽셀 3D 농장 · Three.js 아이소메트릭 하늘섬, 낮밤과 날씨 5종, 작물 / 닭 / 주문 |
 | 🕯️ Echoes of the Abyss | `games/abyss/` | 던전 ARPG · 던전, 전설 장비, 보스전 |
 | 🐍 Snake | `games/snake/` | 클래식 아케이드 · 3모드, 아이템, 아케이드 |
 | 🃏 Memory Match | `games/memory/` | 짝 맞추기 · 기억력, 2인, 가족 |

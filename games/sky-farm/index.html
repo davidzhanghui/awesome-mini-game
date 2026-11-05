@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>浮岛农场 · Sky Farm</title>
+<meta name="description" content="网页版像素风 3D 浮空岛农场：开垦、播种、浇水、收获，养鸡捡蛋、接订单升级。昼夜循环与晴 / 多云 / 细雨 / 雷雨 / 薄雾天气实时变化，下雨会自动浇灌作物。Three.js 实时渲染，打开即玩。" />
+<link rel="canonical" href="https://awesome-mini-game.vercel.app/games/sky-farm/" />
+<link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/sky-farm/" />
+<link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/sky-farm/?lang=en" />
+<link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/games/sky-farm/?lang=ja" />
+<link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/games/sky-farm/?lang=ko" />
+<link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/games/sky-farm/" />
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Awesome Mini Game">
+<meta property="og:title" content="浮岛农场 · Sky Farm">
+<meta property="og:description" content="像素风 3D 浮空岛农场：种田、养鸡、接订单，昼夜与天气实时变化。">
+<meta property="og:url" content="https://awesome-mini-game.vercel.app/games/sky-farm/">
+<meta property="og:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="浮岛农场 · Sky Farm">
+<meta name="twitter:description" content="像素风 3D 浮空岛农场：种田、养鸡、接订单，昼夜与天气实时变化。">
+<meta name="twitter:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.jpg">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"VideoGame","name":"浮岛农场 · Sky Farm","description":"像素风 3D 浮空岛农场：开垦、播种、浇水、收获，养鸡捡蛋、接订单升级；昼夜循环与五种天气实时变化。","url":"https://awesome-mini-game.vercel.app/games/sky-farm/","genre":"模拟经营","gamePlatform":"Web Browser","playMode":"SinglePlayer","inLanguage":["zh-CN","en","ja","ko"],"isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"}}
+</script>
+<link rel="icon" href="/favicon.svg" />
+<link rel="preload" href="../../assets/fonts/zcool-qkhy-subset.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../assets/game-page.css?v=bb426f56" />
+<link rel="stylesheet" href="styles.css?v=3c5e7507" />
+<link rel="stylesheet" href="../../assets/ui.css?v=af398126" />
+<script src="../../assets/theme.js?v=d0556948"></script>
+</head>
+<body>
+<div class="bg-orbs"><span></span><span></span><span></span></div>
+<main class="page sf-page">
+  <header class="brand">
+    <div class="logo">🌾</div>
+    <div class="brand-text">
+      <h1><span data-i18n="name">浮岛农场</span> <em data-i18n="subtitle">Sky Farm</em></h1>
+      <p data-i18n="intro">像素风 3D 浮空岛农场：开垦、播种、浇水、收获，养鸡捡蛋、接订单升级。昼夜与天气实时变化，下雨会帮你浇地。</p>
+    </div>
+    <div class="brand-btns">
+      <button id="btnFs" class="icon-btn" type="button" title="全屏">⛶</button>
+    </div>
+  </header>
+
+  <section class="cabinet sf-cabinet">
+    <div class="game-frame sf-frame" id="frame">
+      <div id="game"></div>
+      <div id="floats"></div>
+      <div id="tip" class="hidden"></div>
+
+      <!-- HUD -->
+      <div id="hud">
+        <div id="stats" class="sf-glass">
+          <div class="row coins"><span class="ic">🪙</span><b id="coinNum" class="num">0</b></div>
+          <div class="row lvl">
+            <span class="ic">⭐</span><b id="lvNum" class="num">Lv 1</b>
+            <div class="xpbar"><i id="xpFill"></i></div>
+          </div>
+          <div class="row clock"><span id="wxIc" class="ic">☀️</span><span id="dayTxt"></span></div>
+        </div>
+        <div id="order" class="sf-glass">
+          <div class="oh"><span data-i18n="orderTitle">今日订单</span><button id="btnReroll" type="button" title="换一个">↻</button></div>
+          <div id="orderBody"></div>
+          <div class="obar"><i id="orderFill"></i></div>
+        </div>
+        <div id="toast"></div>
+      </div>
+
+      <!-- 底部工具坞 -->
+      <div id="dock" class="sf-glass">
+        <button class="tool" data-tool="hand" type="button"><span class="te">✋</span><kbd>1</kbd></button>
+        <button class="tool" data-tool="hoe" type="button"><span class="te">⛏️</span><kbd>2</kbd></button>
+        <button class="tool" data-tool="seed" type="button"><span class="te" id="seedIc">🥕</span><kbd>3</kbd></button>
+        <button class="tool" data-tool="water" type="button"><span class="te">💧</span><kbd>4</kbd></button>
+        <i class="sep"></i>
+        <button class="dk" id="bSky" type="button"><span class="te">🌤️</span></button>
+        <button class="dk" id="bShop" type="button"><span class="te">🛒</span></button>
+        <button class="dk" id="bSet" type="button"><span class="te">⚙️</span></button>
+        <button class="dk" id="btnMute" type="button">🔊</button>
+        <button class="dk" id="btnFs2" type="button"><span class="te">⛶</span></button>
+      </div>
+
+      <!-- 弹出面板 -->
+      <div class="sf-pop sf-glass hidden" id="pSeed">
+        <div class="ph"><b data-i18n="seedTitle">选择种子</b><button class="x" type="button" data-close>✕</button></div>
+        <div id="seedList" class="seed-list"></div>
+      </div>
+
+      <div class="sf-pop sf-glass wide hidden" id="pSky">
+        <div class="ph"><b data-i18n="skyTitle">天色与天气</b><button class="x" type="button" data-close>✕</button></div>
+        <div class="sky-grid">
+          <div class="sky-col">
+            <div class="lab" data-i18n="timeLab">时间</div>
+            <canvas id="dial" width="168" height="168"></canvas>
+            <div class="chips" id="timeChips"></div>
+            <label class="sw"><span data-i18n="flowLab">时间流动</span><input type="checkbox" id="optFlow" /><i></i></label>
+            <label class="sel"><span data-i18n="dayLenLab">一天时长</span><select id="optDayLen"></select></label>
+          </div>
+          <div class="sky-col">
+            <div class="lab" data-i18n="wxLab">天气</div>
+            <div class="wx-list" id="wxList"></div>
+            <label class="sw"><span data-i18n="autoWxLab">天气自动变化</span><input type="checkbox" id="optAutoWx" /><i></i></label>
+            <p class="note" data-i18n="wxNote">下雨时作物会被自动浇灌；雷雨天风车转得飞快。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="sf-pop sf-glass wide hidden" id="pShop">
+        <div class="ph"><b data-i18n="shopTitle">杂货铺</b><button class="x" type="button" data-close>✕</button></div>
+        <div id="shopList" class="shop-list"></div>
+      </div>
+
+      <div class="sf-pop sf-glass hidden" id="pSet">
+        <div class="ph"><b data-i18n="setTitle">设置</b><button class="x" type="button" data-close>✕</button></div>
+        <label class="sel"><span data-i18n="optPixel">像素颗粒</span><select id="optPixel"></select></label>
+        <label class="sw"><span data-i18n="optDither">抖动着色</span><input type="checkbox" id="optDither" /><i></i></label>
+        <label class="sw"><span data-i18n="optOutline">轮廓描边</span><input type="checkbox" id="optOutline" /><i></i></label>
+        <label class="sw"><span data-i18n="optMusic">背景音乐</span><input type="checkbox" id="optMusic" /><i></i></label>
+        <div class="cam-row">
+          <span data-i18n="camLab">视角</span>
+          <button type="button" id="camL" title="Q">⟲</button>
+          <button type="button" id="camR" title="E">⟳</button>
+          <button type="button" id="camReset" title="R">⌂</button>
+        </div>
+        <button type="button" class="danger" id="btnReset" data-i18n="resetFarm">重置农场</button>
+      </div>
+
+      <!-- 欢迎 -->
+      <div class="sf-screen hidden" id="welcome">
+        <div class="sf-card">
+          <div class="big">🏝️</div>
+          <h2 data-i18n="welTitle">欢迎来到浮岛农场</h2>
+          <ul>
+            <li data-i18n="wel1">点击草地开垦 → 播种 → 浇水，作物分三个阶段长大，熟了再点一下收获。</li>
+            <li data-i18n="wel2">每个生长阶段都要浇一次水；下雨天会自动帮你浇。</li>
+            <li data-i18n="wel3">鸡舍的母鸡会下蛋，点一下捡起来卖钱；完成订单拿额外奖励。</li>
+            <li data-i18n="wel4">拖动平移 · 滚轮缩放 · Q / E 旋转视角 · 🌤️ 调天色与天气。</li>
+          </ul>
+          <button type="button" class="go" id="btnStart" data-i18n="start">开始种田</button>
+        </div>
+      </div>
+
+      <div id="errbox"></div>
+    </div>
+  </section>
+
+  <section class="sf-info">
+    <div class="card">
+      <h4 data-i18n="infoHow">怎么玩</h4>
+      <ul>
+        <li data-i18n="how1">✋ 手：智能操作——开垦、播种、浇水、收获、捡蛋全靠它。</li>
+        <li data-i18n="how2">⛏️ / 🌱 / 💧：按住拖动可以一口气处理一整片田。</li>
+        <li class="kbd-only" data-i18n="how3">1-4 切换工具 · WASD 平移 · 滚轮或 +/- 缩放 · Q / E 旋转 · T 天气 · B 商店 · 空格 时间暂停 · M 静音</li>
+        <li class="touch-item" data-i18n="how3t">单指拖动平移（工具模式下为连续操作），双指拖动 / 捏合缩放。</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4 data-i18n="infoCrops">作物图鉴</h4>
+      <div class="dex" id="dex"></div>
+    </div>
+    <div class="card">
+      <h4 data-i18n="infoTips">小贴士</h4>
+      <ul>
+        <li data-i18n="tip1">田里冒出蓝色水滴，说明这块地渴了。</li>
+        <li data-i18n="tip2">升级解锁更值钱的作物；商店里可以扩建农田、买母鸡和自动洒水器。</li>
+        <li data-i18n="tip3">关掉页面作物也会继续长（最多按 2 小时计）。</li>
+        <li data-i18n="tip4">夜里有萤火虫，屋子和路灯会亮起来；试试在 🌤️ 里切到雷雨。</li>
+      </ul>
+    </div>
+  </section>
+
+  <details class="card seo-about">
+    <summary data-i18n="aboutTitle">📖 关于这款游戏</summary>
+    <p data-i18n="aboutBody">《浮岛农场》是一款纯网页的像素风 3D 模拟经营小游戏：一座漂浮在天空中的小岛，有农舍、鸡舍、风车、果园、池塘与从岛边倾泻而下的瀑布。你可以开垦土地、种植胡萝卜、小麦、草莓、南瓜与向日葵，养鸡捡蛋、完成订单、扩建农田。场景由 Three.js 以低分辨率渲染再加抖动与描边后处理，呈现像素画质感；昼夜循环与晴、多云、细雨、雷雨、薄雾五种天气实时变化，所有音效与环境声由 Web Audio 实时合成，无需下载素材，打开即玩。</p>
+  </details>
+  <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 键鼠 / 触屏 · 四语言</footer>
+</main>
+
+<script src="three.min.js?v=91787256"></script>
+<script src="../../assets/i18n.js?v=55ab40c8"></script>
+<script src="../../assets/bgm.js?v=1fb3f4bf"></script>
+<script src="../../assets/kit.js?v=d7677fd9"></script>
+<script src="../../assets/touch.js?v=1a851412"></script>
+<script src="strings.js?v=87c492ba"></script>
+<script src="game.js?v=c5f08036"></script>
+</body>
+</html>
