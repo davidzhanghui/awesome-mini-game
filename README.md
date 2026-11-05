@@ -1,6 +1,6 @@
 # 🎮 Awesome Mini Game
 
-27 mini-games rebuilt with pure HTML + CSS + JS — zero dependencies, playable out of the box.
+28 mini-games rebuilt with pure HTML + CSS + JS — zero dependencies, playable out of the box.
 
 [中文版](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
 
@@ -16,7 +16,7 @@ python3 -m http.server 8000
 
 Press `/` on the home page to search games.
 
-## Games (27)
+## Games (28)
 
 | Game | Folder | Highlights |
 |---|---|---|
@@ -35,6 +35,7 @@ Press `/` on the home page to search games.
 | 💎 Match 3 | `games/match3/` | Striped/bomb/rainbow gems, 15 levels + blitz |
 | 🐤 Flappy Bird | `games/flappy-bird/` | 3 difficulties, moving pipes, medals, day/night |
 | 🤖 Mecha Strike | `games/mecha-strike/` | 3D Mech Shooter · Three.js 3D, 24 levels, a boss in every level |
+| 🌾 Sky Farm | `games/sky-farm/` | Pixel 3D Farming · Three.js isometric floating island, day–night & 5 weathers, crops/hens/orders |
 | 🕯️ Echoes of the Abyss | `games/abyss/` | Dungeon ARPG · Dungeons, Legendaries, Boss |
 | 🐍 Snake | `games/snake/` | Arcade Classic · 3 Modes, Items, Arcade |
 | 🃏 Memory Match | `games/memory/` | Find the Pairs · Memory, 2P, Family |
