@@ -1,0 +1,109 @@
+/* 疾风卡丁车 · Turbo Drift Kart — 游戏框内部样式；页面骨架由 game-page.css + ui.css 负责 */
+.kr-page { max-width: 1320px; }
+.kr-cabinet { display: block; }
+.kr-frame {
+  position: relative; display: block; margin: 0 auto;
+  width: min(100%, calc((100vh - 150px) * 16 / 9));
+  aspect-ratio: 16 / 9; min-height: 320px;
+  background: #0b1020 !important; color: #fff;
+  container-type: size;
+  user-select: none; -webkit-user-select: none; touch-action: none;
+  font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+}
+@media (max-aspect-ratio: 1/1) {
+  .kr-frame { width: 100%; aspect-ratio: auto; height: min(70svh, 760px); min-height: 420px; }
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  .kr-frame { width: 100%; aspect-ratio: auto; height: calc(100svh - 12px); min-height: 280px; }
+}
+.kr-frame:fullscreen { width: 100vw; height: 100vh; max-width: none; aspect-ratio: auto; border-radius: 0; border: 0; }
+.kr-frame:-webkit-full-screen { width: 100vw; height: 100vh; max-width: none; aspect-ratio: auto; border-radius: 0; border: 0; }
+.kr-frame.kr-fs { position: fixed !important; inset: 0; z-index: 1000; width: 100vw; height: 100vh; height: 100dvh; max-width: none; aspect-ratio: auto; border-radius: 0; border: 0; margin: 0; }
+body.kr-fs-on { overflow: hidden; }
+
+#c { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+#hud { position: absolute; inset: 0; pointer-events: none; }
+.kr-frame .view { position: absolute; left: 0; width: 100%; overflow: hidden; }
+.kr-frame .view + .view { border-top: 3px solid #0b1020; }
+.kr-frame .view > div { position: absolute; text-shadow: 0 2px 0 rgba(0, 0, 0, .55); }
+.kr-frame .rank { left: 22px; bottom: 14px; font-weight: 900; font-style: italic; font-size: clamp(40px, 13cqh, 76px); line-height: 1; color: #ffd84a; -webkit-text-stroke: 2px #3a2500; }
+.kr-frame .rank span { font-size: .34em; color: #fff; -webkit-text-stroke: 0; }
+.kr-frame .lap { right: 20px; top: 14px; font-size: clamp(14px, 3.4cqh, 20px); font-weight: 700; background: rgba(10, 16, 32, .55); padding: 6px 14px; border-radius: 10px; text-align: right; }
+.kr-frame .lap small { display: block; font-size: .72em; opacity: .85; font-variant-numeric: tabular-nums; }
+.kr-frame .item { left: 20px; top: 14px; width: clamp(52px, 13cqh, 78px); height: clamp(52px, 13cqh, 78px); border-radius: 16px; border: 4px solid #fff; background: rgba(10, 16, 32, .6); font-size: clamp(28px, 7.4cqh, 44px); display: flex; align-items: center; justify-content: center; }
+.kr-frame .tag { left: calc(clamp(52px, 13cqh, 78px) + 32px); top: 18px; font-size: 15px; font-weight: 700; background: rgba(10, 16, 32, .55); padding: 4px 10px; border-radius: 8px; white-space: nowrap; }
+.kr-frame .spd { right: 20px; bottom: 18px; font-size: clamp(22px, 5.6cqh, 34px); font-weight: 900; font-style: italic; font-variant-numeric: tabular-nums; }
+.kr-frame .spd small { font-size: 14px; margin-left: 4px; }
+.kr-frame .msg { left: 0; right: 0; top: 24%; text-align: center; font-size: clamp(22px, 6.6cqh, 40px); font-weight: 900; font-style: italic; color: #fff; -webkit-text-stroke: 1.5px #b3261e; letter-spacing: 2px; }
+#mini { position: absolute; right: 14px; bottom: 70px; width: clamp(96px, 28cqh, 170px); height: clamp(96px, 28cqh, 170px); pointer-events: none; }
+#mini.two { width: clamp(80px, 21cqh, 130px); height: clamp(80px, 21cqh, 130px); }
+#count { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: clamp(80px, 28cqh, 170px); font-weight: 900; font-style: italic; color: #ffd84a; -webkit-text-stroke: 5px #3a2500; pointer-events: none; }
+#btnPause { display: none; position: absolute; left: 50%; top: 10px; transform: translateX(-50%); z-index: 7; width: 44px; height: 38px; font-size: 16px; border-radius: 12px; border: 2px solid rgba(255, 255, 255, .5); background: rgba(10, 16, 32, .5); color: #fff; cursor: pointer; padding: 0; }
+.kr-frame.playing #btnPause { display: block; }
+#errbox { position: absolute; left: 10px; bottom: 10px; z-index: 99; max-width: 92%; background: rgba(60, 4, 10, .92); color: #ffd7db; border: 1px solid #ff5b6a; padding: 8px 12px; border-radius: 8px; font-size: 13px; display: none; }
+
+/* ---------- 屏内菜单 / 结算 / 暂停 ---------- */
+.kr-screen { position: absolute; inset: 0; z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: safe center; gap: clamp(8px, 2.6cqh, 18px); background: linear-gradient(180deg, rgba(11, 16, 32, .55), rgba(11, 16, 32, .82)); padding: 16px; text-align: center; overflow-y: auto; color: #fff; }
+.kr-title { font-family: "ZCOOL QingKe HuangYou", "PingFang SC", sans-serif; font-size: clamp(34px, 11cqh, 72px); font-style: italic; font-weight: 900; letter-spacing: 4px; line-height: 1.15; color: #ffd84a; -webkit-text-stroke: 2px #3a2500; text-shadow: 0 5px 0 #e8432e; }
+.kr-sub { letter-spacing: 3px; opacity: .9; font-size: clamp(11px, 2.6cqh, 15px); }
+.kr-h { font-size: clamp(26px, 7cqh, 44px); font-style: italic; color: #ffd84a; }
+.kr-screen h2 { font-size: clamp(18px, 4.6cqh, 28px); }
+.kr-screen h2.kr-h { font-size: clamp(26px, 7cqh, 44px); }
+.kr-col { display: flex; flex-direction: column; align-items: center; gap: clamp(8px, 2.4cqh, 16px); }
+.kr-row { display: flex; gap: 14px; align-items: center; justify-content: center; flex-wrap: wrap; }
+.kr-screen button { font: inherit; font-weight: 800; font-size: clamp(15px, 3.4cqh, 20px); color: #fff; background: #e8432e; border: 0; border-bottom: 5px solid #9c2414; border-radius: 14px; padding: clamp(8px, 2.2cqh, 14px) clamp(18px, 3cqw, 30px); cursor: pointer; }
+.kr-screen button:hover { filter: brightness(1.12); transform: translateY(-1px); }
+.kr-screen button.alt { background: #2f4a7d; border-bottom-color: #1b2c4d; }
+.kr-screen button.small { font-size: 15px; padding: 8px 20px; }
+.kr-screen .diff { font-size: 14px; gap: 10px; }
+.kr-screen .diff button { font-size: 15px; padding: 8px 18px; background: #2f4a7d; border-bottom-color: #1b2c4d; }
+.kr-screen .diff button.on { background: #ffb300; border-bottom-color: #a36f00; color: #2a1b00; }
+.kr-keys { font-size: 12.5px; line-height: 1.7; background: rgba(0, 0, 0, .35); border-radius: 12px; padding: 7px 18px; max-width: 92%; }
+#cards { display: grid; grid-template-columns: repeat(3, minmax(0, 190px)); gap: clamp(6px, 1.8cqh, 14px); }
+.kr-card { background: rgba(255, 255, 255, .1); border: 3px solid rgba(255, 255, 255, .25); border-radius: 16px; padding: clamp(6px, 1.6cqh, 12px); cursor: pointer; transition: .12s; }
+.kr-card:hover { transform: translateY(-4px); background: rgba(255, 255, 255, .2); }
+.kr-card.taken { opacity: .35; pointer-events: none; }
+.kr-card .av { width: clamp(40px, 10cqh, 70px); height: clamp(40px, 10cqh, 70px); border-radius: 50%; margin: 0 auto 6px; font-size: clamp(22px, 5.8cqh, 40px); display: flex; align-items: center; justify-content: center; border: 4px solid #fff; }
+.kr-card b { font-size: clamp(14px, 3.2cqh, 20px); }
+.kr-card .st { display: grid; grid-template-columns: auto 1fr; gap: 3px 6px; align-items: center; font-size: 12px; margin-top: 8px; text-align: left; white-space: nowrap; }
+.kr-card .st i { display: block; height: 7px; border-radius: 4px; background: #ffd84a; }
+.kr-card .st u { display: block; background: rgba(0, 0, 0, .35); border-radius: 4px; text-decoration: none; }
+#resTable { border-collapse: collapse; font-size: clamp(14px, 3.4cqh, 20px); min-width: min(440px, 92%); }
+#resTable td { padding: clamp(3px, 1.1cqh, 7px) 16px; text-align: left; }
+#resTable tr.me { background: rgba(255, 216, 74, .22); font-weight: 800; }
+#resTable td:first-child { font-weight: 900; font-style: italic; color: #ffd84a; }
+#resTable td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+@container (max-height: 430px) { .kr-card .st { display: none; } .kr-sub { display: none; } }
+
+/* ---------- 触屏按键 ---------- */
+#touch { display: none; position: absolute; inset: 0; z-index: 6; pointer-events: none; }
+body.is-touch .kr-frame.playing #touch { display: block; }
+#touch .tl { position: absolute; left: 14px; bottom: 16px; display: flex; gap: 12px; }
+#touch .tr { position: absolute; right: 14px; bottom: 16px; display: grid; grid-template-columns: auto auto auto; grid-template-areas: ". rs it" ". brk dr"; gap: 10px; align-items: end; justify-items: end; }
+.tbtn { pointer-events: auto; touch-action: none; width: 62px; height: 62px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, .6); background: rgba(10, 16, 32, .55); color: #fff; font-size: 22px; line-height: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 0; font-family: inherit; -webkit-user-select: none; user-select: none; }
+.tbtn small { font-size: 10px; font-weight: 700; }
+.tbtn.dir { width: 78px; height: 78px; font-size: 30px; }
+.tbtn.big { width: 86px; height: 86px; font-size: 30px; border-color: #ffd84a; }
+.tbtn.sm { width: 48px; height: 48px; font-size: 18px; }
+.tbtn[data-k="rs"] { grid-area: rs; } .tbtn[data-k="it"] { grid-area: it; } .tbtn[data-k="brk"] { grid-area: brk; } .tbtn[data-k="dr"] { grid-area: dr; }
+.tbtn.held { background: rgba(255, 216, 74, .4); }
+body.is-touch .kr-frame .rank { left: 16px; bottom: auto; top: calc(clamp(52px, 13cqh, 78px) + 26px); font-size: clamp(30px, 9cqh, 54px); }
+body.is-touch .kr-frame .spd { right: 50%; transform: translateX(50%); bottom: 10px; }
+body.is-touch #mini { bottom: auto; top: 76px; right: 10px; width: clamp(80px, 22cqh, 130px); height: clamp(80px, 22cqh, 130px); }
+.touch-show { display: none; }
+body.is-touch .touch-show { display: block; }
+.touch-item { display: none; }
+body.is-touch .touch-item { display: list-item; }
+body.is-touch .kbd-only { display: none !important; }
+@container (max-width: 560px) {
+  .tbtn { width: 54px; height: 54px; } .tbtn.dir { width: 66px; height: 66px; } .tbtn.big { width: 74px; height: 74px; } .tbtn.sm { width: 44px; height: 44px; }
+  .kr-frame .tag { display: none; }
+  #cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* ---------- 框外说明卡 ---------- */
+.kr-info { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 18px; }
+details.seo-about p + p { font-size: 12px; opacity: .85; }
+@media (max-width: 900px) { .kr-info { grid-template-columns: 1fr; } }
+@media (max-width: 520px) { .kr-page { padding-left: 8px; padding-right: 8px; } }
+@media (hover: none) and (pointer: coarse) { .kr-screen [data-mode="2"] { display: none; } }   /* 手机没有第二套键位 */

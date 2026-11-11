@@ -1,6 +1,6 @@
 # 🎮 Awesome Mini Game · 经典小游戏合集
 
-28 款经典小游戏的纯原生 JS 复刻合集：俄罗斯方块、雷电、坦克大战、马里奥、中国象棋……零依赖，双击即玩。
+30 款经典小游戏的纯原生 JS 复刻合集：俄罗斯方块、雷电、坦克大战、马里奥、中国象棋……零依赖，双击即玩。
 
 [English](README.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
 
@@ -16,7 +16,7 @@ python3 -m http.server 8000
 
 首页按 `/` 可快速搜索游戏。
 
-## 游戏列表（28 款）
+## 游戏列表（30 款）
 
 | 游戏 | 目录 | 特色 |
 |---|---|---|
@@ -36,6 +36,8 @@ python3 -m http.server 8000
 | 🐤 Flappy Bird | `games/flappy-bird/` | 三档难度，移动水管，奖牌，昼夜主题 |
 | 🤖 机甲大作战 | `games/mecha-strike/` | 3D 机甲射击 · Three.js 3D、24 关、每关 Boss 战 |
 | 🌾 浮岛农场 | `games/sky-farm/` | 像素 3D 种田 · Three.js 等距浮空岛、昼夜与五种天气、种田 / 养鸡 / 订单 |
+| 🏎️ 疾风卡丁车 | `games/kart-racer/` | 3D 卡丁车竞速 · Three.js 3D、漂移集气、五种道具、单人 / 双人分屏 |
+| 🍄 萌萌大陆冒险记 | `games/mengmeng-rpg/` | Q 版动作 RPG · 三职业、10 张地图、装备强化、宠物、自动战斗（游戏内文案暂为中文） |
 | 🕯️ 深渊回响 | `games/abyss/` | 暗黑式地牢 ARPG · 随机地牢、暗金装备、Boss战 |
 | 🐍 贪吃蛇 | `games/snake/` | 经典街机 · 三模式、道具、街机 |
 | 🃏 记忆翻牌 | `games/memory/` | 益智配对 · 记忆、双人、亲子 |
@@ -82,5 +84,6 @@ awesome-mini-game/
 ## 开源协议与说明
 
 - 本仓库代码为原创实现，遵循 [MIT 协议](LICENSE)开源。
+- `games/kart-racer/music/` 与 `games/mengmeng-rpg/bgm/` 下的背景音乐来自第三方音乐人，不在 MIT 范围内，按各自的 CC0 / CC BY / CC BY-SA 协议使用，署名见两个目录里的 `CREDITS.md`。
 - 游戏名称、玩法与设计归各自原版权方所有（如俄罗斯方块、马里奥、雷电、小蜜蜂、坦克大战等）。本项目为非商业性质的粉丝致敬 + 学习作品，请支持正版。
 - 落地页所说的"全部开源"指代码 MIT 开源，不代表原游戏 IP 可自由商用。

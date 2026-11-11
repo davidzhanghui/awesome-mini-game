@@ -1,6 +1,6 @@
 # 🎮 Awesome Mini Game
 
-28 mini-games rebuilt with pure HTML + CSS + JS — zero dependencies, playable out of the box.
+30 mini-games rebuilt with pure HTML + CSS + JS — zero dependencies, playable out of the box.
 
 [中文版](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
 
@@ -16,7 +16,7 @@ python3 -m http.server 8000
 
 Press `/` on the home page to search games.
 
-## Games (28)
+## Games (30)
 
 | Game | Folder | Highlights |
 |---|---|---|
@@ -36,6 +36,8 @@ Press `/` on the home page to search games.
 | 🐤 Flappy Bird | `games/flappy-bird/` | 3 difficulties, moving pipes, medals, day/night |
 | 🤖 Mecha Strike | `games/mecha-strike/` | 3D Mech Shooter · Three.js 3D, 24 levels, a boss in every level |
 | 🌾 Sky Farm | `games/sky-farm/` | Pixel 3D Farming · Three.js isometric floating island, day–night & 5 weathers, crops/hens/orders |
+| 🏎️ Turbo Drift Kart | `games/kart-racer/` | 3D Kart Racing · Three.js 3D, drift boosts, five items, solo or 2P split-screen |
+| 🍄 Mengmeng Adventure | `games/mengmeng-rpg/` | Chibi Action RPG · 3 classes, 10 maps, gear enhancement, pets, auto-battle (in-game text Chinese only for now) |
 | 🕯️ Echoes of the Abyss | `games/abyss/` | Dungeon ARPG · Dungeons, Legendaries, Boss |
 | 🐍 Snake | `games/snake/` | Arcade Classic · 3 Modes, Items, Arcade |
 | 🃏 Memory Match | `games/memory/` | Find the Pairs · Memory, 2P, Family |
@@ -82,6 +84,7 @@ PRs welcome: bug fixes, new games, or better AI/handling. Keep it dependency-fre
 ## License & Disclaimer
 
 - The code in this repo is original work, licensed under the [MIT License](LICENSE).
+- Background music under `games/kart-racer/music/` and `games/mengmeng-rpg/bgm/` comes from third-party artists and is not covered by MIT. It is used under each track's CC0 / CC BY / CC BY-SA license; see `CREDITS.md` in those folders for attribution.
 - Game names, designs and rules belong to their respective original creators
   (e.g. Tetris, Super Mario, Raiden, Galaga, Tank Battle). This project is a
   non-commercial fan tribute for learning purposes — please support the
