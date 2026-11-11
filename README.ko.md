@@ -1,6 +1,6 @@
 # 🎮 Awesome Mini Game · 클래식 미니게임 모음
 
-순수 HTML + CSS + JS로 재구현한 클래식 미니게임 28종 — 의존성 제로, 열자마자 바로 플레이.
+순수 HTML + CSS + JS로 재구현한 클래식 미니게임 30종 — 의존성 제로, 열자마자 바로 플레이.
 
 [English](README.md) | [中文版](README.zh-CN.md) | [日本語](README.ja.md)
 
@@ -16,7 +16,7 @@ python3 -m http.server 8000
 
 홈페이지에서 `/` 키를 누르면 게임을 검색할 수 있습니다.
 
-## 게임 목록 (28종)
+## 게임 목록 (30종)
 
 | 게임 | 폴더 | 특징 |
 |---|---|---|
@@ -36,6 +36,8 @@ python3 -m http.server 8000
 | 🐤 Flappy Bird | `games/flappy-bird/` | 3단계 난이도, 움직이는 파이프, 메달, 주야 테마 |
 | 🤖 Mecha Strike | `games/mecha-strike/` | 3D 메카 슈팅 · Three.js 3D, 24스테이지, 매 스테이지 보스전 |
 | 🌾 Sky Farm | `games/sky-farm/` | 픽셀 3D 농장 · Three.js 아이소메트릭 하늘섬, 낮밤과 날씨 5종, 작물 / 닭 / 주문 |
+| 🏎️ Turbo Drift Kart | `games/kart-racer/` | 3D 카트 레이싱 · Three.js 3D, 드리프트 부스트, 아이템 5종, 싱글 / 2인 화면 분할 |
+| 🍄 Mengmeng Adventure | `games/mengmeng-rpg/` | SD 액션 RPG · 3직업, 맵 10개, 장비 강화, 펫, 자동 전투 (게임 내 텍스트는 현재 중국어만 지원) |
 | 🕯️ Echoes of the Abyss | `games/abyss/` | 던전 ARPG · 던전, 전설 장비, 보스전 |
 | 🐍 Snake | `games/snake/` | 클래식 아케이드 · 3모드, 아이템, 아케이드 |
 | 🃏 Memory Match | `games/memory/` | 짝 맞추기 · 기억력, 2인, 가족 |
@@ -82,4 +84,5 @@ PR 환영: 버그 수정, 새 게임 추가, AI·조작감 개선. 유일한 조
 ## 라이선스 및 고지
 
 - 본 저장소의 코드는 오리지널 구현이며 [MIT 라이선스](LICENSE)로 공개됩니다.
+- `games/kart-racer/music/` 및 `games/mengmeng-rpg/bgm/`의 배경 음악은 제3자 음악가의 작품으로 MIT 적용 대상이 아닙니다. 각 곡의 CC0 / CC BY / CC BY-SA 라이선스에 따라 사용하며, 저작자 표시는 각 폴더의 `CREDITS.md`를 참고하세요.
 - 게임 이름·디자인·규칙은 각 원권리자에게 귀속됩니다(예: 테트리스, 슈퍼 마리오, 라이덴, 갤러그, 탱크 배틀). 본 프로젝트는 학습 목적의 비상업 팬 트리뷰트이며, 정식 버전을 응원해 주세요.

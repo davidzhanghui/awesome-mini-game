@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>疾风卡丁车 · Turbo Drift Kart</title>
+<meta name="description" content="网页版 3D 卡丁车竞速：6 名车手、漂移集气加速、跳台与加速带、五种道具，支持单人对战电脑与双人同屏分屏。Three.js 实时渲染，打开即玩。" />
+<link rel="canonical" href="https://awesome-mini-game.vercel.app/games/kart-racer/" />
+<link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/kart-racer/" />
+<link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/kart-racer/?lang=en" />
+<link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/games/kart-racer/?lang=ja" />
+<link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/games/kart-racer/?lang=ko" />
+<link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/games/kart-racer/" />
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Awesome Mini Game">
+<meta property="og:title" content="疾风卡丁车 · Turbo Drift Kart">
+<meta property="og:description" content="3D 卡丁车竞速：6 名车手、漂移集气、跳台与加速带、五种道具，单人或双人分屏。">
+<meta property="og:url" content="https://awesome-mini-game.vercel.app/games/kart-racer/">
+<meta property="og:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="疾风卡丁车 · Turbo Drift Kart">
+<meta name="twitter:description" content="3D 卡丁车竞速：6 名车手、漂移集气、跳台与加速带、五种道具，单人或双人分屏。">
+<meta name="twitter:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.jpg">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"VideoGame","name":"疾风卡丁车 · Turbo Drift Kart","description":"3D 卡丁车竞速：6 名车手、漂移集气加速、跳台与加速带、五种道具，单人对战电脑或双人同屏分屏。","url":"https://awesome-mini-game.vercel.app/games/kart-racer/","genre":"竞速","gamePlatform":"Web Browser","playMode":["SinglePlayer","MultiPlayer"],"inLanguage":["zh-CN","en","ja","ko"],"isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"}}
+</script>
+<link rel="icon" href="/favicon.svg" />
+<link rel="preload" href="../../assets/fonts/zcool-qkhy-subset.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../assets/game-page.css?v=bb426f56" />
+<link rel="stylesheet" href="styles.css?v=a2468789" />
+<link rel="stylesheet" href="../../assets/ui.css?v=af398126" />
+<script src="../../assets/theme.js?v=d0556948"></script>
+</head>
+<body>
+<div class="bg-orbs"><span></span><span></span><span></span></div>
+<main class="page kr-page">
+  <header class="brand">
+    <div class="logo">🏎️</div>
+    <div class="brand-text">
+      <h1><span data-i18n="name">疾风卡丁车</span> <em data-i18n="subtitle">Turbo Drift</em></h1>
+      <p data-i18n="intro">3D 卡丁车竞速：6 名车手同场 3 圈，漂移集气、冲跳台、抢道具。可单人对战电脑，也可双人同屏分屏。</p>
+    </div>
+    <div class="brand-btns">
+      <button id="btnFs" class="icon-btn" type="button" title="全屏">⛶</button>
+      <button id="btnMute" class="icon-btn" type="button">🔊</button>
+    </div>
+  </header>
+
+  <section class="cabinet kr-cabinet">
+    <div class="game-frame kr-frame" id="frame">
+      <canvas id="c"></canvas>
+      <div id="hud"></div>
+      <canvas id="mini" width="340" height="340"></canvas>
+      <div id="count"></div>
+      <button id="btnPause" type="button">⏸</button>
+
+      <!-- 触屏按键：自动油门 -->
+      <div id="touch">
+        <div class="tl">
+          <button class="tbtn dir" data-k="l" type="button">◀</button>
+          <button class="tbtn dir" data-k="r" type="button">▶</button>
+        </div>
+        <div class="tr">
+          <button class="tbtn sm" data-k="rs" type="button">↺<small data-i18n="tReset">复位</small></button>
+          <button class="tbtn" data-k="it" type="button">🎁<small data-i18n="tItem">道具</small></button>
+          <button class="tbtn" data-k="brk" type="button">⏬<small data-i18n="tBrake">刹车</small></button>
+          <button class="tbtn big" data-k="dr" type="button">💨<small data-i18n="tDrift">漂移</small></button>
+        </div>
+      </div>
+
+      <div id="menu" class="kr-screen">
+        <div class="kr-title" data-i18n="name">疾风卡丁车</div>
+        <p class="kr-sub" data-i18n="menuSub">TURBO DRIFT · 6 名车手 · 漂移 · 坡道 · 道具</p>
+        <div id="step1" class="kr-col">
+          <div class="kr-row"><button data-mode="1" type="button" data-i18n="mode1">🏁 单人模式</button><button data-mode="2" type="button" data-i18n="mode2">👥 双人分屏</button></div>
+          <div class="kr-row diff"><span data-i18n="diffLab">电脑难度：</span><button data-diff="0" type="button" data-i18n="diff0">轻松</button><button data-diff="1" type="button" class="on" data-i18n="diff1">标准</button><button data-diff="2" type="button" data-i18n="diff2">困难</button></div>
+          <p class="kr-keys kbd-only" data-i18n="keysHint">WASD / 方向键驾驶 · 空格或 Shift 漂移 · E 或回车用道具 · R 复位 · Esc 暂停</p>
+          <p class="kr-keys touch-show" data-i18n="keysHintT">自动油门 · ◀ ▶ 转向 · 💨 按住漂移，松开加速 · 🎁 用道具</p>
+        </div>
+        <div id="step2" class="hidden kr-col">
+          <h2 id="pickTitle"></h2>
+          <div id="cards"></div>
+          <button id="back" class="alt small" type="button" data-i18n="back">← 返回</button>
+        </div>
+      </div>
+
+      <div id="result" class="kr-screen hidden">
+        <h2 class="kr-h" data-i18n="resultTitle">比赛结果</h2>
+        <table id="resTable"></table>
+        <div class="kr-row"><button id="again" type="button" data-i18n="again">再来一局</button><button id="toMenu" class="alt" type="button" data-i18n="toMenu">返回菜单</button></div>
+      </div>
+      <div id="pause" class="kr-screen hidden">
+        <h2 class="kr-h" data-i18n="paused">已暂停</h2>
+        <div class="kr-row"><button id="resume" type="button" data-i18n="resume">继续比赛</button><button id="quit" class="alt" type="button" data-i18n="quit">退出到菜单</button></div>
+      </div>
+      <div id="errbox"></div>
+    </div>
+  </section>
+
+  <section class="kr-info">
+    <div class="card">
+      <h4 data-i18n="infoHow">怎么玩</h4>
+      <ul>
+        <li class="kbd-only" data-i18n="how1">单人：WASD 或方向键驾驶，空格 / Shift 漂移，E / 回车用道具，R 复位。</li>
+        <li class="kbd-only" data-i18n="how2">双人：P1 用 WASD + 左 Shift + E；P2 用方向键 + 右 Shift + 回车。</li>
+        <li class="touch-item" data-i18n="how1t">触屏：自动油门，◀ ▶ 转向，💨 漂移，🎁 道具，⏬ 刹车 / 倒车，↺ 复位。</li>
+        <li data-i18n="how3">转弯时按住漂移键甩尾，火花由蓝变橙再变紫，松开即可获得对应强度的加速。</li>
+        <li class="kbd-only" data-i18n="how4">Esc / P 暂停 · F 全屏 · M 静音</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4 data-i18n="infoItems">道具</h4>
+      <ul>
+        <li data-i18n="item1">🔥 氮气涡轮：立刻获得一段强力加速。</li>
+        <li data-i18n="item2">🚀 追踪火箭：自动追击前方车手，命中后打转。</li>
+        <li data-i18n="item3">🛢️ 油渍陷阱：丢在身后，后车压到会打滑。</li>
+        <li data-i18n="item4">🛡️ 能量护盾：抵挡一次攻击。</li>
+        <li data-i18n="item5">⚡ 电磁脉冲：让排在你前面的车手集体减速。</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4 data-i18n="infoTips">小贴士</h4>
+      <ul>
+        <li data-i18n="tip1">冲上橙色跳台和加速带都会触发加速，尽量走在上面。</li>
+        <li data-i18n="tip2">排名越靠后，越容易从道具箱里抽到强力道具。</li>
+        <li data-i18n="tip3">最后一圈音乐会加速——该把攒着的道具用掉了。</li>
+        <li data-i18n="tip4">赛道边有看台、农场、小溪和散步的动物，跑慢一点能看到更多。</li>
+      </ul>
+    </div>
+  </section>
+
+  <details class="card seo-about">
+    <summary data-i18n="aboutTitle">📖 关于这款游戏</summary>
+    <p data-i18n="aboutBody">《疾风卡丁车》是一款纯网页的 3D 卡丁车竞速小游戏，由 Three.js 实时渲染。6 名各有极速、加速与操控差异的车手在一条带高架、跳台和加速带的环形赛道上比拼 3 圈；转弯时漂移集气可获得三段加速，道具箱里有氮气、追踪火箭、油渍、护盾和电磁脉冲。支持单人对战三档难度的电脑，也支持两人用同一键盘上下分屏对战；手机和平板可用屏幕按键游玩。赛道两侧有欢呼的看台观众、农场、小溪、牛羊和飞鸟。</p>
+    <p data-i18n="musicCredit">♪ 音乐：MusicbyAden《Happy》、MusicbyAden &amp; Jurgance《Beach》（CC BY 4.0）· Luke Bergs《Dance》（CC BY-SA 4.0）· LiQWYD《Ocean》（CC BY 4.0）。</p>
+  </details>
+  <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 键盘 / 触屏 · 四语言</footer>
+</main>
+
+<script src="three.min.js?v=91787256"></script>
+<script src="../../assets/i18n.js?v=55ab40c8"></script>
+<script src="../../assets/bgm.js?v=1fb3f4bf"></script>
+<script src="../../assets/kit.js?v=d7677fd9"></script>
+<script src="../../assets/touch.js?v=1a851412"></script>
+<script src="strings.js?v=1d2ceb8b"></script>
+<script src="game.js?v=7914091d"></script>
+</body>
+</html>

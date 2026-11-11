@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>萌萌大陆冒险记 · Mengmeng Adventure</title>
+<meta name="description" content="网页版 Q 版萌系动作 RPG：剑士 / 弓手 / 法师三职业，10 张地图、任务与悬赏、装备强化、宠物、自动战斗，本地存档，打开即玩。" />
+<link rel="canonical" href="https://awesome-mini-game.vercel.app/games/mengmeng-rpg/" />
+<link rel="alternate" hreflang="zh-CN" href="https://awesome-mini-game.vercel.app/games/mengmeng-rpg/" />
+<link rel="alternate" hreflang="en" href="https://awesome-mini-game.vercel.app/games/mengmeng-rpg/?lang=en" />
+<link rel="alternate" hreflang="ja" href="https://awesome-mini-game.vercel.app/games/mengmeng-rpg/?lang=ja" />
+<link rel="alternate" hreflang="ko" href="https://awesome-mini-game.vercel.app/games/mengmeng-rpg/?lang=ko" />
+<link rel="alternate" hreflang="x-default" href="https://awesome-mini-game.vercel.app/games/mengmeng-rpg/" />
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Awesome Mini Game">
+<meta property="og:title" content="萌萌大陆冒险记 · Mengmeng Adventure">
+<meta property="og:description" content="Q 版萌系动作 RPG：三职业、10 张地图、任务悬赏、装备强化、宠物与自动战斗。">
+<meta property="og:url" content="https://awesome-mini-game.vercel.app/games/mengmeng-rpg/">
+<meta property="og:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="萌萌大陆冒险记 · Mengmeng Adventure">
+<meta name="twitter:description" content="Q 版萌系动作 RPG：三职业、10 张地图、任务悬赏、装备强化、宠物与自动战斗。">
+<meta name="twitter:image" content="https://awesome-mini-game.vercel.app/assets/og-cover.jpg">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"VideoGame","name":"萌萌大陆冒险记 · Mengmeng Adventure","description":"Q 版萌系动作 RPG：剑士 / 弓手 / 法师三职业，10 张地图、任务与悬赏、装备强化、宠物、自动战斗。","url":"https://awesome-mini-game.vercel.app/games/mengmeng-rpg/","genre":"动作角色扮演","gamePlatform":"Web Browser","playMode":"SinglePlayer","inLanguage":["zh-CN"],"isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"}}
+</script>
+<link rel="icon" href="/favicon.svg" />
+<link rel="preload" href="../../assets/fonts/zcool-qkhy-subset.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../assets/game-page.css?v=bb426f56" />
+<link rel="stylesheet" href="styles.css?v=25a54bd6" />
+<link rel="stylesheet" href="../../assets/ui.css?v=af398126" />
+<script src="../../assets/theme.js?v=d0556948"></script>
+</head>
+<body>
+<div class="bg-orbs"><span></span><span></span><span></span></div>
+<main class="page mm-page">
+  <header class="brand">
+    <div class="logo">🍄</div>
+    <div class="brand-text">
+      <h1><span data-i18n="name">萌萌大陆冒险记</span> <em data-i18n="subtitle">Q 版动作 RPG</em></h1>
+      <p data-i18n="intro">Q 版萌系动作 RPG：三种职业，10 张地图，打怪升级、做任务、强化装备、养宠物，还能一键挂机。进度自动保存在浏览器里。</p>
+    </div>
+    <div class="brand-btns">
+      <button id="btnFs" class="icon-btn" type="button" title="全屏">⛶</button>
+      <button id="btnMute" class="icon-btn" type="button">🔊</button>
+    </div>
+  </header>
+
+  <section class="cabinet mm-cabinet">
+    <div class="game-frame mm-frame" id="frame">
+      <div id="wrap">
+
+  <canvas id="cv"></canvas>
+
+  <div id="hud" class="hide">
+    <div id="pinfo">
+      <canvas id="avatar" width="128" height="128"></canvas>
+      <div class="nm"><span id="pname"></span><span id="plv"></span></div>
+      <div class="bar"><i id="hpb"></i><span id="hpt"></span></div>
+      <div class="bar"><i id="mpb"></i><span id="mpt"></span></div>
+    </div>
+    <div id="gold"></div>
+    <div id="buffs"></div>
+    <div id="mini"><div id="mapname"></div><canvas id="mm" width="150" height="108"></canvas></div>
+    <div id="tracker"></div>
+    <div id="log"></div>
+    <div id="hint"></div>
+    <div id="banner"></div>
+    <div id="bar"></div>
+    <div id="menu">
+      <button data-m="bag">🎒背包</button><button data-m="skill">✨技能</button><button data-m="quest">📜任务</button>
+      <button data-m="pet">🐾宠物</button><button data-m="auto" id="btnAuto">🤖挂机</button><button data-m="sys">⚙️</button>
+    </div>
+    <div id="expbar"><i id="expb"></i><span id="expt"></span></div>
+  </div>
+
+  <div id="win" class="hide">
+    <div id="whead"><span id="wtitle"></span><b data-act="close">✕</b></div>
+    <div id="wtabs"></div>
+    <div id="wbody"></div>
+  </div>
+  <div id="dlg" class="hide"></div>
+
+  <div id="title">
+    <div class="mm-h1">萌萌大陆冒险记</div>
+    <div class="mm-h2">✦ Q 版 萌 系 动 作 RPG ✦</div>
+    <div id="tbox">
+      <b>选择你的职业</b>
+      <div id="clsList"></div>
+      <div>角色名：<input id="nameIn" maxlength="8" placeholder="小勇者"></div>
+      <button id="btnNew">开始新冒险</button><button id="btnCont" class="gray">继续游戏</button>
+    </div>
+  </div>
+      </div>
+    </div>
+  </section>
+  <p class="mm-note" data-i18n="langNote"></p>
+
+  <section class="mm-info">
+    <div class="card">
+      <h4 data-i18n="infoHow">怎么玩</h4>
+      <ul>
+        <li data-i18n="how1">移动：WASD / 方向键，或左键点地面走过去（按住一直跟随）。</li>
+        <li data-i18n="how2">战斗：J / 空格普攻，1-4 放技能；左键点怪物会追着打，右键朝鼠标方向攻击。</li>
+        <li data-i18n="how3">Q 红药 · E 蓝药 · T 回城卷 · F 对话 · Z 自动战斗。</li>
+        <li data-i18n="how4">B 背包 · K 技能 · L 任务 · P 宠物 · Esc 系统 · M 静音 · N 音乐开关。</li>
+        <li class="touch-item" data-i18n="how5t">触屏：点地面移动、点怪物攻击、点 NPC 对话，技能和药水点底部快捷栏；建议横屏并开全屏。</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4 data-i18n="infoSys">成长系统</h4>
+      <ul>
+        <li data-i18n="sys1">⚔️ 剑士皮糙肉厚、🏹 弓手远程暴击、🔮 法师范围爆发，各有 4 个可升级技能。</li>
+        <li data-i18n="sys2">装备分 5 档品质，可在铁匠处强化；升级获得的属性点自由分配。</li>
+        <li data-i18n="sys3">主线任务之外还有可重复的悬赏；宠物会跟着你一起战斗。</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4 data-i18n="infoTips">小贴士</h4>
+      <ul>
+        <li data-i18n="tip1">站在传送门上就能切换地图；回城卷可以随时回村补给。</li>
+        <li data-i18n="tip2">死亡会损失 10% 金币并回村复活，出门前记得带够药水。</li>
+        <li data-i18n="tip3">游戏每 30 秒自动存档，也可以在系统菜单里手动存档。</li>
+        <li data-i18n="tip4">不同区域的背景音乐不同，可在系统菜单里切歌、调音量。</li>
+      </ul>
+    </div>
+  </section>
+
+  <details class="card seo-about">
+    <summary data-i18n="aboutTitle">📖 关于这款游戏</summary>
+    <p data-i18n="aboutBody">《萌萌大陆冒险记》是一款纯网页的 Q 版萌系动作角色扮演游戏，全部角色、怪物和场景都由 Canvas 2D 实时绘制，没有图片素材。你可以从剑士、弓手、法师中选择职业，从萌萌村出发，穿过草原、森林、沙漠、雪原直到魔王城共 10 张地图；一路打怪升级、分配属性点、学习并强化技能，完成主线与悬赏任务，收集五档品质的装备并强化，孵化宠物并肩作战，也可以打开自动战斗挂机。进度保存在浏览器本地，随时回来接着玩。</p>
+    <p data-i18n="musicCredit">♪ 音乐：Komiku《Balance》《Together we are stronger》《Dreaming of you》《Wake up, heroic figure》《Resolution》、Monplaisir《Hop》《Action》《Normalityazert》（CC0）· 甘茶の音楽工房《夢》· Scott Buckley《March of Midnight》（CC BY 4.0，www.scottbuckley.com.au）。</p>
+  </details>
+  <footer data-i18n="footer">🕹️ 打开即玩 · 完全免费 · 键鼠 / 触屏 · 本地存档</footer>
+</main>
+
+<script src="../../assets/i18n.js?v=55ab40c8"></script>
+<script src="../../assets/bgm.js?v=1fb3f4bf"></script>
+<script src="../../assets/kit.js?v=d7677fd9"></script>
+<script src="../../assets/touch.js?v=1a851412"></script>
+<script src="strings.js?v=268d9435"></script>
+<script src="data.js?v=aa98a735"></script>
+<script src="art.js?v=0f6e1fc1"></script>
+<script src="game.js?v=78575642"></script>
+<script src="ui.js?v=fa66a7d5"></script>
+</body>
+</html>
